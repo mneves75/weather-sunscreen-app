@@ -1,29 +1,75 @@
 {
   "expo": {
-    "name": "weather-sunscreen-temp",
-    "slug": "weather-sunscreen-temp",
+    "name": "Weather Sunscreen",
+    "slug": "weather-sunscreen-app",
+    "description": "Your comprehensive weather companion with UV index monitoring and sunscreen recommendations",
     "version": "1.0.0",
-    "orientation": "portrait",
+    "orientation": "default",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "scheme": "weather-sunscreen",
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#4A90E2"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.weathersunscreen.app",
+      "deploymentTarget": "16.0",
+      "liquidGlassIcon": true,
+      "permissions": [
+        "LOCATION",
+        "LOCATION_WHEN_IN_USE",
+        "NOTIFICATIONS"
+      ]
     },
     "android": {
+      "package": "com.weathersunscreen.app",
+      "targetSdkVersion": 36,
+      "edgeToEdge": true,
+      "predictiveBackGesture": true,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#4A90E2"
       },
-      "edgeToEdgeEnabled": true
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "POST_NOTIFICATIONS"
+      ]
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-asset",
+      "expo-splash-screen",
+      "react-native-edge-to-edge",
+      "expo-location",
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "deploymentTarget": "16.0",
+            "newArchEnabled": true,
+            "useFrameworks": "static"
+          },
+          "android": {
+            "newArchEnabled": true,
+            "compileSdkVersion": 36,
+            "targetSdkVersion": 36
+          }
+        }
+      ],
+      "expo-localization"
+    ],
+    "extra": {
+      "weatherApiUrl": "https://api.openweathermap.org/data/2.5",
+      "uvIndexApiUrl": "https://api.openuv.io/api/v1",
+      "openMeteoApiUrl": "https://api.open-meteo.com/v1"
     }
   }
 }

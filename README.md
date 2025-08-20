@@ -1,0 +1,255 @@
+# Weather Sunscreen App ☀️
+
+> **Your comprehensive weather companion with UV index monitoring and sunscreen recommendations**
+
+A modern React Native mobile application built with Expo that provides real-time weather information, UV index monitoring, and personalized sunscreen recommendations to help you stay safe in the sun.
+
+## 🌟 Features
+
+- **Real-time Weather Data** - Current conditions, temperature, humidity, wind speed, and more
+- **UV Index Monitoring** - Live UV index with safety level indicators and peak time predictions
+- **Sunscreen Recommendations** - Personalized SPF recommendations based on UV levels and skin type
+- **7-Day Forecast** - Extended weather forecast with daily UV index predictions
+- **Location Services** - Automatic location detection with manual location selection
+- **Cross-Platform** - Native iOS, Android, and web support
+- **Modern UI** - Clean, intuitive interface following platform design guidelines
+- **Native Performance** - Custom native modules for enhanced speed and accuracy
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Node.js 18+ with npm or yarn
+- Expo CLI installed globally: `npm install -g @expo/cli`
+- For iOS development: Xcode 15+ with iOS 16+ SDK
+- For Android development: Android Studio with Java 17
+- An iOS device/simulator or Android device/emulator
+
+### Installation
+
+1. **Clone and setup**
+   ```bash
+   git clone <repository-url>
+   cd weather-suncreen-app
+   npm install
+   ```
+
+2. **Development build setup**
+   ```bash
+   # Create development build for iOS
+   npm run ios
+   
+   # Create development build for Android
+   npm run android
+   
+   # Start development server
+   npm start
+   ```
+
+3. **Web development**
+   ```bash
+   npm run web
+   ```
+
+## 🏗️ Architecture
+
+### Technology Stack
+
+- **Framework**: React Native 0.79+ with Expo 53+
+- **Language**: TypeScript (strict mode)
+- **Navigation**: React Navigation v7 (Native Stack + Bottom Tabs)
+- **State Management**: React Context + AsyncStorage
+- **Location Services**: Expo Location + Custom Native Modules
+- **Build System**: Expo Development Build with Continuous Native Generation
+- **Platforms**: iOS 16+, Android API 29+, Web
+
+### Project Structure
+
+```
+weather-sunscreen-app/
+├── src/                          # Main application code
+│   ├── components/               # Reusable UI components
+│   │   ├── ui/                  # Common UI components
+│   │   ├── icons/               # SVG icon components
+│   │   └── native/              # Native component wrappers
+│   ├── context/                 # React Context providers
+│   ├── navigation/              # Navigation configuration
+│   │   ├── index.tsx           # Main navigation setup
+│   │   └── screens/            # Screen components
+│   ├── services/               # Business logic and API services
+│   └── types/                  # TypeScript type definitions
+├── modules/                     # Custom native modules
+│   └── weather-native-module/   # Weather and location native module
+├── scripts/                     # Build and development scripts
+├── docs/                        # Technical documentation
+└── project-rules/              # Claude Code automation rules
+```
+
+## 📱 Screens
+
+### Weather Screen
+Displays current weather conditions including temperature, description, humidity, wind speed, pressure, and visibility with real-time updates.
+
+### UV Index Screen
+Shows current UV index with safety level, peak time predictions, and personalized sunscreen recommendations based on current conditions.
+
+### Forecast Screen
+Provides 7-day weather forecast with daily UV index predictions and precipitation chances (coming soon).
+
+### Profile Screen
+User preferences, settings, and app information including temperature units, skin type, and notification preferences.
+
+## ⚡ Native Modules
+
+### Weather Native Module
+
+Custom native implementations for:
+- **Location Services**: High-accuracy GPS location with CoreLocation (iOS) and LocationManager (Android)
+- **Weather Data**: Integration with platform-specific weather APIs
+- **UV Index**: Real-time UV measurements with solar position calculations
+- **Background Processing**: Efficient data fetching with proper timeout handling
+
+**Platform Support:**
+- **iOS 16+**: Uses WeatherKit framework and CoreLocation for native performance
+- **Android API 29+**: Custom Java implementation with modern Android APIs
+- **Web**: Graceful fallback to Expo services with mock data
+
+## 🛠️ Development
+
+### Common Commands
+
+```bash
+# Development
+npm start                    # Start Expo development server
+npm run ios                  # Build and run iOS
+npm run android             # Build and run Android (with Java 17)
+npm run web                 # Start web development
+
+# Version management
+npm run sync-versions       # Sync all versions to CHANGELOG.md
+npm run sync-versions:dry   # Preview version changes
+
+# Troubleshooting
+npm run fix-pods           # Fix CocoaPods issues
+npm run clean-ios          # Quick iOS cleanup
+```
+
+### Environment Setup
+
+**iOS Development:**
+- Xcode 15+ (16+ recommended for latest features)
+- iOS 16+ deployment target
+- CocoaPods for native dependencies
+
+**Android Development:**
+- Java 17 (automatically configured in scripts)
+- Android SDK 36
+- Gradle 8.10.2
+
+### Configuration
+
+**Location Services:**
+- iOS: Add location usage descriptions to Info.plist
+- Android: Include location permissions in AndroidManifest.xml
+- Web: Fallback to browser geolocation API
+
+**API Integration:**
+- Weather APIs configured in `app.json` extra section
+- Native modules handle API requests with proper error handling
+- Fallback data available for development and testing
+
+## 🧪 Testing
+
+### Development Testing
+```bash
+npm run ios     # Test iOS functionality
+npm run android # Test Android functionality
+npm run web     # Test web compatibility
+```
+
+### Location Services Testing
+- Test with location permissions granted/denied
+- Verify GPS accuracy and fallback mechanisms
+- Test offline behavior with cached data
+
+### Weather Data Testing
+- Verify API integration and error handling
+- Test UV index calculations and recommendations
+- Validate sunscreen advice for different skin types
+
+## 📦 Building and Deployment
+
+### Development Builds
+```bash
+# iOS development build
+npx eas build --platform ios --profile development
+
+# Android development build  
+npx eas build --platform android --profile development
+```
+
+### Production Builds
+```bash
+# iOS App Store
+npx eas build --platform ios --profile production
+
+# Android Play Store
+npx eas build --platform android --profile production
+```
+
+### App Store Submission
+1. Configure signing certificates in EAS
+2. Update app icons and splash screens
+3. Submit via EAS Submit or manually through store consoles
+
+## 🔧 Troubleshooting
+
+### Common Issues
+
+**iOS Build Failures:**
+```bash
+npm run fix-pods              # Fix CocoaPods issues
+npm run clean-ios            # Clean build artifacts
+```
+
+**Location Permission Issues:**
+- Check app.json permissions configuration
+- Verify platform-specific permission requests
+- Test permission flow in app settings
+
+**Weather Data Not Loading:**
+- Check internet connectivity
+- Verify API endpoints in configuration
+- Review native module error logs
+
+**Performance Issues:**
+- Clear app cache and restart
+- Check for location service conflicts
+- Verify memory usage in development tools
+
+### Debug Logging
+
+Enable debug logging by setting `__DEV__` flag:
+- Native module operations are logged with detailed error messages
+- Weather service calls include timing and success/failure status
+- Location requests show accuracy and source information
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📧 Support
+
+For support, feature requests, or bug reports, please create an issue on the project repository.
+
+---
+
+**Built with ❤️ using React Native, Expo, and modern mobile development practices**
