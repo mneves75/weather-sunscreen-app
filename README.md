@@ -1,11 +1,13 @@
 # Weather Sunscreen App ☀️
 
-> **Your comprehensive weather companion with UV index monitoring and sunscreen recommendations**
+> **Your comprehensive weather companion with UV index monitoring and sunscreen recommendations**  
+> **Version 1.0.1** - Production-ready with enhanced stability and performance
 
 A modern React Native mobile application built with Expo that provides real-time weather information, UV index monitoring, and personalized sunscreen recommendations to help you stay safe in the sun.
 
 ## 🌟 Features
 
+### Core Features
 - **Real-time Weather Data** - Current conditions, temperature, humidity, wind speed, and more
 - **UV Index Monitoring** - Live UV index with safety level indicators and peak time predictions
 - **Sunscreen Recommendations** - Personalized SPF recommendations based on UV levels and skin type
@@ -15,11 +17,20 @@ A modern React Native mobile application built with Expo that provides real-time
 - **Modern UI** - Clean, intuitive interface following platform design guidelines
 - **Native Performance** - Custom native modules for enhanced speed and accuracy
 
+### 🆕 v1.0.1 Enhancements
+- **Production-Ready Logging** - Structured logging system with environment-aware levels
+- **Error Recovery** - App-level error boundaries with user-friendly recovery options
+- **Performance Optimizations** - React.memo optimizations reducing unnecessary re-renders
+- **Memory Management** - Enhanced cleanup preventing memory leaks in background timers
+- **Type Safety** - Comprehensive TypeScript improvements preventing runtime errors
+- **Data Security** - Enhanced validation for user data storage operations
+- **WMO Weather Standards** - Consistent weather icon system using international standards
+
 ## 🚀 Quick Start
 
 ### Prerequisites
 
-- Node.js 18+ with npm or yarn
+- Node.js 18+ or Bun 1.0+ (Bun recommended for better performance)
 - Expo CLI installed globally: `npm install -g @expo/cli`
 - For iOS development: Xcode 15+ with iOS 16+ SDK
 - For Android development: Android Studio with Java 17
@@ -29,8 +40,13 @@ A modern React Native mobile application built with Expo that provides real-time
 
 1. **Clone and setup**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/mneves75/weather-sunscreen-app.git
    cd weather-suncreen-app
+   
+   # Using Bun (recommended)
+   bun install
+   
+   # Or using npm
    npm install
    ```
 
@@ -55,12 +71,15 @@ A modern React Native mobile application built with Expo that provides real-time
 
 ### Technology Stack
 
-- **Framework**: React Native 0.79+ with Expo 53+
-- **Language**: TypeScript (strict mode)
+- **Framework**: React Native 0.81.0 with Expo SDK 54 Preview
+- **Language**: TypeScript 5.9.2 (strict mode enabled)
 - **Navigation**: React Navigation v7 (Native Stack + Bottom Tabs)
 - **State Management**: React Context + AsyncStorage
+- **Logging**: Custom LoggerService with structured logging
+- **Error Handling**: React Error Boundaries with recovery options
 - **Location Services**: Expo Location + Custom Native Modules
-- **Build System**: Expo Development Build with Continuous Native Generation
+- **Build System**: Expo Development Build with New Architecture (Fabric)
+- **Package Manager**: Bun (preferred) or npm
 - **Platforms**: iOS 16+, Android API 29+, Web
 
 ### Project Structure

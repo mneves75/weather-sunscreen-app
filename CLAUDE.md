@@ -4,28 +4,37 @@
 
 The Weather Sunscreen App is a comprehensive React Native mobile application built with Expo that provides real-time weather information, UV index monitoring, and personalized sunscreen recommendations. The app features custom native modules for enhanced performance, cross-platform compatibility, and a modern UI following platform design guidelines.
 
-**Primary Purpose**: Help users make informed decisions about sun exposure and sunscreen usage based on real-time weather and UV index data.
-
+**Current Version**: 1.0.1 (August 22, 2025)  
+**Primary Purpose**: Help users make informed decisions about sun exposure and sunscreen usage based on real-time weather and UV index data.  
 **Target Platforms**: iOS 16+, Android API 29+, Web (with graceful fallbacks)
 
 ## Development Commands
 
 ### Essential Commands
+
+**Note**: This project prefers Bun over npm for better performance and modern JavaScript tooling.
+
 ```bash
-# Start development
+# Start development (prefer bun)
+bun start                    # Start Expo development server with dev client
+bun run ios                  # Build and run on iOS (requires Xcode)
+bun run android             # Build and run on Android (uses Java 17)
+bun run web                 # Start web development server
+
+# Fallback npm commands (if bun unavailable)
 npm start                    # Start Expo development server with dev client
 npm run ios                  # Build and run on iOS (requires Xcode)
 npm run android             # Build and run on Android (uses Java 17)
 npm run web                 # Start web development server
 
 # Version and Build Management
-npm run sync-versions       # Sync versions across all project files using CHANGELOG.md
-npm run sync-versions:dry   # Preview version changes without making them
-npm run fix-pods           # Comprehensive CocoaPods cleanup and reinstall
-npm run clean-ios          # Quick iOS cleanup (Pods, build, derived data)
+bun run sync-versions       # Sync versions across all project files using CHANGELOG.md
+bun run sync-versions:dry   # Preview version changes without making them
+bun run fix-pods           # Comprehensive CocoaPods cleanup and reinstall
+bun run clean-ios          # Quick iOS cleanup (Pods, build, derived data)
 
-# Package Management
-npm install                 # Install all dependencies
+# Package Management (prefer bun)
+bun install                 # Install all dependencies (faster than npm)
 npx expo install           # Install Expo-compatible versions
 ```
 
@@ -43,16 +52,16 @@ npx eas build --platform android --profile development
 ### Troubleshooting Commands
 ```bash
 # iOS Issues
-npm run fix-pods           # Fix CocoaPods, clear cache, reinstall
-npm run clean-ios         # Quick cleanup for build issues
+bun run fix-pods           # Fix CocoaPods, clear cache, reinstall
+bun run clean-ios         # Quick cleanup for build issues
 rm -rf ios/Pods ios/Podfile.lock && cd ios && pod install
 
 # Android Issues
 ./android/gradlew clean    # Clean Android build
-rm -rf node_modules && npm install  # Clean dependency issues
+rm -rf node_modules && bun install  # Clean dependency issues
 
 # General Reset
-npm run sync-versions && npm install  # Sync and reinstall
+bun run sync-versions && bun install  # Sync and reinstall
 ```
 
 ## Architecture Guidelines
@@ -83,9 +92,146 @@ npm run sync-versions && npm install  # Sync and reinstall
 ### State Management Pattern
 
 **Primary**: React Context with useReducer for complex state
-**Storage**: AsyncStorage for persistence (when needed)
+**Storage**: AsyncStorage for persistence (with validation)
 **Caching**: 10-minute cache for weather data to reduce API calls
 **Error Handling**: Comprehensive error boundaries and fallback states
+
+## Logging and Error Handling (v1.0.1+)
+
+### Production Logging Service
+
+**IMPORTANT**: Never use `console.log`, `console.warn`, or `console.error` directly. Always use the LoggerService.
+
+```typescript
+import { logger } from '../services/loggerService';
+
+// Use structured logging instead of console
+logger.info('Weather data loaded', { location: 'New York' });
+logger.warn('API rate limit approaching', { remaining: 10 });
+logger.error('Failed to fetch weather', error, { url: apiUrl });
+
+// Convenience methods for common patterns
+logger.apiCall('GET', '/weather', { lat, lon });
+logger.apiSuccess('GET', '/weather', 250); // duration in ms
+logger.apiError('GET', '/weather', error);
+logger.userAction('refreshWeather', { source: 'pull-to-refresh' });
+```
+
+### Error Boundary Usage
+
+The app includes a comprehensive error boundary at the root level. For component-specific error handling:
+
+```typescript
+import { ErrorBoundary } from '../components/ui/ErrorBoundary';
+
+// Wrap components that might fail
+<ErrorBoundary fallback={<CustomErrorUI />}>
+  <RiskyComponent />
+</ErrorBoundary>
+```
+
+### Memory Management Best Practices
+
+- **Always use cleanup in useEffect**: Implement proper cleanup for timers and subscriptions
+- **Track component mount state**: Use `isMounted` flags for async operations
+- **Clear timeouts properly**: Store timeout IDs and clear them in cleanup functions
+- **Validate data before storage**: Check required fields before AsyncStorage operations
+
+## TypeScript Conventions
+
+### Compiler Configuration
+- **Config**: `tsconfig.json` with `strict: true` and `moduleResolution: bundler`
+- **Base**: Extends `expo/tsconfig.base` for optimal Expo compatibility
+
+### Type Safety Best Practices
+- **Explicit function signatures** on all exports and public APIs
+- **Avoid `any` types**; model domain types in `src/types/weather.ts`, `src/types/navigation.ts`
+- **Narrow error handling** with typed errors and proper error boundaries
+- **Strict null checks** and proper optional chaining throughout
+
+### Import Organization
+- **Absolute imports** from `src/` where practical for cleaner paths
+- **Keep native module imports** isolated to service layer for better abstraction
+- **Import grouping**: React first, then third-party libraries, then local imports (alphabetical within groups)
+
+### Code Style Guidelines
+- **Control flow**: Use guard clauses and early returns to minimize nesting
+- **Formatting**: Match existing code style; prefer multi-line readability over complex one-liners
+- **Naming conventions**: Use descriptive names; avoid abbreviations unless widely understood
+- **Function organization**: Pure functions preferred, with clear input/output types
+
+### Weather App Specific Types
+- **Weather data types**: Defined in `src/types/weather.ts`
+- **Location types**: GPS coordinates, address data, permission states
+- **UV index types**: UV levels, recommendations, skin type classifications
+- **Sunscreen types**: SPF levels, application tracking, timer states
+
+## Component Patterns
+
+### Component Structure
+- **Functional components** with TypeScript interfaces for props
+- **React hooks** for state management and side effects
+- **React.memo** for performance optimization of expensive weather display components
+- **Custom hooks** for reusable weather data logic
+
+### Component Categories
+
+#### Screen Components (`src/navigation/screens/`)
+- **Purpose**: Top-level screen containers with navigation integration
+- **Structure**: Handle navigation, context consumption, and screen-level state
+- **Examples**: `WeatherScreen.tsx`, `UVIndexScreen.tsx`, `ForecastScreen.tsx`, `SunscreenTrackerScreen.tsx`
+
+#### UI Components (`src/components/ui/`)
+- **Purpose**: Reusable interface elements across the app
+- **Structure**: Props-based, stateless where possible, with clear TypeScript interfaces
+- **Examples**: Buttons, loading indicators, error states, cards
+
+#### Icon Components (`src/components/icons/`)
+- **Purpose**: SVG-based icons for navigation and UI elements
+- **Structure**: Accept `size`, `color`, and standard View props
+- **Usage**: Custom icons for weather conditions, UV levels, navigation tabs
+
+#### Glass Components (`src/components/glass/`)
+- **Purpose**: Liquid glass UI effect components for modern visual design
+- **Structure**: Platform-aware styling with performance optimization
+- **Usage**: Background effects, card overlays, premium visual elements
+
+### State Management in Components
+- **Context consumption**: Use weather and sunscreen contexts appropriately
+- **Local state**: Prefer `useState` for simple component state
+- **Side effects**: Use `useEffect` with proper dependency arrays
+- **Error boundaries**: Implement error handling at appropriate component levels
+
+### Performance Patterns
+- **Memoization**: Use `React.memo` for components that render frequently with weather data
+- **Callback optimization**: Use `useCallback` and `useMemo` with proper dependencies
+- **Lazy loading**: Implement code splitting for forecast and detailed weather views
+- **Image optimization**: Use appropriate image formats and sizes for weather icons
+
+## Security and Privacy Guidelines
+
+### Data Protection
+- **Location data**: Handle GPS coordinates securely, avoid unnecessary storage
+- **API keys**: Store sensitive keys in secure configuration, never in source code
+- **User preferences**: Encrypt sensitive user data in AsyncStorage when required
+- **Cache management**: Implement secure cache invalidation and cleanup
+
+### Network Security
+- **HTTPS enforcement**: All weather API calls must use secure connections
+- **Input validation**: Validate all user inputs and API responses
+- **Error handling**: Avoid exposing sensitive information in error messages
+- **Rate limiting**: Implement appropriate delays and retry logic for API calls
+
+### Platform Security
+- **iOS**: Proper keychain usage for sensitive data, permission handling
+- **Android**: Secure SharedPreferences, proper permission declarations
+- **Native modules**: Input validation and secure communication between JS and native code
+
+### Privacy Compliance
+- **Location permissions**: Clear user consent and purpose explanation
+- **Data minimization**: Only collect and store necessary weather data
+- **Transparency**: Clear privacy policy about data usage and third-party services
+- **User control**: Provide options to clear cached data and revoke permissions
 
 ## Native Module Usage
 
@@ -138,6 +284,44 @@ npm run android
 # Check logcat for native module logs: adb logcat | grep WeatherNative
 ```
 
+## Weather-Specific Development Patterns
+
+### Weather Data Management
+- **Caching Strategy**: Implement 10-minute cache for weather data to balance freshness with API limits
+- **Background Refresh**: Use appropriate background tasks for weather updates
+- **Data Validation**: Validate all weather API responses and handle incomplete data gracefully
+- **Unit Conversion**: Support both metric and imperial units with user preferences
+
+### Location Handling
+- **Permission Flow**: Request location permissions with clear user benefit explanation
+- **Accuracy Management**: Balance GPS accuracy with battery usage for weather location
+- **Fallback Strategy**: Handle location failures with manual city selection or cached locations
+- **Geocoding**: Implement reverse geocoding for user-friendly location display
+
+### UV Index Integration
+- **Real-time Calculations**: Combine weather data with solar position algorithms for accurate UV levels
+- **Skin Type Support**: Personalize UV recommendations based on user skin type
+- **Time-based Recommendations**: Provide UV safety advice based on current and future conditions
+- **Alert System**: Implement appropriate warnings for high UV exposure periods
+
+### Sunscreen Tracking Features
+- **Application Timers**: Track sunscreen application and reapplication reminders
+- **SPF Calculations**: Calculate protection time based on UV index and SPF level
+- **Usage Analytics**: Provide insights on sunscreen usage patterns
+- **Historical Data**: Store and display sunscreen application history
+
+### Performance Considerations
+- **Weather Icons**: Optimize weather condition icons with appropriate caching
+- **Forecast Data**: Implement lazy loading for extended forecast information
+- **Native Modules**: Use native weather modules for performance-critical operations
+- **Memory Management**: Proper cleanup of weather data subscriptions and timers
+
+### Error Handling Patterns
+- **Network Failures**: Graceful degradation to cached weather data
+- **API Errors**: User-friendly error messages without exposing technical details
+- **Location Errors**: Clear guidance for location permission and GPS issues
+- **Sync Failures**: Robust retry mechanisms with exponential backoff
+
 ## Common Development Tasks
 
 ### Adding New Screens
@@ -156,8 +340,8 @@ npm run android
 ### Managing App Configuration
 - **Core config**: `app.json` for Expo configuration
 - **Build config**: `eas.json` for EAS Build settings
-- **Version sync**: Use `npm run sync-versions` after updating CHANGELOG.md
-- **Dependencies**: Use `npx expo install` for Expo-compatible versions
+- **Version sync**: Use `bun run sync-versions` after updating CHANGELOG.md
+- **Dependencies**: Use `npx expo install` for Expo-compatible versions or `bun install` for general packages
 
 ### Debugging Weather Data Issues
 1. Check network connectivity and permissions
@@ -168,8 +352,31 @@ npm run android
 
 ## Troubleshooting
 
+**⚠️ CRITICAL: For React Native 0.81.0 + Expo 54.0.0-preview.4 Issues**
+See `docs/know-issues.md` for comprehensive solutions to known compatibility issues including:
+- ReactNativeDependencies pod installation failures
+- React Native Fabric header path resolution errors
+- Auto-generated file modification challenges
+
+### Essential Commands for Clean Builds
+```bash
+# Complete iOS setup from scratch (recommended after git clone)
+bun install
+cd ios && rm -rf Pods Podfile.lock && pod install
+../scripts/fix-fabric-headers.sh
+cd .. && bun run ios
+
+# Fix header issues only
+cd ios && ../scripts/fix-fabric-headers.sh
+
+# Fix ReactNativeDependencies issues
+cd ios && ../scripts/patch-react-native-deps.sh && pod install
+```
+
 ### iOS-Specific Issues
-- **CocoaPods problems**: Run `npm run fix-pods` for comprehensive cleanup
+- **CocoaPods problems**: Run `bun run fix-pods` for comprehensive cleanup
+- **ReactNativeDependencies failures**: Use `scripts/patch-react-native-deps.sh` for preview version compatibility
+- **Header not found errors**: Run `scripts/fix-fabric-headers.sh` to create required symlinks for New Architecture
 - **Xcode build errors**: Check iOS deployment target (16.0+) and Swift version
 - **Location permissions**: Verify Info.plist entries and runtime permission flow
 - **WeatherKit issues**: Ensure proper Apple Developer Program membership
@@ -187,7 +394,7 @@ npm run android
 - **Cache problems**: Clear weather service cache with `WeatherService.clearCache()`
 
 ### Development Environment
-- **Node.js**: Ensure version 18+ is installed
+- **Node.js/Bun**: Ensure Node.js 18+ or Bun 1.0+ is installed (prefer Bun)
 - **Expo CLI**: Keep updated to latest version
 - **Development builds**: Use `npx eas build` with development profile
 - **Simulator/Emulator**: Test on both iOS simulator and Android emulator
