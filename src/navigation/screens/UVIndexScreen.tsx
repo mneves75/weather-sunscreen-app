@@ -1,11 +1,14 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { View, Text, StyleSheet, ScrollView, RefreshControl } from 'react-native';
 import { useWeather } from '../../context/WeatherContext';
+import { useColors } from '../../context/ThemeContext';
+import { ColorScheme } from '../../types/theme';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import { ErrorMessage } from '../../components/ui/ErrorMessage';
 
-export function UVIndexScreen() {
+export const UVIndexScreen = memo(function UVIndexScreen() {
   const { weatherData, isLoading, error, refreshWeatherData, clearError } = useWeather();
+  const colors = useColors();
 
   if (isLoading && !weatherData) {
     return <LoadingSpinner message="Loading UV index data..." />;
@@ -33,7 +36,8 @@ export function UVIndexScreen() {
   }
 
   const { uvIndex } = weatherData;
-  const uvColor = getUVColor(uvIndex.value);
+  const uvColor = getUVColor(uvIndex.value, colors);
+  const styles = createStyles(colors);
 
   return (
     <ScrollView 
@@ -90,137 +94,139 @@ export function UVIndexScreen() {
       </View>
     </ScrollView>
   );
-}
-
-function getUVColor(uvValue: number): string {
-  if (uvValue <= 2) return '#289D00'; // Low - Green
-  if (uvValue <= 5) return '#F7D908'; // Moderate - Yellow
-  if (uvValue <= 7) return '#F85D00'; // High - Orange
-  if (uvValue <= 10) return '#E90B00'; // Very High - Red
-  return '#B33DAD'; // Extreme - Violet
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F8F9FA',
-  },
-  header: {
-    alignItems: 'center',
-    paddingTop: 20,
-    paddingHorizontal: 20,
-    paddingBottom: 30,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: '600',
-    color: '#2C3E50',
-    marginBottom: 4,
-  },
-  location: {
-    fontSize: 18,
-    fontWeight: '500',
-    color: '#2C3E50',
-    marginBottom: 2,
-  },
-  country: {
-    fontSize: 14,
-    color: '#7F8C8D',
-  },
-  uvCard: {
-    backgroundColor: '#FFFFFF',
-    marginHorizontal: 20,
-    borderRadius: 12,
-    padding: 30,
-    marginBottom: 20,
-    alignItems: 'center',
-    borderLeftWidth: 6,
-  },
-  uvValue: {
-    fontSize: 64,
-    fontWeight: '700',
-    marginBottom: 8,
-  },
-  uvLevel: {
-    fontSize: 24,
-    fontWeight: '600',
-    marginBottom: 12,
-  },
-  uvDescription: {
-    fontSize: 16,
-    color: '#7F8C8D',
-    textAlign: 'center',
-  },
-  recommendationCard: {
-    backgroundColor: '#FFFFFF',
-    marginHorizontal: 20,
-    borderRadius: 12,
-    padding: 20,
-    marginBottom: 20,
-  },
-  recommendationTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#2C3E50',
-    marginBottom: 16,
-  },
-  spfRecommendation: {
-    fontSize: 32,
-    fontWeight: '700',
-    color: '#4A90E2',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  frequency: {
-    fontSize: 16,
-    color: '#7F8C8D',
-    textAlign: 'center',
-    marginBottom: 20,
-  },
-  tips: {
-    marginTop: 12,
-  },
-  tipsTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#2C3E50',
-    marginBottom: 8,
-  },
-  tip: {
-    fontSize: 14,
-    color: '#7F8C8D',
-    marginBottom: 4,
-    lineHeight: 20,
-  },
-  skinTypeCard: {
-    backgroundColor: '#FFFFFF',
-    marginHorizontal: 20,
-    borderRadius: 12,
-    padding: 20,
-    marginBottom: 20,
-  },
-  skinTypeTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#2C3E50',
-    marginBottom: 16,
-  },
-  skinTypeRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 8,
-  },
-  skinTypeLabel: {
-    fontSize: 14,
-    color: '#7F8C8D',
-    flex: 1,
-  },
-  skinTypeValue: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#2C3E50',
-    flex: 2,
-    textAlign: 'right',
-  },
 });
+
+function getUVColor(uvValue: number, colors: ColorScheme): string {
+  if (uvValue <= 2) return colors.uvLow; // Low - Green
+  if (uvValue <= 5) return colors.uvModerate; // Moderate - Yellow
+  if (uvValue <= 7) return colors.uvHigh; // High - Orange
+  if (uvValue <= 10) return colors.uvVeryHigh; // Very High - Red
+  return colors.uvExtreme; // Extreme - Violet
+}
+
+function createStyles(colors: ColorScheme) {
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    header: {
+      alignItems: 'center',
+      paddingTop: 20,
+      paddingHorizontal: 20,
+      paddingBottom: 30,
+    },
+    title: {
+      fontSize: 28,
+      fontWeight: '600',
+      color: colors.primary,
+      marginBottom: 4,
+    },
+    location: {
+      fontSize: 18,
+      fontWeight: '500',
+      color: colors.primary,
+      marginBottom: 2,
+    },
+    country: {
+      fontSize: 14,
+      color: colors.secondary,
+    },
+    uvCard: {
+      backgroundColor: colors.card,
+      marginHorizontal: 20,
+      borderRadius: 12,
+      padding: 30,
+      marginBottom: 20,
+      alignItems: 'center',
+      borderLeftWidth: 6,
+    },
+    uvValue: {
+      fontSize: 64,
+      fontWeight: '700',
+      marginBottom: 8,
+    },
+    uvLevel: {
+      fontSize: 24,
+      fontWeight: '600',
+      marginBottom: 12,
+    },
+    uvDescription: {
+      fontSize: 16,
+      color: colors.secondary,
+      textAlign: 'center',
+    },
+    recommendationCard: {
+      backgroundColor: colors.card,
+      marginHorizontal: 20,
+      borderRadius: 12,
+      padding: 20,
+      marginBottom: 20,
+    },
+    recommendationTitle: {
+      fontSize: 20,
+      fontWeight: '600',
+      color: colors.primary,
+      marginBottom: 16,
+    },
+    spfRecommendation: {
+      fontSize: 32,
+      fontWeight: '700',
+      color: colors.temperature,
+      textAlign: 'center',
+      marginBottom: 8,
+    },
+    frequency: {
+      fontSize: 16,
+      color: colors.secondary,
+      textAlign: 'center',
+      marginBottom: 20,
+    },
+    tips: {
+      marginTop: 12,
+    },
+    tipsTitle: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: colors.primary,
+      marginBottom: 8,
+    },
+    tip: {
+      fontSize: 14,
+      color: colors.secondary,
+      marginBottom: 4,
+      lineHeight: 20,
+    },
+    skinTypeCard: {
+      backgroundColor: colors.card,
+      marginHorizontal: 20,
+      borderRadius: 12,
+      padding: 20,
+      marginBottom: 20,
+    },
+    skinTypeTitle: {
+      fontSize: 18,
+      fontWeight: '600',
+      color: colors.primary,
+      marginBottom: 16,
+    },
+    skinTypeRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingVertical: 8,
+    },
+    skinTypeLabel: {
+      fontSize: 14,
+      color: colors.secondary,
+      flex: 1,
+    },
+    skinTypeValue: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: colors.primary,
+      flex: 2,
+      textAlign: 'right',
+    },
+  });
+}

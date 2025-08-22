@@ -1,4 +1,5 @@
 import { NativeModules, Platform } from 'react-native';
+import { logger } from '../../src/services/loggerService';
 
 interface WeatherNativeModule {
   isAvailable(): Promise<boolean>;
@@ -15,6 +16,7 @@ interface WeatherNativeModule {
   getWeatherData(latitude: number, longitude: number): Promise<{
     temperature: number;
     description: string;
+    weatherCode?: number;
     humidity: number;
     windSpeed: number;
     pressure: number;
@@ -38,7 +40,7 @@ export class WeatherNativeService {
     try {
       return await NativeWeatherModule.isAvailable();
     } catch (error) {
-      console.error('Failed to check weather module availability:', error);
+      logger.error('Failed to check weather module availability', error instanceof Error ? error : new Error(String(error)));
       return false;
     }
   }
@@ -56,7 +58,7 @@ export class WeatherNativeService {
     try {
       return await NativeWeatherModule.getCurrentLocation();
     } catch (error) {
-      console.error('Failed to get current location:', error);
+      logger.error('Failed to get current location', error instanceof Error ? error : new Error(String(error)));
       throw error;
     }
   }
@@ -79,7 +81,7 @@ export class WeatherNativeService {
     try {
       return await NativeWeatherModule.getUVIndexData(latitude, longitude);
     } catch (error) {
-      console.error('Failed to get UV index data:', error);
+      logger.error('Failed to get UV index data', error instanceof Error ? error : new Error(String(error)));
       throw error;
     }
   }
@@ -99,18 +101,24 @@ export class WeatherNativeService {
       return {
         temperature: 22,
         description: 'Sunny',
+        weatherCode: 0, // Clear sky WMO code
         humidity: 65,
         windSpeed: 3.5,
         pressure: 1013,
         visibility: 10,
         feelsLike: 24,
-      };
+      } as any;
     }
     
     try {
-      return await NativeWeatherModule.getWeatherData(latitude, longitude);
+      const nativeData = await NativeWeatherModule.getWeatherData(latitude, longitude);
+      // Add weatherCode if not provided by native module (for backwards compatibility)
+      return {
+        ...nativeData,
+        weatherCode: (nativeData as any).weatherCode ?? 0, // Default to clear sky if not provided
+      };
     } catch (error) {
-      console.error('Failed to get weather data:', error);
+      logger.error('Failed to get weather data', error instanceof Error ? error : new Error(String(error)));
       throw error;
     }
   }

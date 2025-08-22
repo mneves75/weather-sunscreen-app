@@ -3,19 +3,13 @@ import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 
 export type RootStackParamList = {
   HomeTabs: undefined;
-  WeatherDetail: {
-    locationName: string;
-  };
-  UVDetail: {
-    uvIndex: number;
-  };
-  Settings: undefined;
 };
 
 export type TabParamList = {
   Weather: undefined;
   UVIndex: undefined;
   Forecast: undefined;
+  Tracker: undefined;
   Profile: undefined;
 };
 

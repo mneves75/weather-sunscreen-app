@@ -1,5 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
+import { SchedulableTriggerInputTypes } from 'expo-notifications';
+import { logger } from './loggerService';
 import { Platform } from 'react-native';
 import { 
   SunscreenApplication, 
@@ -35,6 +37,8 @@ export class SunscreenService {
           shouldShowAlert: true,
           shouldPlaySound: true,
           shouldSetBadge: false,
+          shouldShowBanner: true,
+          shouldShowList: true,
         }),
       });
 
@@ -157,8 +161,9 @@ export class SunscreenService {
           },
           sound: profile.notificationPreferences.soundEnabled,
         },
-        trigger: {
-          date: application.reapplicationDue,
+        trigger: { 
+          type: SchedulableTriggerInputTypes.DATE,
+          date: application.reapplicationDue 
         },
       });
 
@@ -174,8 +179,9 @@ export class SunscreenService {
             },
             sound: false, // Usually just a gentle reminder
           },
-          trigger: {
-            date: warningTime,
+          trigger: { 
+            type: SchedulableTriggerInputTypes.DATE,
+            date: warningTime 
           },
         });
       }
@@ -214,13 +220,19 @@ export class SunscreenService {
     return this.getDefaultProfile();
   }
 
-  // Save user profile
+  // Save user profile with validation
   static async saveUserProfile(profile: UserSunscreenProfile): Promise<void> {
     try {
-      await AsyncStorage.setItem(this.STORAGE_KEYS.PROFILE, JSON.stringify(profile));
-      console.log('👤 User profile saved');
+      // Validate profile data before saving
+      if (!profile.skinType || !profile.bodyPartsToTrack || profile.bodyPartsToTrack.length === 0) {
+        throw new Error('Invalid profile data: missing required fields');
+      }
+
+      const profileData = JSON.stringify(profile);
+      await AsyncStorage.setItem(this.STORAGE_KEYS.PROFILE, profileData);
+      logger.info('User profile saved successfully');
     } catch (error) {
-      console.error('Failed to save user profile:', error);
+      logger.error('Failed to save user profile', error instanceof Error ? error : new Error(String(error)));
       throw new Error('Failed to save profile');
     }
   }
