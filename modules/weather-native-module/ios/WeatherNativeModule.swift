@@ -131,7 +131,7 @@ final class WeatherNativeModule: NSObject, @unchecked Sendable {
             let weather = try await weatherService.weather(for: location)
             let current = weather.currentWeather
             var code = 0
-            // Map WeatherKit condition to approximate WMO codes used by JS layer
+            // Primary mapping via WeatherKit condition (coarse categories)
             switch current.condition {
             case .clear:
                 code = 0
@@ -142,7 +142,7 @@ final class WeatherNativeModule: NSObject, @unchecked Sendable {
             case .fog:
                 code = 45
             case .drizzle:
-                code = 51
+                code = 53
             case .rain:
                 code = 63
             case .snow:
@@ -150,6 +150,33 @@ final class WeatherNativeModule: NSObject, @unchecked Sendable {
             case .thunderstorms:
                 code = 95
             default:
+                code = 0
+            }
+
+            // Refine mapping with SF Symbol if available (more granular)
+            let symbol = current.symbolName.lowercased()
+            if symbol.contains("bolt") {
+                code = 95 // Thunderstorm
+            } else if symbol.contains("heavysnow") {
+                code = 75
+            } else if symbol.contains("snow") {
+                code = 73
+            } else if symbol.contains("sleet") {
+                code = 66
+            } else if symbol.contains("heavyrain") {
+                code = 65
+            } else if symbol.contains("drizzle") {
+                code = 53
+            } else if symbol.contains("showers") || symbol.contains("rain") {
+                // Map showers to 81 (moderate rain showers) as a reasonable default
+                code = symbol.contains("showers") ? 81 : 63
+            } else if symbol.contains("fog") || symbol.contains("smoke") || symbol.contains("haze") {
+                code = 45
+            } else if symbol.contains("cloud.sun") || (symbol.contains("sun") && symbol.contains("cloud")) {
+                code = 2
+            } else if symbol.contains("cloud") {
+                code = 3
+            } else if symbol.contains("sun") {
                 code = 0
             }
             
