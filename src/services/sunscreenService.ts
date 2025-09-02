@@ -1,17 +1,16 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as Notifications from 'expo-notifications';
-import { SchedulableTriggerInputTypes } from 'expo-notifications';
 import { logger } from './loggerService';
 import { Platform } from 'react-native';
-import { 
-  SunscreenApplication, 
-  SunscreenReminder, 
-  UserSunscreenProfile, 
+import {
+  SunscreenApplication,
+  SunscreenReminder,
+  UserSunscreenProfile,
   SKIN_TYPES,
-  SkinType 
+  SkinType,
 } from '../types/sunscreen';
 import { WeatherService } from './weatherService';
 import { LocationService } from './locationService';
+import { NotificationService } from './notificationService';
 
 export class SunscreenService {
   private static readonly STORAGE_KEYS = {
@@ -24,28 +23,16 @@ export class SunscreenService {
   static async initializeNotifications(): Promise<boolean> {
     try {
       if (Platform.OS === 'web') return false;
-
-      const { status } = await Notifications.requestPermissionsAsync();
-      if (status !== 'granted') {
-        console.warn('Notification permission not granted');
+      const granted = await NotificationService.requestPermissions();
+      if (!granted) {
+        logger.warn('Notification permission not granted');
         return false;
       }
-
-      // Configure notification handler
-      Notifications.setNotificationHandler({
-        handleNotification: async () => ({
-          shouldShowAlert: true,
-          shouldPlaySound: true,
-          shouldSetBadge: false,
-          shouldShowBanner: true,
-          shouldShowList: true,
-        }),
-      });
-
-      console.log('📱 Notifications initialized successfully');
-      return true;
+      // Ensure default handler is set (NotificationService sets one if available)
+      logger.info('📱 Notifications initialized successfully');
+      return granted;
     } catch (error) {
-      console.error('Failed to initialize notifications:', error);
+      logger.error('Failed to initialize notifications:', error);
       return false;
     }
   }
@@ -54,14 +41,14 @@ export class SunscreenService {
   static async logSunscreenApplication(
     spf: number,
     bodyParts: string[],
-    notes?: string
+    notes?: string,
   ): Promise<SunscreenApplication> {
     try {
       // Get current location and weather data
       const location = await LocationService.getCurrentLocation();
       const locationInfo = await LocationService.getDetailedLocationInfo(location);
       const weatherData = await WeatherService.getCurrentWeatherData();
-      
+
       const application: SunscreenApplication = {
         id: `app_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         timestamp: new Date(),
@@ -79,14 +66,14 @@ export class SunscreenService {
 
       // Save application
       await this.saveApplication(application);
-      
+
       // Schedule reminder notification
       await this.scheduleReapplicationReminder(application);
-      
-      console.log('🧴 Sunscreen application logged:', application);
+
+      logger.info('🧴 Sunscreen application logged:', application);
       return application;
     } catch (error) {
-      console.error('Failed to log sunscreen application:', error);
+      logger.error('Failed to log sunscreen application:', error);
       throw new Error('Failed to log sunscreen application. Please try again.');
     }
   }
@@ -104,8 +91,10 @@ export class SunscreenService {
 
       // Adjust based on UV index
       let uvMultiplier = 1.0;
-      if (uvIndex >= 8) uvMultiplier = 0.6; // Very high UV - reduce time by 40%
-      else if (uvIndex >= 6) uvMultiplier = 0.75; // High UV - reduce time by 25%
+      if (uvIndex >= 8)
+        uvMultiplier = 0.6; // Very high UV - reduce time by 40%
+      else if (uvIndex >= 6)
+        uvMultiplier = 0.75; // High UV - reduce time by 25%
       else if (uvIndex >= 3) uvMultiplier = 0.9; // Moderate UV - reduce time by 10%
 
       // Adjust based on SPF (higher SPF can extend time slightly)
@@ -119,19 +108,23 @@ export class SunscreenService {
       if (profile.sportActivity) activityMultiplier = 0.7; // Sports reduce effectiveness
       if (!profile.waterResistant) activityMultiplier *= 0.8; // Non-water-resistant reduce time
 
-      const adjustedMinutes = Math.round(baseTime * uvMultiplier * spfMultiplier * activityMultiplier);
-      
+      const adjustedMinutes = Math.round(
+        baseTime * uvMultiplier * spfMultiplier * activityMultiplier,
+      );
+
       // Minimum 30 minutes, maximum 4 hours
       const finalMinutes = Math.max(30, Math.min(240, adjustedMinutes));
-      
+
       const reapplicationTime = new Date();
       reapplicationTime.setMinutes(reapplicationTime.getMinutes() + finalMinutes);
-      
-      console.log(`⏰ Calculated reapplication time: ${finalMinutes} minutes (base: ${baseTime}, UV: ${uvIndex}, SPF: ${spf})`);
-      
+
+      logger.info(
+        `⏰ Calculated reapplication time: ${finalMinutes} minutes (base: ${baseTime}, UV: ${uvIndex}, SPF: ${spf})`,
+      );
+
       return reapplicationTime;
     } catch (error) {
-      console.error('Error calculating reapplication time:', error);
+      logger.error('Error calculating reapplication time:', error);
       // Fallback to 2 hours
       const fallback = new Date();
       fallback.setHours(fallback.getHours() + 2);
@@ -140,7 +133,9 @@ export class SunscreenService {
   }
 
   // Schedule notification reminder
-  private static async scheduleReapplicationReminder(application: SunscreenApplication): Promise<void> {
+  private static async scheduleReapplicationReminder(
+    application: SunscreenApplication,
+  ): Promise<void> {
     try {
       if (Platform.OS === 'web') return;
 
@@ -149,46 +144,31 @@ export class SunscreenService {
 
       // Schedule advance warning
       const warningTime = new Date(application.reapplicationDue);
-      warningTime.setMinutes(warningTime.getMinutes() - profile.notificationPreferences.advanceWarning);
+      warningTime.setMinutes(
+        warningTime.getMinutes() - profile.notificationPreferences.advanceWarning,
+      );
 
-      const reminderId = await Notifications.scheduleNotificationAsync({
-        content: {
-          title: '🧴 Sunscreen Reminder',
-          body: `Time to reapply sunscreen! Current UV index: ${application.uvIndex}`,
-          data: { 
-            applicationId: application.id,
-            type: 'reapplication_reminder'
-          },
-          sound: profile.notificationPreferences.soundEnabled,
-        },
-        trigger: { 
-          type: SchedulableTriggerInputTypes.DATE,
-          date: application.reapplicationDue 
-        },
+      const reminderId = await NotificationService.scheduleAt(application.reapplicationDue, {
+        title: '🧴 Sunscreen Reminder',
+        body: `Time to reapply sunscreen! Current UV index: ${application.uvIndex}`,
+        data: { applicationId: application.id, type: 'reapplication_reminder' },
+        sound: profile.notificationPreferences.soundEnabled,
       });
 
       // Also schedule advance warning if configured
+      let advanceReminderId: string | null = null;
       if (profile.notificationPreferences.advanceWarning > 0 && warningTime > new Date()) {
-        await Notifications.scheduleNotificationAsync({
-          content: {
-            title: '🌞 Sunscreen Warning',
-            body: `Reapply sunscreen in ${profile.notificationPreferences.advanceWarning} minutes`,
-            data: { 
-              applicationId: application.id,
-              type: 'advance_warning'
-            },
-            sound: false, // Usually just a gentle reminder
-          },
-          trigger: { 
-            type: SchedulableTriggerInputTypes.DATE,
-            date: warningTime 
-          },
+        advanceReminderId = await NotificationService.scheduleAt(warningTime, {
+          title: '🌞 Sunscreen Warning',
+          body: `Reapply sunscreen in ${profile.notificationPreferences.advanceWarning} minutes`,
+          data: { applicationId: application.id, type: 'advance_warning' },
+          sound: false,
         });
       }
 
-      console.log(`📱 Scheduled reminder for ${application.reapplicationDue.toLocaleTimeString()}`);
+      logger.info(`📱 Scheduled reminder for ${application.reapplicationDue.toLocaleTimeString()}`);
 
-      // Save reminder info
+      // Save reminder info (main reminder)
       const reminder: SunscreenReminder = {
         id: reminderId,
         applicationId: application.id,
@@ -200,8 +180,22 @@ export class SunscreenService {
       };
 
       await this.saveReminder(reminder);
+
+      // Save advance warning reminder if created
+      if (advanceReminderId) {
+        const advance: SunscreenReminder = {
+          id: advanceReminderId,
+          applicationId: application.id,
+          scheduledTime: warningTime,
+          title: 'Sunscreen Warning',
+          message: `Reapply sunscreen in ${profile.notificationPreferences.advanceWarning} minutes`,
+          isActive: true,
+          uvBasedAdjustment: true,
+        };
+        await this.saveReminder(advance);
+      }
     } catch (error) {
-      console.error('Failed to schedule reminder:', error);
+      logger.error('Failed to schedule reminder:', error);
     }
   }
 
@@ -210,10 +204,25 @@ export class SunscreenService {
     try {
       const profileJson = await AsyncStorage.getItem(this.STORAGE_KEYS.PROFILE);
       if (profileJson) {
-        return JSON.parse(profileJson);
+        const parsed: UserSunscreenProfile = JSON.parse(profileJson);
+        const normalized = {
+          ...parsed,
+          bodyPartsToTrack: this.normalizeBodyParts(parsed.bodyPartsToTrack),
+        };
+        // Persist normalization if data changed
+        if (
+          JSON.stringify(normalized.bodyPartsToTrack) !== JSON.stringify(parsed.bodyPartsToTrack)
+        ) {
+          try {
+            await AsyncStorage.setItem(this.STORAGE_KEYS.PROFILE, JSON.stringify(normalized));
+          } catch (e) {
+            logger.warn('Failed to persist normalized profile body parts', { error: String(e) });
+          }
+        }
+        return normalized;
       }
     } catch (error) {
-      console.error('Error loading user profile:', error);
+      logger.error('Error loading user profile:', error);
     }
 
     // Return default profile
@@ -232,7 +241,10 @@ export class SunscreenService {
       await AsyncStorage.setItem(this.STORAGE_KEYS.PROFILE, profileData);
       logger.info('User profile saved successfully');
     } catch (error) {
-      logger.error('Failed to save user profile', error instanceof Error ? error : new Error(String(error)));
+      logger.error(
+        'Failed to save user profile',
+        error instanceof Error ? error : new Error(String(error)),
+      );
       throw new Error('Failed to save profile');
     }
   }
@@ -244,10 +256,10 @@ export class SunscreenService {
       if (!applicationsJson) return [];
 
       const applications: SunscreenApplication[] = JSON.parse(applicationsJson);
-      
+
       // Parse dates and sort by timestamp (newest first)
       return applications
-        .map(app => ({
+        .map((app) => ({
           ...app,
           timestamp: new Date(app.timestamp),
           reapplicationDue: new Date(app.reapplicationDue),
@@ -255,7 +267,7 @@ export class SunscreenService {
         .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
         .slice(0, limit);
     } catch (error) {
-      console.error('Error loading applications:', error);
+      logger.error('Error loading applications:', error);
       return [];
     }
   }
@@ -283,7 +295,7 @@ export class SunscreenService {
         nextApplication: mostRecent,
       };
     } catch (error) {
-      console.error('Error checking reapplication status:', error);
+      logger.error('Error checking reapplication status:', error);
       return { isDue: false };
     }
   }
@@ -292,11 +304,29 @@ export class SunscreenService {
   static async cancelReminders(applicationId: string): Promise<void> {
     try {
       if (Platform.OS === 'web') return;
-      
-      await Notifications.cancelScheduledNotificationAsync(applicationId);
-      console.log('🔕 Cancelled reminders for application:', applicationId);
+
+      // Load stored reminders and cancel each scheduled notification by its ID
+      const remindersJson = await AsyncStorage.getItem(this.STORAGE_KEYS.REMINDERS);
+      const reminders: SunscreenReminder[] = remindersJson ? JSON.parse(remindersJson) : [];
+
+      const toCancel = reminders.filter((r) => r.applicationId === applicationId && r.isActive);
+      for (const r of toCancel) {
+        try {
+          await NotificationService.cancelNotification(r.id);
+        } catch (err) {
+          logger.warn('Failed to cancel scheduled notification', { id: r.id, err });
+        }
+      }
+
+      // Mark reminders inactive and persist
+      const updated = reminders.map((r) =>
+        r.applicationId === applicationId ? { ...r, isActive: false } : r,
+      );
+      await AsyncStorage.setItem(this.STORAGE_KEYS.REMINDERS, JSON.stringify(updated));
+
+      logger.info('🔕 Cancelled reminders for application:', applicationId);
     } catch (error) {
-      console.error('Failed to cancel reminders:', error);
+      logger.error('Failed to cancel reminders:', error);
     }
   }
 
@@ -305,11 +335,11 @@ export class SunscreenService {
       const applications = await this.getRecentApplications(50); // Keep last 50
       applications.unshift(application);
       await AsyncStorage.setItem(
-        this.STORAGE_KEYS.APPLICATIONS, 
-        JSON.stringify(applications.slice(0, 50))
+        this.STORAGE_KEYS.APPLICATIONS,
+        JSON.stringify(applications.slice(0, 50)),
       );
     } catch (error) {
-      console.error('Failed to save application:', error);
+      logger.error('Failed to save application:', error);
       throw error;
     }
   }
@@ -318,11 +348,11 @@ export class SunscreenService {
     try {
       const remindersJson = await AsyncStorage.getItem(this.STORAGE_KEYS.REMINDERS);
       const reminders = remindersJson ? JSON.parse(remindersJson) : [];
-      
+
       reminders.push(reminder);
       await AsyncStorage.setItem(this.STORAGE_KEYS.REMINDERS, JSON.stringify(reminders));
     } catch (error) {
-      console.error('Failed to save reminder:', error);
+      logger.error('Failed to save reminder:', error);
     }
   }
 
@@ -332,7 +362,7 @@ export class SunscreenService {
       preferredSPF: 30,
       waterResistant: false,
       sportActivity: false,
-      bodyPartsToTrack: ['face', 'arms', 'legs'],
+      bodyPartsToTrack: ['Face', 'Arms', 'Legs'],
       notificationPreferences: {
         enabled: true,
         advanceWarning: 15, // 15 minutes advance warning
@@ -342,6 +372,19 @@ export class SunscreenService {
     };
   }
 
+  private static normalizeBodyParts(parts: string[]): string[] {
+    const map: Record<string, string> = {
+      face: 'Face',
+      arms: 'Arms',
+      legs: 'Legs',
+      torso: 'Torso',
+      back: 'Back',
+      hands: 'Hands',
+      feet: 'Feet',
+    };
+    return parts.map((p) => map[p.toLowerCase()] ?? p);
+  }
+
   static async clearAllData(): Promise<void> {
     try {
       await AsyncStorage.multiRemove([
@@ -349,10 +392,10 @@ export class SunscreenService {
         this.STORAGE_KEYS.PROFILE,
         this.STORAGE_KEYS.REMINDERS,
       ]);
-      await Notifications.cancelAllScheduledNotificationsAsync();
-      console.log('🗑️ All sunscreen data cleared');
+      await NotificationService.cancelAll();
+      logger.info('🗑️ All sunscreen data cleared');
     } catch (error) {
-      console.error('Failed to clear data:', error);
+      logger.error('Failed to clear data:', error);
     }
   }
 }

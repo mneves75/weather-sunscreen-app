@@ -3,7 +3,7 @@
     "name": "Weather Sunscreen",
     "slug": "weather-sunscreen-app",
     "description": "Your comprehensive weather companion with UV index monitoring and sunscreen recommendations",
-    "version": "1.0.1",
+    "version": "2.0.0",
     "orientation": "default",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -17,28 +17,18 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.weathersunscreen.app",
-      "deploymentTarget": "16.0",
-      "liquidGlassIcon": true,
-      "permissions": [
-        "LOCATION",
-        "LOCATION_WHEN_IN_USE",
-        "NOTIFICATIONS"
-      ]
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "This app needs access to your location to provide accurate weather information for your area.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "This app needs access to your location to provide accurate weather information and UV index alerts."
+      }
     },
     "android": {
       "package": "com.weathersunscreen.app",
-      "targetSdkVersion": 36,
-      "edgeToEdge": true,
-      "predictiveBackGesture": true,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#4A90E2"
       },
-      "permissions": [
-        "ACCESS_COARSE_LOCATION",
-        "ACCESS_FINE_LOCATION",
-        "POST_NOTIFICATIONS"
-      ]
+      "permissions": ["ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION", "POST_NOTIFICATIONS"]
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -53,14 +43,15 @@
         "expo-build-properties",
         {
           "ios": {
-            "deploymentTarget": "16.0",
+            "deploymentTarget": "26.0",
             "newArchEnabled": true,
-            "useFrameworks": "static"
+            "useFrameworks": "static",
+            "buildReactNativeFromSource": true
           },
           "android": {
             "newArchEnabled": true,
-            "compileSdkVersion": 36,
-            "targetSdkVersion": 36
+            "compileSdkVersion": 34,
+            "targetSdkVersion": 34
           }
         }
       ],

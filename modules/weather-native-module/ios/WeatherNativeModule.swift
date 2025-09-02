@@ -130,10 +130,33 @@ final class WeatherNativeModule: NSObject, @unchecked Sendable {
         do {
             let weather = try await weatherService.weather(for: location)
             let current = weather.currentWeather
+            var code = 0
+            // Map WeatherKit condition to approximate WMO codes used by JS layer
+            switch current.condition {
+            case .clear:
+                code = 0
+            case .partlyCloudy:
+                code = 2
+            case .cloudy:
+                code = 3
+            case .fog:
+                code = 45
+            case .drizzle:
+                code = 51
+            case .rain:
+                code = 63
+            case .snow:
+                code = 73
+            case .thunderstorms:
+                code = 95
+            default:
+                code = 0
+            }
             
             return [
                 "temperature": current.temperature.value,
                 "description": current.condition.description,
+                "weatherCode": code,
                 "humidity": weather.currentWeather.humidity,
                 "windSpeed": current.wind.speed.value,
                 "pressure": weather.currentWeather.pressure.value,

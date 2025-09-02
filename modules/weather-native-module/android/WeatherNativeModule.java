@@ -174,6 +174,7 @@ public class WeatherNativeModule extends ReactContextBaseJavaModule {
                 WritableMap result = new WritableNativeMap();
                 result.putDouble("temperature", 22.0); // Mock temperature in Celsius
                 result.putString("description", "Sunny");
+                result.putInt("weatherCode", 0);
                 result.putInt("humidity", 65);
                 result.putDouble("windSpeed", 3.5);
                 result.putInt("pressure", 1013);
