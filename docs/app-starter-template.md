@@ -2,7 +2,7 @@
 
 > **Comprehensive React Native App Template**  
 > Production-ready foundation for building modern mobile applications
-> 
+>
 > **Reviewed by:** John Carmack  
 > **For use with:** Claude Code  
 > **Architecture:** React Native + Expo with Native Modules
@@ -142,22 +142,22 @@ import React
 
 @objc(YourModule)
 final class YourModule: NSObject, @unchecked Sendable {
-    
+
     // MARK: - Configuration
     private static let moduleTimeout: TimeInterval = 10.0
-    
+
     // MARK: - State (MainActor for thread safety)
     @MainActor private var activeOperations: [String: Task<Any, Error>] = [:]
-    
+
     // MARK: - Public Interface
-    
+
     @objc static func isAvailable() -> Bool {
         if #available(iOS 16.0, *) {
             return true
         }
         return false
     }
-    
+
     @objc func performOperation(
         input: String,
         resolver: @escaping RCTPromiseResolveBlock,
@@ -172,7 +172,7 @@ final class YourModule: NSObject, @unchecked Sendable {
             }
         }
     }
-    
+
     private func processInput(_ input: String) async throws -> String {
         // TODO: Replace with your custom implementation
         // Example: API calls, data processing, device features, etc.
@@ -229,28 +229,28 @@ import java.util.concurrent.Executors;
 public class YourModule extends ReactContextBaseJavaModule {
     private static final String TAG = "YourModule";
     private static final int OPERATION_TIMEOUT_MS = 10000;
-    
+
     private final Executor executor = Executors.newCachedThreadPool();
-    
+
     public YourModule(ReactApplicationContext reactContext) {
         super(reactContext);
     }
-    
+
     @Override
     public String getName() {
         return "YourModule";
     }
-    
+
     @ReactMethod
     public void isAvailable(Promise promise) {
         boolean available = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q; // API 29+
         promise.resolve(available);
     }
-    
+
     @ReactMethod
     public void performOperation(String input, Promise promise) {
         Log.d(TAG, "Performing operation with input: " + input);
-        
+
         CompletableFuture.supplyAsync(() -> {
             try {
                 // TODO: Replace with your custom implementation
@@ -319,11 +319,11 @@ export class YourNativeModuleService {
     if (Platform.OS === 'web') {
       return false;
     }
-    
+
     if (!YourModule) {
       return false;
     }
-    
+
     try {
       return await YourModule.isAvailable();
     } catch (error) {
@@ -331,13 +331,13 @@ export class YourNativeModuleService {
       return false;
     }
   }
-  
+
   static async performOperation(input: string): Promise<string> {
     const available = await this.isAvailable();
     if (!available) {
       throw new Error('Native module not available on this platform');
     }
-    
+
     try {
       return await YourModule.performOperation(input);
     } catch (error) {
@@ -452,12 +452,12 @@ export function AppProvider({ children }: AppProviderProps) {
   const loadData = useCallback(async () => {
     try {
       setState(prev => ({ ...prev, isLoading: true, error: null }));
-      
+
       // TODO: Replace with your data loading logic
       // Example: API calls, database queries, etc.
       // const data = await YourService.loadData();
       const data = []; // Placeholder - implement your data loading
-      
+
       setState(prev => ({ ...prev, data, isLoading: false }));
     } catch (error) {
       setState(prev => ({
@@ -471,12 +471,12 @@ export function AppProvider({ children }: AppProviderProps) {
   const updateData = useCallback(async (newData: any) => {
     try {
       setState(prev => ({ ...prev, isLoading: true, error: null }));
-      
+
       // TODO: Replace with your update logic
       // Example: API updates, database writes, etc.
       // await YourService.updateData(newData);
       // Placeholder - implement your data update logic
-      
+
       // Reload data or update state accordingly
       await loadData();
     } catch (error) {
@@ -537,7 +537,7 @@ export class StorageService {
         }
         return value;
       });
-      
+
       await AsyncStorage.setItem(key, jsonData);
     } catch (error) {
       console.error('Failed to save data:', error);
@@ -548,7 +548,7 @@ export class StorageService {
   static async loadData<T>(key: string, defaultValue: T): Promise<T> {
     try {
       const jsonData = await AsyncStorage.getItem(key);
-      
+
       if (!jsonData) {
         return defaultValue;
       }
@@ -588,9 +588,10 @@ export class StorageService {
 
 ## 🎨 iOS 26+ Liquid Glass Integration
 
-> **Official Apple Documentation:**  
-> - [Adopting Liquid Glass](https://developer.apple.com/documentation/technologyoverviews/adopting-liquid-glass)  
-> - [Applying Liquid Glass to custom views](https://developer.apple.com/documentation/SwiftUI/Applying-Liquid-Glass-to-custom-views)  
+> **Official Apple Documentation:**
+>
+> - [Adopting Liquid Glass](https://developer.apple.com/documentation/technologyoverviews/adopting-liquid-glass)
+> - [Applying Liquid Glass to custom views](https://developer.apple.com/documentation/SwiftUI/Applying-Liquid-Glass-to-custom-views)
 > - [Landmarks: Building an app with Liquid Glass](https://developer.apple.com/documentation/swiftui/landmarks-building-an-app-with-liquid-glass)
 
 ### Native iOS Liquid Glass Implementation
@@ -607,7 +608,7 @@ struct LiquidGlassView: View {
     let variant: GlassVariant
     let sensorAware: Bool
     let content: AnyView
-    
+
     var body: some View {
         content
             .glassEffect(
@@ -623,20 +624,20 @@ struct LiquidGlassUIViewRepresentable: UIViewRepresentable {
     let variant: GlassVariant
     let sensorAware: Bool
     let content: AnyView
-    
+
     func makeUIView(context: Context) -> UIView {
-        let hostingController = UIHostingController(rootView: 
+        let hostingController = UIHostingController(rootView:
             LiquidGlassView(
                 variant: variant,
                 sensorAware: sensorAware,
                 content: content
             )
         )
-        
+
         hostingController.view.backgroundColor = .clear
         return hostingController.view
     }
-    
+
     func updateUIView(_ uiView: UIView, context: Context) {
         // SwiftUI handles updates automatically through the glassEffect modifier
     }
@@ -648,7 +649,7 @@ enum GlassVariant {
     case regular
     case prominent
     case thin
-    
+
     // Custom variants for specific use cases
     case glassProminent
     case glass
@@ -659,7 +660,7 @@ enum GlassVariant {
 struct LiquidGlassFallback: View {
     let variant: GlassVariant
     let content: AnyView
-    
+
     var body: some View {
         content
             .background(.regularMaterial)
@@ -670,9 +671,10 @@ struct LiquidGlassFallback: View {
 
 ### React Native Liquid Glass Wrapper
 
-> **Expo SDK 54 Beta Support:**  
-> - [Expo SDK 54 Changelog](https://expo.dev/changelog/sdk-54-beta)  
-> - Native iOS 26 Liquid Glass icon support  
+> **Expo SDK 54 Beta Support:**
+>
+> - [Expo SDK 54 Changelog](https://expo.dev/changelog/sdk-54-beta)
+> - Native iOS 26 Liquid Glass icon support
 > - Glass effect modifiers and button variants
 
 **File: `src/components/LiquidGlassWrapper.tsx`**
@@ -696,7 +698,7 @@ export function LiquidGlassWrapper({
   sensorAware = true,
   style,
 }: LiquidGlassWrapperProps) {
-  
+
   // iOS 26+ native Liquid Glass implementation
   if (Platform.OS === 'ios' && parseFloat(Platform.Version) >= 26) {
     return (
@@ -709,7 +711,7 @@ export function LiquidGlassWrapper({
       </LiquidGlassNative>
     );
   }
-  
+
   // iOS 16-25 fallback with material backgrounds
   if (Platform.OS === 'ios' && parseFloat(Platform.Version) >= 16) {
     return (
@@ -733,7 +735,7 @@ export function LiquidGlassWrapper({
       </View>
     );
   }
-  
+
   // Android and Web fallback
   return (
     <View
@@ -754,11 +756,11 @@ export function LiquidGlassWrapper({
 }
 
 // Expo UI Glass Effects (for Expo SDK 54+)
-export function ExpoGlassContainer({ 
-  children, 
-  variant = 'regular' 
-}: { 
-  children: ReactNode; 
+export function ExpoGlassContainer({
+  children,
+  variant = 'regular'
+}: {
+  children: ReactNode;
   variant?: 'regular' | 'glassProminent' | 'glass';
 }) {
   // This would use Expo's built-in glass effects
@@ -806,15 +808,15 @@ import React
 @objc(LiquidGlassNative)
 @available(iOS 16.0, *)
 class LiquidGlassNative: RCTViewManager {
-  
+
   override func view() -> UIView! {
     return LiquidGlassHostView()
   }
-  
+
   @objc static func requiresMainQueueSetup() -> Bool {
     return true
   }
-  
+
   @objc func isLiquidGlassAvailable(_ resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) {
     if #available(iOS 26.0, *) {
       resolve(true)
@@ -831,23 +833,23 @@ class LiquidGlassHostView: UIView {
       updateGlassEffect()
     }
   }
-  
+
   @objc var sensorAware: Bool = true {
     didSet {
       updateGlassEffect()
     }
   }
-  
+
   private func updateGlassEffect() {
     if #available(iOS 26.0, *) {
       // Apply real Liquid Glass effect using SwiftUI
       let glassVariant = GlassVariant.from(string: variant)
-      
+
       let hostingController = UIHostingController(rootView:
         RoundedRectangle(cornerRadius: 12)
           .glassEffect(variant: glassVariant, sensorAware: sensorAware)
       )
-      
+
       addSubview(hostingController.view)
       hostingController.view.frame = bounds
       hostingController.view.backgroundColor = .clear
@@ -895,7 +897,7 @@ Pod::Spec.new do |s|
   s.requires_arc = true
 
   s.dependency "React-Core"
-  
+
   # iOS 26+ Liquid Glass support
   s.ios.deployment_target = "16.0"
   s.swift_version = "5.0"
@@ -943,7 +945,7 @@ Configure EAS Build for Xcode 26 beta support in `eas.json`:
 
 This implementation is based on **authentic iOS 26+ APIs** from Apple:
 
-1. **SwiftUI `glassEffect()` Modifier**: 
+1. **SwiftUI `glassEffect()` Modifier**:
    - Official Apple API: `View.glassEffect(variant:sensorAware:)`
    - Available in iOS 26.0+ and macOS Tahoe 26.0+
    - Documentation: [SwiftUI Glass Effects](https://developer.apple.com/documentation/SwiftUI/Applying-Liquid-Glass-to-custom-views)
@@ -986,11 +988,13 @@ VStack {
 #### Expo Integration Details
 
 Expo SDK 54 Beta provides:
+
 - **Liquid Glass Icons**: Automatic `.icon` file generation using Apple Icon Composer
 - **EAS Build Support**: Pre-configured Xcode 26 beta build environment
 - **Glass UI Components**: Native glass effect integration in Expo UI library
 
 For complete integration guides, see:
+
 - [Apple's Liquid Glass Documentation](https://developer.apple.com/documentation/technologyoverviews/liquid-glass)
 - [Expo SDK 54 Beta Features](https://expo.dev/changelog/sdk-54-beta)
 
@@ -1017,18 +1021,18 @@ const FILES = {
   packageJson: 'package.json',
   appJson: 'app.json',
   iosProject: 'ios/YourApp.xcodeproj/project.pbxproj',
-  androidBuild: 'android/app/build.gradle'
+  androidBuild: 'android/app/build.gradle',
 };
 
 function getLatestVersionFromChangelog() {
   try {
     const changelogContent = fs.readFileSync(FILES.changelog, 'utf8');
     const versionMatch = changelogContent.match(/## \[(\d+\.\d+\.\d+)\] - \d{4}-\d{2}-\d{2}/);
-    
+
     if (!versionMatch) {
       throw new Error('Could not find version in CHANGELOG.md format: ## [X.Y.Z] - YYYY-MM-DD');
     }
-    
+
     return versionMatch[1];
   } catch (error) {
     console.error('❌ Error reading CHANGELOG.md:', error.message);
@@ -1039,23 +1043,23 @@ function getLatestVersionFromChangelog() {
 function syncVersions() {
   const targetVersion = getLatestVersionFromChangelog();
   console.log(`🎯 Target version: ${targetVersion}`);
-  
+
   if (isDryRun) {
     console.log('🧪 DRY RUN MODE - No files will be modified');
   }
-  
+
   // Update package.json
   updatePackageJson(targetVersion);
-  
+
   // Update app.json
   updateAppJson(targetVersion);
-  
+
   // Update iOS project
   updateiOSProject(targetVersion);
-  
+
   // Update Android project
   updateAndroidProject(targetVersion);
-  
+
   console.log(`✅ Version sync completed${isDryRun ? ' (dry run)' : ''}`);
 }
 
@@ -1141,14 +1145,14 @@ npm run clean-ios          # Quick iOS cleanup
 
 ### Build Requirements
 
-- **iOS**: 
+- **iOS**:
   - Xcode 26 Beta (for iOS 26+ Liquid Glass APIs)
   - Xcode 15+ (minimum for iOS 16+ features)
   - iOS 16+ deployment target (26+ for full Liquid Glass support)
   - macOS Sequoia 15.5+ (for Xcode 26 beta)
 - **Android**: Java 17, Android SDK 36, Gradle 8.10.2
 - **Node.js**: 18+ with npm or yarn
-- **Development**: 
+- **Development**:
   - Expo CLI with development build support
   - Expo SDK 54 Beta (for Liquid Glass features)
   - EAS Build with Xcode 26 beta image
@@ -1160,18 +1164,20 @@ npm run clean-ios          # Quick iOS cleanup
 #### iOS Build Failures
 
 1. **iOS 26+ Liquid Glass API not available**
+
    ```bash
    # Ensure Xcode 26 beta is installed and selected
    sudo xcode-select -s /Applications/Xcode-beta.app/Contents/Developer
-   
+
    # Verify iOS 26 SDK availability
    xcrun --show-sdk-path --sdk iphoneos26.0
-   
+
    # Update EAS build to use Xcode 26 beta image
    # Set "image": "macos-sequoia-15.5-xcode-26.0" in eas.json
    ```
 
 2. **glassEffect modifier not found**
+
    ```bash
    # Verify SwiftUI 6.0+ and iOS 26+ SDK
    # Check @available(iOS 26.0, *) annotations
@@ -1179,12 +1185,14 @@ npm run clean-ios          # Quick iOS cleanup
    ```
 
 3. **folly/dynamic.h not found**
+
    ```bash
    # Already fixed in Podfile post_install hook
    npm run fix-pods
    ```
 
 4. **Hermes script execution error**
+
    ```bash
    cd ios && rm ./.xcode.env.local && cd ..
    npm run ios
@@ -1198,6 +1206,7 @@ npm run clean-ios          # Quick iOS cleanup
 #### Android Build Failures
 
 1. **Java version conflicts**
+
    ```bash
    # Ensure Java 17 is installed
    brew install openjdk@17
@@ -1222,11 +1231,11 @@ export class Logger {
       console.log(`🔍 [${tag}] ${message}`, data || '');
     }
   }
-  
+
   static error(tag: string, message: string, error?: Error) {
     console.error(`❌ [${tag}] ${message}`, error || '');
   }
-  
+
   static info(tag: string, message: string, data?: any) {
     console.log(`ℹ️ [${tag}] ${message}`, data || '');
   }
@@ -1292,18 +1301,23 @@ Include `CLAUDE.md` with project-specific guidance:
 # CLAUDE.md
 
 ## Project Overview
+
 Brief description of your app and its purpose.
 
 ## Development Commands
+
 List of all npm scripts and their purposes.
 
 ## Architecture Guidelines
+
 Key architectural decisions and patterns.
 
 ## Native Module Usage
+
 Instructions for working with custom native modules.
 
 ## Troubleshooting
+
 Project-specific common issues and solutions.
 ```
 
@@ -1313,7 +1327,8 @@ Project-specific common issues and solutions.
 
 To use this template with Claude Code:
 
-1. **Initialize new project**: 
+1. **Initialize new project**:
+
    ```bash
    npx create-expo-app@latest YourAppName --template blank-typescript
    cd YourAppName
@@ -1321,17 +1336,17 @@ To use this template with Claude Code:
 
 2. **Apply template structure**: Copy the project structure and configurations from this template
 
-3. **Customize configurations**: 
+3. **Customize configurations**:
    - Update `app.json` with your app name, bundle identifiers, and icons
    - Modify `package.json` with your app details and dependencies
    - Replace placeholder names (YourApp, YourModule, etc.) with your actual app names
 
-4. **Implement your features**: 
+4. **Implement your features**:
    - Replace example native modules with your specific functionality
    - Build your screens and navigation based on your app requirements
    - Customize the state management for your app's data
 
-5. **Configure builds**: 
+5. **Configure builds**:
    - Set up your development and production environments
    - Configure signing certificates for iOS and Android
    - Update build scripts and deployment configurations
@@ -1343,9 +1358,10 @@ To use this template with Claude Code:
    npx expo run:android
    ```
 
-This template provides a solid foundation for building production-ready mobile applications with modern React Native practices, comprehensive native integration, and authentic iOS 26+ Liquid Glass support using real Apple APIs. 
+This template provides a solid foundation for building production-ready mobile applications with modern React Native practices, comprehensive native integration, and authentic iOS 26+ Liquid Glass support using real Apple APIs.
 
 **Key Features:**
+
 - **Real iOS 26+ APIs**: Uses actual `glassEffect()` modifier from Apple's SwiftUI 6.0
 - **Expo SDK 54 Beta Integration**: Production-ready Liquid Glass icon and UI support
 - **Comprehensive Fallbacks**: Graceful degradation for iOS 16-25 and other platforms

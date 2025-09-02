@@ -1,17 +1,20 @@
-# Liquid Glass in SwiftUI
+# Liquid Glass in SwiftUI (iOS 26+)
 
 ## Quick Reference
 
-| Modifier/View | Purpose | Parameters |
-|---------------|---------|------------|
-| `.glassEffect()` | Apply glass to view | `Glass`, `Shape`, `isEnabled` |
-| `GlassEffectContainer` | Optimize multiple glass | `spacing`, `content` |
-| `.buttonStyle(.glass)` | Glass button style | N/A |
-| `.glassEffectID()` | Morphing transitions | `id`, `namespace` |
+| Modifier/View          | Purpose                 | Parameters                        | Availability |
+| ---------------------- | ----------------------- | --------------------------------- | ------------ |
+| `.glassEffect()`       | Apply glass to view     | `style`, `in: Shape`, `isEnabled` | iOS 26.0+    |
+| `GlassEffectContainer` | Optimize multiple glass | `spacing`, `content`              | iOS 26.0+    |
+| `.buttonStyle(.glass)` | Glass button style      | N/A                               | iOS 26.0+    |
+| `.glassEffectID()`     | Morphing transitions    | `id`, `namespace`                 | iOS 26.0+    |
+
+**Important**: Liquid Glass requires Xcode 26 and iOS 26+. Apps automatically adopt the new design when rebuilt with Xcode 26.
 
 ## Basic Implementation
 
 ### Simple Glass Effect
+
 ```swift
 Text("Hello")
     .padding()
@@ -19,6 +22,7 @@ Text("Hello")
 ```
 
 ### Custom Shape & Tint
+
 ```swift
 Image(systemName: "star")
     .glassEffect(
@@ -30,23 +34,28 @@ Image(systemName: "star")
 ## Glass Variants
 
 ### Configuration Options
+
 ```swift
-// Regular glass
+// Regular glass - default material
 .glassEffect(.regular)
 
-// With tint
+// With tint - blends color into glass
 .glassEffect(.regular.tint(.orange))
 
-// Interactive (responds to touch)
+// Interactive - enables scaling, bouncing, shimmering on touch
 .glassEffect(.regular.interactive())
 
-// Combined
+// Combined - tint with interactive responses
 .glassEffect(.regular.tint(.blue).interactive())
+
+// Note: The glass adapts its appearance based on content behind it,
+// even changing color scheme from light to dark dynamically
 ```
 
 ## Container Usage
 
 ### Multiple Glass Views
+
 ```swift
 GlassEffectContainer(spacing: 40) {
     HStack(spacing: 40) {
@@ -59,6 +68,7 @@ GlassEffectContainer(spacing: 40) {
 ```
 
 ### Union Effect
+
 ```swift
 @Namespace private var namespace
 
@@ -79,6 +89,7 @@ GlassEffectContainer {
 ## Morphing Transitions
 
 ### Animated Morphing
+
 ```swift
 @State private var expanded = false
 @Namespace private var namespace
@@ -100,6 +111,7 @@ GlassEffectContainer {
 ## Button Styles
 
 ### Glass Buttons
+
 ```swift
 // Standard glass button
 Button("Action") { }
@@ -113,6 +125,7 @@ Button("Important") { }
 ## Toolbar Integration
 
 ### Glass in Toolbar
+
 ```swift
 .toolbar {
     ToolbarItem(placement: .primaryAction) {
@@ -123,6 +136,7 @@ Button("Important") { }
 ```
 
 ### Custom Toolbar Background
+
 ```swift
 .toolbar {
     ToolbarItem(placement: .principal) {
@@ -135,6 +149,7 @@ Button("Important") { }
 ## Advanced Techniques
 
 ### Conditional Glass
+
 ```swift
 @State private var glassEnabled = true
 
@@ -143,6 +158,7 @@ Text("Dynamic")
 ```
 
 ### Navigation Transitions
+
 ```swift
 @Namespace private var namespace
 
@@ -170,12 +186,12 @@ NavigationStack {
 
 ## Common Patterns
 
-| Pattern | Implementation |
-|---------|---------------|
-| Toggle glass | `.glassEffect(isEnabled: condition)` |
-| Group merge | `.glassEffectUnion(id:namespace:)` |
-| Custom shape | `.glassEffect(in: .rect(cornerRadius: 20))` |
-| State indication | `.tint(isActive ? .blue : .clear)` |
+| Pattern          | Implementation                              |
+| ---------------- | ------------------------------------------- |
+| Toggle glass     | `.glassEffect(isEnabled: condition)`        |
+| Group merge      | `.glassEffectUnion(id:namespace:)`          |
+| Custom shape     | `.glassEffect(in: .rect(cornerRadius: 20))` |
+| State indication | `.tint(isActive ? .blue : .clear)`          |
 
 ## Platform Notes
 
@@ -184,6 +200,7 @@ NavigationStack {
 - **macOS**: Toolbar customization expected
 
 ## See Also
+
 - [Overview](overview.md)
 - [AppKit Implementation](appkit.md)
 - [Common Patterns](patterns.md)

@@ -31,11 +31,19 @@ As announced at WWDC25, Liquid Glass represents a paradigm shift in UI design:
 
 ## iOS 26 Release Timeline
 
-- **WWDC25 Announcement**: June 2025
-- **Beta Release**: June 2025
+- **WWDC25 Announcement**: June 9, 2025
+- **Developer Beta Release**: June 2025
 - **Public Beta**: July 2025
-- **Official Release**: September 9, 2025
+- **Official Release**: September 2025 (with iPhone 17)
 - **Xcode 26 Release**: September 2025
+
+## Key API Changes
+
+- **Liquid Glass Material**: Dynamic material combining optical properties of glass with fluidity
+- **SwiftUI**: New `.glassEffect()` modifier with `style`, `shape`, and `isEnabled` parameters
+- **UIKit**: Updated APIs with `UILiquidGlassMaterial` and `UIHostingSceneDelegate`
+- **AppKit**: Cross-platform support with `NSGlassEffectView`
+- **Automatic Adoption**: Apps automatically adopt new design when rebuilt with Xcode 26
 
 ## Implementation Status
 
