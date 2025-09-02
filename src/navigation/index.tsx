@@ -16,6 +16,7 @@ import { ForecastIcon } from '../components/icons/ForecastIcon';
 import { SunscreenIcon } from '../components/icons/SunscreenIcon';
 import { ProfileIcon } from '../components/icons/ProfileIcon';
 import { WeatherHomeIOS26 } from '../screens/WeatherHomeIOS26';
+import { IconGallery } from '../components/icons/__dev__/IconGallery';
 
 const isIOS26 = Platform.OS === 'ios' && parseFloat(String(Platform.Version)) >= 26;
 
@@ -67,6 +68,14 @@ const RootStack = createNativeStackNavigator({
         headerShown: false,
       },
     },
+    ...(typeof __DEV__ !== 'undefined' && __DEV__
+      ? {
+          IconGallery: {
+            screen: IconGallery,
+            options: { title: 'Icon Gallery' },
+          },
+        }
+      : {}),
   },
 });
 
