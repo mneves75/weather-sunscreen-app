@@ -1,5 +1,6 @@
 import React, { useEffect, memo } from 'react';
 import { View, Text, StyleSheet, ScrollView, RefreshControl } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useWeather } from '../../context/WeatherContext';
 import { useColors } from '../../context/ThemeContext';
 import { ColorScheme } from '../../types/theme';
@@ -7,7 +8,9 @@ import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import { ErrorMessage } from '../../components/ui/ErrorMessage';
 
 export const WeatherScreen = memo(function WeatherScreen() {
-  const { weatherData, isLoading, error, loadWeatherData, refreshWeatherData, clearError } = useWeather();
+  const { t } = useTranslation();
+  const { weatherData, isLoading, error, loadWeatherData, refreshWeatherData, clearError } =
+    useWeather();
   const colors = useColors();
 
   useEffect(() => {
@@ -15,38 +18,31 @@ export const WeatherScreen = memo(function WeatherScreen() {
   }, [loadWeatherData]);
 
   if (isLoading && !weatherData) {
-    return <LoadingSpinner message="Loading weather data..." />;
+    return <LoadingSpinner message={t('weather.loading')} />;
   }
 
   if (error) {
     return (
-      <ErrorMessage 
-        message={error} 
+      <ErrorMessage
+        message={error}
         onRetry={() => {
           clearError();
           refreshWeatherData();
-        }} 
+        }}
       />
     );
   }
 
   if (!weatherData) {
-    return (
-      <ErrorMessage 
-        message="No weather data available" 
-        onRetry={loadWeatherData}
-      />
-    );
+    return <ErrorMessage message={t('weather.errorNoData')} onRetry={loadWeatherData} />;
   }
 
   const styles = createStyles(colors);
 
   return (
-    <ScrollView 
+    <ScrollView
       style={styles.container}
-      refreshControl={
-        <RefreshControl refreshing={isLoading} onRefresh={refreshWeatherData} />
-      }
+      refreshControl={<RefreshControl refreshing={isLoading} onRefresh={refreshWeatherData} />}
     >
       <View style={styles.header}>
         <Text style={styles.locationName}>{weatherData.location.name}</Text>
@@ -57,36 +53,36 @@ export const WeatherScreen = memo(function WeatherScreen() {
       </View>
 
       <View style={styles.currentWeather}>
-        <Text style={styles.temperature}>
-          {Math.round(weatherData.current.temperature)}°C
-        </Text>
+        <Text style={styles.temperature}>{Math.round(weatherData.current.temperature)}°C</Text>
         <Text style={styles.description}>{weatherData.current.description}</Text>
         <Text style={styles.feelsLike}>
-          Feels like {Math.round(weatherData.current.feelsLike)}°C
+          {t('weather.feelsLike', { temp: Math.round(weatherData.current.feelsLike) })}
         </Text>
       </View>
 
       <View style={styles.details}>
         <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>Humidity</Text>
+          <Text style={styles.detailLabel}>{t('weather.details.humidity')}</Text>
           <Text style={styles.detailValue}>{weatherData.current.humidity}%</Text>
         </View>
         <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>Wind Speed</Text>
+          <Text style={styles.detailLabel}>{t('weather.details.windSpeed')}</Text>
           <Text style={styles.detailValue}>{weatherData.current.windSpeed} m/s</Text>
         </View>
         <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>Pressure</Text>
+          <Text style={styles.detailLabel}>{t('weather.details.pressure')}</Text>
           <Text style={styles.detailValue}>{weatherData.current.pressure} hPa</Text>
         </View>
         <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>Visibility</Text>
+          <Text style={styles.detailLabel}>{t('weather.details.visibility')}</Text>
           <Text style={styles.detailValue}>{weatherData.current.visibility} km</Text>
         </View>
       </View>
     </ScrollView>
   );
 });
+
+export default WeatherScreen;
 
 function createStyles(colors: ColorScheme) {
   return StyleSheet.create({

@@ -8,6 +8,7 @@ A modern React Native mobile application built with Expo that provides real-time
 ## 🌟 Features
 
 ### Core Features
+
 - **Real-time Weather Data** - Current conditions, temperature, humidity, wind speed, and more
 - **UV Index Monitoring** - Live UV index with safety level indicators and peak time predictions
 - **Sunscreen Recommendations** - Personalized SPF recommendations based on UV levels and skin type
@@ -18,6 +19,7 @@ A modern React Native mobile application built with Expo that provides real-time
 - **Native Performance** - Custom native modules for enhanced speed and accuracy
 
 ### 🆕 v1.0.1 Enhancements
+
 - **Production-Ready Logging** - Structured logging system with environment-aware levels
 - **Error Recovery** - App-level error boundaries with user-friendly recovery options
 - **Performance Optimizations** - React.memo optimizations reducing unnecessary re-renders
@@ -39,25 +41,27 @@ A modern React Native mobile application built with Expo that provides real-time
 ### Installation
 
 1. **Clone and setup**
+
    ```bash
    git clone https://github.com/mneves75/weather-sunscreen-app.git
    cd weather-suncreen-app
-   
+
    # Using Bun (recommended)
    bun install
-   
+
    # Or using npm
    npm install
    ```
 
 2. **Development build setup**
+
    ```bash
    # Create development build for iOS
    npm run ios
-   
+
    # Create development build for Android
    npm run android
-   
+
    # Start development server
    npm start
    ```
@@ -107,15 +111,19 @@ weather-sunscreen-app/
 ## 📱 Screens
 
 ### Weather Screen
+
 Displays current weather conditions including temperature, description, humidity, wind speed, pressure, and visibility with real-time updates.
 
 ### UV Index Screen
+
 Shows current UV index with safety level, peak time predictions, and personalized sunscreen recommendations based on current conditions.
 
 ### Forecast Screen
+
 Provides 7-day weather forecast with daily UV index predictions and precipitation chances (coming soon).
 
 ### Profile Screen
+
 User preferences, settings, and app information including temperature units, skin type, and notification preferences.
 
 ## ⚡ Native Modules
@@ -123,15 +131,22 @@ User preferences, settings, and app information including temperature units, ski
 ### Weather Native Module
 
 Custom native implementations for:
+
 - **Location Services**: High-accuracy GPS location with CoreLocation (iOS) and LocationManager (Android)
 - **Weather Data**: Integration with platform-specific weather APIs
 - **UV Index**: Real-time UV measurements with solar position calculations
 - **Background Processing**: Efficient data fetching with proper timeout handling
 
 **Platform Support:**
+
 - **iOS 16+**: Uses WeatherKit framework and CoreLocation for native performance
 - **Android API 29+**: Custom Java implementation with modern Android APIs
 - **Web**: Graceful fallback to Expo services with mock data
+
+### Important Notes for Expo SDK 54
+
+- WeatherKit requires enabling the WeatherKit capability for your bundle identifier in the Apple Developer portal. If it’s not enabled or unavailable at runtime, the app automatically falls back to service-based weather and safe mock data, so the UX remains intact.
+- Expo Go does not include custom native modules. To use the native WeatherKit bridge or the Liquid Glass native module, run a Development Build (`expo run:ios` / `expo run:android`) or build with EAS. The app gracefully falls back to pure JS/Expo implementations when the native modules aren’t present.
 
 ## 🛠️ Development
 
@@ -156,11 +171,13 @@ npm run clean-ios          # Quick iOS cleanup
 ### Environment Setup
 
 **iOS Development:**
+
 - Xcode 15+ (16+ recommended for latest features)
 - iOS 16+ deployment target
 - CocoaPods for native dependencies
 
 **Android Development:**
+
 - Java 17 (automatically configured in scripts)
 - Android SDK 36
 - Gradle 8.10.2
@@ -168,11 +185,13 @@ npm run clean-ios          # Quick iOS cleanup
 ### Configuration
 
 **Location Services:**
+
 - iOS: Add location usage descriptions to Info.plist
 - Android: Include location permissions in AndroidManifest.xml
 - Web: Fallback to browser geolocation API
 
 **API Integration:**
+
 - Weather APIs configured in `app.json` extra section
 - Native modules handle API requests with proper error handling
 - Fallback data available for development and testing
@@ -180,6 +199,7 @@ npm run clean-ios          # Quick iOS cleanup
 ## 🧪 Testing
 
 ### Development Testing
+
 ```bash
 npm run ios     # Test iOS functionality
 npm run android # Test Android functionality
@@ -187,11 +207,13 @@ npm run web     # Test web compatibility
 ```
 
 ### Location Services Testing
+
 - Test with location permissions granted/denied
 - Verify GPS accuracy and fallback mechanisms
 - Test offline behavior with cached data
 
 ### Weather Data Testing
+
 - Verify API integration and error handling
 - Test UV index calculations and recommendations
 - Validate sunscreen advice for different skin types
@@ -199,15 +221,17 @@ npm run web     # Test web compatibility
 ## 📦 Building and Deployment
 
 ### Development Builds
+
 ```bash
 # iOS development build
 npx eas build --platform ios --profile development
 
-# Android development build  
+# Android development build
 npx eas build --platform android --profile development
 ```
 
 ### Production Builds
+
 ```bash
 # iOS App Store
 npx eas build --platform ios --profile production
@@ -217,6 +241,7 @@ npx eas build --platform android --profile production
 ```
 
 ### App Store Submission
+
 1. Configure signing certificates in EAS
 2. Update app icons and splash screens
 3. Submit via EAS Submit or manually through store consoles
@@ -226,22 +251,26 @@ npx eas build --platform android --profile production
 ### Common Issues
 
 **iOS Build Failures:**
+
 ```bash
 npm run fix-pods              # Fix CocoaPods issues
 npm run clean-ios            # Clean build artifacts
 ```
 
 **Location Permission Issues:**
+
 - Check app.json permissions configuration
 - Verify platform-specific permission requests
 - Test permission flow in app settings
 
 **Weather Data Not Loading:**
+
 - Check internet connectivity
 - Verify API endpoints in configuration
 - Review native module error logs
 
 **Performance Issues:**
+
 - Clear app cache and restart
 - Check for location service conflicts
 - Verify memory usage in development tools
@@ -249,6 +278,7 @@ npm run clean-ios            # Clean build artifacts
 ### Debug Logging
 
 Enable debug logging by setting `__DEV__` flag:
+
 - Native module operations are logged with detailed error messages
 - Weather service calls include timing and success/failure status
 - Location requests show accuracy and source information

@@ -3,7 +3,7 @@
     "codes": {
       "0": "Clear sky",
       "1": "Mainly clear",
-      "2": "Partly cloudy", 
+      "2": "Partly cloudy",
       "3": "Overcast",
       "45": "Fog",
       "48": "Depositing rime fog",
@@ -30,6 +30,15 @@
       "96": "Thunderstorm with slight hail",
       "99": "Thunderstorm with heavy hail",
       "unknown": "Unknown"
+    },
+    "loading": "Loading weather data...",
+    "errorNoData": "No weather data available",
+    "feelsLike": "Feels like {{temp}}°C",
+    "details": {
+      "humidity": "Humidity",
+      "windSpeed": "Wind Speed",
+      "pressure": "Pressure",
+      "visibility": "Visibility"
     }
   },
   "forecast": {
@@ -102,7 +111,7 @@
   },
   "bodyParts": {
     "Face": "Face",
-    "Arms": "Arms", 
+    "Arms": "Arms",
     "Legs": "Legs",
     "Torso": "Torso",
     "Back": "Back",

@@ -30,6 +30,15 @@
       "96": "Tempestade com granizo leve",
       "99": "Tempestade com granizo forte",
       "unknown": "Desconhecido"
+    },
+    "loading": "Carregando dados do tempo...",
+    "errorNoData": "Nenhum dado de clima disponível",
+    "feelsLike": "Sensação térmica de {{temp}}°C",
+    "details": {
+      "humidity": "Umidade",
+      "windSpeed": "Velocidade do vento",
+      "pressure": "Pressão",
+      "visibility": "Visibilidade"
     }
   },
   "forecast": {
@@ -102,7 +111,7 @@
   },
   "bodyParts": {
     "Face": "Rosto",
-    "Arms": "Braços", 
+    "Arms": "Braços",
     "Legs": "Pernas",
     "Torso": "Tronco",
     "Back": "Costas",
