@@ -28,7 +28,9 @@ function getNativeModule() {
       cachedModule = (NativeModules as any)?.WeatherNativeModule ?? null;
     }
   } catch (error) {
-    logger.warn('Failed to resolve native module', { error: error instanceof Error ? error.message : String(error) });
+    logger.warn('Failed to resolve native module', {
+      error: error instanceof Error ? error.message : String(error),
+    });
     cachedModule = null;
   }
 
@@ -63,11 +65,16 @@ export class WeatherNativeService {
       const result = await nativeModule.isAvailable();
       return !!result;
     } catch (error) {
-      logger.info('Module availability check failed', {
-        module: this.MODULE_NAME,
-        platform: Platform.OS,
-        error: error instanceof Error ? error.message : String(error),
-      });
+      if (error instanceof Error) {
+        logger.info('Module availability check failed', {
+          module: this.MODULE_NAME,
+          platform: Platform.OS,
+          error: error.message,
+        });
+      } else {
+        // Non-Error objects: log as error with a normalized Error instance
+        logger.error('Failed to check weather module availability', new Error(String(error)));
+      }
       return false;
     }
   }
@@ -86,26 +93,30 @@ export class WeatherNativeService {
     // Check module availability first
     const available = await this.isAvailable();
     if (!available) {
-      ErrorHandler.handleModuleUnavailable(context, ErrorSeverity.CRITICAL);
+      throw new Error('Weather native module not available on this platform');
     }
 
-    // Execute critical operation with proper error handling
-    return ErrorHandler.handleCriticalOperation(async () => {
+    // Execute critical operation with explicit logging and rethrow original
+    try {
       const nativeModule = getNativeModule();
       if (!nativeModule) {
         throw new Error('Native module resolved as null after availability check');
       }
-      
+
       const location = await nativeModule.getCurrentLocation();
-      
+
       // Validate returned location data
       InputValidator.coordinates(location.latitude, location.longitude, {
         ...context,
-        operation: 'validateLocationResult'
+        operation: 'validateLocationResult',
       });
 
       return location;
-    }, context);
+    } catch (error) {
+      const err = error instanceof Error ? error : new Error(String(error));
+      logger.error('Failed to get current location', err);
+      throw err;
+    }
   }
 
   /**
@@ -137,19 +148,18 @@ export class WeatherNativeService {
         uvIndex: 7,
         maxUVToday: 9,
         peakTime: '12:00 PM',
-        isFallback: true,
       };
     }
 
-    // Execute important operation with error handling
-    return ErrorHandler.handleImportantOperation(async () => {
+    // Execute operation with explicit logging and rethrow original
+    try {
       const nativeModule = getNativeModule();
       if (!nativeModule) {
         throw new Error('Native module resolved as null after availability check');
       }
 
       const uvData = await nativeModule.getUVIndexData(latitude, longitude);
-      
+
       // Validate UV index range
       if (typeof uvData.uvIndex === 'number') {
         if (uvData.uvIndex < 0 || uvData.uvIndex > 12) {
@@ -161,11 +171,12 @@ export class WeatherNativeService {
         }
       }
 
-      return {
-        ...uvData,
-        isFallback: false,
-      };
-    }, context);
+      return uvData;
+    } catch (error) {
+      const err = error instanceof Error ? error : new Error(String(error));
+      logger.error('Failed to get UV index data', err);
+      throw err;
+    }
   }
 
   /**
@@ -214,7 +225,7 @@ export class WeatherNativeService {
       }
 
       const nativeData = await nativeModule.getWeatherData(latitude, longitude);
-      
+
       // Validate weather data ranges
       if (typeof nativeData.temperature === 'number') {
         if (nativeData.temperature < -100 || nativeData.temperature > 100) {
