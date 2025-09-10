@@ -1,38 +1,21 @@
-import { NativeModules, Platform } from 'react-native';
+import { Platform } from 'react-native';
 import { logger } from '../../src/services/loggerService';
 
-interface WeatherNativeModule {
-  isAvailable(): Promise<boolean>;
-  getCurrentLocation(): Promise<{
-    latitude: number;
-    longitude: number;
-    accuracy?: number;
-  }>;
-  getUVIndexData(
-    latitude: number,
-    longitude: number,
-  ): Promise<{
-    uvIndex: number;
-    maxUVToday: number;
-    peakTime: string;
-  }>;
-  getWeatherData(
-    latitude: number,
-    longitude: number,
-  ): Promise<{
-    temperature: number;
-    description: string;
-    weatherCode?: number;
-    humidity: number;
-    windSpeed: number;
-    pressure: number;
-    visibility: number;
-    feelsLike: number;
-  }>;
-}
+// Import TurboModule specification
+import WeatherNativeModule from '../../src/specs/WeatherNativeModuleSpec';
+import type { LocationData, WeatherData, UVData } from '../../src/specs/WeatherNativeModuleSpec';
 
-function getNativeModule(): WeatherNativeModule | undefined {
-  return (NativeModules as any)?.WeatherNativeModule as WeatherNativeModule | undefined;
+// Fallback to legacy NativeModules for backwards compatibility
+import { NativeModules } from 'react-native';
+
+function getNativeModule() {
+  // Try TurboModule first, fallback to legacy NativeModules
+  try {
+    return WeatherNativeModule;
+  } catch (error) {
+    logger.warn('TurboModule not available, falling back to legacy NativeModules');
+    return (NativeModules as any)?.WeatherNativeModule;
+  }
 }
 
 export class WeatherNativeService {
@@ -42,7 +25,7 @@ export class WeatherNativeService {
     }
 
     const NativeWeatherModule = getNativeModule();
-    if (!NativeWeatherModule || typeof (NativeWeatherModule as any).isAvailable !== 'function') {
+    if (!NativeWeatherModule || typeof NativeWeatherModule.isAvailable !== 'function') {
       return false;
     }
 
@@ -58,11 +41,7 @@ export class WeatherNativeService {
     }
   }
 
-  static async getCurrentLocation(): Promise<{
-    latitude: number;
-    longitude: number;
-    accuracy?: number;
-  }> {
+  static async getCurrentLocation(): Promise<LocationData> {
     const available = await this.isAvailable();
     if (!available) {
       throw new Error('Weather native module not available on this platform');
@@ -83,11 +62,7 @@ export class WeatherNativeService {
   static async getUVIndexData(
     latitude: number,
     longitude: number,
-  ): Promise<{
-    uvIndex: number;
-    maxUVToday: number;
-    peakTime: string;
-  }> {
+  ): Promise<UVData> {
     const available = await this.isAvailable();
     if (!available) {
       // Return mock data for development
@@ -113,16 +88,7 @@ export class WeatherNativeService {
   static async getWeatherData(
     latitude: number,
     longitude: number,
-  ): Promise<{
-    temperature: number;
-    description: string;
-    weatherCode?: number;
-    humidity: number;
-    windSpeed: number;
-    pressure: number;
-    visibility: number;
-    feelsLike: number;
-  }> {
+  ): Promise<WeatherData> {
     const available = await this.isAvailable();
     if (!available) {
       // Return mock data for development

@@ -103,5 +103,13 @@
     "react-test-renderer": "19.1.0",
     "typescript": "~5.9.2"
   },
+  "codegenConfig": {
+    "name": "WeatherAppSpecs",
+    "type": "modules",
+    "jsSrcsDir": "./src/specs",
+    "android": {
+      "javaPackageName": "com.weatherapp.specs"
+    }
+  },
   "private": true
 }
