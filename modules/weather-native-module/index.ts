@@ -10,10 +10,10 @@ import { NativeModules } from 'react-native';
 
 function getNativeModule() {
   // Try TurboModule first, fallback to legacy NativeModules
-  try {
+  if (WeatherNativeModule) {
     return WeatherNativeModule;
-  } catch (error) {
-    logger.warn('TurboModule not available, falling back to legacy NativeModules');
+  } else {
+    // Fallback to legacy NativeModules
     return (NativeModules as any)?.WeatherNativeModule;
   }
 }

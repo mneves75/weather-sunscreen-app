@@ -59,4 +59,15 @@ export interface Spec extends TurboModule {
   getUVIndexData(latitude: number, longitude: number): Promise<UVData>;
 }
 
-export default TurboModuleRegistry.getEnforcing<Spec>('WeatherNativeModule');
+// Export TurboModule with error handling for test environments
+let WeatherNativeModuleTurbo: Spec | null = null;
+
+try {
+  WeatherNativeModuleTurbo = TurboModuleRegistry.getEnforcing<Spec>('WeatherNativeModule');
+} catch (error) {
+  // TurboModule not available (likely in test environment)
+  // This will be handled by the fallback in the service layer
+  WeatherNativeModuleTurbo = null;
+}
+
+export default WeatherNativeModuleTurbo;
