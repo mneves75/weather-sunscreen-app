@@ -8,7 +8,7 @@ interface ProfileIconProps {
 
 export function ProfileIcon({ size = 24, color = '#000' }: ProfileIconProps) {
   return (
-    <Text style={{ fontSize: size, color }}>
+    <Text style={{ fontSize: size, color }} accessibilityLabel="Profile" accessibilityRole="image">
       👤
     </Text>
   );

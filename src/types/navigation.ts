@@ -16,9 +16,3 @@ export type TabParamList = {
 
 export type RootStackNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 export type TabNavigationProp = BottomTabNavigationProp<TabParamList>;
-
-declare global {
-  namespace ReactNavigation {
-    interface RootParamList extends RootStackParamList {}
-  }
-}

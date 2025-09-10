@@ -1,0 +1,5 @@
+appId: org.mvneves.weathersunscreen.app
+name: iOS Launch
+steps:
+  - launchApp
+  - assertVisible: Home

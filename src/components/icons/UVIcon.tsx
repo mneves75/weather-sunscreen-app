@@ -8,7 +8,7 @@ interface UVIconProps {
 
 export function UVIcon({ size = 24, color = '#000' }: UVIconProps) {
   return (
-    <Text style={{ fontSize: size, color }}>
+    <Text style={{ fontSize: size, color }} accessibilityLabel="UV Index" accessibilityRole="image">
       ☀️
     </Text>
   );

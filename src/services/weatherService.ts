@@ -89,7 +89,7 @@ export class WeatherService {
           location.longitude,
         );
         // Use proper weather code mapping for icon
-        const weatherCode = (nativeData as any).weatherCode ?? 0; // Default to clear sky if not provided
+        const weatherCode = nativeData.weatherCode ?? 0; // Default to clear sky if not provided
         return {
           ...nativeData,
           icon: getWeatherIcon(weatherCode),

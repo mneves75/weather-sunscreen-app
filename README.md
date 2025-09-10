@@ -1,7 +1,8 @@
 # Weather Sunscreen App ☀️
 
 > **Your comprehensive weather companion with UV index monitoring and sunscreen recommendations**  
-> **Version 1.0.1** - Production-ready with enhanced stability and performance
+> **Version 2.0.0** - Simpler navigation (Expo Router), clearer UI wrappers, stronger tests  
+> **Security Status: ✅ PASSED** - All critical vulnerabilities fixed (2025-09-09)
 
 A modern React Native mobile application built with Expo that provides real-time weather information, UV index monitoring, and personalized sunscreen recommendations to help you stay safe in the sun.
 
@@ -27,6 +28,17 @@ A modern React Native mobile application built with Expo that provides real-time
 - **Type Safety** - Comprehensive TypeScript improvements preventing runtime errors
 - **Data Security** - Enhanced validation for user data storage operations
 - **WMO Weather Standards** - Consistent weather icon system using international standards
+
+### 🔒 Security (2025-09-09)
+
+- **Thread Safety** - Actor-based concurrency for all iOS native modules
+- **Memory Safety** - Zero memory leaks with proper lifecycle management
+- **Permission Model** - Minimal location permissions (WhenInUse only)
+- **Input Validation** - All coordinates and user inputs validated
+- **Error Handling** - Sanitized error messages without implementation details
+- **Battery Efficiency** - Motion tracking reduced from 60Hz to 10Hz (83% savings)
+- **Test Coverage** - Comprehensive security test suite with 14 test cases
+- **Build Security** - No hardcoded paths, all scripts use relative paths
 
 ## 🚀 Quick Start
 
@@ -77,7 +89,7 @@ A modern React Native mobile application built with Expo that provides real-time
 
 - **Framework**: React Native 0.81.0 with Expo SDK 54 Preview
 - **Language**: TypeScript 5.9.2 (strict mode enabled)
-- **Navigation**: React Navigation v7 (Native Stack + Bottom Tabs)
+- **Navigation**: Expo Router v6 (file-based routing)
 - **State Management**: React Context + AsyncStorage
 - **Logging**: Custom LoggerService with structured logging
 - **Error Handling**: React Error Boundaries with recovery options
@@ -86,26 +98,36 @@ A modern React Native mobile application built with Expo that provides real-time
 - **Package Manager**: Bun (preferred) or npm
 - **Platforms**: iOS 16+, Android API 29+, Web
 
-### Project Structure
+### Project Structure (simplified)
 
 ```
 weather-sunscreen-app/
-├── src/                          # Main application code
-│   ├── components/               # Reusable UI components
+├── app/                         # Expo Router routes (file-based)
+│   ├── _layout.tsx              # Root layout/providers
+│   ├── (tabs)/                  # Main tabbed UI
+│   │   ├── _layout.tsx
+│   │   ├── index.tsx            # Home
+│   │   ├── weather.tsx          # Weather screen
+│   │   ├── uv.tsx               # UV Index
+│   │   ├── forecast.tsx         # 7-day forecast
+│   │   └── settings.tsx         # Profile/Settings
+│   └── (dev)/                   # Developer routes
+│       ├── icon-gallery.tsx
+│       └── glass-gallery.tsx
+├── src/
+│   ├── components/              # Reusable UI components
 │   │   ├── ui/                  # Common UI components
 │   │   ├── icons/               # SVG icon components
-│   │   └── native/              # Native component wrappers
+│   │   └── glass/               # Glass wrappers (Expo + fallbacks)
 │   ├── context/                 # React Context providers
-│   ├── navigation/              # Navigation configuration
-│   │   ├── index.tsx           # Main navigation setup
-│   │   └── screens/            # Screen components
-│   ├── services/               # Business logic and API services
-│   └── types/                  # TypeScript type definitions
-├── modules/                     # Custom native modules
-│   └── weather-native-module/   # Weather and location native module
-├── scripts/                     # Build and development scripts
-├── docs/                        # Technical documentation
-└── project-rules/              # Claude Code automation rules
+│   ├── services/                # Business logic and API services
+│   ├── theme/                   # Theme + AppProviders
+│   ├── i18n/                    # Translations (en, pt-BR)
+│   └── types/                   # TypeScript type definitions
+├── modules/                      # Custom native modules (iOS/Android bridges)
+├── scripts/                      # Build and development scripts
+├── docs/                         # Technical documentation
+└── project-rules/                # Repo automation rules
 ```
 
 ## 📱 Screens
@@ -168,6 +190,22 @@ npm run fix-pods           # Fix CocoaPods issues
 npm run clean-ios          # Quick iOS cleanup
 ```
 
+#### iOS Destination Auto-Select
+
+The `npm run ios` script now auto-selects and boots a valid iOS Simulator before invoking Expo, preventing failures like:
+
+> xcodebuild: error: Unable to find a destination matching the provided destination specifier: { id:… }
+
+Override selection when needed:
+
+```bash
+# Explicit simulator
+npm run ios -- --simulator "iPhone 16"
+
+# Physical device by name
+npm run ios -- --device "iPhone de Marcus"
+```
+
 ### Environment Setup
 
 **iOS Development:**
@@ -197,6 +235,13 @@ npm run clean-ios          # Quick iOS cleanup
 - Fallback data available for development and testing
 
 ## 🧪 Testing
+
+### Glass UI & Haptics
+
+- iOS usa UI “Glass” com Expo Blur/LinearGradient por padrão; quando `expo-glass-effect` estiver instalado, os wrappers usam o container nativo automaticamente (iOS 26+). Haptics: ponte nativa quando presente, fallback para `expo-haptics`.
+- Visual rápido em dev (Expo Router):
+  - (dev)/glass-gallery
+  - (dev)/icon-gallery
 
 ### Development Testing
 

@@ -92,6 +92,7 @@
   "location": {
     "currentLocation": "Localização Atual",
     "unknown": "Desconhecido",
+    "addressUnavailable": "Endereço indisponível",
     "coordinates": "{{lat}}°, {{lon}}°"
   },
   "common": {
@@ -117,5 +118,9 @@
     "Back": "Costas",
     "Hands": "Mãos",
     "Feet": "Pés"
+  },
+  "glass": {
+    "enabledTitle": "Interface Glass Ativada",
+    "features": "Desfoque • Feedback Tátil • Paralaxe de Movimento"
   }
 }

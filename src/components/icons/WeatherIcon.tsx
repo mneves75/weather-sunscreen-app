@@ -8,7 +8,7 @@ interface WeatherIconProps {
 
 export function WeatherIcon({ size = 24, color = '#000' }: WeatherIconProps) {
   return (
-    <Text style={{ fontSize: size, color }}>
+    <Text style={{ fontSize: size, color }} accessibilityLabel="Weather" accessibilityRole="image">
       🌤️
     </Text>
   );

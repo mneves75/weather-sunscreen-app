@@ -37,18 +37,27 @@ Platforms: iOS 16+, Android API 29+, Web
 
 ```
 your-app/
-├── src/                          # Main application code
-│   ├── components/               # Reusable UI components
-│   │   ├── ui/                  # Common UI components (buttons, inputs, etc.)
-│   │   ├── glass/               # iOS 26+ Liquid Glass components
-│   │   ├── icons/               # SVG icon components
-│   │   └── native/              # Native component wrappers
-│   ├── context/                 # React Context providers
-│   ├── navigation/              # Navigation configuration
-│   │   ├── index.tsx           # Main navigation setup
-│   │   └── screens/            # Screen components
-│   ├── services/               # Business logic and API services
-│   └── types/                  # TypeScript type definitions
+├── app/                         # Expo Router (file-based routing)
+│   ├── _layout.tsx              # Root layout/providers
+│   ├── (tabs)/                  # Main tabs
+│   │   ├── _layout.tsx
+│   │   ├── index.tsx            # Home
+│   │   ├── weather.tsx          # Weather
+│   │   ├── uv.tsx               # UV Index
+│   │   ├── forecast.tsx         # Forecast
+│   │   └── settings.tsx         # Settings/Profile
+│   └── (dev)/                   # Developer routes (optional)
+│       ├── icon-gallery.tsx
+│       └── glass-gallery.tsx
+├── src/                         # Main application code
+│   ├── components/              # Reusable UI components
+│   │   ├── ui/
+│   │   ├── glass/
+│   │   └── icons/
+│   ├── context/
+│   ├── services/
+│   ├── theme/
+│   └── types/
 ├── ios/                        # iOS native code (gitignored by default)
 │   ├── YourApp/                # iOS app target
 │   ├── YourAppNative/          # Custom native module
@@ -352,7 +361,9 @@ export class YourNativeModuleService {
 
 ### Main Navigation Setup
 
-**File: `src/navigation/index.tsx`**
+> Note: Since v2.0.0 this template uses Expo Router (app/ directory) instead of React Navigation wiring under src/navigation. The snippet below is kept for legacy reference only. Prefer file-based routes in `app/`.
+
+**Legacy File (reference only): `src/navigation/index.tsx`**
 
 ```typescript
 import React from 'react';

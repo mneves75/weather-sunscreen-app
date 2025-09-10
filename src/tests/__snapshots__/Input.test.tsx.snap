@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Input applies invalid border when invalid=true 1`] = `
+<TextInput
+  accessibilityLabel="field"
+  onChangeText={[Function]}
+  style={
+    [
+      {
+        "backgroundColor": "#fff",
+        "borderColor": "#B00020",
+        "borderRadius": 10,
+        "borderWidth": 1,
+        "minHeight": 44,
+        "padding": 12,
+      },
+      undefined,
+    ]
+  }
+  value=""
+/>
+`;

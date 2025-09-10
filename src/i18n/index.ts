@@ -3,14 +3,19 @@ import { initReactI18next } from 'react-i18next';
 import { logger } from '../services/loggerService';
 
 // Safe import of expo-localization with fallback
-let Localization: any = null;
+type LocalizationLike = {
+  locale?: string;
+  locales?: string[];
+  timezone?: string;
+  isRTL?: boolean;
+  region?: string;
+};
+let Localization: LocalizationLike | null = null;
 try {
   Localization = require('expo-localization');
   logger.info('✅ ExpoLocalization native module loaded successfully');
-} catch (error) {
-  logger.warn('⚠️ ExpoLocalization native module not available:', {
-    error: error instanceof Error ? error.message : 'Unknown error',
-  });
+} catch {
+  logger.warn('⚠️ ExpoLocalization native module not available');
   logger.info('🌐 Using fallback localization for development');
   // Fallback localization object
   Localization = {
@@ -42,7 +47,7 @@ const getDeviceLocale = (): string => {
     } else {
       logger.info('📱 Using fallback locale: en-US');
     }
-  } catch (error) {
+  } catch {
     logger.warn('Failed to get device locale');
     logger.info('📱 Using fallback locale: en-US');
   }
@@ -130,7 +135,7 @@ export const getLocalizationInfo = () => {
       isRTL: Localization.isRTL || false,
       region: Localization.region || 'US',
     };
-  } catch (error) {
+  } catch {
     logger.warn('Failed to get localization info');
     return {
       locale: 'en-US',

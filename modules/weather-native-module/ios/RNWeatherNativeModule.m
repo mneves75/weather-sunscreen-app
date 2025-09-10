@@ -2,6 +2,9 @@
 
 @interface RCT_EXTERN_MODULE(WeatherNativeModule, NSObject)
 
+RCT_EXTERN_METHOD(isAvailable:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+
 RCT_EXTERN_METHOD(getCurrentLocation:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 

@@ -32,14 +32,14 @@ export function WeatherProvider({ children }: WeatherProviderProps) {
     lastUpdated: null,
   });
 
-  const loadWeatherData = useCallback(async (location?: Location) => {
+  const loadWeatherData = useCallback(async (_location?: Location) => {
     try {
-      setState(prev => ({ ...prev, isLoading: true, error: null }));
-      
+      setState((prev) => ({ ...prev, isLoading: true, error: null }));
+
       // Use the weather service to get comprehensive data
       const weatherData = await WeatherService.getCurrentWeatherData();
-      
-      setState(prev => ({
+
+      setState((prev) => ({
         ...prev,
         weatherData,
         currentLocation: {
@@ -50,25 +50,28 @@ export function WeatherProvider({ children }: WeatherProviderProps) {
         lastUpdated: new Date(),
       }));
     } catch (error) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         isLoading: false,
-        error: error instanceof Error ? error.message : 'Failed to load weather data'
+        error: error instanceof Error ? error.message : 'Failed to load weather data',
       }));
     }
   }, []);
 
-  const updateLocation = useCallback(async (location: Location) => {
-    setState(prev => ({ ...prev, currentLocation: location }));
-    await loadWeatherData(location);
-  }, [loadWeatherData]);
+  const updateLocation = useCallback(
+    async (newLocation: Location) => {
+      setState((prev) => ({ ...prev, currentLocation: newLocation }));
+      await loadWeatherData(newLocation);
+    },
+    [loadWeatherData],
+  );
 
   const refreshWeatherData = useCallback(async () => {
     await loadWeatherData();
   }, [loadWeatherData]);
 
   const clearError = useCallback(() => {
-    setState(prev => ({ ...prev, error: null }));
+    setState((prev) => ({ ...prev, error: null }));
   }, []);
 
   const contextValue: WeatherContextType = {
@@ -79,11 +82,7 @@ export function WeatherProvider({ children }: WeatherProviderProps) {
     clearError,
   };
 
-  return (
-    <WeatherContext.Provider value={contextValue}>
-      {children}
-    </WeatherContext.Provider>
-  );
+  return <WeatherContext.Provider value={contextValue}>{children}</WeatherContext.Provider>;
 }
 
 export function useWeather(): WeatherContextType {

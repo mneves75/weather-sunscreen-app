@@ -53,17 +53,15 @@ export class ErrorBoundary extends Component<Props, State> {
           <View style={styles.errorContent}>
             <Text style={styles.errorTitle}>Oops! Something went wrong</Text>
             <Text style={styles.errorMessage}>
-              The app encountered an unexpected error. Don't worry, your data is safe.
+              The app encountered an unexpected error. Don’t worry, your data is safe.
             </Text>
-            
+
             {__DEV__ && this.state.error && (
               <View style={styles.debugInfo}>
                 <Text style={styles.debugTitle}>Debug Information:</Text>
                 <Text style={styles.debugText}>{this.state.error.message}</Text>
                 {this.state.errorInfo && (
-                  <Text style={styles.debugText}>
-                    {this.state.errorInfo.componentStack}
-                  </Text>
+                  <Text style={styles.debugText}>{this.state.errorInfo.componentStack}</Text>
                 )}
               </View>
             )}
@@ -152,7 +150,7 @@ const styles = StyleSheet.create({
 // Higher-order component for easier usage
 export function withErrorBoundary<P extends object>(
   Component: React.ComponentType<P>,
-  fallback?: ReactNode
+  fallback?: ReactNode,
 ): React.ComponentType<P> {
   return function ErrorBoundaryWrapper(props: P) {
     return (

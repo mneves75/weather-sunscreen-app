@@ -8,7 +8,7 @@ interface ForecastIconProps {
 
 export function ForecastIcon({ size = 24, color = '#000' }: ForecastIconProps) {
   return (
-    <Text style={{ fontSize: size, color }}>
+    <Text style={{ fontSize: size, color }} accessibilityLabel="Forecast" accessibilityRole="image">
       📅
     </Text>
   );

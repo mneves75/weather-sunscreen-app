@@ -9,7 +9,7 @@ interface LogEntry {
   level: LogLevel;
   message: string;
   timestamp: Date;
-  context?: Record<string, any>;
+  context?: Record<string, unknown>;
   error?: Error;
 }
 
@@ -43,7 +43,7 @@ class Logger {
     if (!this.isDevelopment) return;
 
     const message = this.formatMessage(entry);
-    
+
     switch (entry.level) {
       case 'debug':
       case 'info':
@@ -58,7 +58,7 @@ class Logger {
     }
   }
 
-  debug(message: string, context?: Record<string, any>): void {
+  debug(message: string, context?: Record<string, unknown>): void {
     if (!this.shouldLog('debug')) return;
 
     const entry: LogEntry = {
@@ -71,7 +71,7 @@ class Logger {
     this.logToConsole(entry);
   }
 
-  info(message: string, context?: Record<string, any>): void {
+  info(message: string, context?: Record<string, unknown>): void {
     if (!this.shouldLog('info')) return;
 
     const entry: LogEntry = {
@@ -84,7 +84,7 @@ class Logger {
     this.logToConsole(entry);
   }
 
-  warn(message: string, context?: Record<string, any>): void {
+  warn(message: string, context?: Record<string, unknown>): void {
     if (!this.shouldLog('warn')) return;
 
     const entry: LogEntry = {
@@ -97,7 +97,7 @@ class Logger {
     this.logToConsole(entry);
   }
 
-  error(message: string, error?: Error, context?: Record<string, any>): void {
+  error(message: string, error?: Error, context?: Record<string, unknown>): void {
     if (!this.shouldLog('error')) return;
 
     const entry: LogEntry = {
@@ -112,7 +112,7 @@ class Logger {
   }
 
   // Convenience methods for common patterns
-  apiCall(method: string, url: string, context?: Record<string, any>): void {
+  apiCall(method: string, url: string, context?: Record<string, unknown>): void {
     this.debug(`API ${method} ${url}`, context);
   }
 
@@ -120,15 +120,15 @@ class Logger {
     this.info(`API ${method} ${url} success`, duration ? { duration: `${duration}ms` } : undefined);
   }
 
-  apiError(method: string, url: string, error: Error, context?: Record<string, any>): void {
+  apiError(method: string, url: string, error: Error, context?: Record<string, unknown>): void {
     this.error(`API ${method} ${url} failed`, error, context);
   }
 
-  userAction(action: string, context?: Record<string, any>): void {
+  userAction(action: string, context?: Record<string, unknown>): void {
     this.info(`User action: ${action}`, context);
   }
 
-  serviceEvent(service: string, event: string, context?: Record<string, any>): void {
+  serviceEvent(service: string, event: string, context?: Record<string, unknown>): void {
     this.info(`${service}: ${event}`, context);
   }
 }

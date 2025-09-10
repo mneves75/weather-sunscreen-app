@@ -92,6 +92,7 @@
   "location": {
     "currentLocation": "Current Location",
     "unknown": "Unknown",
+    "addressUnavailable": "Address unavailable",
     "coordinates": "{{lat}}°, {{lon}}°"
   },
   "common": {
@@ -117,5 +118,9 @@
     "Back": "Back",
     "Hands": "Hands",
     "Feet": "Feet"
+  },
+  "glass": {
+    "enabledTitle": "Glass UI Enabled",
+    "features": "Blur • Haptic Feedback • Motion Parallax"
   }
 }

@@ -1,27 +1,6 @@
-import React from 'react';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { Navigation } from './src/navigation';
-import { ThemeProvider } from './src/context/ThemeContext';
-import { WeatherProvider } from './src/context/WeatherContext';
-import { SunscreenProvider } from './src/context/SunscreenContext';
-import { StatusBarWrapper } from './src/components/ui/StatusBarWrapper';
-import { ErrorBoundary } from './src/components/ui/ErrorBoundary';
-// Initialize i18n system
-import './src/i18n';
-
+// Expo Router is configured as the app entry in package.json ("main": "expo-router/entry").
+// This App.tsx is intentionally a no-op to avoid duplicate provider trees.
+// Keeping a minimal export ensures TypeScript can typecheck without pulling in legacy navigation.
 export default function App() {
-  return (
-    <ErrorBoundary>
-      <SafeAreaProvider>
-        <ThemeProvider>
-          <WeatherProvider>
-            <SunscreenProvider>
-              <Navigation />
-              <StatusBarWrapper />
-            </SunscreenProvider>
-          </WeatherProvider>
-        </ThemeProvider>
-      </SafeAreaProvider>
-    </ErrorBoundary>
-  );
+  return null;
 }

@@ -1,0 +1,44 @@
+# Quick Reference - Weather Sunscreen App
+
+## 🚀 Quick Start
+```bash
+bun install          # Install dependencies
+bun start           # Start dev server
+bun run ios         # Run on iOS
+bun run android     # Run on Android
+```
+
+## 📱 Main Screens
+- **Weather**: [src/navigation/screens/WeatherScreen.tsx](mdc:src/navigation/screens/WeatherScreen.tsx)
+- **UV Index**: [src/navigation/screens/UVIndexScreen.tsx](mdc:src/navigation/screens/UVIndexScreen.tsx)
+- **Forecast**: [src/navigation/screens/ForecastScreen.tsx](mdc:src/navigation/screens/ForecastScreen.tsx)
+- **Tracker**: [src/navigation/screens/SunscreenTrackerScreen.tsx](mdc:src/navigation/screens/SunscreenTrackerScreen.tsx)
+
+## 🔧 Key Services
+- **Weather**: [src/services/weatherService.ts](mdc:src/services/weatherService.ts)
+- **Location**: [src/services/locationService.ts](mdc:src/services/locationService.ts)
+- **Sunscreen**: [src/services/sunscreenService.ts](mdc:src/services/sunscreenService.ts)
+- **Native Module**: [modules/weather-native-module/index.ts](mdc:modules/weather-native-module/index.ts)
+
+## 🎯 State Management
+- **Weather State**: [src/context/WeatherContext.tsx](mdc:src/context/WeatherContext.tsx)
+- **Sunscreen State**: [src/context/SunscreenContext.tsx](mdc:src/context/SunscreenContext.tsx)
+
+## 🏗️ Architecture
+- **Entry**: [index.ts](mdc:index.ts) → [App.tsx](mdc:App.tsx)
+- **Navigation**: [src/navigation/index.tsx](mdc:src/navigation/index.tsx)
+- **Types**: [src/types/](mdc:src/types/)
+
+## 🐛 Common Issues
+- **iOS Pods**: `bun run fix-pods` or `bun run clean-ios`
+- **Native Changes**: Rebuild with `bun run ios` or `bun run android`
+- **Version Sync**: `bun run sync-versions`
+
+## 📚 Documentation
+- **Project Rules**: [project-rules/weather-app-rules.md](mdc:project-rules/weather-app-rules.md)
+- **README**: [README.md](mdc:README.md)
+- **Changelog**: [CHANGELOG.md](mdc:CHANGELOG.md)
+description:
+globs:
+alwaysApply: false
+---

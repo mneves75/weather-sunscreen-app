@@ -7,10 +7,10 @@ interface LoadingSpinnerProps {
   message?: string;
 }
 
-export function LoadingSpinner({ 
-  size = 'large', 
-  color = '#4A90E2', 
-  message = 'Loading...' 
+export function LoadingSpinner({
+  size = 'large',
+  color = '#4A90E2',
+  message = 'Loading...',
 }: LoadingSpinnerProps) {
   return (
     <View style={styles.container}>

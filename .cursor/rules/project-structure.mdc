@@ -1,38 +1,98 @@
-# DNSChat Project Structure Guide
+---
+alwaysApply: false
+---
+# Weather Sunscreen App - Project Structure Guide
 
-## Entry Points
-- **Main Entry**: [index.tsx](mdc:index.tsx) → [src/App.tsx](mdc:src/App.tsx)
-- **Config**: [app.json](mdc:app.json) - Expo config with scheme `dnschat://`, new architecture enabled
-- **Package**: [package.json](mdc:package.json) - React Native + Expo dependencies
+## Entry Points & Core Architecture
+- **Main Entry**: [index.ts](mdc:index.ts) → [App.tsx](mdc:App.tsx) → [src/navigation/index.tsx](mdc:src/navigation/index.tsx)
+- **App Structure**: React Native + Expo app with TypeScript
+- **Navigation**: Bottom tab navigation with 4 main screens (Weather, UV Index, Forecast, Tracker)
 
-## Core Architecture
-- **Navigation**: [src/navigation/index.tsx](mdc:src/navigation/index.tsx) - React Navigation v7 with static navigation
-- **State Management**: 
-  - [src/context/ChatContext.tsx](mdc:src/context/ChatContext.tsx) - Chat state and DNS operations
-  - [src/context/SettingsContext.tsx](mdc:src/context/SettingsContext.tsx) - App settings
-  - [src/context/OnboardingContext.tsx](mdc:src/context/OnboardingContext.tsx) - Onboarding flow
-- **Services**:
-  - [src/services/dnsService.ts](mdc:src/services/dnsService.ts) - DNS query orchestration
-  - [src/services/dnsLogService.ts](mdc:src/services/dnsLogService.ts) - Query logging
-  - [src/services/storageService.ts](mdc:src/services/storageService.ts) - AsyncStorage wrapper
-- **Types**: [src/types/chat.ts](mdc:src/types/chat.ts) - Core data models
+## Key Directories & Files
 
-## Native DNS Integration
-- **iOS Native**: [ios/DNSNative/DNSResolver.swift](mdc:ios/DNSNative/DNSResolver.swift), [ios/DNSNative/RNDNSModule.m](mdc:ios/DNSNative/RNDNSModule.m)
-- **Android Native**: [android/app/src/main/java/com/dnschat/NativeDnsModule.kt](mdc:android/app/src/main/java/com/dnschat/NativeDnsModule.kt)
-- **JS Bridge**: [modules/dns-native/index.ts](mdc:modules/dns-native/index.ts)
-- **Expo Plugin**: [plugins/dns-native-plugin.js](mdc:plugins/dns-native-plugin.js)
+### Core Application
+- [App.tsx](mdc:App.tsx) - Root component with context providers
+- [src/navigation/index.tsx](mdc:src/navigation/index.tsx) - Main navigation configuration
+- [src/context/](mdc:src/context/) - React Context for state management
+  - [WeatherContext.tsx](mdc:src/context/WeatherContext.tsx) - Weather data and location state
+  - [SunscreenContext.tsx](mdc:src/context/SunscreenContext.tsx) - Sunscreen tracking state
 
-## Key Behaviors
-- **Deep Linking**: Scheme `dnschat://` configured in [app.json](mdc:app.json) and consumed in [src/App.tsx](mdc:src/App.tsx)
-- **DNS Flow**: Configurable priority - Native → UDP → TCP → DoH → Mock OR DoH → Native → UDP → TCP → Mock
-- **DNS Logging**: Real-time query logging with persistent storage
-- **New Architecture**: `newArchEnabled: true` in [app.json](mdc:app.json)
+### Screens & Components
+- [src/navigation/screens/](mdc:src/navigation/screens/) - Main app screens
+  - [WeatherScreen.tsx](mdc:src/navigation/screens/WeatherScreen.tsx) - Current weather display
+  - [UVIndexScreen.tsx](mdc:src/navigation/screens/UVIndexScreen.tsx) - UV index information
+  - [ForecastScreen.tsx](mdc:src/navigation/screens/ForecastScreen.tsx) - Weather forecast
+  - [SunscreenTrackerScreen.tsx](mdc:src/navigation/screens/SunscreenTrackerScreen.tsx) - Sunscreen usage tracking
+- [src/components/](mdc:src/components/) - Reusable UI components
+  - [icons/](mdc:src/components/icons/) - Custom icon components
+  - [glass/](mdc:src/components/glass/) - Liquid glass UI components
 
-## Conventions
-- Keep logic in `src/services/*`; UI in `src/components/*` and screens in `src/navigation/screens/*`
-- Persist via `StorageService`; do not read/write AsyncStorage directly in components
-- Extend navigation only via [src/navigation/index.tsx](mdc:src/navigation/index.tsx)
-- Keep logic in `src/services/*`; UI in `src/components/*` and screens in `src/navigation/screens/*`
-- Persist via `StorageService`; do not read/write AsyncStorage directly in components
-- Extend navigation only via [src/navigation/index.tsx](mdc:src/navigation/index.tsx)
+### Services & Data
+- [src/services/](mdc:src/services/) - API and business logic services
+  - [weatherService.ts](mdc:src/services/weatherService.ts) - Weather data fetching
+  - [openMeteoService.ts](mdc:src/services/openMeteoService.ts) - OpenMeteo API integration
+  - [locationService.ts](mdc:src/services/locationService.ts) - Location handling
+  - [sunscreenService.ts](mdc:src/services/sunscreenService.ts) - Sunscreen tracking logic
+
+### Native Modules
+- [modules/weather-native-module/](mdc:modules/weather-native-module/) - Native iOS/Android weather functionality
+  - [index.ts](mdc:modules/weather-native-module/index.ts) - Cross-platform native module interface
+
+### Configuration
+- [package.json](mdc:package.json) - Dependencies and scripts
+- [app.json](mdc:app.json) - Expo configuration
+- [tsconfig.json](mdc:tsconfig.json) - TypeScript configuration
+- [ios/](mdc:ios/) - iOS native code and configuration
+
+## Development Workflow
+- Use `bun start` for development server
+- Use `bun run ios` for iOS simulator
+- Use `bun run android` for Android emulator
+- Native module changes require rebuilding the app# Weather Sunscreen App - Project Structure Guide
+
+## Entry Points & Core Architecture
+- **Main Entry**: [index.ts](mdc:index.ts) → [App.tsx](mdc:App.tsx) → [src/navigation/index.tsx](mdc:src/navigation/index.tsx)
+- **App Structure**: React Native + Expo app with TypeScript
+- **Navigation**: Bottom tab navigation with 4 main screens (Weather, UV Index, Forecast, Tracker)
+
+## Key Directories & Files
+
+### Core Application
+- [App.tsx](mdc:App.tsx) - Root component with context providers
+- [src/navigation/index.tsx](mdc:src/navigation/index.tsx) - Main navigation configuration
+- [src/context/](mdc:src/context/) - React Context for state management
+  - [WeatherContext.tsx](mdc:src/context/WeatherContext.tsx) - Weather data and location state
+  - [SunscreenContext.tsx](mdc:src/context/SunscreenContext.tsx) - Sunscreen tracking state
+
+### Screens & Components
+- [src/navigation/screens/](mdc:src/navigation/screens/) - Main app screens
+  - [WeatherScreen.tsx](mdc:src/navigation/screens/WeatherScreen.tsx) - Current weather display
+  - [UVIndexScreen.tsx](mdc:src/navigation/screens/UVIndexScreen.tsx) - UV index information
+  - [ForecastScreen.tsx](mdc:src/navigation/screens/ForecastScreen.tsx) - Weather forecast
+  - [SunscreenTrackerScreen.tsx](mdc:src/navigation/screens/SunscreenTrackerScreen.tsx) - Sunscreen usage tracking
+- [src/components/](mdc:src/components/) - Reusable UI components
+  - [icons/](mdc:src/components/icons/) - Custom icon components
+  - [glass/](mdc:src/components/glass/) - Liquid glass UI components
+
+### Services & Data
+- [src/services/](mdc:src/services/) - API and business logic services
+  - [weatherService.ts](mdc:src/services/weatherService.ts) - Weather data fetching
+  - [openMeteoService.ts](mdc:src/services/openMeteoService.ts) - OpenMeteo API integration
+  - [locationService.ts](mdc:src/services/locationService.ts) - Location handling
+  - [sunscreenService.ts](mdc:src/services/sunscreenService.ts) - Sunscreen tracking logic
+
+### Native Modules
+- [modules/weather-native-module/](mdc:modules/weather-native-module/) - Native iOS/Android weather functionality
+  - [index.ts](mdc:modules/weather-native-module/index.ts) - Cross-platform native module interface
+
+### Configuration
+- [package.json](mdc:package.json) - Dependencies and scripts
+- [app.json](mdc:app.json) - Expo configuration
+- [tsconfig.json](mdc:tsconfig.json) - TypeScript configuration
+- [ios/](mdc:ios/) - iOS native code and configuration
+
+## Development Workflow
+- Use `bun start` for development server
+- Use `bun run ios` for iOS simulator
+- Use `bun run android` for Android emulator
+- Native module changes require rebuilding the app

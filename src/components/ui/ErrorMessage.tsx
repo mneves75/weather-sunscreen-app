@@ -7,11 +7,7 @@ interface ErrorMessageProps {
   retryText?: string;
 }
 
-export function ErrorMessage({ 
-  message, 
-  onRetry, 
-  retryText = 'Try Again' 
-}: ErrorMessageProps) {
+export function ErrorMessage({ message, onRetry, retryText = 'Try Again' }: ErrorMessageProps) {
   return (
     <View style={styles.container}>
       <Text style={styles.errorIcon}>⚠️</Text>

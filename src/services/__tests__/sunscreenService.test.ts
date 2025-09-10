@@ -50,7 +50,7 @@ jest.spyOn(WeatherService, 'getCurrentWeatherData').mockResolvedValue({
       spf: 30,
       applicationFrequency: 'Every 2 hours',
       additionalTips: [],
-      skinTypeRecommendations: {},
+      skinTypeRecommendations: { fair: '', medium: '', dark: '' },
     },
   },
 });

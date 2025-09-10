@@ -28,7 +28,7 @@ You can integrate SwiftUI views with objects from the UIKit, AppKit, and WatchKi
 
 ![An image with a background of Mount Fuji, and in the foreground screenshots of the landmark detail view for Mount Fuji in the Landmarks app, in an iPad and iPhone.
 
-Landmarks: Building an app with Liquid Glass 
+Landmarks: Building an app with Liquid Glass
 
 Enhance your app experience with system-provided and custom Liquid Glass.
 
@@ -36,7 +36,7 @@ Enhance your app experience with system-provided and custom Liquid Glass.
 
 ![
 
-Destination Video 
+Destination Video
 
 Leverage SwiftUI to build an immersive media experience in a multiplatform app.
 
@@ -44,7 +44,7 @@ Leverage SwiftUI to build an immersive media experience in a multiplatform app.
 
 ![
 
-BOT-anist 
+BOT-anist
 
 Build a multiplatform app that uses windows, volumes, and animations to create a robot botanist’s greenhouse.
 
@@ -52,7 +52,7 @@ Build a multiplatform app that uses windows, volumes, and animations to create a
 
 ![A screenshot displaying the document launch experience on iPad with a robot and plant accessory to the left and right of the title view, respectively.
 
-Building a document-based app with SwiftUI 
+Building a document-based app with SwiftUI
 
 Create, save, and open documents in a multiplatform app.
 
@@ -218,7 +218,7 @@ You can integrate SwiftUI views with objects from the UIKit, AppKit, and WatchKi
 
 ![An image with a background of Mount Fuji, and in the foreground screenshots of the landmark detail view for Mount Fuji in the Landmarks app, in an iPad and iPhone.
 
-Landmarks: Building an app with Liquid Glass 
+Landmarks: Building an app with Liquid Glass
 
 Enhance your app experience with system-provided and custom Liquid Glass.
 
@@ -226,7 +226,7 @@ Enhance your app experience with system-provided and custom Liquid Glass.
 
 ![
 
-Destination Video 
+Destination Video
 
 Leverage SwiftUI to build an immersive media experience in a multiplatform app.
 
@@ -234,7 +234,7 @@ Leverage SwiftUI to build an immersive media experience in a multiplatform app.
 
 ![
 
-BOT-anist 
+BOT-anist
 
 Build a multiplatform app that uses windows, volumes, and animations to create a robot botanist’s greenhouse.
 
@@ -242,7 +242,7 @@ Build a multiplatform app that uses windows, volumes, and animations to create a
 
 ![A screenshot displaying the document launch experience on iPad with a robot and plant accessory to the left and right of the title view, respectively.
 
-Building a document-based app with SwiftUI 
+Building a document-based app with SwiftUI
 
 Create, save, and open documents in a multiplatform app.
 

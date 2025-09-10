@@ -8,12 +8,18 @@ interface WeatherNativeModule {
     longitude: number;
     accuracy?: number;
   }>;
-  getUVIndexData(latitude: number, longitude: number): Promise<{
+  getUVIndexData(
+    latitude: number,
+    longitude: number,
+  ): Promise<{
     uvIndex: number;
     maxUVToday: number;
     peakTime: string;
   }>;
-  getWeatherData(latitude: number, longitude: number): Promise<{
+  getWeatherData(
+    latitude: number,
+    longitude: number,
+  ): Promise<{
     temperature: number;
     description: string;
     weatherCode?: number;
@@ -25,26 +31,33 @@ interface WeatherNativeModule {
   }>;
 }
 
-const { WeatherNativeModule: NativeWeatherModule } = NativeModules;
+function getNativeModule(): WeatherNativeModule | undefined {
+  return (NativeModules as any)?.WeatherNativeModule as WeatherNativeModule | undefined;
+}
 
 export class WeatherNativeService {
   static async isAvailable(): Promise<boolean> {
     if (Platform.OS === 'web') {
       return false;
     }
-    
-    if (!NativeWeatherModule) {
+
+    const NativeWeatherModule = getNativeModule();
+    if (!NativeWeatherModule || typeof (NativeWeatherModule as any).isAvailable !== 'function') {
       return false;
     }
-    
+
     try {
-      return await NativeWeatherModule.isAvailable();
+      const result = await NativeWeatherModule.isAvailable();
+      return !!result;
     } catch (error) {
-      logger.error('Failed to check weather module availability', error instanceof Error ? error : new Error(String(error)));
+      logger.error(
+        'Failed to check weather module availability',
+        error instanceof Error ? error : new Error(String(error)),
+      );
       return false;
     }
   }
-  
+
   static async getCurrentLocation(): Promise<{
     latitude: number;
     longitude: number;
@@ -54,16 +67,23 @@ export class WeatherNativeService {
     if (!available) {
       throw new Error('Weather native module not available on this platform');
     }
-    
+
     try {
-      return await NativeWeatherModule.getCurrentLocation();
+      const NativeWeatherModule = getNativeModule();
+      return await NativeWeatherModule!.getCurrentLocation();
     } catch (error) {
-      logger.error('Failed to get current location', error instanceof Error ? error : new Error(String(error)));
+      logger.error(
+        'Failed to get current location',
+        error instanceof Error ? error : new Error(String(error)),
+      );
       throw error;
     }
   }
-  
-  static async getUVIndexData(latitude: number, longitude: number): Promise<{
+
+  static async getUVIndexData(
+    latitude: number,
+    longitude: number,
+  ): Promise<{
     uvIndex: number;
     maxUVToday: number;
     peakTime: string;
@@ -77,18 +97,26 @@ export class WeatherNativeService {
         peakTime: '12:00 PM',
       };
     }
-    
+
     try {
-      return await NativeWeatherModule.getUVIndexData(latitude, longitude);
+      const NativeWeatherModule = getNativeModule();
+      return await NativeWeatherModule!.getUVIndexData(latitude, longitude);
     } catch (error) {
-      logger.error('Failed to get UV index data', error instanceof Error ? error : new Error(String(error)));
+      logger.error(
+        'Failed to get UV index data',
+        error instanceof Error ? error : new Error(String(error)),
+      );
       throw error;
     }
   }
-  
-  static async getWeatherData(latitude: number, longitude: number): Promise<{
+
+  static async getWeatherData(
+    latitude: number,
+    longitude: number,
+  ): Promise<{
     temperature: number;
     description: string;
+    weatherCode?: number;
     humidity: number;
     windSpeed: number;
     pressure: number;
@@ -107,18 +135,22 @@ export class WeatherNativeService {
         pressure: 1013,
         visibility: 10,
         feelsLike: 24,
-      } as any;
+      };
     }
-    
+
     try {
-      const nativeData = await NativeWeatherModule.getWeatherData(latitude, longitude);
+      const NativeWeatherModule = getNativeModule();
+      const nativeData = await NativeWeatherModule!.getWeatherData(latitude, longitude);
       // Add weatherCode if not provided by native module (for backwards compatibility)
       return {
         ...nativeData,
         weatherCode: (nativeData as any).weatherCode ?? 0, // Default to clear sky if not provided
       };
     } catch (error) {
-      logger.error('Failed to get weather data', error instanceof Error ? error : new Error(String(error)));
+      logger.error(
+        'Failed to get weather data',
+        error instanceof Error ? error : new Error(String(error)),
+      );
       throw error;
     }
   }

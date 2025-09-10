@@ -2,15 +2,32 @@
 import { logger } from './loggerService';
 
 // Safe import of expo-notifications with fallback
-let Notifications: any = null;
+type NotificationAPI = {
+  requestPermissionsAsync?: () => Promise<{ status: string }>;
+  getPermissionsAsync?: () => Promise<{ status: string }>;
+  scheduleNotificationAsync?: (opts: {
+    content: { title: string; body: string; data?: unknown; sound?: boolean };
+    trigger?: unknown;
+  }) => Promise<string>;
+  cancelScheduledNotificationAsync?: (id: string) => Promise<void>;
+  cancelAllScheduledNotificationsAsync?: () => Promise<void>;
+  SchedulableTriggerInputTypes?: Record<string, string>;
+  setNotificationHandler?: (h: {
+    handleNotification: () => Promise<{
+      shouldShowAlert: boolean;
+      shouldPlaySound: boolean;
+      shouldSetBadge: boolean;
+    }>;
+  }) => void;
+};
+let Notifications: NotificationAPI | null = null;
 try {
   Notifications = require('expo-notifications');
   logger.info('✅ ExpoNotifications native module loaded successfully');
 } catch (error) {
-  logger.warn(
-    '⚠️ ExpoNotifications native module not available:',
-    error instanceof Error ? error.message : 'Unknown error',
-  );
+  logger.warn('⚠️ ExpoNotifications native module not available', {
+    error: error instanceof Error ? error.message : 'Unknown error',
+  });
   logger.info('📢 Using fallback notification service for development');
 }
 
@@ -26,10 +43,13 @@ export class NotificationService {
     }
 
     try {
-      const { status } = await Notifications.requestPermissionsAsync();
-      return status === 'granted';
+      const status = await Notifications.requestPermissionsAsync?.();
+      if (!status) return false;
+      return status.status === 'granted';
     } catch (error) {
-      logger.warn('Failed to request notification permissions:', error);
+      logger.warn('Failed to request notification permissions', {
+        error: error instanceof Error ? error.message : String(error),
+      });
       return false;
     }
   }
@@ -37,7 +57,7 @@ export class NotificationService {
   static async scheduleNotification(
     title: string,
     body: string,
-    trigger: any,
+    trigger: unknown,
   ): Promise<string | null> {
     if (!Notifications) {
       logger.info('📢 Schedule notification: native module not available');
@@ -45,20 +65,24 @@ export class NotificationService {
     }
 
     try {
-      const identifier = await Notifications.scheduleNotificationAsync({
+      const identifier = await Notifications.scheduleNotificationAsync?.({
         content: { title, body },
         trigger,
       });
+      if (!identifier) return null;
       return identifier;
     } catch (error) {
-      logger.error('Failed to schedule notification:', error);
+      logger.error(
+        'Failed to schedule notification',
+        error instanceof Error ? error : new Error(String(error)),
+      );
       return null;
     }
   }
 
   static async scheduleAt(
     date: Date,
-    content: { title: string; body: string; data?: any; sound?: boolean },
+    content: { title: string; body: string; data?: unknown; sound?: boolean },
   ): Promise<string | null> {
     if (!Notifications) {
       logger.info('📢 Schedule at date: native module not available');
@@ -67,7 +91,7 @@ export class NotificationService {
 
     try {
       const type = Notifications.SchedulableTriggerInputTypes?.DATE ?? 'date';
-      const identifier = await Notifications.scheduleNotificationAsync({
+      const identifier = await Notifications.scheduleNotificationAsync?.({
         content: {
           title: content.title,
           body: content.body,
@@ -76,9 +100,13 @@ export class NotificationService {
         },
         trigger: { type, date },
       });
+      if (!identifier) return null;
       return identifier as string;
     } catch (error) {
-      logger.error('Failed to schedule date notification:', error);
+      logger.error(
+        'Failed to schedule date notification',
+        error instanceof Error ? error : new Error(String(error)),
+      );
       return null;
     }
   }
@@ -90,9 +118,12 @@ export class NotificationService {
     }
 
     try {
-      await Notifications.cancelScheduledNotificationAsync(identifier);
+      await Notifications.cancelScheduledNotificationAsync?.(identifier);
     } catch (error) {
-      logger.error('Failed to cancel notification:', error);
+      logger.error(
+        'Failed to cancel notification',
+        error instanceof Error ? error : new Error(String(error)),
+      );
     }
   }
 
@@ -102,15 +133,18 @@ export class NotificationService {
       return;
     }
     try {
-      await Notifications.cancelAllScheduledNotificationsAsync();
+      await Notifications.cancelAllScheduledNotificationsAsync?.();
     } catch (error) {
-      logger.error('Failed to cancel all notifications:', error);
+      logger.error(
+        'Failed to cancel all notifications',
+        error instanceof Error ? error : new Error(String(error)),
+      );
     }
   }
 }
 
 // Set default notification handler if available
-if (Notifications) {
+if (Notifications?.setNotificationHandler) {
   try {
     Notifications.setNotificationHandler({
       handleNotification: async () => ({
@@ -120,6 +154,8 @@ if (Notifications) {
       }),
     });
   } catch (error) {
-    logger.warn('Failed to set notification handler:', error);
+    logger.warn('Failed to set notification handler', {
+      error: error instanceof Error ? error.message : String(error),
+    });
   }
 }

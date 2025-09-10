@@ -4,63 +4,36 @@
     "slug": "weather-sunscreen-app",
     "description": "Your comprehensive weather companion with UV index monitoring and sunscreen recommendations",
     "version": "2.0.0",
-    "orientation": "default",
-    "icon": "./assets/icon.png",
-    "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
-    "scheme": "weather-sunscreen",
-    "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#4A90E2"
-    },
-    "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.weathersunscreen.app",
-      "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "This app needs access to your location to provide accurate weather information for your area.",
-        "NSLocationAlwaysAndWhenInUseUsageDescription": "This app needs access to your location to provide accurate weather information and UV index alerts."
-      }
-    },
-    "android": {
-      "package": "com.weathersunscreen.app",
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#4A90E2"
-      },
-      "permissions": ["ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION", "POST_NOTIFICATIONS"]
-    },
     "web": {
       "favicon": "./assets/favicon.png",
       "bundler": "metro"
     },
     "plugins": [
-      "expo-asset",
-      "expo-splash-screen",
-      "react-native-edge-to-edge",
-      "expo-location",
+      "expo-router",
       [
         "expo-build-properties",
         {
           "ios": {
-            "deploymentTarget": "26.0",
-            "newArchEnabled": true,
-            "useFrameworks": "static",
-            "buildReactNativeFromSource": true
-          },
-          "android": {
-            "newArchEnabled": true,
-            "compileSdkVersion": 34,
-            "targetSdkVersion": 34
+            "deploymentTarget": "26.0"
           }
         }
-      ],
-      "expo-localization"
+      ]
     ],
+    "updates": {
+      "enabled": true,
+      "fallbackToCacheTimeout": 0
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
     "extra": {
       "weatherApiUrl": "https://api.openweathermap.org/data/2.5",
       "uvIndexApiUrl": "https://api.openuv.io/api/v1",
       "openMeteoApiUrl": "https://api.open-meteo.com/v1"
+    },
+    "ios": {
+      "bundleIdentifier": "com.anonymous.weather-sunscreen-app"
     }
   }
 }

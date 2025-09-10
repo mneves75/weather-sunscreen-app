@@ -4,7 +4,7 @@ import i18n from '../i18n';
  * WMO Weather Interpretation Codes (WW)
  * As defined by the World Meteorological Organization
  * Source: https://open-meteo.com/en/docs#weathervariables
- * 
+ *
  * Now supports internationalization with English and Brazilian Portuguese
  */
 
@@ -76,7 +76,7 @@ export const WMO_WEATHER_CODES: Record<number, Omit<WeatherInfo, 'description'>>
  */
 export function getWeatherInfo(code: number): WeatherInfo {
   const weatherMapping = WMO_WEATHER_CODES[code];
-  
+
   if (!weatherMapping) {
     console.warn(`Unknown weather code: ${code}, using default`);
     return {
@@ -85,7 +85,7 @@ export function getWeatherInfo(code: number): WeatherInfo {
       category: 'clear',
     };
   }
-  
+
   return {
     description: i18n.t(`weather.codes.${code}`),
     icon: weatherMapping.icon,
@@ -146,7 +146,7 @@ export function isClearWeather(code: number): boolean {
  */
 export function getUVExposureLevel(code: number): 'low' | 'moderate' | 'high' {
   const category = getWeatherCategory(code);
-  
+
   switch (category) {
     case 'clear':
       return 'high';
@@ -165,6 +165,9 @@ export function getUVExposureLevel(code: number): 'low' | 'moderate' | 'high' {
  */
 export function getAllWeatherCodes(): Array<{ code: number; info: WeatherInfo }> {
   return Object.entries(WMO_WEATHER_CODES)
-    .map(([code, info]) => ({ code: parseInt(code), info }))
+    .map(([code, _]) => ({
+      code: parseInt(code),
+      info: getWeatherInfo(parseInt(code)),
+    }))
     .sort((a, b) => a.code - b.code);
 }

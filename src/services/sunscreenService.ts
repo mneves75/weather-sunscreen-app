@@ -6,7 +6,6 @@ import {
   SunscreenReminder,
   UserSunscreenProfile,
   SKIN_TYPES,
-  SkinType,
 } from '../types/sunscreen';
 import { WeatherService } from './weatherService';
 import { LocationService } from './locationService';
@@ -32,7 +31,10 @@ export class SunscreenService {
       logger.info('📱 Notifications initialized successfully');
       return granted;
     } catch (error) {
-      logger.error('Failed to initialize notifications:', error);
+      logger.error(
+        'Failed to initialize notifications',
+        error instanceof Error ? error : new Error(String(error)),
+      );
       return false;
     }
   }
@@ -70,10 +72,16 @@ export class SunscreenService {
       // Schedule reminder notification
       await this.scheduleReapplicationReminder(application);
 
-      logger.info('🧴 Sunscreen application logged:', application);
+      logger.info(
+        '🧴 Sunscreen application logged:',
+        application as unknown as Record<string, unknown>,
+      );
       return application;
     } catch (error) {
-      logger.error('Failed to log sunscreen application:', error);
+      logger.error(
+        'Failed to log sunscreen application',
+        error instanceof Error ? error : new Error(String(error)),
+      );
       throw new Error('Failed to log sunscreen application. Please try again.');
     }
   }
@@ -124,7 +132,10 @@ export class SunscreenService {
 
       return reapplicationTime;
     } catch (error) {
-      logger.error('Error calculating reapplication time:', error);
+      logger.error(
+        'Error calculating reapplication time',
+        error instanceof Error ? error : new Error(String(error)),
+      );
       // Fallback to 2 hours
       const fallback = new Date();
       fallback.setHours(fallback.getHours() + 2);
@@ -148,12 +159,13 @@ export class SunscreenService {
         warningTime.getMinutes() - profile.notificationPreferences.advanceWarning,
       );
 
-      const reminderId = await NotificationService.scheduleAt(application.reapplicationDue, {
-        title: '🧴 Sunscreen Reminder',
-        body: `Time to reapply sunscreen! Current UV index: ${application.uvIndex}`,
-        data: { applicationId: application.id, type: 'reapplication_reminder' },
-        sound: profile.notificationPreferences.soundEnabled,
-      });
+      const reminderId =
+        (await NotificationService.scheduleAt(application.reapplicationDue, {
+          title: '🧴 Sunscreen Reminder',
+          body: `Time to reapply sunscreen! Current UV index: ${application.uvIndex}`,
+          data: { applicationId: application.id, type: 'reapplication_reminder' },
+          sound: profile.notificationPreferences.soundEnabled,
+        })) || `reminder_${application.id}`;
 
       // Also schedule advance warning if configured
       let advanceReminderId: string | null = null;
@@ -195,7 +207,10 @@ export class SunscreenService {
         await this.saveReminder(advance);
       }
     } catch (error) {
-      logger.error('Failed to schedule reminder:', error);
+      logger.error(
+        'Failed to schedule reminder',
+        error instanceof Error ? error : new Error(String(error)),
+      );
     }
   }
 
@@ -222,7 +237,10 @@ export class SunscreenService {
         return normalized;
       }
     } catch (error) {
-      logger.error('Error loading user profile:', error);
+      logger.error(
+        'Error loading user profile',
+        error instanceof Error ? error : new Error(String(error)),
+      );
     }
 
     // Return default profile
@@ -267,7 +285,10 @@ export class SunscreenService {
         .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
         .slice(0, limit);
     } catch (error) {
-      logger.error('Error loading applications:', error);
+      logger.error(
+        'Error loading applications',
+        error instanceof Error ? error : new Error(String(error)),
+      );
       return [];
     }
   }
@@ -295,7 +316,10 @@ export class SunscreenService {
         nextApplication: mostRecent,
       };
     } catch (error) {
-      logger.error('Error checking reapplication status:', error);
+      logger.error(
+        'Error checking reapplication status',
+        error instanceof Error ? error : new Error(String(error)),
+      );
       return { isDue: false };
     }
   }
@@ -324,9 +348,12 @@ export class SunscreenService {
       );
       await AsyncStorage.setItem(this.STORAGE_KEYS.REMINDERS, JSON.stringify(updated));
 
-      logger.info('🔕 Cancelled reminders for application:', applicationId);
+      logger.info('🔕 Cancelled reminders for application:', { applicationId });
     } catch (error) {
-      logger.error('Failed to cancel reminders:', error);
+      logger.error(
+        'Failed to cancel reminders',
+        error instanceof Error ? error : new Error(String(error)),
+      );
     }
   }
 
@@ -339,7 +366,10 @@ export class SunscreenService {
         JSON.stringify(applications.slice(0, 50)),
       );
     } catch (error) {
-      logger.error('Failed to save application:', error);
+      logger.error(
+        'Failed to save application',
+        error instanceof Error ? error : new Error(String(error)),
+      );
       throw error;
     }
   }
@@ -352,7 +382,10 @@ export class SunscreenService {
       reminders.push(reminder);
       await AsyncStorage.setItem(this.STORAGE_KEYS.REMINDERS, JSON.stringify(reminders));
     } catch (error) {
-      logger.error('Failed to save reminder:', error);
+      logger.error(
+        'Failed to save reminder',
+        error instanceof Error ? error : new Error(String(error)),
+      );
     }
   }
 
@@ -395,7 +428,10 @@ export class SunscreenService {
       await NotificationService.cancelAll();
       logger.info('🗑️ All sunscreen data cleared');
     } catch (error) {
-      logger.error('Failed to clear data:', error);
+      logger.error(
+        'Failed to clear data',
+        error instanceof Error ? error : new Error(String(error)),
+      );
     }
   }
 }
