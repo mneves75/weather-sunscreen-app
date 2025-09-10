@@ -4,40 +4,18 @@ import CoreMotion
 import CoreHaptics
 import React
 
-// Helper class to prevent retain cycle with CADisplayLink
-private class DisplayLinkProxy: NSObject {
-    weak var target: LiquidGlassNativeModule?
-    private var displayLink: CADisplayLink?
-    
-    @objc func tick() {
-        target?.updateBlur()
-    }
-    
-    func start() {
-        stop() // Ensure no duplicate
-        displayLink = CADisplayLink(target: self, selector: #selector(tick))
-        displayLink?.add(to: .main, forMode: .common)
-    }
-    
-    func stop() {
-        displayLink?.invalidate()
-        displayLink = nil
-    }
-    
-    deinit {
-        stop()
-    }
-}
-
 @objc(LiquidGlassNativeModule)
 class LiquidGlassNativeModule: RCTEventEmitter {
     private let motionManager = CMMotionManager()
     private var hapticEngine: CHHapticEngine?
-    private var displayLinkProxies: [Int: DisplayLinkProxy] = [:]
-    private let proxiesLock = NSLock()
+    private var resourceManager: LiquidGlassResourceManager?
 
     override init() {
         super.init()
+        
+        // Initialize resource manager for proper memory management
+        resourceManager = LiquidGlassResourceManager(moduleTarget: self)
+        
         setupHapticEngine()
         // Throttle motion updates to save battery (PERF-001)
         motionManager.deviceMotionUpdateInterval = 0.1 // 10Hz instead of 60Hz
@@ -103,26 +81,20 @@ class LiquidGlassNativeModule: RCTEventEmitter {
 
     // MARK: - Dynamic Blur Effect
     private func addDynamicBlurEffect(to view: UIVisualEffectView, intensity: CGFloat) {
-        // Create a weak proxy to prevent retain cycle
-        let proxy = DisplayLinkProxy()
-        proxy.target = self
-        
-        // Store proxy with view's hash as key for cleanup
         let viewId = view.hash
-        proxiesLock.lock()
-        displayLinkProxies[viewId] = proxy
-        proxiesLock.unlock()
         
+        // Use resource manager for proper memory management
+        guard let proxy = resourceManager?.createDisplayLink(for: viewId) else {
+            return
+        }
+        
+        // Start the display link
         proxy.start()
         
-        // Add cleanup observer
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(cleanupDisplayLink(_:)),
-            name: UIView.didMoveToWindowNotification,
-            object: view
-        )
+        // Set up view observation for automatic cleanup
+        resourceManager?.observeView(view, viewId: viewId)
         
+        // Animate the blur effect
         UIView.animate(withDuration: 3.0, delay: 0, options: [.repeat, .autoreverse, .curveEaseInOut]) {
             view.alpha = 0.8 + (intensity / 500.0)
         }
@@ -132,24 +104,11 @@ class LiquidGlassNativeModule: RCTEventEmitter {
         // Intentionally empty — alpha animation simulates intensity over time
     }
     
-    @objc private func cleanupDisplayLink(_ notification: Notification) {
-        guard let view = notification.object as? UIView,
-              view.window == nil else { return }
-        
-        let viewId = view.hash
-        proxiesLock.lock()
-        displayLinkProxies[viewId]?.stop()
-        displayLinkProxies.removeValue(forKey: viewId)
-        proxiesLock.unlock()
-    }
-    
     // Clean up all resources when module is deallocated
     deinit {
-        // Stop all display links
-        proxiesLock.lock()
-        displayLinkProxies.values.forEach { $0.stop() }
-        displayLinkProxies.removeAll()
-        proxiesLock.unlock()
+        // Use resource manager for proper cleanup
+        resourceManager?.cleanupAllResources()
+        resourceManager = nil
         
         // Stop motion tracking if active
         motionManager.stopDeviceMotionUpdates()
@@ -158,7 +117,7 @@ class LiquidGlassNativeModule: RCTEventEmitter {
         hapticEngine?.stop()
         hapticEngine = nil
         
-        // Remove all observers
+        // Remove any remaining observers (resource manager should handle most)
         NotificationCenter.default.removeObserver(self)
     }
 
@@ -250,12 +209,11 @@ class LiquidGlassNativeModule: RCTEventEmitter {
         ]
     }
 
-    // MARK: - Cleanup
-    private func cleanupAllDisplayLinks() {
-        proxiesLock.lock()
-        displayLinkProxies.values.forEach { $0.stop() }
-        displayLinkProxies.removeAll()
-        proxiesLock.unlock()
+    // MARK: - Manual Cleanup (for testing/troubleshooting)
+    @objc
+    func cleanupResourcesForView(_ viewId: NSNumber) {
+        resourceManager?.removeDisplayLink(for: viewId.intValue)
+        resourceManager?.removeViewObserver(for: viewId.intValue)
     }
     
     // MARK: - Bridged API

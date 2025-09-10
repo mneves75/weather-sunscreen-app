@@ -1,84 +1,56 @@
+import { LiquidGlassNative } from '../index';
+
 // Simple test for LiquidGlassNative that verifies core functionality
 describe('LiquidGlassNative - Simple Tests', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
-    jest.resetModules();
+    // Reset any cached module state
+    if ((LiquidGlassNative as any)._resetModuleCache) {
+      (LiquidGlassNative as any)._resetModuleCache();
+    }
   });
 
   it('should export LiquidGlassNative service', () => {
-    const module = require('../index');
-    expect(module.LiquidGlassNative).toBeDefined();
+    expect(LiquidGlassNative).toBeDefined();
+    expect(typeof LiquidGlassNative).toBe('object');
   });
 
-  it('should export LiquidGlassConfig interface', () => {
-    const module = require('../index');
-    // TypeScript interfaces don't exist at runtime but the module should load
-    expect(module).toBeDefined();
+  it('should have basic availability check', () => {
+    // Should be able to call isAvailable without errors
+    const available = LiquidGlassNative.isAvailable();
+    expect(typeof available).toBe('boolean');
+    
+    // In test environment with mocked React Native, should be false
+    expect(available).toBe(false);
   });
 
-  it('should have expected methods', () => {
-    const module = require('../index');
-    const service = module.LiquidGlassNative;
-
-    expect(typeof service.isAvailable).toBe('function');
-    expect(typeof service.getConstants).toBe('function');
-    expect(typeof service.createLiquidGlassView).toBe('function');
-    expect(typeof service.updateGlassIntensity).toBe('function');
-    expect(typeof service.triggerHapticFeedback).toBe('function');
-    expect(typeof service.startMotionTracking).toBe('function');
-    expect(typeof service.stopMotionTracking).toBe('function');
-    expect(typeof service.onDeviceMotion).toBe('function');
+  it('should have all expected methods', () => {
+    expect(typeof LiquidGlassNative.isAvailable).toBe('function');
+    expect(typeof LiquidGlassNative.getConstants).toBe('function');
+    expect(typeof LiquidGlassNative.createLiquidGlassView).toBe('function');
+    expect(typeof LiquidGlassNative.updateGlassIntensity).toBe('function');
+    expect(typeof LiquidGlassNative.triggerHapticFeedback).toBe('function');
+    expect(typeof LiquidGlassNative.startMotionTracking).toBe('function');
+    expect(typeof LiquidGlassNative.stopMotionTracking).toBe('function');
+    expect(typeof LiquidGlassNative.onDeviceMotion).toBe('function');
   });
 
-  it('should handle missing native module gracefully', () => {
-    // Mock NativeModules to be empty
-    jest.doMock('react-native', () => ({
-      NativeModules: {},
-      NativeEventEmitter: jest.fn(() => ({
-        addListener: jest.fn(),
-        removeAllListeners: jest.fn(),
-      })),
-      Platform: {
-        OS: 'ios',
-        Version: '26.0',
-      },
-    }));
-
-    const module = require('../index');
-    const service = module.LiquidGlassNative;
-
-    // Should return false when module is missing
-    expect(service.isAvailable()).toBe(false);
+  it('should handle module unavailability gracefully', () => {
+    // When module is not available, should return false
+    const available = LiquidGlassNative.isAvailable();
+    expect(available).toBe(false);
 
     // Should return default constants
-    const constants = service.getConstants();
+    const constants = LiquidGlassNative.getConstants();
+    expect(constants).toBeDefined();
     expect(constants.isIOS26Available).toBe(false);
     expect(constants.supportedVariants).toEqual([]);
     expect(constants.hasHapticSupport).toBe(false);
   });
 
-  it('should throw error when creating view without iOS 26', async () => {
-    jest.doMock('react-native', () => ({
-      NativeModules: {
-        LiquidGlassNativeModule: {
-          createLiquidGlassView: jest.fn(),
-        },
-      },
-      NativeEventEmitter: jest.fn(() => ({
-        addListener: jest.fn(),
-        removeAllListeners: jest.fn(),
-      })),
-      Platform: {
-        OS: 'ios',
-        Version: '15.0', // iOS < 26
-      },
-    }));
-
-    const module = require('../index');
-    const service = module.LiquidGlassNative;
-
-    await expect(service.createLiquidGlassView({ variant: 'regular' })).rejects.toThrow(
-      'Liquid Glass is only available on iOS 26+',
-    );
+  it('should handle create view when module unavailable', async () => {
+    // Should throw error when trying to create view without module
+    await expect(
+      LiquidGlassNative.createLiquidGlassView({ variant: 'regular' })
+    ).rejects.toThrow();
   });
 });

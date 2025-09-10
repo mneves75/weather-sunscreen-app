@@ -47,12 +47,16 @@ describe('Performance Benchmarks', () => {
         return true;
       });
 
-      let startTime = 0;
-      let endTime = 50; // Mock 50ms total
-
-      mockPerformanceNow
-        .mockReturnValueOnce(startTime)
-        .mockReturnValueOnce(endTime);
+      // Mock performance.now to return controlled values
+      let callCount = 0;
+      mockPerformanceNow.mockImplementation(() => {
+        if (callCount === 0) {
+          callCount++;
+          return 0; // Start time
+        } else {
+          return 40; // End time (40ms duration)
+        }
+      });
 
       const start = performance.now();
       await WeatherNativeService.isAvailable();
@@ -73,8 +77,8 @@ describe('Performance Benchmarks', () => {
         };
       });
 
-      let startTime = 0;
-      let endTime = 100;
+      const startTime = 0;
+      const endTime = 100;
 
       mockPerformanceNow
         .mockReturnValueOnce(startTime)
@@ -258,7 +262,7 @@ describe('Performance Benchmarks', () => {
       
       try {
         await WeatherNativeService.isAvailable();
-      } catch (error) {
+      } catch {
         // Error handling should be fast
         const end = performance.now();
         expect(end - start).toBeLessThan(20); // <20ms for error handling

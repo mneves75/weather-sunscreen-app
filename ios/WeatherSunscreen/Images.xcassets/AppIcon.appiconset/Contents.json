@@ -10,5 +10,10 @@
   "info": {
     "version": 1,
     "author": "expo"
+  },
+  "properties": {
+    "pre-rendered": true,
+    "supports-dark-appearance": true,
+    "supports-tinted-appearance": true
   }
 }

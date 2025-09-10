@@ -20,6 +20,9 @@ describe('WeatherNativeService', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
+    // Reset module cache to ensure fresh state for each test
+    WeatherNativeService._resetModuleCache();
+
     // Reset NativeModules mock
     NativeModules.WeatherNativeModule = {
       getCurrentLocation: mockGetCurrentLocation,
@@ -59,9 +62,13 @@ describe('WeatherNativeService', () => {
 
       const result = await WeatherNativeService.isAvailable();
       expect(result).toBe(false);
-      expect(logger.error).toHaveBeenCalledWith(
-        'Failed to check weather module availability',
-        error,
+      expect(logger.info).toHaveBeenCalledWith(
+        'Module availability check failed',
+        {
+          module: 'WeatherNativeModule',
+          platform: 'ios',
+          error: 'Native module error',
+        },
       );
     });
 
@@ -168,6 +175,7 @@ describe('WeatherNativeService', () => {
         pressure: 1013,
         visibility: 10,
         feelsLike: 24,
+        isFallback: true,
       });
     });
 
@@ -187,7 +195,10 @@ describe('WeatherNativeService', () => {
       mockGetWeatherData.mockResolvedValue(mockWeatherData);
 
       const result = await WeatherNativeService.getWeatherData(latitude, longitude);
-      expect(result).toEqual(mockWeatherData);
+      expect(result).toEqual({
+        ...mockWeatherData,
+        isFallback: false,
+      });
       expect(mockGetWeatherData).toHaveBeenCalledWith(latitude, longitude);
     });
 
@@ -215,8 +226,19 @@ describe('WeatherNativeService', () => {
       mockIsAvailable.mockResolvedValue(true);
       mockGetWeatherData.mockRejectedValue(error);
 
-      await expect(WeatherNativeService.getWeatherData(latitude, longitude)).rejects.toThrow(error);
-      expect(logger.error).toHaveBeenCalledWith('Failed to get weather data', error);
+      await expect(WeatherNativeService.getWeatherData(latitude, longitude)).rejects.toThrow();
+      expect(logger.warn).toHaveBeenCalledWith(
+        'Important operation failed',
+        expect.objectContaining({
+          error: 'Operation failed: getWeatherData',
+          code: 'OPERATION_FAILED',
+          context: expect.objectContaining({
+            module: 'WeatherNativeModule',
+            operation: 'getWeatherData',
+          }),
+          originalError: 'Weather data error',
+        })
+      );
     });
   });
 

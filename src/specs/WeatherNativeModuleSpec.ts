@@ -64,7 +64,7 @@ let WeatherNativeModuleTurbo: Spec | null = null;
 
 try {
   WeatherNativeModuleTurbo = TurboModuleRegistry.getEnforcing<Spec>('WeatherNativeModule');
-} catch (error) {
+} catch {
   // TurboModule not available (likely in test environment)
   // This will be handled by the fallback in the service layer
   WeatherNativeModuleTurbo = null;

@@ -30,7 +30,7 @@ export interface NativeProps extends ViewProps {
   
   // Event handlers
   onEffectChange?: DirectEventHandler<EffectChangeEvent>;
-  onAnimationComplete?: DirectEventHandler<{}>;
+  onAnimationComplete?: DirectEventHandler<Record<string, never>>;
 }
 
 export default codegenNativeComponent<NativeProps>('LiquidGlassView');
