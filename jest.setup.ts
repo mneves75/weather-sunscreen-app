@@ -35,18 +35,45 @@ jest.mock('@react-native-async-storage/async-storage', () =>
 // Mock React Native modules that cause issues in test environment
 jest.mock('react-native', () => {
   const RN = jest.requireActual('react-native');
-  
+
   // Override Platform for tests
   RN.Platform = {
     ...RN.Platform,
     OS: 'ios',
     Version: '26.0',
   };
-  
+
   // Ensure NativeModules exists
   RN.NativeModules = RN.NativeModules || {};
-  
+
   return RN;
+});
+
+// Minimal, stable mock for RNGH to avoid install() errors in test env
+jest.mock('react-native-gesture-handler', () => {
+  const React = require('react');
+  const Fragment = React.Fragment;
+  const Noop = ({ children }: any) => React.createElement(Fragment, null, children ?? null);
+  return {
+    __esModule: true,
+    default: { install: jest.fn() },
+    GestureHandlerRootView: Noop,
+    PanGestureHandler: Noop,
+    TapGestureHandler: Noop,
+    LongPressGestureHandler: Noop,
+    State: {},
+  };
+});
+
+// Mock expo-image with a lightweight component to avoid deep RN internals
+jest.mock('expo-image', () => {
+  const React = require('react');
+  const Img = (props: any) => React.createElement('img', props);
+  return {
+    __esModule: true,
+    default: Img,
+    Image: Img,
+  };
 });
 
 // Silence console output during tests
