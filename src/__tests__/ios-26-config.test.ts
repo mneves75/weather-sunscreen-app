@@ -4,8 +4,8 @@ import path from 'path';
 const readJSON = (p: string) => JSON.parse(fs.readFileSync(p, 'utf8'));
 const readText = (p: string) => fs.readFileSync(p, 'utf8');
 
-describe('iOS 26 configuration coherence', () => {
-  test('expo-build-properties sets iOS deploymentTarget to 26.0', () => {
+describe('iOS deployment target configuration', () => {
+  test('expo-build-properties sets production deployment target to 16.0', () => {
     const appJson = readJSON(path.join(process.cwd(), 'app.json'));
     const plugins = appJson.expo?.plugins || [];
     const buildProps = plugins.find(
@@ -13,12 +13,12 @@ describe('iOS 26 configuration coherence', () => {
     );
     expect(buildProps).toBeTruthy();
     const ios = buildProps?.[1]?.ios;
-    expect(ios?.deploymentTarget).toBe('26.0');
+    expect(ios?.deploymentTarget).toBe('16.0');
   });
 
-  test('Podfile.properties.json uses iOS deploymentTarget 26.0', () => {
+  test('Podfile.properties.json uses production deployment target 16.0', () => {
     const props = readJSON(path.join(process.cwd(), 'ios', 'Podfile.properties.json'));
-    expect(props['ios.deploymentTarget']).toBe('26.0');
+    expect(props['ios.deploymentTarget']).toBe('16.0');
   });
 
   test('ios26-config.xcconfig exists with iOS 26 settings', () => {
