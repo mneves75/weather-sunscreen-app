@@ -36,7 +36,7 @@
 
 - Critical fixes: `bun run fix-pods`, `scripts/fix-fabric-headers.sh`
 - Security: ✅ All vulnerabilities fixed, Actor-based thread safety
-- EAS Build: Use image `macos-sequoia-15.6-xcode-16.4` for production
+- EAS Build: Use image `macos-sequoia-15.6-xcode-26.0` for all lanes
 
 ## Coding Style & Naming Conventions
 

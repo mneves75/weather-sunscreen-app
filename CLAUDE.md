@@ -115,7 +115,7 @@ npx maestro test maestro/flows/liquid-glass-and-theme.yaml
 - Liquid Glass native module with iOS 26 APIs
 - Memory-safe implementation with weak references
 - Motion tracking throttled to 10Hz (83% battery savings)
-- EAS build image: `macos-sequoia-15.6-xcode-16.4` for production
+- EAS build image: `macos-sequoia-15.6-xcode-26.0` for all lanes
 
 ### Android API 36
 

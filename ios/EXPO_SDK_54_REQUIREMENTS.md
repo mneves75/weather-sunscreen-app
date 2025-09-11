@@ -295,7 +295,7 @@ appId: com.anonymous.weather-sunscreen-app
 #### 9.3 Phase 3: UI/UX Enhancements (Days 5-6)
 - Liquid Glass effects implementation
 - Edge-to-edge Android layout
-- iOS 26 native tabs (Expo Router v6)
+- iOS 26 native tabs (Expo Router v4 in this app)
 - Performance optimizations
 
 #### 9.4 Phase 4: Quality Assurance (Days 7-8)

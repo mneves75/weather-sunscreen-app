@@ -5,7 +5,7 @@
 **Last Updated**: September 11, 2025  
 **Expo SDK**: ~54.0.0 (stable) - **Many workarounds below may no longer be needed**  
 **React Native**: 0.81.1  
-**Xcode**: 15+ (Xcode 26 recommended for iOS 26 features)  
+**Xcode**: 16+ (Xcode 26.0 – 17A321 baseline for simulators)  
 **Status**: LEGACY WORKAROUNDS - verify if still needed with stable SDK
 
 ## 📋 Table of Contents

@@ -86,7 +86,7 @@ A modern React Native mobile application built with Expo that provides real-time
 ## Expo SDK 54 Changelog
 
 - See `docs/expo-sdk-54-changelog.md` for a comprehensive summary of what’s new in SDK 54
-  (precompiled RN for iOS, iOS 26 glass via expo-glass-effect, Router v6, CLI improvements, and more).
+  (precompiled RN for iOS, iOS 26 glass via expo-glass-effect, CLI improvements, and more).
 
 ## End-to-end (E2E) Device Flows (Maestro)
 
@@ -100,9 +100,9 @@ A modern React Native mobile application built with Expo that provides real-time
 
 ### Technology Stack
 
-- **Framework**: React Native 0.81.0 with Expo SDK 54 Preview
+- **Framework**: React Native 0.81.4 with Expo SDK 54 (stable)
 - **Language**: TypeScript 5.9.2 (strict mode enabled)
-- **Navigation**: Expo Router v6 (file-based routing)
+- **Navigation**: Expo Router v4 (file-based routing)
 - **State Management**: React Context + AsyncStorage
 - **Logging**: Custom LoggerService with structured logging
 - **Error Handling**: React Error Boundaries with recovery options
@@ -223,7 +223,7 @@ npm run ios -- --device "iPhone de Marcus"
 
 **iOS Development:**
 
-- Xcode 15+ (16+ recommended for latest features)
+- Xcode 16+ (26.0 simulators recommended)
 - iOS 16+ deployment target
 - CocoaPods for native dependencies
 

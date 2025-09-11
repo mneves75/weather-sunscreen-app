@@ -79,13 +79,19 @@ As announced at WWDC25, Liquid Glass represents a paradigm shift in UI design:
 
 ### 🔧 Technical Implementation
 
-#### Native Swift Module
+#### Glass with Expo
 
-```swift
-@available(iOS 26.0, *)
-class LiquidGlassNativeModule: NSObject {
-    // Uses official iOS 26 UILiquidGlassMaterial API
-    let material = UILiquidGlassMaterial(style: .ultraThinLiquid)
+Use the official Expo module:
+
+```tsx
+import { GlassView } from 'expo-glass-effect';
+
+export function Card({ children }) {
+  return (
+    <GlassView glassEffectStyle="regular" style={{ borderRadius: 16 }}>
+      {children}
+    </GlassView>
+  );
 }
 ```
 
@@ -168,7 +174,7 @@ Following Apple's guidelines:
 - Minimal battery impact through efficient blur algorithms
 - Automatic quality adjustment based on device capabilities
 
-## Testing on iOS 26 Beta
+## Testing on iOS 26
 
 1. Install Xcode 26 beta from Apple Developer
 2. Download iOS 26 beta profile

@@ -8,7 +8,7 @@ echo "This project now uses the official Expo module 'expo-glass-effect' for all
 # Update EAS config test expectations if needed
 if [ -f "../src/__tests__/ios-build-config.test.ts" ]; then
   echo "🧪 Verifying EAS image expectations..."
-  sed -i '' 's/xcode-26.0/xcode-16.0/g' ../src/__tests__/ios-build-config.test.ts || true
+  # No-op: project lanes unified to Xcode 26.0; keep tests asserting 26.0
 fi
 
 # Ensure helper is present for platform checks
@@ -52,4 +52,3 @@ EOF
 
 echo "ℹ️ No custom native LiquidGlass module remains. Using expo-glass-effect."
 echo "✅ Done."
-
