@@ -1,0 +1,25 @@
+appId: org.mvneves.weathersunscreen.app
+name: Liquid Glass + Theme (iOS)
+onFlowStart:
+  - runFlow: { file: ios-launch.yaml }
+---
+- tapOn: 'Settings'
+- assertVisible: 'Settings'
+
+# Toggle Liquid Glass/perf overlay to ensure overlay plumbing works on-device
+- tapOn: 'Show overlay'
+- assertVisible: 'Hide overlay'
+- tapOn: 'Hide overlay'
+- assertVisible: 'Show overlay'
+
+# Toggle theme using the visible label prefix (Portuguese UI copy)
+- tapOn: 'Trocar para'
+- assertVisible: 'Tema atual:'
+
+# Navigate through tabs that render LiquidGlassWrapper surfaces
+- tapOn: 'Weather'
+- assertVisible: '—'
+- tapOn: 'UV Index'
+- assertVisible: 'UV Index'
+- tapOn: 'Forecast'
+- assertVisible: '7-day Forecast'

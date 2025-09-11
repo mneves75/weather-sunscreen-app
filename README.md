@@ -83,6 +83,19 @@ A modern React Native mobile application built with Expo that provides real-time
    npm run web
    ```
 
+
+## Expo SDK 54 Changelog
+
+- See `docs/expo-sdk-54-changelog.md` for a comprehensive summary of what’s new in SDK 54
+  (precompiled RN for iOS, iOS 26 Liquid Glass, Router v6, CLI improvements, and more).
+
+## End-to-end (E2E) Device Flows (Maestro)
+
+- Prereqs: a simulator/device and Maestro CLI (brew install maestro or see docs).
+- iOS launch + smoke: `npx maestro test maestro/flows/ios-launch.yaml`
+- Theme + Liquid Glass exercise (no mocks):
+  `npx maestro test maestro/flows/liquid-glass-and-theme.yaml`
+- Full navigation smoke: `npx maestro test maestro/flows/theme-and-scroll.yaml`
 ## 🏗️ Architecture
 
 ### Technology Stack

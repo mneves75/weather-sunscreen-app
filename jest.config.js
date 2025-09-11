@@ -26,7 +26,15 @@ module.exports = {
     '<rootDir>/modules/**/*.{test,spec}.{js,jsx,ts,tsx}',
   ],
 
-  testPathIgnorePatterns: ['/node_modules/', '/android/', '/ios/', '/.expo/'],
+  testPathIgnorePatterns: [
+    '/node_modules/',
+    '/android/',
+    '/ios/',
+    '/.expo/',
+    // E2E integration flows run with Maestro on device (full service, no Jest mocks)
+    '<rootDir>/src/__tests__/integration/',
+    '<rootDir>/src/__tests__/app-providers.theme-context.test.tsx',
+  ],
 
   // Coverage settings
   collectCoverage: false, // Disable for now to focus on fixing tests
