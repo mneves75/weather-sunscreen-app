@@ -47,7 +47,8 @@ jest.mock('expo-glass-effect', () => {
   const React = require('react');
   const { View } = require('react-native');
   return {
-    GlassContainer: ({ children, style }: any) => React.createElement(View, { style }, children),
+    GlassView: ({ children, style }: any) => React.createElement(View, { style }, children),
+    isLiquidGlassAvailable: () => true,
   };
 });
 
@@ -77,13 +78,11 @@ beforeEach(() => {
     // Provide sensible defaults so tests not explicitly mocking still pass
     if (NativeModules?.WeatherNativeModule) {
       if (NativeModules.WeatherNativeModule.getCurrentLocation?.mock) {
-        NativeModules.WeatherNativeModule.getCurrentLocation.mockImplementation(() =>
-          new Promise((resolve) =>
-            setTimeout(
-              () => resolve({ latitude: 0, longitude: 0, accuracy: 0 }),
-              1,
+        NativeModules.WeatherNativeModule.getCurrentLocation.mockImplementation(
+          () =>
+            new Promise((resolve) =>
+              setTimeout(() => resolve({ latitude: 0, longitude: 0, accuracy: 0 }), 1),
             ),
-          ),
         );
       }
       if (NativeModules.WeatherNativeModule.getWeatherData?.mock) {

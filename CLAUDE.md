@@ -66,11 +66,10 @@ npx maestro test maestro/flows/liquid-glass-and-theme.yaml
 - ThemeContext: Dark/light mode, color schemes
 - All contexts use useReducer for complex state management
 
-**Native Module Integration**: TurboModules with fallbacks
+**Native Integrations**
 
-- Weather module: `WeatherNativeService` class with static methods
-- Liquid Glass: `LiquidGlassNative` instance with async/sync methods
-- Both modules have TypeScript specs in `src/specs/`
+- Weather module: `WeatherNativeService` (TurboModule with fallbacks)
+- Liquid Glass UI: Official Expo module `expo-glass-effect` (`GlassView`). No custom native module is used.
 - Graceful fallbacks when running in Expo Go or web
 
 ### Critical Service Patterns
@@ -169,13 +168,12 @@ cd ios && xcodebuild test -scheme WeatherSunscreen
   - `getWeatherData(lat, lon)`: Fetch weather with caching
   - `calculateUVIndex(lat, lon, timestamp?)`: UV calculations
 
-### Liquid Glass Native Module
+### Liquid Glass
 
-- **Location**: `modules/liquid-glass-native/`
-- **TypeScript Spec**: `src/specs/NativeLiquidGlassModule.ts`
-- **iOS Only**: Returns false/noop on Android/Web
-- **Resource Management**: DisplayLinkProxy with weak references
-- **Test Seams**: `__setLGTestModule()` for unit testing
+- Liquid Glass is implemented with `expo-glass-effect` and does not require custom native code.
+- Usage:
+  - `import { GlassView } from 'expo-glass-effect'`
+  - `<GlassView glassEffectStyle="regular">...</GlassView>`
 
 ### Adding New Native Modules
 

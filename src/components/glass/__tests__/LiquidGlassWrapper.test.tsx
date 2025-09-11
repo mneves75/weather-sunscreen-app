@@ -1,6 +1,6 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
-import { LiquidGlassWrapper, ExpoGlassContainer } from '../LiquidGlassWrapper';
+import { LiquidGlassWrapper } from '../LiquidGlassWrapper';
 import { ThemeProvider } from '../../../context/ThemeContext';
 import { Platform, Text } from 'react-native';
 
@@ -114,33 +114,7 @@ describe('LiquidGlassWrapper accessibility', () => {
     });
   });
 
-  describe('Expo Glass Container', () => {
-    test('renders ExpoGlassContainer without invalid roles', () => {
-      const { getByText } = render(
-        <ThemeProvider>
-          <ExpoGlassContainer>
-            <Text>glass</Text>
-          </ExpoGlassContainer>
-        </ThemeProvider>,
-      );
-      expect(getByText('glass')).toBeTruthy();
-    });
-
-    test('handles all ExpoGlassContainer variants', () => {
-      const variants = ['regular', 'glassProminent', 'glass'] as const;
-
-      variants.forEach((variant) => {
-        const { getByText } = render(
-          <ThemeProvider>
-            <ExpoGlassContainer variant={variant}>
-              <Text>{`Expo ${variant}`}</Text>
-            </ExpoGlassContainer>
-          </ThemeProvider>,
-        );
-        expect(getByText(`Expo ${variant}`)).toBeTruthy();
-      });
-    });
-  });
+  // Removed ExpoGlassContainer tests - we now exclusively use expo-glass-effect's GlassView via LiquidGlassWrapper.
 
   describe('Accessibility', () => {
     test('maintains proper accessibility attributes across platforms', () => {

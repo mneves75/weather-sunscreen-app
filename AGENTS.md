@@ -8,7 +8,8 @@
   - `context/` — React Context providers.
   - `services/` — Business logic (`weatherService.ts`, `locationService.ts`).
   - `types/`, `i18n/` — Shared types and locales (`en.json`, `pt-BR.json`).
-- `modules/` — Native bridges: `weather-native-module/`, `liquid-glass-native/` (iOS 26+ Liquid Glass).
+- `modules/` — Native bridges: `weather-native-module/`.
+  - Note: Liquid Glass now uses official Expo module `expo-glass-effect` (no custom native module).
 - `ios/`, `android/` — Native projects for device builds; avoid manual edits unless needed.
 - `assets/`, `scripts/`, `docs/`, `project-rules/` — Media, tooling, docs, and automation.
 
@@ -49,8 +50,7 @@
 
 - Frameworks: Jest + `@testing-library/react-native`.
 - File names: `*.test.ts` / `*.test.tsx`, colocated or under `src/__tests__/`.
-- **CRITICAL**: Use `npm test` NOT `bun test` (Jest incompatible with Bun test runner).
-- Run: `npm test`, watch: `npm test -- --watch`; keep tests deterministic; mock network/native calls as needed.
+- Use `npm test` (Jest). Watch: `npm test -- --watch`. Keep tests deterministic; mock network/native calls as needed.
 
 ## Commit & Pull Request Guidelines
 

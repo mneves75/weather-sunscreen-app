@@ -6,6 +6,8 @@
 **Review Authority**: John Carmack  
 **Status**: 🔄 Migration Required  
 
+> Note: As of v3.0.0 the app no longer ships a custom LiquidGlass native module or Fabric view. All glass UI uses the official Expo `expo-glass-effect` (`GlassView`). Sections in this document that describe `LiquidGlassNativeModule` or `LiquidGlassView` are kept for historical context and do not reflect the current implementation.
+
 ## Overview
 
 React Native 0.81 with Expo SDK 54 marks the **final release supporting Legacy Architecture**. SDK 55 will **mandate** New Architecture. This document outlines the complete migration strategy for the Weather Sunscreen App.

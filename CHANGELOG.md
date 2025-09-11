@@ -10,29 +10,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [3.0.0] - 2025-09-11
 
 ### BREAKING CHANGES
+
 - **MAJOR**: Upgraded to Expo SDK 54 stable release
 - **MAJOR**: Full React Native New Architecture support enabled (Fabric + TurboModules)
 - Minimum iOS deployment target raised to 16.0
 - React version downgraded from 19.1.0 to 18.3.1 for SDK 54 compatibility
 
 ### Added
+
 - **iOS 26 Support**: Full support for iOS 26 features and Xcode 26 build toolchain
 - **Android API 36**: Support for Android API level 36 with edge-to-edge display
-- **TurboModule Specifications**: Native module specifications for codegen
-  - `NativeLiquidGlassModule.ts` - Liquid Glass native module spec
-  - `NativeWeatherModule.ts` - Weather native module spec
-- **Comprehensive Test Suite**: 
-  - LiquidGlass module tests with 100% coverage
+- **Expo Glass Effect**: Adopted official `expo-glass-effect` for all glass views
+- **Comprehensive Test Suite**:
   - Weather module tests with security and performance validations
   - Memory safety tests for iOS 26 features
-  - TurboModule compatibility tests
-- **iOS 26 Liquid Glass Features**:
-  - Dynamic blur effects with iOS 26 APIs
-  - Motion tracking throttled to 10Hz for battery efficiency
-  - Memory-safe resource management with weak references
-  - Haptic feedback integration
+  - TurboModule compatibility tests (Weather module)
 
 ### Changed
+
 - **Dependencies Updated**:
   - `expo`: 54.0.0-preview.16 → ~54.0.0 (stable)
   - `expo-router`: 6.0.0-preview.16 → ~4.0.0 (stable)
@@ -50,22 +45,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Configured for SDK 54 compatibility
 
 ### Fixed
+
 - **Test Infrastructure**:
   - Fixed typeof Flow annotation parsing errors in Jest
   - Resolved React Native index.js import issues
-  - Fixed module mocking for native modules
-  - Added proper __DEV__ global variable support
+  - Added proper **DEV** global variable support
 - **iOS Build Issues**:
   - Fixed New Architecture configuration in Podfile
   - Corrected RCT_NEW_ARCH_ENABLED environment variable
   - Fixed CocoaPods dependency resolution
   - Resolved Hermes embedding issues on Xcode 26 simulators
-- **Module Exports**:
-  - Fixed LiquidGlass module service exports for testing
-  - Fixed Weather module service exports for testing
-  - Added backwards compatibility layers
+
+### Removed
+
+- Deprecated custom Liquid Glass native module, specs, and tests in favor of `expo-glass-effect`.
 
 ### Technical Details
+
 - **New Architecture Status**:
   - Fabric renderer enabled for UI components
   - TurboModules enabled for native modules
@@ -82,6 +78,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Thread-safe implementations with Actor pattern maintained
 
 ### Migration Guide
+
 1. **Update dependencies**: Run `npm install` or `bun install`
 2. **iOS setup**: Run `cd ios && pod install --repo-update`
 3. **Clear caches**: Run `npx expo start --clear`

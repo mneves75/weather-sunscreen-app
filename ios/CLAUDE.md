@@ -25,7 +25,7 @@ pod deintegrate && pod install # Reset CocoaPods
 
 ### Native Modules
 - **WeatherNativeModule**: Thread-safe weather data with Actor pattern
-- **LiquidGlassNativeModule**: Memory-safe glass effects with weak references
+- **Liquid Glass**: Implemented via `expo-glass-effect` (JS). No custom LiquidGlass native module is used anymore.
 
 ### Key Security Improvements (2025-09-09)
 1. **Thread Safety**: Actor-based concurrency for all state management
@@ -43,7 +43,8 @@ pod deintegrate && pod install # Reset CocoaPods
 ### Test Files
 - `WeatherSunscreenTests/SecurityFixTests.swift` - Security vulnerability tests
 - `WeatherSunscreenTests/WeatherNativeModuleTests.swift` - Weather module tests
-- `WeatherSunscreenTests/LiquidGlassNativeModuleTests.swift` - Glass effect tests
+  
+Note: Liquid Glass UI is covered by JS tests. The former native `LiquidGlassNativeModule` tests were removed.
 
 ### Run Tests
 ```bash

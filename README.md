@@ -83,11 +83,10 @@ A modern React Native mobile application built with Expo that provides real-time
    npm run web
    ```
 
-
 ## Expo SDK 54 Changelog
 
 - See `docs/expo-sdk-54-changelog.md` for a comprehensive summary of what’s new in SDK 54
-  (precompiled RN for iOS, iOS 26 Liquid Glass, Router v6, CLI improvements, and more).
+  (precompiled RN for iOS, iOS 26 glass via expo-glass-effect, Router v6, CLI improvements, and more).
 
 ## End-to-end (E2E) Device Flows (Maestro)
 
@@ -96,6 +95,7 @@ A modern React Native mobile application built with Expo that provides real-time
 - Theme + Liquid Glass exercise (no mocks):
   `npx maestro test maestro/flows/liquid-glass-and-theme.yaml`
 - Full navigation smoke: `npx maestro test maestro/flows/theme-and-scroll.yaml`
+
 ## 🏗️ Architecture
 
 ### Technology Stack
@@ -131,7 +131,7 @@ weather-sunscreen-app/
 │   ├── components/              # Reusable UI components
 │   │   ├── ui/                  # Common UI components
 │   │   ├── icons/               # SVG icon components
-│   │   └── glass/               # Glass wrappers (Expo + fallbacks)
+│   │   └── glass/               # Glass wrappers (expo-glass-effect)
 │   ├── context/                 # React Context providers
 │   ├── services/                # Business logic and API services
 │   ├── theme/                   # Theme + AppProviders
@@ -181,7 +181,7 @@ Custom native implementations for:
 ### Important Notes for Expo SDK 54
 
 - WeatherKit requires enabling the WeatherKit capability for your bundle identifier in the Apple Developer portal. If it’s not enabled or unavailable at runtime, the app automatically falls back to service-based weather and safe mock data, so the UX remains intact.
-- Expo Go does not include custom native modules. To use the native WeatherKit bridge or the Liquid Glass native module, run a Development Build (`expo run:ios` / `expo run:android`) or build with EAS. The app gracefully falls back to pure JS/Expo implementations when the native modules aren’t present.
+- Expo Go does not include custom native modules. To use the native WeatherKit bridge, run a Development Build (`expo run:ios` / `expo run:android`) or build with EAS. Liquid Glass UI now uses the official `expo-glass-effect` and works in development builds with graceful fallbacks.
 
 ## 🛠️ Development
 
@@ -275,7 +275,6 @@ npm run web     # Test web compatibility
   - Set `PROD_DIAGNOSTICS=1` (or `global.__PROD_DIAGNOSTICS__ = true`).
   - In app bootstrap, register sink: `attachDiagnosticsSink()` from `src/services/diagnosticsSink`.
   - Retrieve logs with `getBufferedLogs()`; upload on demand; `clearBufferedLogs()` when done.
-
 
 ### Location Services Testing
 

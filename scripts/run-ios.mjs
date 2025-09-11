@@ -70,6 +70,7 @@ function main() {
   const userSpecified = hasFlag(passThrough, '--device') || hasFlag(passThrough, '--simulator') || hasFlag(passThrough, '--udid');
 
   let chosenName = null;
+  let chosenUdid = null;
   if (!userSpecified) {
     try {
       const devices = getSimDevices();
@@ -78,6 +79,7 @@ function main() {
       console.log(`[run-ios] Using Simulator: ${chosen.name} (${chosen.udid})`);
       ensureBooted(chosen.udid);
       chosenName = chosen.name;
+      chosenUdid = chosen.udid;
     } catch (e) {
       console.warn('[run-ios] Simulator selection failed:', e.message);
       console.warn('[run-ios] Proceeding to run Expo without preselecting a simulator...');
@@ -86,8 +88,10 @@ function main() {
 
   const expo = process.platform === 'win32' ? 'npx.cmd' : 'npx';
   const args = ['expo', 'run:ios', ...passThrough];
-  if (!userSpecified && chosenName) {
-    // Ensure Expo targets the simulator we just booted
+  if (!userSpecified && chosenUdid) {
+    // Target the exact Simulator by UDID to avoid stale name->id caches
+    args.push('--udid', chosenUdid);
+    // Include name as a hint (Expo ignores if --udid is present)
     args.push('--simulator', chosenName);
   }
   const child = run(expo, args, { stdio: 'inherit' });
