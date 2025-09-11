@@ -36,7 +36,7 @@ jest.mock('@react-native-async-storage/async-storage', () =>
 try {
   const RN = require('react-native');
   if (RN && RN.Platform && RN.Platform.Version == null) {
-    RN.Platform.Version = '26.0';
+    RN.Platform.Version = 26;
   }
 } catch (e) {
   // ignore setup tweaks if RN is unavailable in certain CI contexts

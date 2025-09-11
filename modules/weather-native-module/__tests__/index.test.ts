@@ -62,14 +62,11 @@ describe('WeatherNativeService', () => {
 
       const result = await WeatherNativeService.isAvailable();
       expect(result).toBe(false);
-      expect(logger.info).toHaveBeenCalledWith(
-        'Module availability check failed',
-        {
-          module: 'WeatherNativeModule',
-          platform: 'ios',
-          error: 'Native module error',
-        },
-      );
+      expect(logger.info).toHaveBeenCalledWith('Module availability check failed', {
+        module: 'WeatherNativeModule',
+        platform: 'ios',
+        error: 'Native module error',
+      });
     });
 
     it('should handle non-Error objects in catch block', async () => {
@@ -115,6 +112,19 @@ describe('WeatherNativeService', () => {
 
       await expect(WeatherNativeService.getCurrentLocation()).rejects.toThrow(error);
       expect(logger.error).toHaveBeenCalledWith('Failed to get current location', error);
+    });
+
+    it('should validate returned location and throw ModuleError for invalid coords', async () => {
+      mockIsAvailable.mockResolvedValue(true);
+      mockGetCurrentLocation.mockResolvedValue({ latitude: 999, longitude: 0, accuracy: 10 });
+
+      await expect(WeatherNativeService.getCurrentLocation()).rejects.toThrow();
+      // It should have logged an input validation failure via ErrorHandler
+      expect(logger.error).toHaveBeenCalledWith(
+        'Input validation failed',
+        expect.objectContaining({ name: 'ModuleError', code: 'LATITUDE_OUT_OF_BOUNDS' }),
+        expect.objectContaining({ code: 'LATITUDE_OUT_OF_BOUNDS' }),
+      );
     });
   });
 
@@ -237,7 +247,7 @@ describe('WeatherNativeService', () => {
             operation: 'getWeatherData',
           }),
           originalError: 'Weather data error',
-        })
+        }),
       );
     });
   });

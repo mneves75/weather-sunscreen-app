@@ -35,11 +35,19 @@ describe('ErrorHandler', () => {
     ).toThrowError(ModuleError);
   });
 
-  it('handleOptionalOperation never throws but logs warn', async () => {
-    await expect(
-      ErrorHandler.handleOptionalOperation(async () => {
-        throw 'string-error';
+  it('handleOptionalOperation (async) never throws but logs warn', async () => {
+    const p = ErrorHandler.handleOptionalOperation(async () => {
+      throw 'string-error';
+    }, context);
+    await expect(p).resolves.toBeUndefined();
+  });
+
+  it('handleOptionalOperation (sync) returns immediately and never throws', () => {
+    expect(() =>
+      ErrorHandler.handleOptionalOperation(() => {
+        // synchronous throw should be caught and logged, not rethrown
+        throw 'boom';
       }, context),
-    ).resolves.toBeUndefined();
+    ).not.toThrow();
   });
 });
