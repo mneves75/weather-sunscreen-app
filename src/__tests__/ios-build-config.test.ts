@@ -3,7 +3,7 @@ import path from 'path';
 
 const readJSON = (p: string) => JSON.parse(fs.readFileSync(p, 'utf8'));
 
-describe('iOS build configuration for SDK 54 + Xcode 26', () => {
+describe('iOS build configuration for SDK 54', () => {
   test('Podfile.properties.json builds RN from source (disables prebuilt)', () => {
     const propsPath = path.join(process.cwd(), 'ios', 'Podfile.properties.json');
     const json = readJSON(propsPath);
@@ -19,14 +19,17 @@ describe('iOS build configuration for SDK 54 + Xcode 26', () => {
     expect(podfile).toMatch(/GLOG_NO_ABBREVIATED_SEVERITIES|NO_THREADS=1/);
   });
 
-  test('EAS build images use Xcode 26.0', () => {
+  test('EAS build images match project policy', () => {
     const eas = readJSON(path.join(process.cwd(), 'eas.json'));
     const imageDev = eas.build.development.image;
     const imagePrev = eas.build.preview.image;
     const imageProd = eas.build.production.image;
+    // Dev uses latest Xcode 26 image
     expect(imageDev).toContain('xcode-26.0');
-    expect(imagePrev).toContain('xcode-26.0');
-    expect(imageProd).toContain('xcode-26.0');
+    // Preview uses SDK 54 convenience image
+    expect(imagePrev).toContain('sdk-54');
+    // Production uses Xcode 16.4 per AGENTS.md guidance
+    expect(imageProd).toContain('xcode-16.4');
   });
 
   test('Deployment target defined (>= 16.0)', () => {

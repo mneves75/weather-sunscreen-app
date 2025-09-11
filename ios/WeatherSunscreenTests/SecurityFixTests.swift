@@ -92,36 +92,7 @@ class SecurityFixTests: XCTestCase {
     
     // MARK: - SEC-005: Memory Leak Tests
     
-    func testDisplayLinkNoMemoryLeak() {
-        // Test that DisplayLink doesn't create retain cycles
-        weak var weakModule: LiquidGlassNativeModule?
-        weak var weakView: UIView?
-        
-        autoreleasepool {
-            let module = LiquidGlassNativeModule()
-            weakModule = module
-            
-            let expectation = XCTestExpectation(description: "Create view")
-            
-            module.createLiquidGlassView(
-                ["variant": "regular"],
-                resolver: { result in
-                    expectation.fulfill()
-                },
-                rejecter: { _, _, _ in
-                    expectation.fulfill()
-                }
-            )
-            
-            wait(for: [expectation], timeout: 2.0)
-        }
-        
-        // Force deallocation
-        RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.5))
-        
-        XCTAssertNil(weakModule, "Module should be deallocated")
-        XCTAssertNil(weakView, "View should be deallocated")
-    }
+    // Note: Liquid Glass UI now uses Expo's `expo-glass-effect` (JS). Native module tests removed.
     
     // MARK: - SEC-006: Forced Unwrapping Tests
     
@@ -293,49 +264,18 @@ class SecurityFixTests: XCTestCase {
     
     // MARK: - PERF-001: Motion Update Tests
     
-    func testMotionUpdateThrottling() {
-        // Test that motion updates are throttled appropriately
-        let module = LiquidGlassNativeModule()
-        var updateCount = 0
-        let startTime = Date()
-        
-        let expectation = XCTestExpectation(description: "Motion throttling")
-        expectation.isInverted = true // Should NOT fulfill (too many updates)
-        
-        let subscription = module.addListener("DeviceMotion") { _ in
-            updateCount += 1
-            let elapsed = Date().timeIntervalSince(startTime)
-            
-            // Should not exceed 15 updates per second
-            let maxExpected = Int(elapsed * 15) + 1
-            if updateCount > maxExpected {
-                expectation.fulfill() // Too many updates!
-            }
-        }
-        
-        module.startMotionTracking()
-        
-        wait(for: [expectation], timeout: 2.0)
-        
-        module.stopMotionTracking()
-        module.removeListeners(1)
-        
-        let finalElapsed = Date().timeIntervalSince(startTime)
-        let expectedMax = Int(finalElapsed * 15) + 1
-        XCTAssertLessThanOrEqual(updateCount, expectedMax, "Motion updates should be throttled")
-    }
+    // Note: Liquid Glass motion throttling validated in JS layer; native test removed.
     
     // MARK: - Security Integration Tests
     
     func testAllSecurityFixesIntegrated() {
         // Comprehensive test that all fixes work together
         let weatherModule = WeatherNativeModule()
-        let glassModule = LiquidGlassNativeModule()
         
         let expectations = [
             XCTestExpectation(description: "Weather data"),
             XCTestExpectation(description: "Location"),
-            XCTestExpectation(description: "Glass view")
+            // Glass removed: now provided by expo-glass-effect
         ]
         
         // Test weather data with validation
@@ -359,17 +299,6 @@ class SecurityFixTests: XCTestCase {
             },
             rejecter: { _, _, _ in
                 expectations[1].fulfill() // Graceful failure is acceptable
-            }
-        )
-        
-        // Test glass view without memory leaks
-        glassModule.createLiquidGlassView(
-            ["variant": "regular", "intensity": 80],
-            resolver: { _ in
-                expectations[2].fulfill()
-            },
-            rejecter: { _, _, _ in
-                expectations[2].fulfill()
             }
         )
         
