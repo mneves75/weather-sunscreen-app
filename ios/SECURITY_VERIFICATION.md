@@ -27,7 +27,6 @@ private actor LocationActor {
 ```
 **Verification:** No race conditions, proper cancellation
 
-<!-- Removed: Historical LiquidGlass native module verification (module deleted in v3.0.0) -->
 
 ### ✅ SEC-006: Forced Unwrapping (CVSS 7.2) - FIXED
 ```swift
@@ -90,7 +89,6 @@ case .weatherKitEntitlementMissing:
 ```
 **Verification:** No implementation details exposed
 
-<!-- Removed: Historical LiquidGlass motion throttling verification (now handled by expo-glass-effect) -->
 
 ## Code Quality Metrics
 

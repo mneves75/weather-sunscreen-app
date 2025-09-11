@@ -1,8 +1,5 @@
 # Final Security Report - iOS Weather Sunscreen App
 
-> Note: As of v3.0.0 this app uses the official Expo `expo-glass-effect` for all glass UI. Any
-> references in this report to a custom `LiquidGlassNativeModule` reflect historical analysis.
-
 ## Executive Summary
 
 **Date:** 2025-09-09
@@ -53,7 +50,6 @@ private actor LocationActor {
 - ContinuationWrapper prevents double-resume
 - Proper timeout cancellation
 
-<!-- Removed: Historical LiquidGlass native module fix section (module deleted in v3.0.0) -->
 
 ### 4. Thread Safety (SEC-007) ✅
 ```swift
@@ -116,7 +112,6 @@ motionManager.deviceMotionUpdateInterval = 0.1 // 10Hz instead of 60Hz
 ### Core Security Fixes
 1. `ios/WeatherSunscreen/WeatherSunscreen.entitlements`
 2. `modules/weather-native-module/ios/WeatherNativeModule.swift`
-<!-- Removed: LiquidGlass native module file (module deleted in v3.0.0) -->
 4. `ios/scripts/fix-fabric-headers.sh`
 5. `ios/WeatherSunscreen/Info.plist`
 

@@ -24,14 +24,11 @@ Current iOS baseline used in development: 26.0 (17A321)
 
 Based on Apple's WWDC25 announcements and the official Apple Developer Documentation, iOS 26 introduces the revolutionary **Liquid Glass** design system. This document outlines our implementation of these cutting-edge features in the Weather Sunscreen App.
 
-## Apple's Liquid Glass Design Principles
+## Glass Design Principles in this App
 
-As announced at WWDC25, Liquid Glass represents a paradigm shift in UI design:
-
-- **Material Design Evolution**: Moving beyond traditional blur effects to dynamic, fluid interfaces
-- **System-Provided Materials**: Apple provides native Liquid Glass APIs at the OS level (iOS 26+).
-- **Custom Liquid Glass**: Developers can build custom glass effects; in our app we provide RN fallbacks when native APIs are unavailable.
-- **Runtime Gating**: Always protect usage with availability checks and fallbacks.
+- **Expo-first**: Use `expo-glass-effect` for consistent, performant glass on iOS 26+
+- **Graceful fallback**: Material-like styling on platforms without native glass
+- **Accessibility**: Respect reduce transparency/motion settings
 
 ### Expo & Build Considerations
 
@@ -51,31 +48,15 @@ As announced at WWDC25, Liquid Glass represents a paradigm shift in UI design:
 
 - **Liquid Glass Material**: Dynamic material combining optical properties of glass with fluidity
 - **SwiftUI**: New `.glassEffect()` modifier with `style`, `shape`, and `isEnabled` parameters
-- **UIKit**: Updated APIs with `UILiquidGlassMaterial` and `UIHostingSceneDelegate`
-- **AppKit**: Cross-platform support with `NSGlassEffectView`
-- **Automatic Adoption**: Apps automatically adopt new design when rebuilt with Xcode 26
+  This app does not rely on platform-private Liquid Glass APIs; all glass is implemented with Expo.
 
 ## Implementation Status
 
-### ✅ Completed Features
+### ✅ Implementation Summary
 
-1. **Native Liquid Glass Module**
-   - Swift implementation using iOS 26 SDK
-   - Full `UILiquidGlassMaterial` API integration
-   - Device motion parallax support
-   - Haptic feedback with CoreHaptics
-
-2. **TypeScript Components**
-   - `LiquidGlassIOS26` component with all variants
-   - Platform detection for iOS 26
-   - Fallback support for older iOS versions
-   - Performance-optimized list components
-
-3. **Weather UI Enhancement**
-   - Ultra liquid glass weather cards
-   - Interactive forecast with haptic response
-   - UV index with prominent glass effects
-   - iOS 26 optimization badge
+- `LiquidGlassWrapper` uses `GlassView` from `expo-glass-effect`
+- Variants map to `glassEffectStyle` (regular/clear) for design intent
+- Parallax/haptics are not required for core UI (kept simple and accessible)
 
 ### 🔧 Technical Implementation
 
@@ -97,13 +78,7 @@ export function Card({ children }) {
 
 #### React Native Integration
 
-```typescript
-// Platform detection for iOS 26
-const isIOS26 = Platform.OS === 'ios' && parseFloat(Platform.Version) >= 26;
-
-// Liquid Glass variants as per Apple documentation
-type LiquidGlassVariant = 'ultra' | 'prominent' | 'regular' | 'thin' | 'adaptive';
-```
+`src/components/glass/LiquidGlassWrapper.tsx` wraps `GlassView` for consistent usage.
 
 ### 📱 Device Requirements
 

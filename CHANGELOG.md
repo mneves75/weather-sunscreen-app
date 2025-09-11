@@ -138,7 +138,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **iOS Native Module Architecture**
   - `WeatherNativeModule` now uses Actor-based concurrency
-  - `LiquidGlassNativeModule` uses weak references for memory safety
+  - Glass UI uses official expo-glass-effect
   - All state management is thread-safe
   - Error handling with fallback mechanisms
   - Battery-efficient motion tracking (83% reduction)
@@ -162,16 +162,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **iOS 26 Liquid Glass Implementation (WWDC25)**
-  - Based on Apple's official Liquid Glass design system announced at WWDC25
-  - Native Swift module `LiquidGlassNativeModule` using iOS 26 SDK
-  - Implementation follows Apple's "Adopting Liquid Glass" documentation
-  - Ultra-thin, prominent, adaptive, and regular liquid glass variants per Apple HIG
-  - Dynamic blur effects with `UILiquidGlassMaterial` API
-  - Device motion parallax for 3D depth perception
-  - CoreHaptics integration for tactile feedback
-  - Liquid flow animations with CAGradientLayer
-  - Metal 4 hardware acceleration for optimal performance
+-- Glass UI
+
+- Implemented using `expo-glass-effect` across the app
 - **Enhanced Weather UI for iOS 26**
 - `GlassHomeScreen` (formerly `WeatherHomeIOS26`) with ultra liquid glass cards
   - Interactive forecast items with haptic response
@@ -187,11 +180,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **Deployment Configuration**
-  - iOS deployment target updated to 26.0 for beta testing
-  - Xcode 16 beta configuration script added
-  - Podfile updated for iOS 26 SDK compatibility
-  - Build settings optimized for Swift 6.0 and C++23
+-- **Deployment Configuration**
+
+- iOS deployment target updated to 26.0
+- Xcode 26.0 (17A321) simulator baseline
+- Build settings optimized for Swift 6.0 and C++23
 - **Component Architecture**
   - `LiquidGlassIOS26` component with full feature set
   - `LiquidGlassListItem` for optimized list rendering

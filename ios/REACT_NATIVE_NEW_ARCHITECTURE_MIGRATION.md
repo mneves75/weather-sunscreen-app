@@ -39,9 +39,7 @@ final class WeatherNativeModule: NSObject {
 
 **Migration Required**: Convert to TurboModule with Codegen specs
 
-#### LiquidGlassNativeModule (Status: Unknown)
-**Location**: `modules/liquid-glass-native/`
-**Assessment**: Requires New Architecture compatibility verification
+<!-- LiquidGlass native module removed in v3.0.0 (using expo-glass-effect). -->
 
 ### Component Assessment
 
@@ -133,68 +131,9 @@ class WeatherNativeTurboModule: NSObject, RCTTurboModule {
 
 ### 2. Fabric Components Migration
 
-#### 2.1 Liquid Glass Component Spec
-```typescript
-// src/specs/LiquidGlassViewSpec.ts
-import type { ViewProps } from 'react-native';
-import type { 
-  Double, 
-  DirectEventHandler, 
-  Float,
-  Int32 
-} from 'react-native/Libraries/Types/CodegenTypes';
-import codegenNativeComponent from 'react-native/Libraries/Utilities/codegenNativeComponent';
+<!-- Removed: historical Liquid Glass component spec (module removed). -->
 
-export interface NativeProps extends ViewProps {
-  intensity?: Float;
-  style?: 'light' | 'dark' | 'clear' | 'regular';
-  onEffectChange?: DirectEventHandler<{
-    intensity: Double;
-  }>;
-}
-
-export default codegenNativeComponent<NativeProps>('LiquidGlassView');
-```
-
-#### 2.2 iOS Fabric Component Implementation
-```swift
-// LiquidGlassViewComponentView.swift
-import UIKit
-import React
-import RCTRequired
-
-@objc(LiquidGlassViewComponentView)
-class LiquidGlassViewComponentView: RCTViewComponentView {
-    
-    private var contentView: LiquidGlassView!
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        setupView()
-    }
-    
-    override func updateProps(_ props: Props, oldProps: Props) {
-        super.updateProps(props, oldProps: oldProps)
-        
-        guard let props = props as? LiquidGlassViewProps else { return }
-        
-        if props.intensity != oldProps.intensity {
-            contentView.intensity = CGFloat(props.intensity)
-        }
-        
-        if props.style != oldProps.style {
-            contentView.effectStyle = props.style
-        }
-    }
-    
-    // Fabric lifecycle methods
-    override class func componentDescriptorProvider() -> RCTComponentDescriptorProvider {
-        return RCTConcreteComponentDescriptorProvider(
-            componentDescriptorWithView: self
-        )
-    }
-}
-```
+<!-- Removed: historical Fabric implementation for Liquid Glass (module removed). -->
 
 ### 3. Build System Updates
 
@@ -326,7 +265,7 @@ describe('New Architecture Performance', () => {
 #### Phase 3: Fabric Components (Days 5-6)
 - 🔄 Create Fabric specs for custom components
 - 🔄 Implement Fabric component views
-- 🔄 Migrate LiquidGlassNativeModule
+<!-- Removed: historical Liquid Glass migration task. -->
 - 🔄 Test component rendering and interactions
 
 #### Phase 4: Optimization & Testing (Days 7-8)
