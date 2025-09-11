@@ -1,5 +1,8 @@
 # Final Security Report - iOS Weather Sunscreen App
 
+> Note: As of v3.0.0 this app uses the official Expo `expo-glass-effect` for all glass UI. Any
+> references in this report to a custom `LiquidGlassNativeModule` reflect historical analysis.
+
 ## Executive Summary
 
 **Date:** 2025-09-09

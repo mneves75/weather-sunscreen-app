@@ -1,6 +1,8 @@
 # Expo SDK 54 + New Architecture Implementation Roadmap
 
 **Project**: Weather Sunscreen App  
+> Update: Liquid Glass UI is provided by `expo-glass-effect`; no custom LiquidGlass native
+> component is planned or required.
 **Objective**: Complete migration to Expo SDK 54.0.0 with React Native 0.81 New Architecture  
 **Timeline**: 10 working days (September 10-23, 2025)  
 **Review Authority**: John Carmack  

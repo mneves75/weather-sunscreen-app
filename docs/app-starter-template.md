@@ -11,6 +11,10 @@
 
 This template provides a complete foundation for building modern, cross-platform mobile applications with React Native, Expo, and custom native modules. Use this template to bootstrap new mobile app projects with production-ready patterns for navigation, state management, native integrations, and advanced iOS features.
 
+> Note: This repository (Weather Sunscreen App) uses Expo's `expo-glass-effect` for glass UI instead
+> of a custom LiquidGlass native module. The template below includes native LiquidGlass examples for
+> reference, but they are not used in this app.
+
 ### Key Features
 
 - **Cross-Platform**: iOS, Android, and Web support with platform-specific optimizations

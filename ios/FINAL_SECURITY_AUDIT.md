@@ -1,4 +1,6 @@
 # Final Security Audit & Validation Report
+> This project now uses `expo-glass-effect` for Liquid Glass UI; mentions of a custom
+> LiquidGlass native module are kept for historical context only.
 **Date**: 2025-01-22  
 **Project**: Weather Sunscreen App - iOS Native Modules  
 **Audit Scope**: Critical Security Fixes Implementation  

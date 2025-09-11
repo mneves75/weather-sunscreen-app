@@ -10,6 +10,9 @@
   - Continuation never resolves, leading to hanging promises
   - Fix: Store delegate reference until completion
 
+> Note: Liquid Glass UI is implemented with `expo-glass-effect`; the custom LiquidGlass native
+> module referenced here has been removed in v3.0.0.
+
 #### LiquidGlassNativeModule.swift  
 - **MEMORY LEAK**: CADisplayLink not properly invalidated (line 79-82)
   - DisplayLink retains target strongly, creating retain cycle
