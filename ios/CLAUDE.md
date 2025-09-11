@@ -34,6 +34,7 @@ pod deintegrate && pod install # Reset CocoaPods
 4. **Permissions**: Minimal location access with clear descriptions
 
 ## iOS 26 Configuration
+- Baseline simulator runtime: iOS 26.0 (17A321)
 - Deployment Target: iOS 26.0 (when using ios26-config.xcconfig)
 - Swift Version: 6.0
 - Fallback: iOS 16.0 minimum for production

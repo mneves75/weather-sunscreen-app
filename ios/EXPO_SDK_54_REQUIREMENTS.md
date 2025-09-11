@@ -84,6 +84,7 @@ npx expo install --check                      # Fix version mismatches
 - **Minimum**: Xcode 16.1
 - **Recommended**: Xcode 26 (for iOS 26 features)
 - **Deployment Target**: iOS 16.0 (production), iOS 26.0 (development)
+- **Baseline Simulator Runtime**: iOS 26.0 (17A321)
 - **Swift Version**: 6.0 with strict concurrency
 
 #### 2.2 Precompiled Frameworks

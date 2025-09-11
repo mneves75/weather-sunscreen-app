@@ -21,6 +21,28 @@ function getSimDevices() {
   return JSON.parse(res.stdout).devices;
 }
 
+function getAllowedDestinationUdids() {
+  const res = run(
+    'xcodebuild',
+    [
+      '-workspace',
+      'ios/WeatherSunscreen.xcworkspace',
+      '-scheme',
+      'WeatherSunscreen',
+      '-showdestinations',
+    ],
+    { cwd: process.cwd() },
+  );
+  if (res.status !== 0) return new Set();
+  const ids = new Set();
+  for (const line of res.stdout.split('\n')) {
+    // e.g. { platform:iOS Simulator, arch:arm64, id:7559-..., OS:26.0, name:iPhone 17 Pro }
+    const m = line.match(/\bid:([A-F0-9\-]+)\b/);
+    if (m) ids.add(m[1]);
+  }
+  return ids;
+}
+
 function pickBestSimulator(devicesByRuntime) {
   const all = [];
   for (const [runtime, list] of Object.entries(devicesByRuntime)) {
@@ -70,16 +92,22 @@ function main() {
   const userSpecified = hasFlag(passThrough, '--device') || hasFlag(passThrough, '--simulator') || hasFlag(passThrough, '--udid');
 
   let chosenName = null;
-  let chosenUdid = null;
   if (!userSpecified) {
     try {
       const devices = getSimDevices();
-      const chosen = pickBestSimulator(devices);
+      const allowed = getAllowedDestinationUdids();
+      let chosen = pickBestSimulator(devices);
+      // If chosen is not allowed, try to find an allowed iPhone by highest runtime
+      if (chosen && allowed.size && !allowed.has(chosen.udid)) {
+        const all = Object.values(devices).flat().filter((d) => d.isAvailable);
+        const iphones = all.filter((d) => d.name.toLowerCase().includes('iphone'));
+        chosen = iphones.find((d) => allowed.has(d.udid)) || iphones[0] || chosen;
+      }
       if (!chosen) throw new Error('No available iOS Simulators found. Install one in Xcode > Settings > Platforms.');
       console.log(`[run-ios] Using Simulator: ${chosen.name} (${chosen.udid})`);
       ensureBooted(chosen.udid);
-      chosenName = chosen.name;
-      chosenUdid = chosen.udid;
+      // Pass UDID directly to avoid stale name->id caches in some CLIs
+      chosenName = chosen.udid;
     } catch (e) {
       console.warn('[run-ios] Simulator selection failed:', e.message);
       console.warn('[run-ios] Proceeding to run Expo without preselecting a simulator...');
@@ -88,11 +116,9 @@ function main() {
 
   const expo = process.platform === 'win32' ? 'npx.cmd' : 'npx';
   const args = ['expo', 'run:ios', ...passThrough];
-  if (!userSpecified && chosenUdid) {
-    // Target the exact Simulator by UDID to avoid stale name->id caches
-    args.push('--udid', chosenUdid);
-    // Include name as a hint (Expo ignores if --udid is present)
-    args.push('--simulator', chosenName);
+  if (!userSpecified && chosenName) {
+    // Expo CLI accepts --device to select simulator by UDID (preferred) or name
+    args.push('--device', chosenName);
   }
   const child = run(expo, args, { stdio: 'inherit' });
   process.exit(child.status ?? 1);

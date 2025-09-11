@@ -10,6 +10,8 @@ Code blocks only: No
 
 # iOS 26 and Liquid Glass Implementation Guide
 
+Current iOS baseline used in development: 26.0 (17A321)
+
 > Important: As of v3.0.0, all Liquid Glass UI in this app uses the official Expo module `expo-glass-effect` (`GlassView`). The custom native module and `LiquidGlassIOS26` component documented below are deprecated and have been removed. See the Expo docs for the current API and usage.
 >
 > Quick usage:

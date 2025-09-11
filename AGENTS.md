@@ -28,7 +28,8 @@
 - **Current Status**: Expo SDK 54.0.0 stable, React Native 0.81.4 with New Architecture enabled
 - **Breaking Changes**: React downgraded 19.1.0 → 18.3.1, navigation moved to Expo Router v4
 - **Native Modules**: TurboModule specs in `src/specs/`, full New Architecture compatibility
-- **iOS Requirements**: Xcode 16+ (16.4 recommended), iOS 16+ deployment, iOS 26 Liquid Glass support
+- **iOS Requirements**: Xcode 16+ (16.4 recommended), iOS 16+ minimum deployment
+- **iOS Baseline**: Simulator runtime iOS 26.0 (17A321)
 - **Performance**: 40% faster builds, 83% battery efficiency (10Hz motion tracking)
 
 ## iOS Build & Troubleshooting

@@ -109,6 +109,8 @@ npx maestro test maestro/flows/liquid-glass-and-theme.yaml
 
 ### iOS 26 Support
 
+- Baseline simulator runtime: iOS 26.0 (17A321)
+
 - Deployment target: iOS 16.0 (production), iOS 26.0 (development)
 - Liquid Glass native module with iOS 26 APIs
 - Memory-safe implementation with weak references

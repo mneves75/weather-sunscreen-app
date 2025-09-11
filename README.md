@@ -46,7 +46,7 @@ A modern React Native mobile application built with Expo that provides real-time
 
 - Node.js 18+ or Bun 1.0+ (Bun recommended for better performance)
 - Expo CLI installed globally: `npm install -g @expo/cli`
-- For iOS development: Xcode 15+ with iOS 16+ SDK
+- For iOS development: Xcode 16+ with iOS 16+ SDK (baseline simulator runtime: iOS 26.0 (17A321))
 - For Android development: Android Studio with Java 17
 - An iOS device/simulator or Android device/emulator
 
