@@ -146,9 +146,9 @@ PODS:
   - FBLazyVector (0.81.4)
   - fmt (11.0.2)
   - glog (0.3.5)
-  - hermes-engine (0.81.1):
-    - hermes-engine/Pre-built (= 0.81.1)
-  - hermes-engine/Pre-built (0.81.1)
+  - hermes-engine (0.81.4):
+    - hermes-engine/Pre-built (= 0.81.4)
+  - hermes-engine/Pre-built (0.81.4)
   - libavif/core (0.11.1)
   - libavif/libdav1d (0.11.1):
     - libavif/core
@@ -3172,11 +3172,11 @@ SPEC CHECKSUMS:
   FBLazyVector: 941bef1c8eeabd9fe1f501e30a5220beee913886
   fmt: a40bb5bd0294ea969aaaba240a927bd33d878cdd
   glog: 5683914934d5b6e4240e497e0f4a3b42d1854183
-  hermes-engine: 4f8246b1f6d79f625e0d99472d1f3a71da4d28ca
+  hermes-engine: 35c763d57c9832d0eef764316ca1c4d043581394
   libavif: 84bbb62fb232c3018d6f1bab79beea87e35de7b7
   libdav1d: 23581a4d8ec811ff171ed5e2e05cd27bad64c39f
   libwebp: 02b23773aedb6ff1fd38cec7a77b81414c6842a8
-  RCT-Folly: 846fda9475e61ec7bcbf8a3fe81edfcaeb090669
+  RCT-Folly: 59ec0ac1f2f39672a0c6e6cecdd39383b764646f
   RCTDeprecation: c0ed3249a97243002615517dff789bf4666cf585
   RCTRequired: 58719f5124f9267b5f9649c08bf23d9aea845b23
   RCTTypeSafety: 4aefa8328ab1f86da273f08517f1f6b343f6c2cc
@@ -3254,6 +3254,6 @@ SPEC CHECKSUMS:
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: 55860ae3834d6b4093e259786a651d8eee28f041
 
-PODFILE CHECKSUM: 4971598a2eba49deef448035bf8e00c97826be76
+PODFILE CHECKSUM: c7c5e61d9ed00fe03e275efd8c372ea377cbe6c2
 
 COCOAPODS: 1.15.2

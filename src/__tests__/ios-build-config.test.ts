@@ -19,17 +19,15 @@ describe('iOS build configuration for SDK 54', () => {
     expect(podfile).toMatch(/GLOG_NO_ABBREVIATED_SEVERITIES|NO_THREADS=1/);
   });
 
-  test('EAS build images match project policy', () => {
+  test('EAS build images match project policy (Xcode 26.0)', () => {
     const eas = readJSON(path.join(process.cwd(), 'eas.json'));
     const imageDev = eas.build.development.image;
     const imagePrev = eas.build.preview.image;
     const imageProd = eas.build.production.image;
-    // Dev uses latest Xcode 26 image
+    // All lanes target Xcode 26.0 (17A321 baseline)
     expect(imageDev).toContain('xcode-26.0');
-    // Preview uses SDK 54 convenience image
-    expect(imagePrev).toContain('sdk-54');
-    // Production uses Xcode 16.4 per AGENTS.md guidance
-    expect(imageProd).toContain('xcode-16.4');
+    expect(imagePrev).toContain('xcode-26.0');
+    expect(imageProd).toContain('xcode-26.0');
   });
 
   test('Deployment target defined (>= 16.0)', () => {

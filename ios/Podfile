@@ -85,6 +85,40 @@ target 'WeatherSunscreen' do
       end
     end
 
+    # Patch Pods project: Fix Hermes user script to source .xcode.env and declare outputs
+    begin
+      pods_project = installer.pods_project
+      pods_project.targets.each do |t|
+        next unless t.name == 'hermes-engine'
+        t.build_phases.each do |phase|
+          next unless phase.respond_to?(:name) && phase.name&.include?('[Hermes] Replace Hermes')
+          # Ensure the script sources .xcode.env in repo root and ios folder if present
+          script = phase.shell_script || ""
+          preamble = <<~'SH'
+            set -e
+            # Source Node path from .xcode.env if available (repo root and ios/)
+            if [ -f "$SRCROOT/../.xcode.env" ]; then . "$SRCROOT/../.xcode.env"; fi
+            if [ -f "$SRCROOT/.xcode.env" ]; then . "$SRCROOT/.xcode.env"; fi
+            if [ -z "$NODE_BINARY" ]; then
+              # Fallback to `which node` to avoid empty invocations
+              NODE_BINARY="$(command -v node)"
+            fi
+          SH
+          unless script.include?('# Source Node path from .xcode.env')
+            phase.shell_script = preamble + "\n" + script
+          end
+          # Silence Xcode warning by declaring a dummy output
+          if phase.respond_to?(:output_paths)
+            outputs = phase.output_paths || []
+            outputs << "$(DERIVED_FILE_DIR)/hermes_replace_done.txt"
+            phase.output_paths = outputs.uniq
+          end
+        end
+      end
+    rescue => e
+      Pod::UI.warn "[post_install] Failed to patch Hermes script: #{e}"
+    end
+
     # Note: Do not modify CocoaPods-generated embed script; prior filtering caused syntax errors.
   end
 end
