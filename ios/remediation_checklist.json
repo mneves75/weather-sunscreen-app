@@ -33,11 +33,11 @@
     "id": "SEC-005",
     "priority": "A",
     "cvss_v4": 7.8,
-    "description": "Memory leak in DisplayLink proxy pattern",
-    "fix": "Remove OBJC_ASSOCIATION_RETAIN for displayLinkProxy, use weak reference or cleanup in deinit",
+    "description": "(Removed) Finding applied to deleted LiquidGlass native module",
+    "fix": "N/A - module removed in v3.0.0",
     "owner": "ios-team",
-    "file": "modules/liquid-glass-native/ios/LiquidGlassNativeModule.swift:88-101",
-    "effort_hours": 1
+    "file": "",
+    "effort_hours": 0
   },
   {
     "id": "SEC-006",
@@ -123,11 +123,11 @@
     "id": "SEC-013",
     "priority": "B",
     "cvss_v4": 5.8,
-    "description": "Unencrypted motion sensor data transmission",
-    "fix": "Encrypt motion data before sending: use CryptoKit AES.GCM for sensor data",
+    "description": "(Removed) Finding applied to deleted LiquidGlass native module",
+    "fix": "N/A - module removed in v3.0.0",
     "owner": "ios-team",
-    "file": "modules/liquid-glass-native/ios/LiquidGlassNativeModule.swift:180-184",
-    "effort_hours": 2
+    "file": "",
+    "effort_hours": 0
   },
   {
     "id": "SEC-014",
@@ -143,11 +143,11 @@
     "id": "SEC-015",
     "priority": "B",
     "cvss_v4": 5.1,
-    "description": "Debug print statements in production code",
-    "fix": "Replace print() at line 153 with structured logging using os.Logger",
+    "description": "(Removed) Finding applied to deleted LiquidGlass native module",
+    "fix": "N/A - module removed in v3.0.0",
     "owner": "ios-team",
-    "file": "modules/liquid-glass-native/ios/LiquidGlassNativeModule.swift:153",
-    "effort_hours": 0.5
+    "file": "",
+    "effort_hours": 0
   },
   {
     "id": "SEC-016",
@@ -193,21 +193,21 @@
     "id": "SEC-020",
     "priority": "C",
     "cvss_v4": 3.9,
-    "description": "Weak random number generation for animations",
-    "fix": "Use SecRandomCopyBytes for cryptographically secure randomness",
+    "description": "(Removed) Finding applied to deleted LiquidGlass native module",
+    "fix": "N/A - module removed in v3.0.0",
     "owner": "ios-team",
-    "file": "modules/liquid-glass-native/ios/LiquidGlassNativeModule.swift",
-    "effort_hours": 1
+    "file": "",
+    "effort_hours": 0
   },
   {
     "id": "PERF-001",
     "priority": "B",
     "cvss_v4": 3.5,
-    "description": "Excessive 60Hz motion updates drain battery",
-    "fix": "Reduce deviceMotionUpdateInterval to 0.1 (10Hz) in LiquidGlassNativeModule.swift:177",
+    "description": "(Removed) Finding applied to deleted LiquidGlass native module",
+    "fix": "N/A - module removed in v3.0.0",
     "owner": "ios-team",
-    "file": "modules/liquid-glass-native/ios/LiquidGlassNativeModule.swift:177",
-    "effort_hours": 0.5
+    "file": "",
+    "effort_hours": 0
   },
   {
     "id": "PERF-002",

@@ -23,11 +23,6 @@ target 'WeatherSunscreen' do
     rescue => e
       Pod::UI.warn e
     end
-    begin
-      expo_patch_react_imports!(installer)
-    rescue => e
-      Pod::UI.warn e
-    end
   end
 
   if ENV['EXPO_USE_COMMUNITY_AUTOLINKING'] == '1'
@@ -90,16 +85,6 @@ target 'WeatherSunscreen' do
       end
     end
 
-    # Patch Embed Pods Frameworks script to skip embedding Hermes on simulators (sandbox restriction on Xcode 26)
-    embed_script_path = File.join(__dir__, 'Pods', 'Target Support Files', 'Pods-WeatherSunscreen', 'Pods-WeatherSunscreen-frameworks.sh')
-    if File.exist?(embed_script_path)
-      contents = File.read(embed_script_path)
-      # Remove any lines that attempt to embed Hermes framework
-      filtered = contents.lines.reject { |l| l.include?('hermes.framework') || l.include?('React-hermes') || l.include?('reacthermes.framework') }.join
-      if contents != filtered
-        File.write(embed_script_path, filtered)
-        Pod::UI.puts "[iOS26] Patched #{embed_script_path} to skip Hermes embedding"
-      end
-    end
+    # Note: Do not modify CocoaPods-generated embed script; prior filtering caused syntax errors.
   end
 end

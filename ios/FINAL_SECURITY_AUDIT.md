@@ -13,13 +13,7 @@ All 8 critical security fixes have been successfully implemented and validated. 
 ## Critical Fixes Implemented ✅
 
 ### Fix 1: Swift TurboModule Bridge Rewrite ✅
-- **File**: `modules/liquid-glass-native/ios/LiquidGlassNativeTurboModule.swift`
-- **Issue**: Original implementation used non-existent `Promise<T>` and `Platform` types
-- **Fix**: Completely rewritten using proper React Native APIs:
-  - `RCTPromiseResolveBlock` and `RCTPromiseRejectBlock`
-  - Proper `@objc` method declarations
-  - iOS version detection using `ProcessInfo.processInfo.operatingSystemVersion`
-  - NSClassFromString for iOS 26 API availability checks
+- Focused on WeatherNativeModule; legacy LiquidGlass module removed in v3.0.0.
 
 ### Fix 2: Real Performance Tests ✅
 - **File**: `src/__tests__/RealPerformance.test.ts`
@@ -50,21 +44,13 @@ All 8 critical security fixes have been successfully implemented and validated. 
 ### Fix 5: Module Resolution Caching ✅
 - **Files**: 
   - `modules/weather-native-module/index.ts`
-  - `modules/liquid-glass-native/index.ts`
 - **Issue**: Repeated module resolution causing performance overhead
 - **Fix**: Implemented caching with fallback:
   - TurboModule-first resolution with legacy fallback
   - One-time cache with reset capability for testing
   - Error-safe resolution with logging
 
-### Fix 6: Memory Management & Cleanup ✅
-- **File**: `modules/liquid-glass-native/ios/LiquidGlassNativeModuleMemoryManager.swift`
-- **Issue**: Potential retain cycles and memory leaks
-- **Fix**: Comprehensive memory management:
-  - `DisplayLinkProxy` with weak references to prevent retain cycles
-  - Automatic cleanup in `deinit` methods
-  - `LiquidGlassResourceManager` for centralized resource management
-  - Proper CADisplayLink invalidation
+<!-- Removed: Historical LiquidGlass native module fix section (module deleted in v3.0.0) -->
 
 ### Fix 7: Native Bridge Integration Tests ✅
 - **File**: `src/__tests__/NativeBridgeIntegration.test.ts`
@@ -118,15 +104,7 @@ All 8 critical security fixes have been successfully implemented and validated. 
 ### Error Handling Strategy
 ```swift
 // Example: Proper Swift error handling
-@objc
-func isAvailable(_ resolve: @escaping RCTPromiseResolveBlock,
-                 reject: @escaping RCTPromiseRejectBlock) {
-    let isIOS26Available = NSClassFromString("UILiquidGlassMaterial") != nil
-    let systemVersion = ProcessInfo.processInfo.operatingSystemVersion
-    let platformVersion = Float(systemVersion.majorVersion)
-    let available = isIOS26Available && platformVersion >= 26.0
-    resolve(available)
-}
+// Example omitted: historical LiquidGlass availability check removed
 ```
 
 ### TypeScript Integration

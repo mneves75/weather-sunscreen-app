@@ -27,15 +27,7 @@ private actor LocationActor {
 ```
 **Verification:** No race conditions, proper cancellation
 
-### ✅ SEC-005: Memory Leak (CVSS 7.8) - FIXED
-```swift
-// DisplayLinkProxy with proper lifecycle
-private class DisplayLinkProxy: NSObject {
-    weak var target: LiquidGlassNativeModule?
-    deinit { stop() }
-}
-```
-**Verification:** No retain cycles, proper cleanup
+<!-- Removed: Historical LiquidGlass native module verification (module deleted in v3.0.0) -->
 
 ### ✅ SEC-006: Forced Unwrapping (CVSS 7.2) - FIXED
 ```swift
@@ -98,11 +90,7 @@ case .weatherKitEntitlementMissing:
 ```
 **Verification:** No implementation details exposed
 
-### ✅ PERF-001: Motion Throttling - FIXED
-```swift
-motionManager.deviceMotionUpdateInterval = 0.1 // 10Hz instead of 60Hz
-```
-**Verification:** 83% battery savings
+<!-- Removed: Historical LiquidGlass motion throttling verification (now handled by expo-glass-effect) -->
 
 ## Code Quality Metrics
 
@@ -123,7 +111,7 @@ motionManager.deviceMotionUpdateInterval = 0.1 // 10Hz instead of 60Hz
 - ✅ testWeatherKitFallbackWhenUnavailable
 - ✅ testLocationDelegateThreadSafety
 - ✅ testLocationTimeoutCancellation
-- ✅ testDisplayLinkNoMemoryLeak
+- (removed) testDisplayLinkNoMemoryLeak
 - ✅ testNoForcedUnwrapping
 - ✅ testMainActorIsolation
 - ✅ testBuildScriptUsesRelativePaths
@@ -131,7 +119,7 @@ motionManager.deviceMotionUpdateInterval = 0.1 // 10Hz instead of 60Hz
 - ✅ testCoordinateValidation
 - ✅ testTimeoutTaskCancellation
 - ✅ testErrorMessagesAreSanitized
-- ✅ testMotionUpdateThrottling
+- (removed) testMotionUpdateThrottling
 - ✅ testAllSecurityFixesIntegrated
 
 ## Production Readiness

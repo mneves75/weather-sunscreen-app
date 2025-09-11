@@ -53,17 +53,7 @@ private actor LocationActor {
 - ContinuationWrapper prevents double-resume
 - Proper timeout cancellation
 
-### 3. Memory Leak Fix (SEC-005) ✅
-**File:** `modules/liquid-glass-native/ios/LiquidGlassNativeModule.swift`
-```swift
-private class DisplayLinkProxy: NSObject {
-    weak var target: LiquidGlassNativeModule?
-    deinit { stop() }
-}
-```
-- Weak references prevent retain cycles
-- Proper cleanup in deinit
-- Lifecycle management
+<!-- Removed: Historical LiquidGlass native module fix section (module deleted in v3.0.0) -->
 
 ### 4. Thread Safety (SEC-007) ✅
 ```swift
@@ -126,7 +116,7 @@ motionManager.deviceMotionUpdateInterval = 0.1 // 10Hz instead of 60Hz
 ### Core Security Fixes
 1. `ios/WeatherSunscreen/WeatherSunscreen.entitlements`
 2. `modules/weather-native-module/ios/WeatherNativeModule.swift`
-3. `modules/liquid-glass-native/ios/LiquidGlassNativeModule.swift`
+<!-- Removed: LiquidGlass native module file (module deleted in v3.0.0) -->
 4. `ios/scripts/fix-fabric-headers.sh`
 5. `ios/WeatherSunscreen/Info.plist`
 

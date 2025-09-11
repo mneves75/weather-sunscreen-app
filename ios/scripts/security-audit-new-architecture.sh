@@ -44,17 +44,8 @@ if [ -d "$SPECS_DIR" ]; then
         echo "❌ WeatherNativeModuleSpec.ts missing"
     fi
     
-    # Validate LiquidGlass security
-    if [ -f "$SPECS_DIR/LiquidGlassNativeModuleSpec.ts" ]; then
-        echo "✅ LiquidGlassNativeModuleSpec.ts found"
-        
-        # Check for proper type constraints
-        if grep -q "WithDefault" "$SPECS_DIR/LiquidGlassNativeModuleSpec.ts"; then
-            echo "✅ Type constraints properly defined"
-        fi
-    else
-        echo "❌ LiquidGlassNativeModuleSpec.ts missing"
-    fi
+    # LiquidGlass native module removed in v3.0.0 (using expo-glass-effect)
+    echo "ℹ️  Skipping LiquidGlassNativeModuleSpec checks (module removed)"
 else
     echo "❌ TurboModule specs directory missing"
 fi
@@ -226,10 +217,8 @@ if [ -d "$TEST_DIR" ]; then
         echo "✅ WeatherNativeModule tests found"
     fi
     
-    # Check for LiquidGlass tests
-    if [ -f "$TEST_DIR/LiquidGlassNativeModuleTests.swift" ]; then
-        echo "✅ LiquidGlass tests found"
-    fi
+    # LiquidGlass native tests removed in v3.0.0
+    echo "ℹ️  Skipping LiquidGlass native test checks (module removed)"
 else
     echo "❌ Test directory missing"
 fi

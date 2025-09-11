@@ -23,7 +23,6 @@ The iOS Weather Sunscreen application exhibits **CRITICAL security vulnerabiliti
 | SEC-002 | Race Condition in LocationDelegate | 8.6 | WeatherNativeModule.swift:96-134 | CRITICAL | Concurrent modification of locationDelegate without synchronization | OWASP ASVS 1.11.2, ISO 27001:2022 A.8.31 | Implement actor isolation or dispatch queue | 2hr | Backend Team |
 | SEC-003 | Overly Permissive Location Permissions | 8.2 | Info.plist:48-53 | CRITICAL | Requests Always authorization without justification | OWASP ASVS 7.1.1, GDPR Article 5 | Use WhenInUse only, provide clear descriptions | 1hr | Product Team |
 | SEC-004 | No Certificate Pinning | 7.4 | Network Layer | CRITICAL | NSAllowsArbitraryLoads:false but no cert pinning | OWASP ASVS 9.2.1, NIST 800-218 PW.6.1 | Implement TLS certificate pinning | 4hr | Backend Team |
-| SEC-005 | Memory Leak in DisplayLink | 7.8 | LiquidGlassNativeModule.swift:88-101 | CRITICAL | DisplayLink proxy creates retain cycle | CIS Controls v8 16.11 | Use weak references in proxy pattern | 1hr | iOS Team |
 | SEC-006 | Unsafe Forced Unwrapping | 7.2 | WeatherNativeModule.swift:91 | CRITICAL | Force unwrapping without nil check | OWASP ASVS 1.14.6 | Use guard let or if let | 30min | iOS Team |
 | SEC-007 | Thread Safety Violation | 8.1 | WeatherNativeModule.swift:13-15 | CRITICAL | @MainActor properties accessed from background | Swift Concurrency Best Practices | Proper actor isolation | 3hr | iOS Team |
 | SEC-008 | Hardcoded Absolute Paths | 7.0 | fix-fabric-headers.sh:11 | CRITICAL | Hardcoded /Users/mvneves path | SLSA v1.0 Build L2 | Use relative paths or env variables | 1hr | DevOps |
@@ -31,9 +30,7 @@ The iOS Weather Sunscreen application exhibits **CRITICAL security vulnerabiliti
 | SEC-010 | Timeout Race Condition | 6.5 | WeatherNativeModule.swift:125-132 | HIGH | Timeout handler may execute after success | ISO 27001:2022 A.8.32 | Cancel timeout on completion | 2hr | iOS Team |
 | SEC-011 | Weak Error Messages | 5.3 | WeatherError enum:294-309 | HIGH | Exposes internal implementation details | OWASP ASVS 7.4.1 | Generic user-facing errors | 1hr | iOS Team |
 | SEC-012 | Missing Privacy Manifest | 6.2 | PrivacyInfo.xcprivacy | HIGH | No location usage declared | Apple Privacy Requirements | Add NSLocationUsageDescription | 30min | iOS Team |
-| SEC-013 | Unencrypted Motion Data | 5.8 | LiquidGlassNativeModule.swift:180-184 | HIGH | Device motion sent without encryption | OWASP ASVS 9.1.1 | Encrypt sensitive sensor data | 2hr | iOS Team |
 | SEC-014 | No Jailbreak Detection | 6.9 | Application Layer | HIGH | No runtime integrity checks | OWASP MASVS-RESILIENCE-1 | Implement jailbreak detection | 4hr | Security Team |
-| SEC-015 | Debug Code in Production | 5.1 | LiquidGlassNativeModule.swift:153 | HIGH | print() statement in production | OWASP ASVS 7.4.3 | Remove all debug logging | 30min | iOS Team |
 | SEC-016 | Weak Swift Concurrency | 4.8 | Podfile:81 | MODERATE | SWIFT_STRICT_CONCURRENCY=minimal | Swift 6 Best Practices | Use strict concurrency checking | 2hr | iOS Team |
 | SEC-017 | No Code Obfuscation | 4.5 | Build Settings | MODERATE | No obfuscation or anti-tampering | OWASP MASVS-RESILIENCE-3 | Implement code obfuscation | 8hr | Security Team |
 | SEC-018 | Excessive Permissions | 4.2 | Info.plist:84 | MODERATE | UISupportsMultipleScenes unnecessary | Principle of Least Privilege | Remove unused capabilities | 30min | iOS Team |
@@ -71,16 +68,7 @@ Task { @MainActor in
 ```
 **Impact**: WeatherKit API calls fail with runtime exception
 
-### 3. DisplayLink Memory Leak (LiquidGlassNativeModule.swift:88-96)
-```swift
-// BUG: Retain cycle between DisplayLink and proxy
-let proxy = DisplayLinkProxy()
-proxy.target = self  // Weak reference, good
-let displayLink = CADisplayLink(target: proxy, selector: #selector(DisplayLinkProxy.tick))
-// But proxy is retained by associated object, creating leak
-objc_setAssociatedObject(view, "displayLinkProxy", proxy, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-```
-**Impact**: Memory leaks accumulate, eventual out-of-memory crash
+<!-- Removed: Historical LiquidGlass native module finding (module deleted in v3.0.0) -->
 
 ### 4. Hardcoded Build Paths (scripts/fix-fabric-headers.sh:11)
 ```bash
@@ -98,9 +86,7 @@ PROJECT_ROOT="/Users/mvneves/dev/MOBILE/weather-suncreen-app"  # CRITICAL: User-
 
 ## Performance Issues
 
-1. **Inefficient Motion Updates** (LiquidGlassNativeModule.swift:177)
-   - 60Hz updates for device motion (excessive battery drain)
-   - Should throttle to 10-15Hz for UI updates
+<!-- Removed: Historical LiquidGlass native module finding (module deleted in v3.0.0) -->
 
 2. **No Caching Strategy** (WeatherNativeModule.swift)
    - WeatherKit calls not cached
