@@ -29,11 +29,20 @@ class LiquidGlassNativeTurboModule: NSObject, RCTTurboModule {
     @objc
     func isAvailable(_ resolve: @escaping RCTPromiseResolveBlock,
                      reject: @escaping RCTPromiseRejectBlock) {
+        // Dev/test feature flag: allow forcing availability for pre‑iOS 26 validation
+        let env = ProcessInfo.processInfo.environment
+        let forceEnable = env["LIQUID_GLASS_FORCE_ENABLE"] == "1" || UserDefaults.standard.bool(forKey: "LIQUID_GLASS_FORCE_ENABLE")
+
+        if forceEnable {
+            resolve(true)
+            return
+        }
+
         // Check if iOS 26 Liquid Glass is available
         let isIOS26Available = NSClassFromString("UILiquidGlassMaterial") != nil
         let systemVersion = ProcessInfo.processInfo.operatingSystemVersion
         let platformVersion = Float(systemVersion.majorVersion)
-        
+
         let available = isIOS26Available && platformVersion >= 26.0
         resolve(available)
     }

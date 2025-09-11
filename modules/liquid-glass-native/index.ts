@@ -1,5 +1,6 @@
 import { NativeEventEmitter, Platform } from 'react-native';
 import { logger } from '../../src/services/loggerService';
+import { featureFlags } from '../../src/config/featureFlags';
 import { ErrorHandler, ErrorSeverity, InputValidator } from '../../src/utils/errorHandling';
 
 // Import TurboModule specification
@@ -72,7 +73,7 @@ function getNativeModule() {
   return cachedModule;
 }
 
-class LiquidGlassNativeService {
+class LiquidGlassNativeCore {
   private static readonly MODULE_NAME = 'LiquidGlassNativeModule';
 
   private get module(): any | null {
@@ -110,10 +111,14 @@ class LiquidGlassNativeService {
         version = parseFloat(String(Platform.Version));
       }
 
+      if (featureFlags.enableLiquidGlassPreIOS26) {
+        return !!mod;
+      }
+
       return version >= 26 && !!mod;
     } catch (error) {
       logger.info('LiquidGlass availability check failed', {
-        module: LiquidGlassNativeService.MODULE_NAME,
+        module: LiquidGlassNativeCore['MODULE_NAME'] || 'LiquidGlassNativeModule',
         error: error instanceof Error ? error.message : String(error),
       });
       return false;
@@ -145,7 +150,7 @@ class LiquidGlassNativeService {
    */
   async createLiquidGlassView(config: LiquidGlassConfig): Promise<LiquidGlassView> {
     const context = {
-      module: LiquidGlassNativeService.MODULE_NAME,
+      module: LiquidGlassNativeCore['MODULE_NAME'] || 'LiquidGlassNativeModule',
       operation: 'createLiquidGlassView',
       platform: Platform.OS,
       parameters: config,
@@ -185,7 +190,7 @@ class LiquidGlassNativeService {
    */
   async updateGlassIntensity(viewId: number, intensity: number): Promise<void> {
     const context = {
-      module: LiquidGlassNativeService.MODULE_NAME,
+      module: LiquidGlassNativeCore['MODULE_NAME'] || 'LiquidGlassNativeModule',
       operation: 'updateGlassIntensity',
       platform: Platform.OS,
       parameters: { viewId, intensity },
@@ -217,7 +222,7 @@ class LiquidGlassNativeService {
    */
   triggerHapticFeedback(type: 'light' | 'medium' | 'heavy' | 'selection' = 'light'): void {
     const context = {
-      module: LiquidGlassNativeService.MODULE_NAME,
+      module: LiquidGlassNativeCore['MODULE_NAME'] || 'LiquidGlassNativeModule',
       operation: 'triggerHapticFeedback',
       platform: Platform.OS,
       parameters: { type },
@@ -248,7 +253,7 @@ class LiquidGlassNativeService {
    */
   startMotionTracking(): void {
     const context = {
-      module: LiquidGlassNativeService.MODULE_NAME,
+      module: LiquidGlassNativeCore['MODULE_NAME'] || 'LiquidGlassNativeModule',
       operation: 'startMotionTracking',
       platform: Platform.OS,
     };
@@ -274,7 +279,7 @@ class LiquidGlassNativeService {
    */
   stopMotionTracking(): void {
     const context = {
-      module: LiquidGlassNativeService.MODULE_NAME,
+      module: LiquidGlassNativeCore['MODULE_NAME'] || 'LiquidGlassNativeModule',
       operation: 'stopMotionTracking',
       platform: Platform.OS,
     };
@@ -300,7 +305,7 @@ class LiquidGlassNativeService {
    */
   onDeviceMotion(callback: (data: { x: number; y: number; z: number }) => void): () => void {
     const context = {
-      module: LiquidGlassNativeService.MODULE_NAME,
+      module: LiquidGlassNativeCore['MODULE_NAME'] || 'LiquidGlassNativeModule',
       operation: 'onDeviceMotion',
       platform: Platform.OS,
     };
@@ -308,7 +313,7 @@ class LiquidGlassNativeService {
     try {
       if (!this.isAvailable()) {
         logger.info('Device motion events unavailable', {
-          module: LiquidGlassNativeService.MODULE_NAME,
+          module: LiquidGlassNativeCore['MODULE_NAME'] || 'LiquidGlassNativeModule',
           platform: Platform.OS,
         });
         return () => {}; // No-op cleanup function
@@ -341,10 +346,110 @@ class LiquidGlassNativeService {
   }
 }
 
-export const LiquidGlassNative = new LiquidGlassNativeService();
+export const LiquidGlassNative = new LiquidGlassNativeCore();
+
+// Export a promise-based facade used by tests that expect async methods
+export const LiquidGlassNativeService = {
+  // Async availability used in unit tests; prefer native method when present
+  async isAvailable(): Promise<boolean> {
+    try {
+      // Respect platform guard: don't touch native module on Android
+      if (Platform.OS !== 'ios') return false;
+
+      const mod = (NativeModules as any)?.LiquidGlassNativeModule;
+      if (mod?.isAvailable) {
+        return await mod.isAvailable();
+      }
+      // Fallback to sync check from core
+      return LiquidGlassNative.isAvailable();
+    } catch {
+      return false;
+    }
+  },
+
+  getConstants(): { isIOS26Available: boolean; supportedVariants: string[]; hasHapticSupport: boolean } {
+    if (Platform.OS !== 'ios') {
+      return { isIOS26Available: false, supportedVariants: [], hasHapticSupport: false };
+    }
+    const mod = (NativeModules as any)?.LiquidGlassNativeModule;
+    if (mod?.getConstants) {
+      try {
+        return mod.getConstants();
+      } catch {
+        // fall through to core
+      }
+    }
+    return LiquidGlassNative.getConstants();
+  },
+
+  async createLiquidGlassView(config: LiquidGlassConfig) {
+    if (Platform.OS !== 'ios') throw new Error('LiquidGlass not available on this platform');
+    const mod = (NativeModules as any)?.LiquidGlassNativeModule;
+    if (mod?.createLiquidGlassView) {
+      return await mod.createLiquidGlassView(config);
+    }
+    return await LiquidGlassNative.createLiquidGlassView(config);
+  },
+
+  async updateGlassIntensity(viewId: number, intensity: number) {
+    if (Platform.OS !== 'ios') throw new Error('LiquidGlass not available on this platform');
+    const mod = (NativeModules as any)?.LiquidGlassNativeModule;
+    if (mod?.updateGlassIntensity) {
+      return await mod.updateGlassIntensity(viewId, intensity);
+    }
+    return await LiquidGlassNative.updateGlassIntensity(viewId, intensity);
+  },
+
+  triggerHapticFeedback(type: 'light' | 'medium' | 'heavy' | 'selection') {
+    if (Platform.OS !== 'ios') return;
+    const mod = (NativeModules as any)?.LiquidGlassNativeModule;
+    if (mod?.triggerHapticFeedback) {
+      try { mod.triggerHapticFeedback(type); } catch { /* noop */ }
+      return;
+    }
+    LiquidGlassNative.triggerHapticFeedback(type);
+  },
+
+  startMotionTracking() {
+    if (Platform.OS !== 'ios') return;
+    const mod = (NativeModules as any)?.LiquidGlassNativeModule;
+    if (mod?.startMotionTracking) {
+      try { mod.startMotionTracking(); } catch { /* noop */ }
+      return;
+    }
+    LiquidGlassNative.startMotionTracking();
+  },
+
+  stopMotionTracking() {
+    if (Platform.OS !== 'ios') return;
+    const mod = (NativeModules as any)?.LiquidGlassNativeModule;
+    if (mod?.stopMotionTracking) {
+      try { mod.stopMotionTracking(); } catch { /* noop */ }
+      return;
+    }
+    LiquidGlassNative.stopMotionTracking();
+  },
+
+  // Simple pass-throughs to native add/remove listener APIs used in tests
+  addListener(eventName: string) {
+    const mod = (NativeModules as any)?.LiquidGlassNativeModule;
+    try { mod?.addListener?.(eventName); } catch { /* noop */ }
+  },
+  removeListeners(count: number) {
+    const mod = (NativeModules as any)?.LiquidGlassNativeModule;
+    try { mod?.removeListeners?.(count); } catch { /* noop */ }
+  },
+
+  cleanupResourcesForView(viewId: number) {
+    const mod = (NativeModules as any)?.LiquidGlassNativeModule;
+    try { mod?.cleanupResourcesForView?.(viewId); } catch { /* noop */ }
+  },
+
+  _resetModuleCache: (LiquidGlassNativeCore as any)._resetModuleCache,
+};
 
 // Add static method to the exported instance for testing
-(LiquidGlassNative as any)._resetModuleCache = LiquidGlassNativeService._resetModuleCache;
+(LiquidGlassNative as any)._resetModuleCache = (LiquidGlassNativeCore as any)._resetModuleCache;
 
 // Export the enhanced component as well
 export { LiquidGlassIOS26, LiquidGlassListItem } from '../../src/components/glass/LiquidGlassIOS26';

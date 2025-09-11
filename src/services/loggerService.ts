@@ -5,12 +5,21 @@
 
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
-interface LogEntry {
+export interface LogEntry {
   level: LogLevel;
   message: string;
   timestamp: Date;
   context?: Record<string, unknown>;
   error?: Error;
+}
+
+import { featureFlags } from '../config/featureFlags';
+
+type LogSink = (entry: LogEntry) => void;
+let globalSink: LogSink | null = null;
+
+export function setLogSink(sink: LogSink | null) {
+  globalSink = sink;
 }
 
 class Logger {
@@ -58,6 +67,20 @@ class Logger {
     }
   }
 
+  private emitToSink(entry: LogEntry): void {
+    // In production, route warn/error to diagnostics sink when enabled.
+    if (!globalSink) return;
+    if (!this.isDevelopment && featureFlags.productionDiagnosticsEnabled) {
+      if (entry.level === 'warn' || entry.level === 'error') {
+        try {
+          globalSink(entry);
+        } catch {
+          // never throw from logging
+        }
+      }
+    }
+  }
+
   debug(message: string, context?: Record<string, unknown>): void {
     if (!this.shouldLog('debug')) return;
 
@@ -69,6 +92,7 @@ class Logger {
     };
 
     this.logToConsole(entry);
+    this.emitToSink(entry);
   }
 
   info(message: string, context?: Record<string, unknown>): void {
@@ -82,11 +106,10 @@ class Logger {
     };
 
     this.logToConsole(entry);
+    this.emitToSink(entry);
   }
 
   warn(message: string, context?: Record<string, unknown>): void {
-    if (!this.shouldLog('warn')) return;
-
     const entry: LogEntry = {
       level: 'warn',
       message,
@@ -94,7 +117,10 @@ class Logger {
       context,
     };
 
-    this.logToConsole(entry);
+    if (this.shouldLog('warn')) {
+      this.logToConsole(entry);
+    }
+    this.emitToSink(entry);
   }
 
   error(message: string, error?: Error, context?: Record<string, unknown>): void {
@@ -109,6 +135,7 @@ class Logger {
     };
 
     this.logToConsole(entry);
+    this.emitToSink(entry);
   }
 
   // Convenience methods for common patterns

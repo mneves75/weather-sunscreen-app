@@ -80,7 +80,10 @@ async function extractAndSave(page, urlStr, turndown) {
   });
   const page = await context.newPage();
 
-  const turndown = new TurndownService({ headingStyle: 'atx', codeBlockStyle: 'fenced' });
+  const turndown = new TurndownService({
+    headingStyle: 'atx',
+    codeBlockStyle: 'fenced',
+  });
 
   const queue = [{ url: startUrl, depth: 0 }];
   const seen = new Set();

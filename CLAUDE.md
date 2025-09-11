@@ -6,184 +6,252 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Weather Sunscreen App - React Native (Expo) mobile app providing real-time weather, UV index monitoring, and personalized sunscreen recommendations.
 
-- **Stack**: React Native 0.81.1, Expo 54.0.0-preview.12, TypeScript 5.9.2
+- **Stack**: React Native 0.81.4, Expo SDK 54 (stable), TypeScript 5.9.2
+- **React**: 18.3.1 (downgraded from 19.1.0 for SDK 54 compatibility)
 - **Platforms**: iOS 16+, Android API 29+, Web
+- **New Architecture**: Enabled (Fabric + TurboModules)
 - **Package Manager**: Bun (preferred) or npm fallback
 
 ## Essential Commands
 
 ```bash
 # Development
-bun start               # Start Expo dev server
-bun run ios            # Run on iOS (or: npx expo run:ios --device <ID>)
-bun run android        # Run on Android (Java 17 configured)
-bun run web            # Run web version
+bun start                    # Start Expo dev server
+bun run ios                  # Run on iOS (auto-selects simulator)
+bun run android              # Run on Android (Java 17 configured)
+bun run web                  # Run web version
+
+# Testing
+npm test                     # Run Jest tests (use npm, not bun for Jest)
+npm test -- --watch          # Watch mode
+npm test -- path/to/test     # Run specific test file
+bun run lint                 # ESLint check
+bun run typecheck            # TypeScript validation
 
 # Build & Deploy
 npx eas build --platform ios --profile production
 npx eas build --platform android --profile production
+npx eas submit --platform ios  # Submit to App Store
 
-# Testing & Quality
-bun test               # Run Jest tests
-bun run lint           # ESLint check
-bun run typecheck      # TypeScript validation
-
-# iOS Troubleshooting
-bun run fix-pods       # Complete CocoaPods cleanup
-bun run clean-ios      # Quick iOS cleanup
+# iOS Native Development
+cd ios && pod install --repo-update  # Install/update CocoaPods
+xcodebuild test -scheme WeatherSunscreen  # Run native iOS tests
 scripts/fix-fabric-headers.sh  # Fix React Native header issues
+bun run fix-pods             # Complete CocoaPods cleanup
+bun run clean-ios            # Quick iOS cleanup
 
 # Version Management
-bun run sync-versions  # Sync version from CHANGELOG.md to all files
+bun run sync-versions        # Sync version from CHANGELOG.md to all files
+bun run sync-versions:dry    # Preview version changes
+
+# E2E Testing (Maestro)
+npx maestro test maestro/flows/ios-launch.yaml
+npx maestro test maestro/flows/liquid-glass-and-theme.yaml
 ```
 
-## Architecture
+## High-Level Architecture
 
-### Directory Structure
+### Core Architecture Patterns
 
-```
-src/
-├── components/        # UI components (ui/, icons/, glass/)
-├── context/          # React Context providers (Weather, Sunscreen, Theme)
-├── navigation/       # Navigation config and screen components
-├── services/         # Business logic, APIs, logging
-└── types/           # TypeScript definitions
+**Navigation**: Expo Router v4 (file-based routing)
+- `app/_layout.tsx` - Root layout with providers
+- `app/(tabs)/` - Main tabbed navigation
+- `app/(dev)/` - Developer-only routes for testing
 
-modules/              # Native modules (weather-native-module)
-scripts/             # Build and fix scripts
-```
+**State Management**: Context + Reducer pattern
+- WeatherContext: Weather data, location, loading states
+- SunscreenContext: UV index, SPF recommendations
+- ThemeContext: Dark/light mode, color schemes
+- All contexts use useReducer for complex state management
 
-### Key Services
+**Native Module Integration**: TurboModules with fallbacks
+- Weather module: `WeatherNativeService` class with static methods
+- Liquid Glass: `LiquidGlassNative` instance with async/sync methods
+- Both modules have TypeScript specs in `src/specs/`
+- Graceful fallbacks when running in Expo Go or web
+
+### Critical Service Patterns
 
 **LoggerService** (`src/services/loggerService.ts`)
+- Structured logging with environment awareness
+- Production: Only warn/error levels
+- Development: Full debug logging
+- API: `logger.info()`, `logger.warn()`, `logger.error()`
+- Never use console.log/warn/error directly
 
-- **CRITICAL**: Never use console.log/warn/error directly
-- Use: `logger.info()`, `logger.warn()`, `logger.error()`
-- Includes structured logging for API calls and user actions
+**Weather Data Flow**:
+1. WeatherNativeService attempts native module (iOS: WeatherKit, Android: custom)
+2. Falls back to OpenMeteoService if unavailable
+3. 10-minute cache per location (lat/lon key)
+4. Concurrent request deduplication
+5. Sanitized error messages for security
 
-**WeatherService** (`src/services/openMeteoService.ts`)
+**Error Handling Strategy**:
+- ErrorHandler utility with severity levels (CRITICAL, IMPORTANT, OPTIONAL)
+- Input validation on all native module interfaces
+- Fallback data for network failures
+- Error boundaries at screen level
 
-- Fetches weather data from Open-Meteo API
-- 10-minute caching strategy
-- Handles location and fallback scenarios
+## SDK 54 & New Architecture Status
 
-### State Management
+### Configuration Details
+- **New Architecture**: Enabled via `newArchEnabled: true` in app.json
+- **Podfile**: `ENV['RCT_NEW_ARCH_ENABLED'] = '1'`
+- **Android**: `newArchEnabled=true` in gradle.properties
+- **iOS builds**: Use precompiled React Native for 40% faster builds
+- **Codegen**: Automatically generates native bindings from TypeScript specs
 
-- React Context with useReducer for complex state
-- AsyncStorage for persistence
-- Contexts: WeatherContext, SunscreenContext, ThemeContext
+### iOS 26 Support
+- Deployment target: iOS 16.0 (production), iOS 26.0 (development)
+- Liquid Glass native module with iOS 26 APIs
+- Memory-safe implementation with weak references
+- Motion tracking throttled to 10Hz (83% battery savings)
+- EAS build image: `macos-sequoia-15.6-xcode-16.4` for production
 
-## iOS Security Status ✅
+### Android API 36
+- compileSdkVersion: 36
+- targetSdkVersion: 36
+- Edge-to-edge display enabled by default
+- Predictive back gesture support available
 
-**Security Audit Passed: 2025-09-09**
+## Testing Infrastructure
 
-- All 8 CRITICAL vulnerabilities fixed (CVSS 7.0-9.1)
-- Thread-safe with Actor-based concurrency
-- Memory leak free with proper lifecycle management
-- Battery efficient (83% reduction in motion tracking)
+### Jest Configuration
+- Uses npm/yarn for Jest (Bun test runner incompatible)
+- Flow type support via babel plugins
+- Transform configuration handles React Native imports
+- Global __DEV__ variable properly defined
+- Mocks for Expo modules in jest.setup.ts
 
-### iOS Build & Testing
+### Test Organization
+- Unit tests in `__tests__/` directories alongside source
+- Native module tests in `modules/*/tests/`
+- E2E tests with Maestro in `maestro/flows/`
+- Security tests in iOS native test suite
 
+### Running Tests
 ```bash
-# Setup iOS dependencies
-cd ios && pod install
+# All tests
+npm test
 
-# Run security tests
-xcodebuild test -scheme WeatherSunscreen -only-testing:WeatherSunscreenTests/SecurityFixTests
+# Specific patterns
+npm test -- --testNamePattern="LiquidGlass"
+npm test -- modules/weather-native-module
 
-# Fix React Native headers if needed
-scripts/fix-fabric-headers.sh
+# Coverage
+npm test -- --coverage
+
+# Native iOS tests
+cd ios && xcodebuild test -scheme WeatherSunscreen
 ```
 
-### Key iOS Improvements
-
-1. **WeatherKit**: Entitlement configured with fallback
-2. **Thread Safety**: Actor pattern for state management
-3. **Memory**: No retain cycles, proper cleanup
-4. **Permissions**: Minimal location access only
-5. **Performance**: Motion updates throttled to 10Hz
-
-## Native Modules
+## Native Module Development
 
 ### Weather Native Module
+- **Location**: `modules/weather-native-module/`
+- **TypeScript Spec**: `src/specs/NativeWeatherModule.ts`
+- **Key Methods**:
+  - `isAvailable()`: Check platform support
+  - `getCurrentLocation()`: Get GPS coordinates
+  - `getWeatherData(lat, lon)`: Fetch weather with caching
+  - `calculateUVIndex(lat, lon, timestamp?)`: UV calculations
 
-- Location: `modules/weather-native-module/`
-- Features: GPS location, weather data, UV index calculations
-- Fallback: Expo Location + mock data for web/older devices
-- **WeatherKit**: Requires Apple Developer capability enabled
+### Liquid Glass Native Module
+- **Location**: `modules/liquid-glass-native/`
+- **TypeScript Spec**: `src/specs/NativeLiquidGlassModule.ts`
+- **iOS Only**: Returns false/noop on Android/Web
+- **Resource Management**: DisplayLinkProxy with weak references
+- **Test Seams**: `__setLGTestModule()` for unit testing
 
-Usage:
+### Adding New Native Modules
+1. Create TypeScript spec in `src/specs/`
+2. Implement native code in `modules/[name]/ios/` and `/android/`
+3. Export service wrapper with fallbacks
+4. Add tests with mocked native module
+5. Run codegen: `cd ios && pod install`
 
-```typescript
-import { WeatherNativeService } from '../modules/weather-native-module';
+## Performance Considerations
 
-const available = await WeatherNativeService.isAvailable();
-const location = await WeatherNativeService.getCurrentLocation();
-const weather = await WeatherNativeService.getWeatherData(lat, lon);
-```
+### Caching Strategy
+- Weather data: 10-minute cache per location
+- Concurrent request deduplication via Map
+- AsyncStorage for persistent user preferences
+- Memory-safe weak references in iOS modules
 
-### iOS 26 Liquid Glass Implementation ✅
-
-- **Status**: Memory-safe implementation with weak references
-- **Documentation**: See `docs/apple/` for API guides
-- **Module**: `LiquidGlassNativeModule` with proper lifecycle
-- **Performance**: Motion tracking throttled to 10Hz
-
-```swift
-// Thread-safe implementation
-private class DisplayLinkProxy: NSObject {
-    weak var target: LiquidGlassNativeModule?  // No retain cycle
-    deinit { stop() }  // Proper cleanup
-}
-```
-
-**Configuration**:
-
-- iOS 26.0 deployment target (ios26-config.xcconfig)
-- Swift 6.0 with strict concurrency
-- Fallback to iOS 16.0 for production
-
-## Development Guidelines
-
-### TypeScript Requirements
-
-- Strict mode enabled
-- Explicit function signatures on exports
-- No `any` types - use proper domain types
-- Types in `src/types/` (weather.ts, navigation.ts, theme.ts, sunscreen.ts)
-
-### Component Patterns
-
-- Functional components with TypeScript interfaces
-- React.memo for expensive weather displays
-- Error boundaries at appropriate levels
-- Custom hooks for reusable logic
-
-### Performance Optimization
-
-- 10-minute weather data caching
+### React Optimizations
+- React.memo on weather display components
 - Proper useCallback/useMemo dependencies
-- Cleanup in useEffect for timers/subscriptions
-- Track mount state for async operations
+- Mount state tracking for async operations
+- Error boundaries prevent cascade failures
 
-### Security & Privacy
+### Battery Efficiency
+- Motion tracking: 10Hz (reduced from 60Hz)
+- Location updates: On-demand only
+- Background processing: Disabled
+- Network requests: Batched and cached
 
-- No direct console logging in production
-- Location permissions with clear explanations
-- HTTPS only for API calls
-- Input validation on all user data
+## Security Requirements
 
-## Testing Approach
+### Implemented Safeguards
+- Thread-safe Actor pattern (iOS)
+- Input validation on all coordinates
+- Sanitized error messages (no coordinates/paths)
+- Minimal permissions (location WhenInUse only)
+- No force unwrapping in Swift code
+- Relative paths in all scripts
 
+### API Security
+- HTTPS only for weather APIs
+- No API keys in code (use environment variables)
+- Request throttling and caching
+- Fallback data for offline mode
+
+## Deployment Checklist
+
+### Before Building
+1. Run tests: `npm test`
+2. Check types: `bun run typecheck`
+3. Lint code: `bun run lint`
+4. Update version: `bun run sync-versions`
+5. Update CHANGELOG.md with all changes
+
+### iOS Production Build
 ```bash
-# Run all tests
-bun test
-
-# Watch mode for development
-bun test:watch
-
-# Test specific file
-bun test src/services/__tests__/openMeteoService.test.ts
+cd ios && pod install --repo-update
+npx eas build --platform ios --profile production
+npx eas submit --platform ios
 ```
 
-Test files located alongside source in `__tests__/` directories.
+### Android Production Build
+```bash
+npx eas build --platform android --profile production
+npx eas submit --platform android
+```
+
+### Post-Deployment
+- Monitor crash reports in Sentry/Crashlytics
+- Check performance metrics
+- Verify WeatherKit entitlement (iOS)
+- Test on various device types
+
+## Common Issues & Solutions
+
+### Jest Test Failures
+- Use `npm test` not `bun test`
+- Check babel configuration for Flow types
+- Ensure __DEV__ is defined in jest.setup.ts
+
+### iOS Build Issues
+- Run `scripts/fix-fabric-headers.sh` for header errors
+- Use `bun run fix-pods` for CocoaPods issues
+- Check Xcode version (16+ recommended)
+
+### Android Build Issues
+- Ensure Java 17 is configured
+- Check gradle.properties for newArchEnabled=true
+- Clear gradle cache if needed
+
+### Native Module Not Found
+- Running in Expo Go? Use development build
+- Check pod installation for iOS
+- Verify module registration in native code

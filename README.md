@@ -264,6 +264,19 @@ npm run android # Test Android functionality
 npm run web     # Test web compatibility
 ```
 
+### Feature Flags & Diagnostics
+
+- Liquid Glass native path on iOS < 26 (dev/test only):
+  - JS flag: set `LIQUID_GLASS_PRE_IOS26=1` or `global.__DEV_LIQUID_GLASS_PRE_IOS26__ = true` before module load.
+  - Native (Swift) flag: set `LIQUID_GLASS_FORCE_ENABLE=1` (Xcode Scheme/EAS env) or `UserDefaults` key `LIQUID_GLASS_FORCE_ENABLE = true`.
+  - Use for validating native paths before iOS 26 ships.
+
+- Production diagnostics (warn/error only):
+  - Set `PROD_DIAGNOSTICS=1` (or `global.__PROD_DIAGNOSTICS__ = true`).
+  - In app bootstrap, register sink: `attachDiagnosticsSink()` from `src/services/diagnosticsSink`.
+  - Retrieve logs with `getBufferedLogs()`; upload on demand; `clearBufferedLogs()` when done.
+
+
 ### Location Services Testing
 
 - Test with location permissions granted/denied

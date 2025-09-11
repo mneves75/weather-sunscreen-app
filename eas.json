@@ -20,7 +20,7 @@
     "preview": {
       "channel": "preview",
       "distribution": "internal",
-      "image": "macos-sequoia-15.5-xcode-26.0",
+      "image": "sdk-54",
       "ios": {
         "resourceClass": "m-medium"
       },
@@ -31,7 +31,7 @@
     },
     "production": {
       "channel": "production",
-      "image": "macos-sequoia-15.5-xcode-26.0",
+      "image": "macos-sequoia-15.6-xcode-16.4",
       "ios": {
         "resourceClass": "m-large"
       },

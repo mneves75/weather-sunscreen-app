@@ -9,6 +9,23 @@ module.exports = {
     'node_modules/(?!(react-native|react-native-reanimated|react-native-gesture-handler|react-native-worklets|@react-native|@react-navigation|react-clone-referenced-element|react-native-vector-icons|@react-native-async-storage|expo(|-[a-z-]+))/)',
   ],
 
+  // Transform configuration for handling Flow types
+  transform: {
+    '^.+\.(js|jsx|ts|tsx)$': ['babel-jest', {
+      presets: [
+        ['babel-preset-expo', {
+          'react-compiler': false, // Disable React Compiler for tests
+          newArchEnabled: true,
+        }],
+      ],
+      plugins: [
+        '@babel/plugin-syntax-flow',
+        ['@babel/plugin-transform-flow-strip-types', { allowDeclareFields: true }],
+        'react-native-worklets/plugin',
+      ],
+    }],
+  },
+
   // Module mapping for React Native aliases
   moduleNameMapper: {
     '^react-native$': '<rootDir>/node_modules/react-native',
