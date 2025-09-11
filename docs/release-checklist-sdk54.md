@@ -6,12 +6,12 @@ This checklist ensures the app is ready for Expo SDK 54 GA and iOS 26.
 
 - [ ] Run `npx expo install` to pin SDK 54-compatible versions.
 - [ ] Verify `package.json` uses:
-  - `expo: ^54.x`
-  - `react-native: 0.81.x` (until Expo supports newer)
-  - Expo modules at SDK 54 versions
+  - `expo: ~54.0.0` (stable)
+  - `react-native: 0.81.1` with `react: 18.3.1`
+  - Expo modules at SDK 54 stable versions
 - [ ] Confirm no duplicate lockfiles: only keep `package-lock.json` (ignore/remove `bun.lock`).
 - [ ] `app.json` uses `expo-build-properties` with:
-  - iOS: `deploymentTarget: "26.0"`, `newArchEnabled: true`, `useFrameworks: "static"`, `buildReactNativeFromSource: true` (remove when no longer needed)
+  - iOS: `deploymentTarget: "16.0"`, `newArchEnabled: true`, `useFrameworks: "static"` (iOS 26 features runtime-gated)
   - Android: `newArchEnabled: true`, modern SDK versions
 
 ## iOS 26 & WeatherKit

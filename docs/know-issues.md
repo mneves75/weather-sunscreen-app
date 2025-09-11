@@ -42,7 +42,7 @@ This document captures critical issues encountered during development and their 
 
 ---
 
-## iOS Build Issues with React Native 0.81.0 and Expo 54.0.0-preview.12
+## iOS Build Issues with React Native 0.81.1 and Expo SDK 54 (STABLE)
 
 ### Latest Build Solutions (Updated)
 
@@ -71,7 +71,7 @@ This document captures critical issues encountered during development and their 
    npx expo run:ios --device ED761675-1A66-4AB9-AC63-794029C192AA
    ```
 
-## iOS Build Issues with React Native 0.81.0 and Expo 54.0.0-preview.4
+## iOS Build Issues with React Native 0.81.1 and Expo SDK 54 (STABLE)
 
 ### Issue: ReactNativeDependencies Pod Installation Failure
 
@@ -167,9 +167,9 @@ If encountering new header not found errors:
 
 ### Version Compatibility
 
-- **React Native 0.81.0** + **Expo 54.0.0-preview.4**: Requires these specific patches
-- **Future versions**: Monitor for resolution of these issues in stable releases
-- **Alternative**: Consider upgrading to stable Expo version when available
+- **React Native 0.81.1** + **Expo SDK 54.0.0 (STABLE)**: Requires these specific patches for New Architecture
+- **React Version**: Downgraded to 18.3.1 for SDK 54 compatibility
+- **New Architecture**: Fully enabled (Fabric + TurboModules)
 
 ---
 
@@ -216,6 +216,6 @@ cd ios && ../scripts/patch-react-native-deps.sh && pod install
 
 ---
 
-_Last Updated: August 22, 2025_  
-_Version: 1.0.1_  
-_React Native: 0.81.0, Expo: 54.0.0-preview.4_
+_Last Updated: September 11, 2025_  
+_Version: 3.0.0_  
+_React Native: 0.81.1, Expo: ~54.0.0 (stable), React: 18.3.1_

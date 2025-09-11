@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Weather Sunscreen App - React Native (Expo) mobile app providing real-time weather, UV index monitoring, and personalized sunscreen recommendations.
 
-- **Stack**: React Native 0.81.4, Expo SDK 54 (stable), TypeScript 5.9.2
+- **Stack**: React Native 0.81.4, Expo SDK ~54.0.0 (stable), TypeScript 5.9.2
 - **React**: 18.3.1 (downgraded from 19.1.0 for SDK 54 compatibility)
 - **Platforms**: iOS 16+, Android API 29+, Web
 - **New Architecture**: Enabled (Fabric + TurboModules)
@@ -54,17 +54,20 @@ npx maestro test maestro/flows/liquid-glass-and-theme.yaml
 ### Core Architecture Patterns
 
 **Navigation**: Expo Router v4 (file-based routing)
+
 - `app/_layout.tsx` - Root layout with providers
 - `app/(tabs)/` - Main tabbed navigation
 - `app/(dev)/` - Developer-only routes for testing
 
 **State Management**: Context + Reducer pattern
+
 - WeatherContext: Weather data, location, loading states
 - SunscreenContext: UV index, SPF recommendations
 - ThemeContext: Dark/light mode, color schemes
 - All contexts use useReducer for complex state management
 
 **Native Module Integration**: TurboModules with fallbacks
+
 - Weather module: `WeatherNativeService` class with static methods
 - Liquid Glass: `LiquidGlassNative` instance with async/sync methods
 - Both modules have TypeScript specs in `src/specs/`
@@ -73,6 +76,7 @@ npx maestro test maestro/flows/liquid-glass-and-theme.yaml
 ### Critical Service Patterns
 
 **LoggerService** (`src/services/loggerService.ts`)
+
 - Structured logging with environment awareness
 - Production: Only warn/error levels
 - Development: Full debug logging
@@ -80,6 +84,7 @@ npx maestro test maestro/flows/liquid-glass-and-theme.yaml
 - Never use console.log/warn/error directly
 
 **Weather Data Flow**:
+
 1. WeatherNativeService attempts native module (iOS: WeatherKit, Android: custom)
 2. Falls back to OpenMeteoService if unavailable
 3. 10-minute cache per location (lat/lon key)
@@ -87,6 +92,7 @@ npx maestro test maestro/flows/liquid-glass-and-theme.yaml
 5. Sanitized error messages for security
 
 **Error Handling Strategy**:
+
 - ErrorHandler utility with severity levels (CRITICAL, IMPORTANT, OPTIONAL)
 - Input validation on all native module interfaces
 - Fallback data for network failures
@@ -95,6 +101,7 @@ npx maestro test maestro/flows/liquid-glass-and-theme.yaml
 ## SDK 54 & New Architecture Status
 
 ### Configuration Details
+
 - **New Architecture**: Enabled via `newArchEnabled: true` in app.json
 - **Podfile**: `ENV['RCT_NEW_ARCH_ENABLED'] = '1'`
 - **Android**: `newArchEnabled=true` in gradle.properties
@@ -102,6 +109,7 @@ npx maestro test maestro/flows/liquid-glass-and-theme.yaml
 - **Codegen**: Automatically generates native bindings from TypeScript specs
 
 ### iOS 26 Support
+
 - Deployment target: iOS 16.0 (production), iOS 26.0 (development)
 - Liquid Glass native module with iOS 26 APIs
 - Memory-safe implementation with weak references
@@ -109,6 +117,7 @@ npx maestro test maestro/flows/liquid-glass-and-theme.yaml
 - EAS build image: `macos-sequoia-15.6-xcode-16.4` for production
 
 ### Android API 36
+
 - compileSdkVersion: 36
 - targetSdkVersion: 36
 - Edge-to-edge display enabled by default
@@ -117,19 +126,22 @@ npx maestro test maestro/flows/liquid-glass-and-theme.yaml
 ## Testing Infrastructure
 
 ### Jest Configuration
+
 - Uses npm/yarn for Jest (Bun test runner incompatible)
 - Flow type support via babel plugins
 - Transform configuration handles React Native imports
-- Global __DEV__ variable properly defined
+- Global **DEV** variable properly defined
 - Mocks for Expo modules in jest.setup.ts
 
 ### Test Organization
+
 - Unit tests in `__tests__/` directories alongside source
 - Native module tests in `modules/*/tests/`
 - E2E tests with Maestro in `maestro/flows/`
 - Security tests in iOS native test suite
 
 ### Running Tests
+
 ```bash
 # All tests
 npm test
@@ -148,6 +160,7 @@ cd ios && xcodebuild test -scheme WeatherSunscreen
 ## Native Module Development
 
 ### Weather Native Module
+
 - **Location**: `modules/weather-native-module/`
 - **TypeScript Spec**: `src/specs/NativeWeatherModule.ts`
 - **Key Methods**:
@@ -157,6 +170,7 @@ cd ios && xcodebuild test -scheme WeatherSunscreen
   - `calculateUVIndex(lat, lon, timestamp?)`: UV calculations
 
 ### Liquid Glass Native Module
+
 - **Location**: `modules/liquid-glass-native/`
 - **TypeScript Spec**: `src/specs/NativeLiquidGlassModule.ts`
 - **iOS Only**: Returns false/noop on Android/Web
@@ -164,6 +178,7 @@ cd ios && xcodebuild test -scheme WeatherSunscreen
 - **Test Seams**: `__setLGTestModule()` for unit testing
 
 ### Adding New Native Modules
+
 1. Create TypeScript spec in `src/specs/`
 2. Implement native code in `modules/[name]/ios/` and `/android/`
 3. Export service wrapper with fallbacks
@@ -173,18 +188,21 @@ cd ios && xcodebuild test -scheme WeatherSunscreen
 ## Performance Considerations
 
 ### Caching Strategy
+
 - Weather data: 10-minute cache per location
 - Concurrent request deduplication via Map
 - AsyncStorage for persistent user preferences
 - Memory-safe weak references in iOS modules
 
 ### React Optimizations
+
 - React.memo on weather display components
 - Proper useCallback/useMemo dependencies
 - Mount state tracking for async operations
 - Error boundaries prevent cascade failures
 
 ### Battery Efficiency
+
 - Motion tracking: 10Hz (reduced from 60Hz)
 - Location updates: On-demand only
 - Background processing: Disabled
@@ -193,6 +211,7 @@ cd ios && xcodebuild test -scheme WeatherSunscreen
 ## Security Requirements
 
 ### Implemented Safeguards
+
 - Thread-safe Actor pattern (iOS)
 - Input validation on all coordinates
 - Sanitized error messages (no coordinates/paths)
@@ -201,6 +220,7 @@ cd ios && xcodebuild test -scheme WeatherSunscreen
 - Relative paths in all scripts
 
 ### API Security
+
 - HTTPS only for weather APIs
 - No API keys in code (use environment variables)
 - Request throttling and caching
@@ -209,6 +229,7 @@ cd ios && xcodebuild test -scheme WeatherSunscreen
 ## Deployment Checklist
 
 ### Before Building
+
 1. Run tests: `npm test`
 2. Check types: `bun run typecheck`
 3. Lint code: `bun run lint`
@@ -216,6 +237,7 @@ cd ios && xcodebuild test -scheme WeatherSunscreen
 5. Update CHANGELOG.md with all changes
 
 ### iOS Production Build
+
 ```bash
 cd ios && pod install --repo-update
 npx eas build --platform ios --profile production
@@ -223,35 +245,65 @@ npx eas submit --platform ios
 ```
 
 ### Android Production Build
+
 ```bash
 npx eas build --platform android --profile production
 npx eas submit --platform android
 ```
 
 ### Post-Deployment
+
 - Monitor crash reports in Sentry/Crashlytics
 - Check performance metrics
 - Verify WeatherKit entitlement (iOS)
 - Test on various device types
 
+## Development Tips
+
+### Structural Code Search
+
+Use ast-grep for syntax-aware searches instead of text-based grep:
+
+```bash
+sg --lang ts -p 'const $VAR = useContext($CTX)'  # Find all useContext calls
+sg --lang tsx -p '<$COMP $$$PROPS/>'              # Find component usage
+```
+
+### Conventional Commits
+
+Required format for all commits (enforced by commitlint + husky):
+
+- `feat:` New feature
+- `fix:` Bug fix
+- `docs:` Documentation only
+- `style:` Code style (formatting, semicolons, etc)
+- `refactor:` Code refactoring
+- `perf:` Performance improvements
+- `test:` Adding or updating tests
+- `chore:` Maintenance tasks
+
 ## Common Issues & Solutions
 
 ### Jest Test Failures
+
 - Use `npm test` not `bun test`
 - Check babel configuration for Flow types
-- Ensure __DEV__ is defined in jest.setup.ts
+- Ensure **DEV** is defined in jest.setup.ts
 
 ### iOS Build Issues
+
 - Run `scripts/fix-fabric-headers.sh` for header errors
 - Use `bun run fix-pods` for CocoaPods issues
 - Check Xcode version (16+ recommended)
 
 ### Android Build Issues
+
 - Ensure Java 17 is configured
 - Check gradle.properties for newArchEnabled=true
 - Clear gradle cache if needed
 
 ### Native Module Not Found
+
 - Running in Expo Go? Use development build
 - Check pod installation for iOS
 - Verify module registration in native code

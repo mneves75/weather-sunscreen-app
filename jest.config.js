@@ -11,19 +11,25 @@ module.exports = {
 
   // Transform configuration for handling Flow types
   transform: {
-    '^.+\.(js|jsx|ts|tsx)$': ['babel-jest', {
-      presets: [
-        ['babel-preset-expo', {
-          'react-compiler': false, // Disable React Compiler for tests
-          newArchEnabled: true,
-        }],
-      ],
-      plugins: [
-        '@babel/plugin-syntax-flow',
-        ['@babel/plugin-transform-flow-strip-types', { allowDeclareFields: true }],
-        'react-native-worklets/plugin',
-      ],
-    }],
+    '^.+\\.(js|jsx|ts|tsx)$': [
+      'babel-jest',
+      {
+        presets: [
+          [
+            'babel-preset-expo',
+            {
+              'react-compiler': false, // Disable React Compiler for tests
+              newArchEnabled: true,
+            },
+          ],
+        ],
+        plugins: [
+          '@babel/plugin-syntax-flow',
+          ['@babel/plugin-transform-flow-strip-types', { allowDeclareFields: true }],
+          'react-native-worklets/plugin',
+        ],
+      },
+    ],
   },
 
   // Module mapping for React Native aliases

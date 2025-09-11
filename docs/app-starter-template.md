@@ -25,12 +25,13 @@ This template provides a complete foundation for building modern, cross-platform
 ### Technology Stack
 
 ```yaml
-Framework: React Native 0.81+ with Expo 54+
+Framework: React Native 0.81.1 with Expo SDK 54 (stable)
 Language: TypeScript (strict mode)
-Navigation: React Navigation v7 (Native Stack + Bottom Tabs)
+Navigation: Expo Router (file-based navigation)
 State Management: React Context + AsyncStorage
 Build System: Expo Development Build with Continuous Native Generation
 Platforms: iOS 16+, Android API 29+, Web
+React: 18.3.1 (optimized for SDK 54 compatibility)
 ```
 
 ### Project Structure
@@ -359,72 +360,17 @@ export class YourNativeModuleService {
 
 ## 🧭 Navigation Architecture
 
-### Main Navigation Setup
+### Current Navigation Architecture
 
-> Note: Since v2.0.0 this template uses Expo Router (app/ directory) instead of React Navigation wiring under src/navigation. The snippet below is kept for legacy reference only. Prefer file-based routes in `app/`.
+**Uses Expo Router (file-based routing)** - See `app/` directory structure above.
 
-**Legacy File (reference only): `src/navigation/index.tsx`**
+Navigation is handled automatically by Expo Router based on file structure:
 
-```typescript
-import React from 'react';
-import { createStaticNavigation } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+- `app/(tabs)/` - Bottom tab navigation
+- `app/_layout.tsx` - Root layout with providers
+- `app/(dev)/` - Development-only routes
 
-// TODO: Create these screens in your project
-import { HomeScreen } from './screens/Home';
-import { SettingsScreen } from './screens/Settings';
-import { DetailScreen } from './screens/Detail';
-
-// TODO: Create these icon components
-import { HomeIcon } from '../components/icons/HomeIcon';
-import { SettingsIcon } from '../components/icons/SettingsIcon';
-
-// Tab Navigator
-const TabNavigator = createBottomTabNavigator({
-  screens: {
-    Home: {
-      screen: HomeScreen,
-      options: {
-        title: 'Home',
-        tabBarIcon: ({ color, size }) => (
-          <HomeIcon size={size} color={color} />
-        ),
-      },
-    },
-    Settings: {
-      screen: SettingsScreen,
-      options: {
-        title: 'Settings',
-        tabBarIcon: ({ color, size }) => (
-          <SettingsIcon size={size} color={color} />
-        ),
-      },
-    },
-  },
-});
-
-// Root Stack Navigator
-const RootStack = createNativeStackNavigator({
-  screens: {
-    HomeTabs: {
-      screen: TabNavigator,
-      options: {
-        headerShown: false,
-      },
-    },
-    Detail: {
-      screen: DetailScreen,
-      options: {
-        title: 'Detail',
-        presentation: 'modal',
-      },
-    },
-  },
-});
-
-export const Navigation = createStaticNavigation(RootStack);
-```
+**No manual navigation configuration required** - routes are auto-generated from file structure.
 
 ## 🗂️ State Management Pattern
 
@@ -682,11 +628,12 @@ struct LiquidGlassFallback: View {
 
 ### React Native Liquid Glass Wrapper
 
-> **Expo SDK 54 Beta Support:**
+> **Expo SDK 54 Stable Support:**
 >
-> - [Expo SDK 54 Changelog](https://expo.dev/changelog/sdk-54-beta)
+> - [Expo SDK 54 Changelog](https://expo.dev/changelog/sdk-54)
 > - Native iOS 26 Liquid Glass icon support
 > - Glass effect modifiers and button variants
+> - **Recommended Library**: [expo-liquid-glass-view](https://github.com/rit3zh/expo-liquid-glass-view) for native Liquid Glass implementation
 
 **File: `src/components/LiquidGlassWrapper.tsx`**
 
@@ -915,14 +862,14 @@ Pod::Spec.new do |s|
 end
 ```
 
-### Expo SDK 54 Beta Features
+### Expo SDK 54 Stable Configuration
 
 Add to your `package.json` dependencies:
 
 ```json
 {
   "dependencies": {
-    "expo": "54.0.0-preview.4",
+    "expo": "~54.0.0",
     "@expo/config-plugins": "^8.0.0",
     "expo-build-properties": "^0.14.8"
   }
