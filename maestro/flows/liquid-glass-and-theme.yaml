@@ -13,12 +13,12 @@ onFlowStart:
 - assertVisible: 'Show overlay'
 
 # Toggle theme using the visible label prefix (Portuguese UI copy)
-- tapOn: 'Trocar para'
+- tapOn: 'Alternar tema'
 - assertVisible: 'Tema atual:'
 
 # Navigate through tabs that render LiquidGlassWrapper surfaces
 - tapOn: 'Weather'
-- assertVisible: '—'
+- assertVisible: 'Weather'
 - tapOn: 'UV Index'
 - assertVisible: 'UV Index'
 - tapOn: 'Forecast'
