@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { Tabs } from 'expo-router';
 import { useTheme } from '../../src/theme/theme';
-import { StyleSheet, Platform } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { GlassView } from 'expo-glass-effect';
 import { buildNavigationStyles } from '../../src/theme/navigationStyles';
 

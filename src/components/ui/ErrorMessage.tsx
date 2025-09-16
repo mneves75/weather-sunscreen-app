@@ -7,13 +7,18 @@ interface ErrorMessageProps {
   retryText?: string;
 }
 
-export function ErrorMessage({ message, onRetry, retryText = 'Try Again' }: ErrorMessageProps) {
+export function ErrorMessage({ message, onRetry, retryText = 'Retry' }: ErrorMessageProps) {
   return (
     <View style={styles.container}>
       <Text style={styles.errorIcon}>⚠️</Text>
       <Text style={styles.message}>{message}</Text>
       {onRetry && (
-        <TouchableOpacity style={styles.retryButton} onPress={onRetry}>
+        <TouchableOpacity
+          style={styles.retryButton}
+          onPress={onRetry}
+          accessibilityRole="button"
+          accessibilityLabel={retryText}
+        >
           <Text style={styles.retryButtonText}>{retryText}</Text>
         </TouchableOpacity>
       )}

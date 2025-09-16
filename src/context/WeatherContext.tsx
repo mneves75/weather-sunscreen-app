@@ -42,10 +42,12 @@ export function WeatherProvider({ children }: WeatherProviderProps) {
       setState((prev) => ({
         ...prev,
         weatherData,
-        currentLocation: {
-          latitude: weatherData.location.lat,
-          longitude: weatherData.location.lon,
-        },
+        currentLocation: weatherData?.location
+          ? {
+              latitude: weatherData.location.lat,
+              longitude: weatherData.location.lon,
+            }
+          : prev.currentLocation,
         isLoading: false,
         lastUpdated: new Date(),
       }));

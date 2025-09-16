@@ -10,10 +10,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Comprehensive Liquid Glass implementation documentation
+- Forecast detail screen (`/forecast/[day]`) com Expo Router v6
+- Testes dedicados para forecast/navigation e tema
 
 ### Changed
 
 - Updated implementation roadmap to reflect v3.0.0 completion status
+- Home e Forecast usam `@shopify/flash-list` + componentes memorizados
+- Settings agora expõe seleção explícita de tema (`sistema/claro/escuro`)
+- Tabs aplicam Liquid Glass nativo (iOS) e Material You (Android)
 
 ### Fixed
 
@@ -23,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Removed prebuild plugin configurations from app.json for native project
 - Fixed typo in filename: `know-issues.md` → `known-issues.md`
 - Patched `expo-updates` to inline the EAS client ID and avoid the `EASClient`/`WeatherSunscreen` build cycle (see `scripts/patch-expo-updates.sh`).
+- Desabilitado `CLANG_ENABLE_EXPLICIT_MODULES` para impedir falhas no PhaseScriptExecution
 
 ### Removed
 

@@ -1,7 +1,7 @@
 # Weather Sunscreen App - Implementation Roadmap
 
 _Comprehensive development and feature tracking document_  
-_Last Updated: September 15, 2025 - v3.0.0_
+_Last Updated: September 16, 2025 - v3.0.0_
 
 ## ✅ COMPLETED IN v3.0.0 (September 11, 2025)
 
@@ -70,12 +70,12 @@ _Last Updated: September 15, 2025 - v3.0.0_
 
 ### 1.2 Settings Theme Controls
 
-**Status**: OPEN
-**Impact**: HIGH – Users cannot return to system theme today
+**Status**: COMPLETED (Setembro/2025)
+**Impact**: HIGH – usuários escolhem `sistema`, `claro` ou `escuro` diretamente
 
-- [ ] Replace binary toggle with explicit options (`system`, `light`, `dark`)
-- [ ] Surface current `themeMode` string in UI copy
-- [ ] Verify toggles update persisted storage + `useTheme`
+- [x] Substituir toggle binário por opções explícitas (`sistema`, `claro`, `escuro`)
+- [x] Exibir o modo atual na cópia (respeitando idioma)
+- [x] `useTheme` persiste a escolha e o botão de atalho permite alternância rápida
 
 ### 1.3 OTA Configuration Alignment
 

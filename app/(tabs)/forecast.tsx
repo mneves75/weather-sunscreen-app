@@ -1,25 +1,33 @@
-import React, { useMemo } from 'react';
-import { View, Text, StyleSheet, FlatList, ImageSourcePropType } from 'react-native';
-import { Image } from 'expo-image';
+import React, { memo, useMemo } from 'react';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { Link } from 'expo-router';
 import { useTheme } from '../../src/theme/theme';
 import { tokens } from '../../src/theme/tokens';
+import { FlashList } from '@shopify/flash-list';
+import { weeklyForecast } from '../../src/data/mockForecast';
+import { logger } from '../../src/services/loggerService';
 
-type ForecastRow = { day: string; temp: number; icon: ImageSourcePropType };
+type ForecastRow = {
+  day: string;
+  temp: number;
+  icon: string;
+  summary: string;
+  humidity: number;
+};
 
 export default function ForecastRoute() {
   const { colors } = useTheme();
-  const data = useMemo<ForecastRow[]>(
-    () => [
-      { day: 'Today', temp: 26, icon: require('../../assets/icon.png') },
-      { day: 'Tomorrow', temp: 24, icon: require('../../assets/icon.png') },
-      { day: 'Day 3', temp: 22, icon: require('../../assets/icon.png') },
-      { day: 'Day 4', temp: 20, icon: require('../../assets/icon.png') },
-      { day: 'Day 5', temp: 23, icon: require('../../assets/icon.png') },
-      { day: 'Day 6', temp: 25, icon: require('../../assets/icon.png') },
-      { day: 'Day 7', temp: 27, icon: require('../../assets/icon.png') },
-    ],
-    [],
-  );
+  const data = useMemo<ForecastRow[]>(() => {
+    const mapped = weeklyForecast.map(({ day, temp, summary, humidity, icon }) => ({
+      day,
+      temp,
+      summary,
+      humidity,
+      icon,
+    }));
+    logger.info('ForecastRoute: prepared forecast data', { count: mapped.length });
+    return mapped;
+  }, []);
 
   const styles = createStyles(colors);
   return (
@@ -27,27 +35,52 @@ export default function ForecastRoute() {
       <Text accessibilityRole="header" style={styles.title}>
         7-day Forecast
       </Text>
-      <FlatList
+      <FlashList
         data={data}
         keyExtractor={(it) => it.day}
-        renderItem={({ item }) => (
-          <View style={styles.row}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-              <Image
-                source={item.icon}
-                style={{ width: 28, height: 28, borderRadius: 6 }}
-                contentFit="cover"
-              />
-              <Text style={styles.day}>{item.day}</Text>
-            </View>
-            <Text style={styles.temp}>{item.temp}°C</Text>
-          </View>
-        )}
-        getItemLayout={(_, i) => ({ length: 56, offset: 56 * i, index: i })}
+        renderItem={({ item }) => <ForecastRowItem item={item} styles={styles} />}
+        getItemType={() => 'forecast-row'}
+        onLoad={({ elapsedTimeInMs }) =>
+          logger.info('ForecastRoute: initial draw complete', { elapsedTimeInMs })
+        }
       />
     </View>
   );
 }
+
+const ForecastRowItem = memo(
+  ({ item, styles }: { item: ForecastRow; styles: ReturnType<typeof createStyles> }) => (
+    <Link
+      href={{ pathname: '/forecast/[day]', params: { day: item.day, temp: String(item.temp) } }}
+      asChild
+      prefetch
+    >
+      <Pressable style={styles.row} accessibilityHint={`Abrir detalhes de ${item.day}`}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+          <Text
+            style={styles.iconEmoji}
+            accessibilityRole="image"
+            accessibilityLabel={item.summary}
+          >
+            {item.icon}
+          </Text>
+          <View>
+            <Text style={styles.day}>{item.day}</Text>
+            <Text style={styles.summary} numberOfLines={1}>
+              {item.summary}
+            </Text>
+          </View>
+        </View>
+        <View style={{ alignItems: 'flex-end' }}>
+          <Text style={styles.temp}>{item.temp}°C</Text>
+          <Text style={styles.humidity}>Umidade {item.humidity}%</Text>
+        </View>
+      </Pressable>
+    </Link>
+  ),
+);
+
+ForecastRowItem.displayName = 'ForecastRowItem';
 
 function createStyles(colors: { [K in keyof typeof tokens.light.colors]: string }) {
   return StyleSheet.create({
@@ -60,8 +93,12 @@ function createStyles(colors: { [K in keyof typeof tokens.light.colors]: string 
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
+      paddingRight: 4,
     },
     day: { color: colors.primary, fontWeight: '600' },
+    summary: { color: colors.secondary, fontSize: 12 },
     temp: { color: colors.secondary, fontWeight: '600' },
+    humidity: { color: colors.secondary, fontSize: 12 },
+    iconEmoji: { fontSize: 24 },
   });
 }

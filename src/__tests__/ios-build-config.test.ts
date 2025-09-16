@@ -21,9 +21,9 @@ describe('iOS build configuration for SDK 54', () => {
 
   test('EAS build images match project policy (Xcode 26.0)', () => {
     const eas = readJSON(path.join(process.cwd(), 'eas.json'));
-    const imageDev = eas.build.development.image;
-    const imagePrev = eas.build.preview.image;
-    const imageProd = eas.build.production.image;
+    const imageDev = eas.build.development.ios?.image;
+    const imagePrev = eas.build.preview.ios?.image;
+    const imageProd = eas.build.production.ios?.image;
     // All lanes target Xcode 26.0 (17A321 baseline)
     expect(imageDev).toContain('xcode-26.0');
     expect(imagePrev).toContain('xcode-26.0');

@@ -17,7 +17,8 @@ A modern React Native mobile application built with Expo that provides real-time
 - **Location Services** - Automatic location detection with manual location selection
 - **Cross-Platform** - Native iOS, Android, and web support
 - **Modern UI** - Clean, intuitive interface following platform design guidelines
-- **Native Performance** - TurboModules where it adds value; Liquid Glass uses the official `expo-glass-effect`
+- **Native Performance** - TurboModules onde faz sentido; abas usam Liquid Glass nativo no iOS 26, Material You no Android (Expo Router v6)
+- **Previsão Detalhada** - Navegação aprofundada com Expo Router v6 e pré-visualizações de cada dia da semana
 
 ### 🆕 v1.0.1 Enhancements
 
@@ -87,6 +88,7 @@ A modern React Native mobile application built with Expo that provides real-time
 
 - See `docs/EXPO_SDK_54_MIGRATION.md` for migration guide and SDK 54 features
 - See `docs/liquid-glass.md` for iOS 26 Liquid Glass implementation details
+  - As configurações específicas de build (`bundleIdentifier`, entitlements e ajustes de deployment target) moram agora somente nos projetos nativos; o `app.json` permanece limpo para evitar divergências durante EAS Build.
 
 ## 🔄 OTA Updates (EAS Update)
 
@@ -287,6 +289,11 @@ function Example() {
 
 - Run tests with Jest: `npm test`
 - Watch mode: `npm test -- --watch`
+- Suites importantes:
+  - `npm test -- LiquidGlassWrapper`
+  - `npm test -- navigationStyles`
+  - `npm test -- weather-theme`
+  - `npm test -- forecast-details`
 
 ### Glass UI & Haptics
 
@@ -302,6 +309,12 @@ npm run ios     # Test iOS functionality
 npm run android # Test Android functionality
 npm run web     # Test web compatibility
 ```
+
+## 🚀 Desempenho
+
+- Listas grandes usam `@shopify/flash-list` nas telas Home e Forecast para reduzir jank conforme recomendado em [Best practices for reducing lag in Expo apps](https://expo.dev/blog/best-practices-for-reducing-lag-in-expo-apps).
+- Componentes de linha (forecast) foram memorizados com `React.memo` e dados reaproveitados via `src/data/mockForecast.ts` para minimizar renderizações.
+- Utilize `npx expo start --no-dev --minify` ou builds Release para validar métricas reais antes de publicar.
 
 ### Feature Flags & Diagnostics
 

@@ -2,7 +2,7 @@
 
 This guide captures the exact steps and pitfalls when migrating to Expo SDK 54 with React Native 0.81 and iOS 26 "Liquid Glass".
 
-Last updated: 2025-09-15
+Last updated: 2025-09-16
 
 ## Targets & Tooling
 
@@ -76,7 +76,8 @@ module.exports = (api) => {
 - Type check: `bun run typecheck`
 - Lint: `bun run lint`
 - E2E tests: `npx maestro test maestro/flows/liquid-glass-and-theme.yaml`
-- Full validation: Clean install and run expo-doctor
+- Full validation: Clean install e rodar `npx expo-doctor`
+  - 2025-09-16: tentativa local falhou por ausência de acesso à internet (sandbox), registrar log de rede e repetir em ambiente com acesso liberado antes do release.
 
 ## Known Issues / Tips
 

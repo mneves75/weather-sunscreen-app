@@ -85,10 +85,9 @@ export function LiquidGlassWrapper({
 
 ### Platform Behavior
 
-- **iOS 26+**: Renders native glass blur effect using UIVisualEffectView
-- **iOS < 26**: Falls back to regular View without blur
-- **Android**: Falls back to regular View
-- **Web**: Falls back to regular View
+- **iOS 26+**: Renders native glass blur effect usando `GlassView`
+- **iOS < 26** ou **Reduce Motion ativo**: Fallback sólido com bordas/elevação Material
+- **Android/Web**: Fallback Material com contrastes revisados
 
 ## Testing
 

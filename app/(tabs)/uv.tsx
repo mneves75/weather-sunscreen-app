@@ -32,6 +32,9 @@ export default function UVIndexRoute() {
         keyExtractor={(it) => it.time}
         initialNumToRender={12}
         windowSize={10}
+        maxToRenderPerBatch={16}
+        updateCellsBatchingPeriod={16}
+        removeClippedSubviews
         renderItem={({ item }) => (
           <View style={styles.row}>
             <Text style={styles.time}>{item.time}</Text>

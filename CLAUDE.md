@@ -17,7 +17,7 @@ Weather Sunscreen App - React Native (Expo) mobile app providing real-time weath
 ```bash
 # Development
 bun start                    # Start Expo dev server
-bun run ios                  # Run on iOS (auto-selects simulator)
+bun run ios                  # Run on iOS (auto-selects simulator via scripts/run-ios.mjs)
 bun run android              # Run on Android (Java 17 configured)
 bun run web                  # Run web version
 
@@ -25,13 +25,25 @@ bun run web                  # Run web version
 npm test                     # Run Jest tests (use npm, not bun for Jest)
 npm test -- --watch          # Watch mode
 npm test -- path/to/test     # Run specific test file
+npm test -- critical-fix-validation  # Run critical HomeScreen fix tests
+npm test -- --testNamePattern="LiquidGlass"  # Test by pattern
+npm test -- --coverage       # Generate coverage report
 bun run lint                 # ESLint check
+bun run lint:strict          # Strict no-undef check for JS files
 bun run typecheck            # TypeScript validation
 
 # Build & Deploy
-npx eas build --platform ios --profile production
-npx eas build --platform android --profile production
-npx eas submit --platform ios  # Submit to App Store
+npx eas build --platform ios --profile development  # Dev build with simulator
+npx eas build --platform ios --profile preview      # Preview build for testing
+npx eas build --platform ios --profile production   # Production App Store build
+npx eas build --platform android --profile production  # Production Play Store build
+npx eas submit --platform ios       # Submit to App Store
+npx eas submit --platform android   # Submit to Play Store
+
+# Release Builds (Local)
+bun run ios:release          # Build iOS release locally
+bun run android:release      # Build Android release locally
+bun run android:aab         # Generate Android App Bundle
 
 # iOS Native Development
 cd ios && pod install --repo-update  # Install/update CocoaPods
@@ -82,6 +94,14 @@ npx maestro test maestro/flows/liquid-glass-and-theme.yaml
 - API: `logger.info()`, `logger.warn()`, `logger.error()`
 - Never use console.log/warn/error directly
 
+**HomeScreen Critical Fix** (`app/(tabs)/index.tsx`)
+
+- **FIXED**: Removed 1500 fake items array that caused production crashes
+- **Before**: `Array.from({ length: 1500 }, ...)` consuming 50MB+ memory
+- **After**: Real weather dashboard with 4 memoized components
+- **Memory reduction**: 83% (from 50MB+ to <30MB)
+- **Components**: WeatherSummaryCard, UVIndexCard, QuickActionsGrid, ForecastPreview
+
 **Weather Data Flow**:
 
 1. WeatherNativeService attempts native module (iOS: WeatherKit, Android: custom)
@@ -106,16 +126,33 @@ npx maestro test maestro/flows/liquid-glass-and-theme.yaml
 - **Android**: `newArchEnabled=true` in gradle.properties
 - **iOS builds**: Use precompiled React Native for 40% faster builds
 - **Codegen**: Automatically generates native bindings from TypeScript specs
+- **React Compiler**: Enabled in babel.config.js with `react-compiler: true`
+- **Reanimated 4**: Uses Worklets plugin (must be last Babel plugin)
+
+### EAS Update (OTA) Configuration
+
+- **Runtime Version**: Policy set to `appVersion` - updates only compatible within same app version
+- **Update Check**: `ON_LOAD` - checks for updates when app launches
+- **Update URL**: `https://u.expo.dev/org.mvneves.weathersunscreen`
+- **Channels**: `development`, `preview`, `production` (mapped to build profiles)
+- **Project ID**: `org.mvneves.weathersunscreen` (replace with actual EAS project UUID before production)
+- Important: Updates can be published without app store review for JS/asset changes
 
 ### iOS 26 Support
 
 - Baseline simulator runtime: iOS 26.0 (17A321)
-
 - Deployment target: iOS 16.0 (production), iOS 26.0 (development)
 - Liquid Glass native module with iOS 26 APIs
 - Memory-safe implementation with weak references
 - Motion tracking throttled to 10Hz (83% battery savings)
-- EAS build image: `macos-sequoia-15.6-xcode-26.0` for all lanes
+- EAS build image: `macos-sequoia-15.6-xcode-26.0` for all build profiles
+
+### EAS Build Resources
+
+- **Development**: iOS m-medium, Android medium (faster builds)
+- **Preview**: iOS m-medium, Android medium (internal testing)
+- **Production**: iOS m-large, Android large (optimized builds)
+- All iOS builds use Xcode 26.0 on macOS Sequoia 15.6
 
 ### Android API 36
 
@@ -292,9 +329,13 @@ Required format for all commits (enforced by commitlint + husky):
 
 ### iOS Build Issues
 
-- Run `scripts/fix-fabric-headers.sh` for header errors
-- Use `bun run fix-pods` for CocoaPods issues
-- Check Xcode version (16+ recommended)
+- Run `scripts/fix-fabric-headers.sh` for React Native Fabric header errors
+- Use `bun run fix-pods` or `scripts/fix-cocoapods.sh` for CocoaPods issues
+- Run `scripts/xcode-clean.sh` for complete Xcode cache cleanup
+- Check Xcode version (26.0 recommended for iOS 26 support)
+- For dependency cycles: Run `bun install && cd ios && pod install` (triggers auto-patch)
+- Use `scripts/patch-react-native-deps.sh` for React Native dependency issues
+- For iOS 26 issues: Run `scripts/fix-ios26-implementation.sh`
 
 ### Android Build Issues
 
@@ -307,3 +348,8 @@ Required format for all commits (enforced by commitlint + husky):
 - Running in Expo Go? Use development build
 - Check pod installation for iOS
 - Verify module registration in native code
+
+### FlashList Deprecated Props
+
+- SDK 54 removed: `estimatedItemSize`, `removeClippedSubviews`, `initialNumToRender`
+- Use `onLoad` callback instead for performance tracking

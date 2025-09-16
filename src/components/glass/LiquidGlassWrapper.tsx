@@ -37,13 +37,13 @@ export function LiquidGlassWrapper({
     };
   }, []);
 
+  const iosConstants = (Platform.constants ?? {}) as Record<string, unknown>;
   const rawVersion =
     Platform.OS === 'ios'
-      ? Platform.constants?.osVersion ||
-        Platform.constants?.systemVersion ||
-        `${Platform.Version ?? ''}`
+      ? String(iosConstants.osVersion || iosConstants.systemVersion || Platform.Version || '')
       : '';
-  const iosMajorVersion = Platform.OS === 'ios' ? parseInt(rawVersion.split('.')[0], 10) || 0 : 0;
+  const iosMajorVersion =
+    Platform.OS === 'ios' && rawVersion ? parseInt(rawVersion.split('.')[0], 10) || 0 : 0;
 
   const supportsGlass = Platform.OS === 'ios' && iosMajorVersion >= 26 && reduceMotion === false;
 
