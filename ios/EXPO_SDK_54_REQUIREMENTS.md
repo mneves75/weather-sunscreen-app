@@ -129,17 +129,7 @@ ENV['HERMES_USE_PREBUILT_BINARY'] = '0'  # Xcode 26 simulator compatibility
 - **Compile SDK**: 36
 
 #### 3.2 Edge-to-Edge Enforcement
-```json
-{
-  "expo": {
-    "plugins": [
-      ["react-native-edge-to-edge", {
-        "enforceNavigationBarContrast": true
-      }]
-    ]
-  }
-}
-```
+Edge-to-edge agora é padrão em React Native 0.81 (Expo SDK 54). Removemos o plugin `react-native-edge-to-edge`; caso precise ajustes adicionais use as propriedades `androidNavigationBar` / `androidStatusBar` no `app.json` ou configure direto no projeto nativo.
 
 #### 3.3 Predictive Back Gesture
 ```json

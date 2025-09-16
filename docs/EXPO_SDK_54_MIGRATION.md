@@ -31,11 +31,16 @@ Last updated: 2025-09-16
 module.exports = (api) => {
   api.cache(true);
   return {
-    presets: [['babel-preset-expo', { jsxImportSource: 'react' }]],
-    plugins: [
-      ['module-resolver', { alias: { '@': './src' } }],
-      'react-native-worklets/plugin', // must be last
+    presets: [
+      [
+        'babel-preset-expo',
+        {
+          'react-compiler': true,
+          newArchEnabled: true,
+        },
+      ],
     ],
+    plugins: ['react-native-worklets/plugin'],
   };
 };
 ```
@@ -69,6 +74,7 @@ module.exports = (api) => {
   - `compileSdkVersion: 36`, `targetSdkVersion: 36`, `minSdkVersion: 24`
   - `kotlinVersion: 2.1.21`
 - If CI images lag, step down Kotlin/SDK one notch and re‑test.
+- Edge-to-edge: SDK 54 já habilita comportamento padrão no React Native. Dependência `react-native-edge-to-edge` foi removida; use `androidNavigationBar`/`androidStatusBar` no `app.json` caso precise ajustes específicos.
 
 ## Testing & Infra
 
@@ -77,13 +83,14 @@ module.exports = (api) => {
 - Lint: `bun run lint`
 - E2E tests: `npx maestro test maestro/flows/liquid-glass-and-theme.yaml`
 - Full validation: Clean install e rodar `npx expo-doctor`
-  - 2025-09-16: tentativa local falhou por ausência de acesso à internet (sandbox), registrar log de rede e repetir em ambiente com acesso liberado antes do release.
+  - 2025-09-16: Com `ios/` e `android/` versionados, `expo-doctor` alerta que propriedades em `app.json` (ex.: `plugins`) não sincronizam automaticamente em builds nativos. Precisamos manter os ajustes equivalentes diretamente em `ios/` e `android/` (documentado abaixo) e revisar o arquivo de configuração a cada upgrade.
 
 ## Known Issues / Tips
 
 - Glass effect on storybook: If toggling `isInteractive` appears no‑op, remount the `GlassView` by changing its `key` when args change.
 - Performance thresholds: Keep tests resilient to host variance while maintaining meaningful bounds.
 - Expo Updates (29.0.10) currently requires `scripts/patch-expo-updates.sh` (invoked automatically from the Podfile) before `pod install` to prevent the `EASClient`/`WeatherSunscreen` build cycle.
+- Prebuild divergence: Porque mantemos projetos nativos, os ajustes de `expo-build-properties` em `app.json` servem só como referência. Replique qualquer alteração relevante nos arquivos `ios/WeatherSunscreen.xcodeproj` e `android/build.gradle` quando atualizar SDK.
 
 ## References
 

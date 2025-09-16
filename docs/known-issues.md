@@ -33,6 +33,16 @@ This document captures critical issues encountered during development and their 
 
 **Status**: ⚠️ **Ongoing investigation**
 
+### Expo Doctor Config Sync Warning (September 16, 2025)
+
+**Symptom**: `npx expo-doctor` emite `This project contains native project folders but also has native configuration properties in app.json... plugins`.
+
+**Context**: Mantemos `ios/` e `android/` versionados com ajustes equivalentes aos `expo-build-properties`. O alerta sinaliza que mudanças futuras em `app.json` não serão propagadas automaticamente.
+
+**Resolution**: Registrar cada alteração em `app.json` nos projetos nativos correspondentes e validar manualmente nos pipelines EAS. O checklist de migração (docs/EXPO_SDK_54_MIGRATION.md) agora destaca essa exigência.
+
+**Status**: ✅ **Documentado, revisão contínua em upgrades**
+
 ### Theme Flash on App Start (September 15, 2025)
 
 **Symptom**: The Settings/theme system persists user choice with AsyncStorage, but the UI renders once using the system palette before hydration finishes, creating a flash between light/dark.

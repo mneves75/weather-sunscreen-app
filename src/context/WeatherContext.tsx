@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import { WeatherData, Location } from '../types/weather';
 import { WeatherService } from '../services/weatherService';
+import { logger } from '../services/loggerService';
 
 interface WeatherState {
   weatherData: WeatherData | null;
@@ -52,6 +53,10 @@ export function WeatherProvider({ children }: WeatherProviderProps) {
         lastUpdated: new Date(),
       }));
     } catch (error) {
+      logger.error(
+        'WeatherProvider: failed to load weather data',
+        error instanceof Error ? error : undefined,
+      );
       setState((prev) => ({
         ...prev,
         isLoading: false,

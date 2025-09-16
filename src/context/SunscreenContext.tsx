@@ -73,6 +73,10 @@ export function SunscreenProvider({ children }: SunscreenProviderProps) {
           isLoading: false,
         }));
       } catch (error) {
+        logger.error(
+          'SunscreenProvider: failed to initialize',
+          error instanceof Error ? error : new Error(String(error)),
+        );
         setState((prev) => ({
           ...prev,
           error: error instanceof Error ? error.message : 'Failed to initialize sunscreen tracking',
@@ -194,6 +198,10 @@ export function SunscreenProvider({ children }: SunscreenProviderProps) {
         // Refresh reapplication status
         await checkReapplicationStatus();
       } catch (error) {
+        logger.error(
+          'SunscreenProvider: failed to log sunscreen application',
+          error instanceof Error ? error : new Error(String(error)),
+        );
         setState((prev) => ({
           ...prev,
           isLoading: false,
@@ -216,6 +224,10 @@ export function SunscreenProvider({ children }: SunscreenProviderProps) {
         isLoading: false,
       }));
     } catch (error) {
+      logger.error(
+        'SunscreenProvider: failed to update user profile',
+        error instanceof Error ? error : new Error(String(error)),
+      );
       setState((prev) => ({
         ...prev,
         isLoading: false,
@@ -236,6 +248,10 @@ export function SunscreenProvider({ children }: SunscreenProviderProps) {
         isLoading: false,
       }));
     } catch (error) {
+      logger.error(
+        'SunscreenProvider: failed to load recent applications',
+        error instanceof Error ? error : new Error(String(error)),
+      );
       setState((prev) => ({
         ...prev,
         isLoading: false,

@@ -89,6 +89,7 @@ A modern React Native mobile application built with Expo that provides real-time
 - See `docs/EXPO_SDK_54_MIGRATION.md` for migration guide and SDK 54 features
 - See `docs/liquid-glass.md` for iOS 26 Liquid Glass implementation details
   - As configurações específicas de build (`bundleIdentifier`, entitlements e ajustes de deployment target) moram agora somente nos projetos nativos; o `app.json` permanece limpo para evitar divergências durante EAS Build.
+  - `npx expo-doctor` alerta sobre propriedades em `app.json` não sincronizarem quando `ios/` e `android/` estão versionados. Mantemos `expo-build-properties` apenas como referência; replique quaisquer alterações diretamente nos projetos nativos.
 
 ## 🔄 OTA Updates (EAS Update)
 
