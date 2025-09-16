@@ -22,8 +22,12 @@ jest.mock('expo-notifications', () => ({
 }));
 
 jest.mock('expo-location', () => ({
-  requestForegroundPermissionsAsync: jest.fn(),
-  getCurrentPositionAsync: jest.fn(),
+  requestForegroundPermissionsAsync: jest.fn().mockResolvedValue({ status: 'granted' }),
+  getCurrentPositionAsync: jest
+    .fn()
+    // default to throw so code paths exercise fallbacks unless test overrides
+    .mockRejectedValue(new Error('Location not available in test env')),
+  getLastKnownPositionAsync: jest.fn().mockResolvedValue(null),
   hasServicesEnabledAsync: jest.fn().mockResolvedValue(true),
 }));
 

@@ -52,7 +52,7 @@ function scoreColor(uv: number) {
   return '#0891b2';
 }
 
-function createStyles(colors: typeof tokens.light.colors) {
+function createStyles(colors: { [K in keyof typeof tokens.light.colors]: string }) {
   return StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background, padding: 16 },
     header: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 8 },

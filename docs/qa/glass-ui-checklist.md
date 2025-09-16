@@ -21,8 +21,9 @@ Use this checklist to verify Glass UI behavior across platforms.
   - Battery: No excessive CPU usage from motion listeners; verify idle behavior
 
 - Platform
-  - iOS: `GlassContainer` used when available; fallback to Blur/Gradients otherwise
-  - Android/Web: Material-like fallbacks render with good contrast
+  - iOS 26+: `LiquidGlassWrapper` renders `expo-glass-effect` (`GlassView`); confirm the blur animates and respects Reduce Motion.
+  - iOS < 26: Wrapper gracefully falls back to solid cards (no crash, readable contrast).
+  - Android/Web: Material-like fallbacks render with good contrast and focus rings.
 
 - Error Boundaries
   - UI remains functional if motion/haptics modules are unavailable

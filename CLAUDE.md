@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Weather Sunscreen App - React Native (Expo) mobile app providing real-time weather, UV index monitoring, and personalized sunscreen recommendations.
 
 - **Stack**: React Native 0.81.4, Expo SDK ~54.0.0 (stable), TypeScript 5.9.2
-- **React**: 18.3.1 (downgraded from 19.1.0 for SDK 54 compatibility)
+- **React**: 19.1.0 (SDK 54+ compatible)
 - **Platforms**: iOS 16+, Android API 29+, Web
 - **New Architecture**: Enabled (Fabric + TurboModules)
 - **Package Manager**: Bun (preferred) or npm fallback
@@ -53,7 +53,7 @@ npx maestro test maestro/flows/liquid-glass-and-theme.yaml
 
 ### Core Architecture Patterns
 
-**Navigation**: Expo Router v4 (file-based routing)
+**Navigation**: Expo Router v6 (file-based routing)
 
 - `app/_layout.tsx` - Root layout with providers
 - `app/(tabs)/` - Main tabbed navigation
@@ -63,7 +63,7 @@ npx maestro test maestro/flows/liquid-glass-and-theme.yaml
 
 - WeatherContext: Weather data, location, loading states
 - SunscreenContext: UV index, SPF recommendations
-- ThemeContext: Dark/light mode, color schemes
+- ThemeProvider (src/theme/theme.tsx): Dark/light/system mode, persisted colors
 - All contexts use useReducer for complex state management
 
 **Native Integrations**

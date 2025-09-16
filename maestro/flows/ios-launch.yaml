@@ -1,4 +1,4 @@
-appId: org.mvneves.weathersunscreen.app
+appId: com.weathersunscreen.app
 name: iOS Launch
 steps:
   - launchApp

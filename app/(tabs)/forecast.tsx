@@ -49,7 +49,7 @@ export default function ForecastRoute() {
   );
 }
 
-function createStyles(colors: typeof tokens.light.colors) {
+function createStyles(colors: { [K in keyof typeof tokens.light.colors]: string }) {
   return StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background, padding: 16 },
     title: { fontSize: 24, fontWeight: '700', color: colors.primary, marginBottom: 8 },

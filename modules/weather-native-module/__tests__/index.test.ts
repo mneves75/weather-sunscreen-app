@@ -302,4 +302,36 @@ describe('WeatherNativeService', () => {
       expect(mockGetCurrentLocation).toHaveBeenCalledTimes(5);
     });
   });
+
+  describe('__resetForTests', () => {
+    it('clears transient state and module cache', async () => {
+      mockIsAvailable.mockResolvedValue(true);
+      await WeatherNativeService.isAvailable();
+
+      NativeModules.WeatherNativeModule = undefined;
+
+      await expect(WeatherNativeService.isAvailable()).resolves.toBe(true);
+
+      (WeatherNativeService as any)._burstCount = 3;
+      (WeatherNativeService as any)._burstScheduled = true;
+      (WeatherNativeService as any)._locationConcurrency = 2;
+      (WeatherNativeService as any)._weatherInflight.set('cache', Promise.resolve({} as any));
+
+      WeatherNativeService.__resetForTests();
+
+      expect((WeatherNativeService as any)._burstCount).toBe(0);
+      expect((WeatherNativeService as any)._burstScheduled).toBe(false);
+      expect((WeatherNativeService as any)._locationConcurrency).toBe(0);
+      expect((WeatherNativeService as any)._weatherInflight.size).toBe(0);
+
+      await expect(WeatherNativeService.isAvailable()).resolves.toBe(false);
+
+      NativeModules.WeatherNativeModule = {
+        getCurrentLocation: mockGetCurrentLocation,
+        getUVIndexData: mockGetUVIndexData,
+        getWeatherData: mockGetWeatherData,
+        isAvailable: mockIsAvailable,
+      };
+    });
+  });
 });

@@ -1,6 +1,6 @@
 import React from 'react';
 import { ScrollView, View, Text, StyleSheet } from 'react-native';
-import { useColors } from '../../../context/ThemeContext';
+import { useColors } from '../../../theme/theme';
 import { LiquidGlassWrapper } from '../LiquidGlassWrapper';
 
 export function GlassGallery() {

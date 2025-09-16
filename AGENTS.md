@@ -18,15 +18,15 @@
 - Install: `bun install` (preferred) or `npm install` fallback.
 - Start dev (Expo): `bun start` or `npm start`.
 - Run apps: `bun run ios` | `bun run android` | `bun run web`.
-- Tests: `bun test` (Jest), watch: `bun run test:watch`.
-- Types: `bun run typecheck`.
+- Tests: `npm test` (Jest), watch: `npm test -- --watch`.
+- Types: `bun run typecheck` or `npm run typecheck`.
 - iOS maintenance: `bun run fix-pods`, `bun run clean-ios`.
 - EAS builds: `npx eas build --platform ios|android --profile development|preview|production`.
 
 ## Expo SDK 54 & New Architecture (v3.0.0)
 
 - **Current Status**: Expo SDK 54.0.0 stable, React Native 0.81.4 with New Architecture enabled
-- **Breaking Changes**: React downgraded 19.1.0 → 18.3.1, navigation moved to Expo Router v4
+- **Breaking Changes**: React 19.1.0 support, navigation moved to Expo Router v6
 - **Native Modules**: TurboModule specs in `src/specs/`, full New Architecture compatibility
 - **iOS Requirements**: Xcode 16+ (16.4 recommended), iOS 16+ minimum deployment
 - **iOS Baseline**: Simulator runtime iOS 26.0 (17A321)
@@ -42,7 +42,7 @@
 
 - TypeScript (strict), 2‑space indent, keep semicolons.
 - ESLint + Prettier enforce style (`.eslintrc.js`, `.prettierrc`).
-- Names: Components/Contexts PascalCase (`WeatherScreen.tsx`, `ThemeContext.tsx`).
+- Names: Components/Contexts PascalCase (`WeatherScreen.tsx`, `ThemeProvider.tsx`).
 - Services: camelCase + `Service` suffix (`loggerService.ts`).
 - Icons `XxxIcon.tsx`; Screens `XxxScreen.tsx`.
 - Keep UI presentational; move logic into `services/`. Localize strings in `en` and `pt-BR`.
@@ -70,14 +70,14 @@
 
 ## Contributor Tips
 
-- Prefer structural search: `sg --lang ts|tsx -p '<pattern>'` (ast-grep for syntax-aware matching).
+- Syntax-aware search: default to `ast-grep --lang <lang> -p '<pattern>'` (e.g. `ast-grep --lang tsx -p '<pattern>'`). Reserve plain-text tools like `rg` for when structural search is unnecessary.
 - Keep changes minimal and focused; update docs/tests when touching public APIs.
 
 ## Troubleshooting Quick Reference
 
 ### Jest Test Failures
 
-- **MUST** use `npm test` not `bun test` (Jest incompatible with Bun)
+- **Use `npm test`** (Jest). Do not run `bun test`.
 - Check babel configuration for Flow types
 - Ensure `__DEV__` is defined in jest.setup.ts
 

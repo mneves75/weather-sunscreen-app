@@ -1,7 +1,7 @@
 import React from 'react';
 import { ScrollView, View, Text, StyleSheet } from 'react-native';
-import { useColors } from '../../../context/ThemeContext';
-import { ColorScheme } from '../../../types/theme';
+import { useColors } from '../../../theme/theme';
+import { tokens } from '../../../theme/tokens';
 import { getAllWeatherCodes } from '../../../utils/weatherCodeMapping';
 
 export function IconGallery() {
@@ -23,7 +23,7 @@ export function IconGallery() {
   );
 }
 
-function createStyles(colors: ColorScheme) {
+function createStyles(colors: { [K in keyof typeof tokens.light.colors]: string }) {
   return StyleSheet.create({
     container: {
       flex: 1,

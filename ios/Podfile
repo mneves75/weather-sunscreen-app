@@ -1,6 +1,8 @@
 require File.join(File.dirname(`node --print "require.resolve('expo/package.json')"`), "scripts/autolinking")
 require File.join(File.dirname(`node --print "require.resolve('react-native/package.json')"`), "scripts/react_native_pods")
 
+system('bash', File.join(__dir__, '..', 'scripts', 'patch-expo-updates.sh'))
+
 require 'json'
 podfile_properties = JSON.parse(File.read(File.join(__dir__, 'Podfile.properties.json'))) rescue {}
 
@@ -12,6 +14,18 @@ ENV['EX_DEV_CLIENT_NETWORK_INSPECTOR'] = podfile_properties['EX_DEV_CLIENT_NETWO
 ENV['RCT_USE_RN_DEP'] = '1' if podfile_properties['ios.buildReactNativeFromSource'] != 'true' && podfile_properties['newArchEnabled'] != 'false'
 ENV['RCT_USE_PREBUILT_RNCORE'] = '1' if podfile_properties['ios.buildReactNativeFromSource'] != 'true' && podfile_properties['newArchEnabled'] != 'false'
 platform :ios, podfile_properties['ios.deploymentTarget'] || '16.0'
+
+pre_install do |installer|
+  installer.pod_targets.each do |pod|
+    next unless %w[EASClient EXApplication].include?(pod.name)
+
+    # Force selected Expo pods to build as static libraries so Xcode does not
+    # treat them as peer frameworks (prevents target cycles with ReactCodegen).
+    def pod.build_type
+      Pod::BuildType.static_library
+    end
+  end
+end
 
 prepare_react_native_project!
 
@@ -82,6 +96,18 @@ target 'WeatherSunscreen' do
         cfg.build_settings['SWIFT_TREAT_WARNINGS_AS_ERRORS'] = 'NO'
         # Build Expo/RN pods with Swift 5.9 to avoid Swift 6 breaking changes
         cfg.build_settings['SWIFT_VERSION'] = '5.9'
+
+        # Silence "Explicit modules is enabled but the compiler was not recognized" warnings
+        # seen when using ccache or custom compilers on Xcode 26 images.
+        cfg.build_settings['CLANG_ENABLE_EXPLICIT_MODULES'] = 'NO'
+        cfg.build_settings['SWIFT_ENABLE_EXPLICIT_MODULES'] = 'NO'
+
+        # Normalize pods' minimum iOS deployment target to project baseline
+        cfg.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = podfile_properties['ios.deploymentTarget'] || '16.0'
+
+        # On Apple Silicon hosts, avoid building x86_64 simulator slices which can trigger PCM flakiness
+        # with Swift explicit modules. We only need arm64 for iOS Simulator on Apple Silicon.
+        cfg.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'x86_64'
       end
     end
 

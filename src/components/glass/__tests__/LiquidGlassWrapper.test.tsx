@@ -1,8 +1,20 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
 import { LiquidGlassWrapper } from '../LiquidGlassWrapper';
-import { ThemeProvider } from '../../../context/ThemeContext';
-import { Platform, Text } from 'react-native';
+import { ThemeProvider } from '../../../theme/theme';
+import { AccessibilityInfo, Platform, Text } from 'react-native';
+
+jest.mock('expo-glass-effect', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+  return {
+    GlassView: ({ children, ...rest }: any) => (
+      <View accessibilityRole="none" {...rest}>
+        {children}
+      </View>
+    ),
+  };
+});
 
 describe('LiquidGlassWrapper accessibility', () => {
   const origOS = Platform.OS;
@@ -10,11 +22,24 @@ describe('LiquidGlassWrapper accessibility', () => {
   const setPlatform = (os: string, version: any) => {
     (Platform as any).OS = os;
     (Platform as any).Version = version;
+    const versionString = typeof version === 'string' ? version : `${version}`;
+    Object.defineProperty(Platform, 'constants', {
+      configurable: true,
+      value: {
+        ...(Platform as any).constants,
+        osVersion: versionString,
+        systemVersion: versionString,
+      },
+    });
   };
 
   beforeEach(() => {
     // Reset platform between tests
     setPlatform(origOS, origVersion as any);
+    jest.spyOn(AccessibilityInfo, 'isReduceMotionEnabled').mockResolvedValue(false);
+    jest
+      .spyOn(AccessibilityInfo, 'addEventListener')
+      .mockImplementation(() => ({ remove: jest.fn() }) as any);
   });
 
   afterAll(() => {
@@ -22,9 +47,13 @@ describe('LiquidGlassWrapper accessibility', () => {
     setPlatform(origOS, origVersion as any);
   });
 
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   describe('iOS 26 Liquid Glass Support', () => {
     test('renders native Liquid Glass on iOS 26 with proper fallback', () => {
-      setPlatform('ios', '26.0');
+      setPlatform('ios', 26);
       const { getByText } = render(
         <ThemeProvider>
           <LiquidGlassWrapper>
@@ -35,8 +64,21 @@ describe('LiquidGlassWrapper accessibility', () => {
       expect(getByText('iOS 26 Liquid Glass')).toBeTruthy();
     });
 
+    test('renders glass view container on supported iOS', async () => {
+      setPlatform('ios', 26);
+      expect((Platform as any).constants.osVersion).toBe('26');
+      const { findByTestId } = render(
+        <ThemeProvider>
+          <LiquidGlassWrapper>
+            <Text>Indicator</Text>
+          </LiquidGlassWrapper>
+        </ThemeProvider>,
+      );
+      expect(await findByTestId('liquid-glass-view')).toBeTruthy();
+    });
+
     test('handles all iOS 26 glass variants correctly', () => {
-      setPlatform('ios', '26.0');
+      setPlatform('ios', 26);
       const variants = ['regular', 'prominent', 'thin', 'glass', 'glassProminent'] as const;
 
       variants.forEach((variant) => {
@@ -66,7 +108,7 @@ describe('LiquidGlassWrapper accessibility', () => {
 
   describe('Platform Fallbacks', () => {
     test('renders on iOS 16 fallback with valid accessibilityRole', () => {
-      setPlatform('ios', '16.0');
+      setPlatform('ios', 16);
       const { getByText } = render(
         <ThemeProvider>
           <LiquidGlassWrapper>
@@ -78,7 +120,7 @@ describe('LiquidGlassWrapper accessibility', () => {
     });
 
     test('renders iOS 18-25 preview version fallback correctly', () => {
-      setPlatform('ios', '18.0');
+      setPlatform('ios', 18);
       const { getByText } = render(
         <ThemeProvider>
           <LiquidGlassWrapper>
@@ -111,6 +153,22 @@ describe('LiquidGlassWrapper accessibility', () => {
         </ThemeProvider>,
       );
       expect(getByText('Web Glass')).toBeTruthy();
+    });
+
+    test('uses solid fallback when reduce motion is enabled', async () => {
+      setPlatform('ios', 26);
+      (AccessibilityInfo.isReduceMotionEnabled as jest.Mock).mockResolvedValueOnce(true);
+
+      const { findByTestId, queryByTestId } = render(
+        <ThemeProvider>
+          <LiquidGlassWrapper>
+            <Text>Reduced Motion</Text>
+          </LiquidGlassWrapper>
+        </ThemeProvider>,
+      );
+
+      expect(await findByTestId('liquid-glass-fallback')).toBeTruthy();
+      expect(queryByTestId('liquid-glass-view')).toBeNull();
     });
   });
 

@@ -1,4 +1,4 @@
-appId: org.mvneves.weathersunscreen.app
+appId: com.weathersunscreen.app
 name: Liquid Glass + Theme (iOS)
 onFlowStart:
   - runFlow: { file: ios-launch.yaml }

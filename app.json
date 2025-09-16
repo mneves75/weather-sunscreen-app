@@ -3,7 +3,7 @@
     "name": "Weather Sunscreen",
     "slug": "weather-sunscreen-app",
     "description": "Your comprehensive weather companion with UV index monitoring and sunscreen recommendations",
-    "version": "2.0.0",
+    "version": "3.0.0",
     "newArchEnabled": true,
     "web": {
       "favicon": "./assets/favicon.png",
@@ -25,18 +25,22 @@
     ],
     "updates": {
       "enabled": true,
-      "fallbackToCacheTimeout": 0
+      "checkAutomatically": "ON_LOAD",
+      "url": "https://u.expo.dev/org.mvneves.weathersunscreen"
     },
     "runtimeVersion": {
       "policy": "appVersion"
     },
     "extra": {
+      "eas": {
+        "projectId": "org.mvneves.weathersunscreen"
+      },
       "weatherApiUrl": "https://api.openweathermap.org/data/2.5",
       "uvIndexApiUrl": "https://api.openuv.io/api/v1",
       "openMeteoApiUrl": "https://api.open-meteo.com/v1"
     },
     "ios": {
-      "bundleIdentifier": "com.anonymous.weather-sunscreen-app"
+      "bundleIdentifier": "com.weathersunscreen.app"
     }
   }
 }

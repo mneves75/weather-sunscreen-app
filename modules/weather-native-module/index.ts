@@ -12,6 +12,24 @@ import { NativeModules } from 'react-native';
 // Cached module resolution for performance
 let cachedModule: any = null;
 let moduleResolutionAttempted = false;
+let moduleResolutionLogged = false;
+
+function shouldLogResolution() {
+  if (moduleResolutionLogged) return false;
+  if (typeof process !== 'undefined' && process.env?.JEST_WORKER_ID) {
+    return false;
+  }
+  return true;
+}
+
+function logResolution(payload: Record<string, unknown>) {
+  if (!shouldLogResolution()) {
+    moduleResolutionLogged = true;
+    return;
+  }
+  logger.info('Weather native module resolution', payload);
+  moduleResolutionLogged = true;
+}
 
 function getNativeModule() {
   // Use cached result if available
@@ -21,17 +39,32 @@ function getNativeModule() {
 
   // Try TurboModule first, fallback to legacy NativeModules
   try {
+    let resolution: 'turbo' | 'legacy' | 'none' = 'none';
     if (WeatherNativeModule) {
       cachedModule = WeatherNativeModule;
+      resolution = 'turbo';
     } else {
       // Fallback to legacy NativeModules
       cachedModule = (NativeModules as any)?.WeatherNativeModule ?? null;
+      resolution = cachedModule ? 'legacy' : 'none';
     }
+    logResolution({
+      resolution,
+      platform: Platform.OS,
+      turboModuleAvailable: Boolean(WeatherNativeModule),
+      legacyExportPresent: Boolean((NativeModules as any)?.WeatherNativeModule),
+    });
   } catch (error) {
     logger.warn('Failed to resolve native module', {
       error: error instanceof Error ? error.message : String(error),
     });
     cachedModule = null;
+    logResolution({
+      resolution: 'none',
+      platform: Platform.OS,
+      turboModuleAvailable: Boolean(WeatherNativeModule),
+      legacyExportPresent: Boolean((NativeModules as any)?.WeatherNativeModule),
+    });
   }
 
   moduleResolutionAttempted = true;
@@ -141,7 +174,11 @@ class WeatherNativeServiceClass {
         }
 
         const location = await nativeModule.getCurrentLocation();
-        if (!location || typeof location.latitude !== 'number' || typeof location.longitude !== 'number') {
+        if (
+          !location ||
+          typeof location.latitude !== 'number' ||
+          typeof location.longitude !== 'number'
+        ) {
           throw new Error('Invalid location data');
         }
         InputValidator.coordinates(location.latitude, location.longitude, {
@@ -152,7 +189,6 @@ class WeatherNativeServiceClass {
       } finally {
         this._locationConcurrency = Math.max(0, this._locationConcurrency - 1);
       }
-      
     } catch (error) {
       const err = error instanceof Error ? error : new Error(String(error));
       // Sanitize coordinates in error message
@@ -283,59 +319,60 @@ class WeatherNativeServiceClass {
       const inflight = (async () => {
         const nativeData: any = await nativeModule.getWeatherData(latitude, longitude);
 
-      // Validate weather data ranges
-      if (typeof nativeData.temperature === 'number') {
-        if (nativeData.temperature < -100 || nativeData.temperature > 100) {
-          logger.warn('Temperature out of expected range', {
-            temperature: nativeData.temperature,
-            latitude,
-            longitude,
-          });
+        // Validate weather data ranges
+        if (typeof nativeData.temperature === 'number') {
+          if (nativeData.temperature < -100 || nativeData.temperature > 100) {
+            logger.warn('Temperature out of expected range', {
+              temperature: nativeData.temperature,
+              latitude,
+              longitude,
+            });
+          }
         }
-      }
 
-      if (typeof nativeData.humidity === 'number') {
-        if (nativeData.humidity < 0 || nativeData.humidity > 100) {
-          logger.warn('Humidity out of expected range', {
-            humidity: nativeData.humidity,
-            latitude,
-            longitude,
-          });
+        if (typeof nativeData.humidity === 'number') {
+          if (nativeData.humidity < 0 || nativeData.humidity > 100) {
+            logger.warn('Humidity out of expected range', {
+              humidity: nativeData.humidity,
+              latitude,
+              longitude,
+            });
+          }
         }
-      }
 
-      // Sanitize ranges but preserve original shape
-      const result: any = { ...nativeData };
-      if (typeof result.humidity === 'number') {
-        if (result.humidity < 0) result.humidity = 0;
-        if (result.humidity > 100) result.humidity = 100;
-      }
-      if (typeof result.windSpeed === 'number') {
-        if (result.windSpeed < 0) result.windSpeed = 0;
-      }
-      if (typeof result.uvIndex === 'number') {
-        if (!Number.isFinite(result.uvIndex)) result.uvIndex = 0;
-        if (result.uvIndex < 0) result.uvIndex = 0;
-        if (result.uvIndex > 11) result.uvIndex = 11;
-      }
-      // Only tag native results when using WeatherData shape (has description)
-      if (typeof result.description === 'string') {
-        if (typeof result.weatherCode !== 'number') {
-          result.weatherCode = 0;
+        // Sanitize ranges but preserve original shape
+        const result: any = { ...nativeData };
+        if (typeof result.humidity === 'number') {
+          if (result.humidity < 0) result.humidity = 0;
+          if (result.humidity > 100) result.humidity = 100;
         }
-        result.isFallback = false;
-      }
+        if (typeof result.windSpeed === 'number') {
+          if (result.windSpeed < 0) result.windSpeed = 0;
+        }
+        if (typeof result.uvIndex === 'number') {
+          if (!Number.isFinite(result.uvIndex)) result.uvIndex = 0;
+          if (result.uvIndex < 0) result.uvIndex = 0;
+          if (result.uvIndex > 11) result.uvIndex = 11;
+        }
+        // Only tag native results when using WeatherData shape (has description)
+        if (typeof result.description === 'string') {
+          if (typeof result.weatherCode !== 'number') {
+            result.weatherCode = 0;
+          }
+          result.isFallback = false;
+        }
 
-      // Write-through cache
+        // Write-through cache
         this._weatherCache.set(cacheKey, { data: result as WeatherData, timestamp: Date.now() });
         return result as WeatherData;
       })();
 
       this._weatherInflight.set(cacheKey, inflight);
-      const resolved = await ErrorHandler.handleImportantOperation(async () => inflight, context);
-      // clear inflight once resolved
-      this._weatherInflight.delete(cacheKey);
-      return resolved;
+      try {
+        return await ErrorHandler.handleImportantOperation(() => inflight, context);
+      } finally {
+        this._weatherInflight.delete(cacheKey);
+      }
     } catch (error) {
       // On failure, return fallback data and clear inflight
       this._weatherInflight.delete(cacheKey);
@@ -377,8 +414,9 @@ class WeatherNativeServiceClass {
   static _resetModuleCache(): void {
     cachedModule = null;
     moduleResolutionAttempted = false;
+    moduleResolutionLogged = false;
   }
-  
+
   // In-flight throttling for location
   private static _inflightLocationPromise: Promise<LocationData> | null = null;
   private static _locationConcurrency: number = 0;
@@ -395,8 +433,12 @@ class WeatherNativeServiceClass {
     this._weatherCache.clear();
     this._lastLocationError = null;
     this._weatherInflight.clear();
+    this._burstCount = 0;
+    this._burstScheduled = false;
+    this._locationConcurrency = 0;
+    this._resetModuleCache();
   }
-  
+
   // Additional test helper methods for compatibility
   static async requestLocationPermissions(): Promise<boolean> {
     const nativeModule = getNativeModule();
@@ -405,8 +447,12 @@ class WeatherNativeServiceClass {
     }
     return nativeModule.requestLocationPermissions();
   }
-  
-  static async calculateUVIndex(latitude: number, longitude: number, timestamp?: number): Promise<number> {
+
+  static async calculateUVIndex(
+    latitude: number,
+    longitude: number,
+    timestamp?: number,
+  ): Promise<number> {
     const nativeModule = getNativeModule();
     if (!nativeModule?.calculateUVIndex) {
       return 0;
@@ -417,7 +463,7 @@ class WeatherNativeServiceClass {
       return 0;
     }
   }
-  
+
   static async clearWeatherCache(): Promise<void> {
     const nativeModule = getNativeModule();
     if (nativeModule?.clearWeatherCache) {
@@ -428,7 +474,7 @@ class WeatherNativeServiceClass {
       }
     }
   }
-  
+
   static getConstants(): any {
     // On non‑iOS platforms, return safe defaults regardless of native presence
     if (Platform.OS !== 'ios') {

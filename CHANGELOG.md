@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Comprehensive Liquid Glass implementation documentation
+
+### Changed
+
+- Updated implementation roadmap to reflect v3.0.0 completion status
+
+### Fixed
+
+- Resolved expo-doctor warnings:
+  - Removed duplicate package-lock.json (kept bun.lock only)
+  - Fixed duplicate dependencies through clean reinstall
+  - Removed prebuild plugin configurations from app.json for native project
+- Fixed typo in filename: `know-issues.md` → `known-issues.md`
+- Patched `expo-updates` to inline the EAS client ID and avoid the `EASClient`/`WeatherSunscreen` build cycle (see `scripts/patch-expo-updates.sh`).
+
+### Removed
+
+- Deleted outdated `EXPO_SDK_54_CHANGELOG.md` HTML export file
+
 ## [3.0.0] - 2025-09-11
 
 ### BREAKING CHANGES
@@ -14,7 +35,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **MAJOR**: Upgraded to Expo SDK 54 stable release
 - **MAJOR**: Full React Native New Architecture support enabled (Fabric + TurboModules)
 - Minimum iOS deployment target raised to 16.0
-- React version downgraded from 19.1.0 to 18.3.1 for SDK 54 compatibility
 
 ### Added
 
@@ -30,9 +50,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Dependencies Updated**:
   - `expo`: 54.0.0-preview.16 → ~54.0.0 (stable)
-  - `expo-router`: 6.0.0-preview.16 → ~4.0.0 (stable)
-  - `react`: 19.1.0 → 18.3.1
-  - `react-dom`: 19.1.0 → 18.3.1
+  - `expo-router`: 6.0.0-preview.16 → ~6.0.4 (stable)
+  - `react`: 18.3.x → 19.1.0
+  - `react-dom`: 18.3.x → 19.1.0
+  - `react-native`: 0.81.1 → 0.81.4
   - `react-native-reanimated`: v4.1.0 (New Architecture compatible)
 - **Build Configuration**:
   - New Architecture enabled in Podfile (RCT_NEW_ARCH_ENABLED=1)

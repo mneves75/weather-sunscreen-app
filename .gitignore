@@ -2,6 +2,10 @@
 
 # dependencies
 node_modules/
+.logs/
+hermes-engine/
+ios/build-results.xcresult/
+coverage/
 
 # Expo
 .expo/

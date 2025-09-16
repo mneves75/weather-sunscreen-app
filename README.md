@@ -1,7 +1,7 @@
 # Weather Sunscreen App ☀️
 
 > **Your comprehensive weather companion with UV index monitoring and sunscreen recommendations**  
-> **Version 2.0.0** - Simpler navigation (Expo Router), clearer UI wrappers, stronger tests  
+> **Version 3.0.0** - Expo SDK 54 (stable), iOS 26 support, New Architecture enabled  
 > **Security Status: ✅ PASSED** - All critical vulnerabilities fixed (2025-09-09)
 
 A modern React Native mobile application built with Expo that provides real-time weather information, UV index monitoring, and personalized sunscreen recommendations to help you stay safe in the sun.
@@ -17,7 +17,7 @@ A modern React Native mobile application built with Expo that provides real-time
 - **Location Services** - Automatic location detection with manual location selection
 - **Cross-Platform** - Native iOS, Android, and web support
 - **Modern UI** - Clean, intuitive interface following platform design guidelines
-- **Native Performance** - Custom native modules for enhanced speed and accuracy
+- **Native Performance** - TurboModules where it adds value; Liquid Glass uses the official `expo-glass-effect`
 
 ### 🆕 v1.0.1 Enhancements
 
@@ -83,10 +83,19 @@ A modern React Native mobile application built with Expo that provides real-time
    npm run web
    ```
 
-## Expo SDK 54 Changelog
+## Expo SDK 54 Documentation
 
-- See `docs/expo-sdk-54-changelog.md` for a comprehensive summary of what’s new in SDK 54
-  (precompiled RN for iOS, iOS 26 glass via expo-glass-effect, CLI improvements, and more).
+- See `docs/EXPO_SDK_54_MIGRATION.md` for migration guide and SDK 54 features
+- See `docs/liquid-glass.md` for iOS 26 Liquid Glass implementation details
+
+## 🔄 OTA Updates (EAS Update)
+
+- App is configured for EAS Update:
+  - `runtimeVersion: { policy: "appVersion" }`
+  - `updates.checkAutomatically: "ON_LOAD"`
+  - `updates.url: https://u.expo.dev/org.mvneves.weathersunscreen`
+  - `extra.eas.projectId: org.mvneves.weathersunscreen`
+  - Replace the placeholder slug URL with your real EAS project UUID before shipping OTA updates (see `docs/known-issues.md`).
 
 ## End-to-end (E2E) Device Flows (Maestro)
 
@@ -102,7 +111,7 @@ A modern React Native mobile application built with Expo that provides real-time
 
 - **Framework**: React Native 0.81.4 with Expo SDK 54 (stable)
 - **Language**: TypeScript 5.9.2 (strict mode enabled)
-- **Navigation**: Expo Router v4 (file-based routing)
+- **Navigation**: Expo Router v6 (file-based routing)
 - **State Management**: React Context + AsyncStorage
 - **Logging**: Custom LoggerService with structured logging
 - **Error Handling**: React Error Boundaries with recovery options
@@ -247,12 +256,42 @@ npm run ios -- --device "iPhone de Marcus"
 - Native modules handle API requests with proper error handling
 - Fallback data available for development and testing
 
+## 🎨 Theming
+
+- Single theme provider: `src/theme/theme.tsx`.
+- Hook: `useTheme()` returns `{ themeMode, setThemeMode, toggleTheme, scheme, isDark, highContrast, setHighContrast, colors }`.
+- Colors source: tokens in `src/theme/tokens.ts`.
+- Convenience: `useColors()` returns `colors` only.
+- Persisted preference: `themeMode` persists to AsyncStorage (`@WeatherSunscreen:themeMode`).
+
+Usage example:
+
+```tsx
+import { useTheme, useColors } from '@/theme/theme';
+
+function Example() {
+  const { themeMode, toggleTheme, highContrast, setHighContrast } = useTheme();
+  const colors = useColors();
+  return (
+    <View style={{ backgroundColor: colors.background }}>
+      <Button onPress={toggleTheme} label={`Mode: ${themeMode}`} />
+      <Switch value={highContrast} onValueChange={setHighContrast} />
+    </View>
+  );
+}
+```
+
 ## 🧪 Testing
+
+### Test runner
+
+- Run tests with Jest: `npm test`
+- Watch mode: `npm test -- --watch`
 
 ### Glass UI & Haptics
 
-- iOS usa UI “Glass” com Expo Blur/LinearGradient por padrão; quando `expo-glass-effect` estiver instalado, os wrappers usam o container nativo automaticamente (iOS 26+). Haptics: ponte nativa quando presente, fallback para `expo-haptics`.
-- Visual rápido em dev (Expo Router):
+- iOS “Glass” uses `expo-glass-effect` on iOS 26+ with graceful fallbacks on older iOS/Android/Web.
+- Quick visual routes (Expo Router):
   - (dev)/glass-gallery
   - (dev)/icon-gallery
 
@@ -310,6 +349,12 @@ npx eas build --platform ios --profile production
 npx eas build --platform android --profile production
 ```
 
+### Local Release Scripts
+
+- `bun run ios:release` – wraps `scripts/build-ios-release.sh`, expects Xcode 16.4+, simulator runtime iOS 26, and (optional) `DEVICE`/`UDID` overrides.
+- `bun run android:release` – wraps `scripts/build-android-release.sh`, requires `JAVA_HOME=/opt/homebrew/opt/openjdk@17/...` in the environment.
+- `bun run android:aab` – generates a Play-ready App Bundle via Gradle (`./gradlew bundleRelease`).
+
 ### App Store Submission
 
 1. Configure signing certificates in EAS
@@ -326,6 +371,11 @@ npx eas build --platform android --profile production
 npm run fix-pods              # Fix CocoaPods issues
 npm run clean-ios            # Clean build artifacts
 ```
+
+- **Expo Updates dependency cycle (EASClient)**: If you hit `Cycle in dependencies between targets 'EASClient' and 'WeatherSunscreen'`, reinstall dependencies so the automated patch runs:
+  1. `bun install` (or `npm install`)
+  2. `cd ios && pod install`
+     The Podfile executes `scripts/patch-expo-updates.sh`, which inlines the client ID and forces `EASClient` to build as a static library. Re-run these steps whenever `expo-updates` is upgraded.
 
 **Location Permission Issues:**
 

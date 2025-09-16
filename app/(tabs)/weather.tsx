@@ -1,9 +1,10 @@
-import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, RefreshControl } from 'react-native';
+import React, { useEffect, useMemo } from 'react';
+import { View, Text, StyleSheet, ScrollView, RefreshControl, TextStyle } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useWeather } from '../../src/context/WeatherContext';
 import { LiquidGlassWrapper } from '../../src/components/glass/LiquidGlassWrapper';
 import { useTheme } from '../../src/theme/theme';
+import { tokens } from '../../src/theme/tokens';
 
 export default function WeatherRoute() {
   const { t } = useTranslation();
@@ -16,6 +17,7 @@ export default function WeatherRoute() {
   }, [loadWeatherData]);
 
   const styles = createStyles(colors);
+  const detailRowStyles = useMemo(() => createDetailRowStyles(colors), [colors]);
 
   return (
     <View style={{ flex: 1 }}>
@@ -59,18 +61,22 @@ export default function WeatherRoute() {
             <Row
               label={t('weather.details.humidity')}
               value={weatherData ? `${weatherData.current.humidity}%` : '—'}
+              styles={detailRowStyles}
             />
             <Row
               label={t('weather.details.windSpeed')}
               value={weatherData ? `${weatherData.current.windSpeed} m/s` : '—'}
+              styles={detailRowStyles}
             />
             <Row
               label={t('weather.details.pressure')}
               value={weatherData ? `${weatherData.current.pressure} hPa` : '—'}
+              styles={detailRowStyles}
             />
             <Row
               label={t('weather.details.visibility')}
               value={weatherData ? `${weatherData.current.visibility} km` : '—'}
+              styles={detailRowStyles}
             />
           </View>
         </LiquidGlassWrapper>
@@ -99,27 +105,16 @@ export default function WeatherRoute() {
   );
 }
 
-function Row({ label, value }: { label: string; value: string }) {
+type DetailRowStyles = ReturnType<typeof createDetailRowStyles>;
+
+function Row({ label, value, styles }: { label: string; value: string; styles: DetailRowStyles }) {
   return (
-    <View style={rowStyles.row}>
-      <Text style={rowStyles.label}>{label}</Text>
-      <Text style={rowStyles.value}>{value}</Text>
+    <View style={styles.row}>
+      <Text style={styles.label}>{label}</Text>
+      <Text style={styles.value}>{value}</Text>
     </View>
   );
 }
-
-const rowStyles = StyleSheet.create({
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-  },
-  label: { fontSize: 16, color: '#64748B' },
-  value: { fontSize: 16, fontWeight: '600', color: '#0F172A' },
-});
 
 function createStyles(colors: { [k: string]: string }) {
   return StyleSheet.create({
@@ -140,5 +135,20 @@ function createStyles(colors: { [k: string]: string }) {
     feelsLike: { fontSize: 16, color: colors.secondary },
     detailsCard: { marginHorizontal: 20, borderRadius: 12, marginBottom: 20 },
     detailsContent: { padding: 20 },
+  });
+}
+
+function createDetailRowStyles(colors: { [K in keyof typeof tokens.light.colors]: string }) {
+  return StyleSheet.create({
+    row: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingVertical: 12,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: colors.cardBorder,
+    },
+    label: { fontSize: 16, color: colors.secondary } as TextStyle,
+    value: { fontSize: 16, fontWeight: '600', color: colors.primary } as TextStyle,
   });
 }

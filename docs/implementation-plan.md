@@ -1,7 +1,36 @@
-# Weather Sunscreen App - Comprehensive Implementation Plan
+# Weather Sunscreen App - Implementation Roadmap
 
-_Generated after thorough codebase audit - John Carmack level attention to detail_  
-_Last Updated: August 22, 2025 - v1.0.1_
+_Comprehensive development and feature tracking document_  
+_Last Updated: September 15, 2025 - v3.0.0_
+
+## ✅ COMPLETED IN v3.0.0 (September 11, 2025)
+
+### Major Platform Upgrade
+
+- [x] **Expo SDK 54**: Upgraded from preview to stable release
+- [x] **React Native 0.81.4**: Full New Architecture support (Fabric + TurboModules)
+- [x] **iOS 26 Support**: Complete implementation with Xcode 26 toolchain
+- [x] **Android API 36**: Edge-to-edge display and predictive back gesture
+- [x] **Glass Effect Module**: Migrated to official `expo-glass-effect`
+- [x] **Build Performance**: 40% faster iOS builds with precompiled React Native
+- [x] **Test Infrastructure**: Comprehensive test suite with memory safety validation
+
+### Technical Improvements
+
+- [x] **Dependencies**: All packages updated to SDK 54 compatible versions
+- [x] **React Version**: Upgraded to 19.1.0 (SDK 54 compatible)
+- [x] **Build Configuration**: New Architecture enabled across all platforms
+- [x] **Documentation**: Updated all technical docs to reflect current architecture
+
+## ✅ COMPLETED IN v2.0.1 (September 10, 2025)
+
+### Navigation & Architecture Refinements
+
+- [x] **Expo Router**: Full migration to file-based routing
+- [x] **LiquidGlassWrapper**: Simplified implementation with official module
+- [x] **Performance Stats**: Enhanced FPS tracking via requestAnimationFrame
+- [x] **Theme System**: Unified theme provider with proper context hierarchy
+- [x] **i18n**: Complete internationalization support
 
 ## ✅ COMPLETED IN v1.0.1 (August 22, 2025)
 
@@ -22,30 +51,58 @@ _Last Updated: August 22, 2025 - v1.0.1_
 **Impact**: HIGH - Essential modern UX feature
 **Files Created**:
 
-- [x] `src/context/ThemeContext.tsx` - Theme provider and hooks
+- [x] Unified theme provider at `src/theme/theme.tsx` (tokens + persisted mode)
 - [x] `src/types/theme.ts` - Theme type definitions
 - [x] `src/components/ui/StatusBarWrapper.tsx` - Adaptive status bar
 - [x] All screen components updated for theme support
-- [x] `App.tsx` updated with ThemeProvider
+- [x] App providers use the unified ThemeProvider; legacy ThemeContext removed
 
 ## 🎯 PHASE 1: REMAINING CRITICAL ITEMS
 
-### 1.1 Profile Icon Integration
+### 1.1 Theme Hydration Gate
 
-**Status**: MINOR ISSUE - Profile icon component exists but not used in navigation
-**Impact**: LOW - Cosmetic consistency issue
-**Files to Modify**:
+**Status**: OPEN
+**Impact**: HIGH – Prevents light/dark flash on startup
 
-- [ ] Replace emoji icon with ProfileIcon component in navigation/index.tsx:61
+- [ ] Block render in `ThemeProvider` until AsyncStorage preferences finish loading
+- [ ] Add suspense/spinner (or reuse Splash) so UX stays smooth
+- [ ] Extend `theme-provider.test.tsx` to assert hydrated render
 
-### 1.2 Native Module Weather Code
+### 1.2 Settings Theme Controls
 
-**Status**: COMPLETED
-**Impact**: MEDIUM - Weather icon consistency in native modules
+**Status**: OPEN
+**Impact**: HIGH – Users cannot return to system theme today
 
-- [x] TypeScript interface updated with weatherCode property
-- [x] iOS Swift implementation now returns mapped WMO-like `weatherCode`
-- [x] Android Java implementation includes `weatherCode` in payload (mock for now)
+- [ ] Replace binary toggle with explicit options (`system`, `light`, `dark`)
+- [ ] Surface current `themeMode` string in UI copy
+- [ ] Verify toggles update persisted storage + `useTheme`
+
+### 1.3 OTA Configuration Alignment
+
+**Status**: BLOCKED (needs EAS setup)
+**Impact**: HIGH – Real OTA updates will fail with placeholder slug
+
+- [ ] Create/obtain the real EAS project UUID
+- [ ] Update `app.json` (`updates.url`, `extra.eas.projectId`) and README docs
+- [ ] Confirm `eas update` channels pick up runtime policy
+
+### 1.4 Native Version Metadata Sync
+
+**Status**: OPEN
+**Impact**: MEDIUM – Prevents App Store/TestFlight rejects
+
+- [ ] Set `MARKETING_VERSION` / `CURRENT_PROJECT_VERSION` in Xcode project to match `app.json` + `Info.plist`
+- [ ] Lock marketing/build numbers via script or `sync-versions`
+- [ ] Add regression test (Jest or lint) verifying Info.plist vs package.json alignment
+
+### 1.5 Expo Modules Cycle Hardening
+
+**Status**: OPEN
+**Impact**: HIGH – Remaining ExpoModule targets (e.g. `EXApplication`) still form ReactCodegen cycles
+
+- [ ] Determine whether to inline UUID helpers (similar to EAS) or refactor native specs
+- [ ] Update Podfile automation once final approach selected
+- [ ] Add CI check ensuring `pod install && xcodebuild` succeeds without manual patching
 
 ## 🚀 PHASE 2: FEATURE COMPLETION (Next Priority)
 
@@ -131,56 +188,43 @@ _Last Updated: August 22, 2025 - v1.0.1_
 
 ### Immediate Action Items (Today):
 
-1. **Fix Critical Bugs** (30 minutes):
+1. **Theme Hydration Guard** (2h)
+   - Add `isReady` state to `ThemeProvider`
+   - Delay children rendering (or keep Splash) until hydration completes
+   - Extend tests to cover the hydrated render path
 
-   ```typescript
-   // Fix WeatherScreen useEffect
-   useEffect(() => {
-     loadWeatherData();
-   }, [loadWeatherData]);
+2. **Settings Theme Picker** (1h)
+   - Replace binary toggle with segmented control or dialog for `system/light/dark`
+   - Ensure persisted value updates correctly and surfaces in copy
 
-   // Fix SunscreenContext missing await
-   await checkReapplicationStatus();
-   ```
-
-2. **Implement Dark Mode Foundation** (2-3 hours):
-   - Create ThemeContext with light/dark palettes
-   - Add theme persistence
-   - Update App.tsx with ThemeProvider
-
-3. **Update Core Screens for Theming** (2-3 hours):
-   - WeatherScreen.tsx: Replace all hardcoded colors
-   - UVIndexScreen.tsx: Replace all hardcoded colors
-   - Other screens: Apply theme system
+3. **Expo Updates Patch Verification** (30m)
+   - Run `scripts/patch-expo-updates.sh` + `pod install`
+   - Add automated check (Jest or lint) ensuring `FileDownloader.swift` remains patched
 
 ### Next Session Action Items:
 
-4. **Complete Profile Screen** (3-4 hours):
-   - Full implementation with theme toggle
-   - User preferences management
-   - Settings persistence
+4. **OTA Config Finalization** (blocked on UUID)
+   - Obtain the real EAS project ID, update `app.json`, README, and docs
+   - Add regression to fail CI if `updates.url` uses placeholder string
 
-5. **Code Quality Pass** (1-2 hours):
-   - Remove unused code
-   - Consolidate duplicated logic
-   - Add proper TypeScript annotations
+5. **Version Sync Automation** (1-2h)
+   - Extend `sync-versions` script/test to validate Info.plist & project settings
+   - Run once per release to keep bundle + marketing versions aligned
 
 ## 🎯 SUCCESS CRITERIA
 
 ### Phase 1 Complete When:
 
-- [ ] Dark mode fully functional with smooth transitions
-- [ ] All critical bugs fixed
-- [ ] No console errors in development
-- [ ] Clean TypeScript compilation
-- [ ] All screens properly themed
+- [ ] Theme loads without flashing (hydration gate in place)
+- [ ] Settings exposes `system`, `light`, `dark` options
+- [ ] Expo Updates patch check prevents `EASClient` cycles
+- [ ] Real OTA project metadata recorded (or tracked as explicit blocker)
 
 ### Phase 2 Complete When:
 
-- [ ] Profile screen fully implemented
-- [ ] User preferences working and persistent
-- [ ] Enhanced error handling deployed
-- [ ] Performance optimizations measured and verified
+- [ ] Settings/profile screen covers units, skin type, notifications
+- [ ] Offline/error flows surface contextual messaging
+- [ ] Performance hotspots benchmarked and optimized (forecast, weather cards)
 
 ### Phase 3 Complete When:
 

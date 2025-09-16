@@ -6,8 +6,7 @@ import { changeLanguage, getCurrentLanguage } from '../../src/i18n';
 import { useAppStore } from '../../src/store/appStore';
 
 export default function SettingsScreen() {
-  const { scheme, setScheme } = useTheme();
-  const { highContrast, setHighContrast } = useTheme();
+  const { scheme, setScheme, highContrast, setHighContrast } = useTheme();
   const perfOverlay = useAppStore((s) => s.perfOverlay);
   const setPerfOverlay = useAppStore((s) => s.setPerfOverlay);
   const next = scheme === 'light' ? 'dark' : 'light';

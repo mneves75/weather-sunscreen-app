@@ -1,4 +1,4 @@
-appId: org.mvneves.weathersunscreen.app
+appId: com.weathersunscreen.app
 name: Theme Toggle and Scroll
 tags: [smoke]
 onFlowStart:

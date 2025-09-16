@@ -1,5 +1,5 @@
-// iOS 26 Configuration
-IPHONEOS_DEPLOYMENT_TARGET = 26.0
+// iOS baseline for production; iOS 26 features are runtime-gated
+IPHONEOS_DEPLOYMENT_TARGET = 16.0
 SWIFT_VERSION = 6.0
 CLANG_CXX_LANGUAGE_STANDARD = c++23
 ENABLE_PREVIEWS = YES

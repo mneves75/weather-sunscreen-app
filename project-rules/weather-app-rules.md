@@ -8,7 +8,7 @@
 - Components are organized by type: `ui/`, `glass/`, `icons/`, `native/`
 - Business logic stays in `services/` directory
 - Type definitions in `types/` directory
-- Context providers in `context/` directory
+- Context providers in `context/` directory; global theme lives in `src/theme/theme.tsx`
 
 ### Native Module Development
 

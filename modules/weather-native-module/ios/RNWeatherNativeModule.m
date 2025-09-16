@@ -1,7 +1,12 @@
 #import <React/RCTBridgeModule.h>
 #import <React/RCTTurboModule.h>
 
-// Legacy Bridge Module (for backward compatibility)
+// Export exactly one module implementation per architecture to avoid selector/signature conflicts.
+// When New Architecture is enabled (RCT_NEW_ARCH_ENABLED=1), only the TurboModule is exported.
+// On the legacy architecture, only the classic RCTBridge module is exported.
+
+#if !RCT_NEW_ARCH_ENABLED
+// Legacy Bridge Module (for backward compatibility on old architecture)
 @interface RCT_EXTERN_MODULE(WeatherNativeModule, NSObject)
 
 RCT_EXTERN_METHOD(isAvailable:(RCTPromiseResolveBlock)resolve
@@ -26,8 +31,10 @@ RCT_EXTERN_METHOD(getWeatherData:(double)latitude
 }
 
 @end
+#endif
 
 // TurboModule Implementation (New Architecture)
+#if RCT_NEW_ARCH_ENABLED
 @interface RCT_EXTERN_MODULE(WeatherNativeTurboModule, NSObject)
 
 RCT_EXTERN_METHOD(isAvailable:(RCTPromiseResolveBlock)resolve
@@ -52,3 +59,4 @@ RCT_EXTERN_METHOD(getWeatherData:(double)latitude
 }
 
 @end
+#endif

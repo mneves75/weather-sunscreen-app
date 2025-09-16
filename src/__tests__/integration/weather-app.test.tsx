@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, waitFor } from '@testing-library/react-native';
+import { StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Mocks
@@ -19,8 +20,8 @@ import ForecastRoute from '../../../app/(tabs)/forecast';
 import { WeatherProvider } from '../../context/WeatherContext';
 import { SunscreenProvider } from '../../context/SunscreenContext';
 import { ThemeProvider as AppThemeProvider } from '../../theme/theme';
-import { ThemeProvider as ColorThemeProvider } from '../../context/ThemeContext';
 import { WeatherService } from '../../services/weatherService';
+import { tokens } from '../../theme/tokens';
 
 describe('Weather App Integration (iOS 26)', () => {
   const mockWeatherData: any = {
@@ -53,11 +54,9 @@ describe('Weather App Integration (iOS 26)', () => {
   const renderWithProviders = (component: React.ReactElement) =>
     render(
       <AppThemeProvider>
-        <ColorThemeProvider>
-          <WeatherProvider>
-            <SunscreenProvider>{component}</SunscreenProvider>
-          </WeatherProvider>
-        </ColorThemeProvider>
+        <WeatherProvider>
+          <SunscreenProvider>{component}</SunscreenProvider>
+        </WeatherProvider>
       </AppThemeProvider>,
     );
 
@@ -95,14 +94,12 @@ describe('Weather App Integration (iOS 26)', () => {
 
     const tree = render(
       <AppThemeProvider>
-        <ColorThemeProvider>
-          <WeatherProvider>
-            <SunscreenProvider>
-              <WeatherRoute />
-              <ForecastRoute />
-            </SunscreenProvider>
-          </WeatherProvider>
-        </ColorThemeProvider>
+        <WeatherProvider>
+          <SunscreenProvider>
+            <WeatherRoute />
+            <ForecastRoute />
+          </SunscreenProvider>
+        </WeatherProvider>
       </AppThemeProvider>,
     );
 
@@ -110,5 +107,18 @@ describe('Weather App Integration (iOS 26)', () => {
       const items = await tree.findAllByText(/°/);
       expect(items.length).toBeGreaterThanOrEqual(7);
     });
+  });
+
+  test('Weather details rows respect themed colors', async () => {
+    const { findByText } = renderWithProviders(<WeatherRoute />);
+
+    const humidityLabel = await findByText('Humidity');
+    const humidityValue = await findByText('65%');
+
+    const labelStyle = StyleSheet.flatten(humidityLabel.props.style);
+    const valueStyle = StyleSheet.flatten(humidityValue.props.style);
+
+    expect(labelStyle?.color).toBe(tokens.light.colors.secondary);
+    expect(valueStyle?.color).toBe(tokens.light.colors.primary);
   });
 });

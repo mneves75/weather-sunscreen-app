@@ -8,7 +8,7 @@ describe('StatusBarWrapper', () => {
       jest.doMock('expo-status-bar', () => ({
         StatusBar: (props: any) => <Text testID="status" {...props} />,
       }));
-      jest.doMock('../../../context/ThemeContext', () => ({
+      jest.doMock('../../../theme/theme', () => ({
         useTheme: () => ({ isDark: false, themeMode: 'system' }),
       }));
       const { StatusBarWrapper } = require('../StatusBarWrapper');
@@ -22,7 +22,7 @@ describe('StatusBarWrapper', () => {
       jest.doMock('expo-status-bar', () => ({
         StatusBar: (props: any) => <Text testID="status" {...props} />,
       }));
-      jest.doMock('../../../context/ThemeContext', () => ({
+      jest.doMock('../../../theme/theme', () => ({
         useTheme: () => ({ isDark: true, themeMode: 'dark' }),
       }));
       const { StatusBarWrapper } = require('../StatusBarWrapper');
@@ -36,7 +36,7 @@ describe('StatusBarWrapper', () => {
       jest.doMock('expo-status-bar', () => ({
         StatusBar: (props: any) => <Text testID="status" {...props} />,
       }));
-      jest.doMock('../../../context/ThemeContext', () => ({
+      jest.doMock('../../../theme/theme', () => ({
         useTheme: () => ({ isDark: false, themeMode: 'light' }),
       }));
       const { StatusBarWrapper } = require('../StatusBarWrapper');
