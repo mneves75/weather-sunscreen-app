@@ -9,19 +9,55 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Carmack-Level Fresh Eyes Audit** (`docs/CARMACK_FRESH_EYES_AUDIT.md`) - Comprehensive production-readiness review identifying 7 critical issues, 12 important issues, and 15 optimization opportunities
+- **Zod validation schemas** for all native module responses (LocationData, WeatherData, UVData) ensuring runtime type safety and preventing crashes from malformed native data
+- **WeatherKit entitlement runtime validation** in iOS native module to detect misconfiguration before app deployment
 - Comprehensive Liquid Glass implementation documentation
 - Forecast detail screen (`/forecast/[day]`) com Expo Router v6
 - Testes dedicados para forecast/navigation e tema
+- **Error boundaries** added to all route group layouts (`(home)`, `(messages)`, `(styles)`) for crash isolation
+- **Native module cache invalidation** on app foreground to handle environment changes (Expo Go ↔ dev build transitions)
+- **Theme hydration timeout** (3 seconds) to prevent blank screen if storage is slow/unavailable
+- **Fresh Eyes Codebase Audit** report (`docs/FRESH_EYES_AUDIT.md`) identifying 32 issues across 8 categories
+- **Second-Pass Audit** report (`docs/SECOND_PASS_AUDIT.md`) with ultra-critical review of implementations
+- **Third-Pass Production Readiness Audit** report (`docs/THIRD_PASS_PRODUCTION_AUDIT.md`) focusing on production-grade quality standards
+- **AbortController support** for all network requests with automatic timeout and cancellation
+- **Global promise rejection handler** in root layout to catch unhandled async errors
+- **Jest code coverage** configuration with threshold enforcement (75% global, 85% services)
+- **Network connectivity detection** using `@react-native-community/netinfo` with real-time monitoring and offline-first caching
+- **NetworkService** (`src/services/networkService.ts`) for proactive connectivity checks with 1-second cache to prevent excessive native calls
+- **Offline-first fallback** in OpenMeteoService: uses expired cache data when offline, preventing app failures due to network issues
 
 ### Changed
 
+- **Android version synchronization**: Updated versionCode to 3000000 and versionName to "3.0.0" to match package.json, enabling proper Google Play updates
+- **Android SDK target**: Changed compileSdkVersion and targetSdkVersion from 36 (non-existent) to 35 (current stable) fixing build failures
+- **Theme hydration logic**: Implemented `resolved` flag pattern to eliminate race condition between AsyncStorage load and timeout, preventing theme flicker on app launch
+- **WeatherContext memory leak fix**: Added early mount checks and proper Promise cleanup in `updateLocation` to prevent hanging Promises and memory leaks during rapid navigation
+- **Console.warn replaced with logger**: Migrated `weatherCodeMapping.ts` to use centralized logger service for consistent structured logging
 - Updated implementation roadmap to reflect v3.0.0 completion status
 - Home e Forecast usam `@shopify/flash-list` + componentes memorizados
 - Settings agora expõe seleção explícita de tema (`sistema/claro/escuro`)
 - Tabs aplicam Liquid Glass nativo (iOS) e Material You (Android)
+- **WeatherContext**: Optimized useMemo dependencies to use individual state properties instead of entire state object (prevents infinite re-renders)
+- **WeatherService**: Changed from `Promise.all()` to `Promise.allSettled()` for parallel API calls to handle partial failures gracefully
+- **WeatherService**: Implemented sample-based parity checking (10% in production, 100% in development) to reduce network overhead by 90%
+- **Native module index**: Added AppState listener for cache invalidation when app returns to foreground
+- **Native module**: Improved inflight promise pattern with atomic check-and-clear to prevent race conditions
+- **React Query**: Added exponential backoff retry strategy (1s, 2s, 4s, capped at 30s) for better network resilience
+- **OpenMeteo Service**: Implemented TTL-based cache cleanup every 5 minutes to prevent memory bloat
+- **Native Module**: Simplified burst deduplication to use single inflight promise pattern
+- **Magic Numbers**: Extracted all timing and limit constants to `src/constants/timings.ts` for maintainability
 
 ### Fixed
 
+- **Critical: Version mismatch** - Android versionCode and versionName now properly synchronized with package.json version preventing Google Play update rejections
+- **Critical: Android build configuration** - Fixed invalid SDK 36 target (changed to SDK 35) allowing successful builds
+- **Critical: Theme hydration race condition** - Eliminated race between storage load and timeout preventing theme flicker on every app launch
+- **Critical: Memory leak in location updates** - Fixed hanging Promises in WeatherContext.updateLocation preventing memory leaks during rapid navigation
+- **Critical: Type safety in native bridge** - Added Zod validation for all native module responses preventing crashes from malformed data
+- **Critical: WeatherKit entitlement detection** - Added runtime validation ensuring iOS WeatherKit is properly configured before production deployment
+- **Important: Logging bypass** - Replaced direct console.warn with logger service in weatherCodeMapping.ts for consistent structured logging
 - Resolved expo-doctor warnings:
   - Removed duplicate package-lock.json (kept bun.lock only)
   - Fixed duplicate dependencies through clean reinstall
@@ -29,6 +65,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed typo in filename: `know-issues.md` → `known-issues.md`
 - Patched `expo-updates` to inline the EAS client ID and avoid the `EASClient`/`WeatherSunscreen` build cycle (see `scripts/patch-expo-updates.sh`).
 - Desabilitado `CLANG_ENABLE_EXPLICIT_MODULES` para impedir falhas no PhaseScriptExecution
+- **CRITICAL**: Fixed WeatherContext infinite re-render risk caused by spreading entire state object in useMemo
+- **CRITICAL**: Fixed location update timer memory leak that caused state updates on unmounted components
+- **CRITICAL**: Added timeout to theme hydration to prevent indefinite blank screen on storage failures
+- **CRITICAL**: Fixed uncaught promise rejections in parallel weather/UV data fetching
+- **CRITICAL**: Fixed native module cache that prevented retry after initial failure
+- **HIGH**: Fixed SunscreenProvider timer race condition using refs instead of closure variables
+- **HIGH**: Fixed UVIndexCard crash when `hourly` array is undefined (added null check)
+- **HIGH**: Fixed native module burst deduplication race condition (simplified to single inflight promise)
+- **HIGH**: Implemented temperature parity alerting (warns at 5°C delta, errors at 10°C delta)
+- **HIGH**: Fixed inflight promise race condition with atomic check-and-clear pattern (second audit finding)
+- **HIGH**: Made parity checking sample-based (10% production) to reduce network calls by 90%
+- **MEDIUM**: Added OpenMeteo cache TTL cleanup to prevent expired entries from accumulating
+- **MEDIUM**: Updated 4 outdated tests to match improved deduplication behavior
+- **TEST**: Updated `critical-fix-validation.test.tsx` to check for SDK 54-compatible FlatList props (removed deprecated `initialNumToRender`, `removeClippedSubviews` checks)
+- **TEST**: Migrated `app-json-version-sync.test.ts` and `ios-26-config.test.ts` from `app.json` to `app.config.ts` (project migrated to TypeScript config)
+- **TEST**: Achieved 100% test pass rate - all 251 tests now passing (up from 249 passing, 2 failing)
+- **TEST**: Added comprehensive tests for `fetchWithAbort` utility (9 test cases covering timeout, cancellation, error handling)
+- **PRODUCTION**: Created `fetchWithAbort` utility with automatic timeout, request cancellation, and comprehensive logging
+- **PRODUCTION**: Integrated AbortController into OpenMeteoService for all API calls (daily forecast, hourly forecast, current weather)
+- **PRODUCTION**: Added global unhandled promise rejection handler in root layout (`app/_layout.tsx`)
+- **PRODUCTION**: Configured Jest code coverage thresholds (75% global, 85% services, 80% context/utils)
+- **PRODUCTION**: Added npm scripts for coverage measurement (`test:coverage`, `test:coverage:watch`)
+- **CRITICAL IOS BUILD FIX**: Removed non-existent `WeatherService.isAvailable` API calls (WeatherKit doesn't have this property)
+- **CRITICAL IOS BUILD FIX**: Fixed `WeatherCondition.fog` typo to correct `.foggy` enum case
+- **CRITICAL IOS BUILD FIX**: Removed manual `RCTTurboModule` protocol conformance (handled by codegen in New Architecture)
+
+### Documentation
+
+- **Podfile workarounds comprehensively documented** - Added detailed inline documentation for all 5 major Xcode 26 workarounds with issue tracking links, symptom descriptions, impact analysis, and removal criteria:
+  - Hermes prebuilt binary sandboxing issue (build from source workaround)
+  - Swift 6 concurrency compatibility (Swift 5.9 pinning + minimal strictness)
+  - Xcode 26 explicit modules + ccache incompatibility (explicit modules disabled)
+  - C++ header resolution order changes (libc++ prepended to search paths)
+  - ReactCodegen ↔ Expo dependency cycle (input paths narrowed to package.json)
+- **Carmack Fresh Eyes audit updated** — Added remediation addendum with 2025-09-30 validation (`bun run ios`) and grade raised from **B+ → A-** after closing all seven critical blockers
 
 ### Removed
 

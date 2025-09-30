@@ -1,5 +1,4 @@
 #import <React/RCTBridgeModule.h>
-#import <React/RCTTurboModule.h>
 
 // Export exactly one module implementation per architecture to avoid selector/signature conflicts.
 // When New Architecture is enabled (RCT_NEW_ARCH_ENABLED=1), only the TurboModule is exported.
