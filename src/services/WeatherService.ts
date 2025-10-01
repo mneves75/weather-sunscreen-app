@@ -12,10 +12,21 @@ import {
 } from '@/src/types';
 import { WeatherServiceConfig, WeatherServiceError } from '@/src/types/services';
 import { logger } from './LoggerService';
+import { openMeteoClient } from './OpenMeteoClient';
+import { OpenMeteoMapper } from './OpenMeteoMapper';
+
+interface CacheEntry<T> {
+  data: T;
+  timestamp: number;
+  coordinates: Coordinates;
+}
 
 class WeatherService {
   private static instance: WeatherService;
   private config: WeatherServiceConfig;
+  private weatherCache: CacheEntry<WeatherData> | null = null;
+  private uvCache: CacheEntry<UVIndex> | null = null;
+  private forecastCache: CacheEntry<Forecast> | null = null;
 
   private constructor() {
     this.config = {
@@ -33,18 +44,72 @@ class WeatherService {
   }
 
   /**
+   * Check if cached data is still valid
+   */
+  private isCacheValid<T>(
+    cache: CacheEntry<T> | null,
+    coordinates: Coordinates
+  ): cache is CacheEntry<T> {
+    if (!cache) return false;
+
+    const now = Date.now();
+    const isExpired = now - cache.timestamp > this.config.cacheTimeout;
+    const isSameLocation =
+      cache.coordinates.latitude === coordinates.latitude &&
+      cache.coordinates.longitude === coordinates.longitude;
+
+    return !isExpired && isSameLocation;
+  }
+
+  /**
    * Fetch weather data for given coordinates
    */
   public async getWeatherData(coordinates: Coordinates): Promise<WeatherData> {
     try {
-      logger.weather('Fetching weather data', { coordinates });
+      // Check cache first
+      if (this.isCacheValid(this.weatherCache, coordinates)) {
+        logger.debug('Returning cached weather data', { coordinates });
+        return this.weatherCache.data;
+      }
 
-      // TODO: Implement actual API call to weather service
-      // For now, return mock data as fallback
-      return this.getMockWeatherData(coordinates);
+      logger.weather('Fetching weather data from Open-Meteo', { coordinates });
+
+      // Fetch from Open-Meteo API
+      const rawData = await openMeteoClient.getCurrentWeather(coordinates);
+
+      // Transform to app data structure
+      const weatherData = OpenMeteoMapper.transformCurrentWeather(rawData, coordinates);
+
+      // Fetch and add UV index
+      try {
+        const uvIndex = await this.getUVIndex(coordinates);
+        weatherData.uvIndex = uvIndex;
+      } catch (error) {
+        logger.warn('Failed to fetch UV index, continuing without it', { error });
+      }
+
+      // Cache the result
+      this.weatherCache = {
+        data: weatherData,
+        timestamp: Date.now(),
+        coordinates,
+      };
+
+      logger.info('Weather data fetched successfully', { coordinates });
+      return weatherData;
     } catch (error) {
       logger.error('Failed to fetch weather data', error as Error, 'WEATHER');
-      throw this.createError('FETCH_FAILED', 'Failed to fetch weather data', error as Error);
+
+      // Try to return cached data even if expired
+      if (this.weatherCache?.coordinates.latitude === coordinates.latitude &&
+          this.weatherCache?.coordinates.longitude === coordinates.longitude) {
+        logger.warn('Returning stale cached weather data due to API failure');
+        return this.weatherCache.data;
+      }
+
+      // Fall back to mock data
+      logger.warn('Falling back to mock weather data');
+      return this.getMockWeatherData(coordinates);
     }
   }
 
@@ -53,13 +118,42 @@ class WeatherService {
    */
   public async getUVIndex(coordinates: Coordinates): Promise<UVIndex> {
     try {
-      logger.weather('Fetching UV index', { coordinates });
+      // Check cache first
+      if (this.isCacheValid(this.uvCache, coordinates)) {
+        logger.debug('Returning cached UV index', { coordinates });
+        return this.uvCache.data;
+      }
 
-      // TODO: Implement actual API call
-      return this.getMockUVIndex();
+      logger.weather('Fetching UV index from Open-Meteo', { coordinates });
+
+      // Fetch from Open-Meteo API
+      const rawData = await openMeteoClient.getUVIndex(coordinates);
+
+      // Transform to app data structure
+      const uvIndex = OpenMeteoMapper.transformUVIndex(rawData);
+
+      // Cache the result
+      this.uvCache = {
+        data: uvIndex,
+        timestamp: Date.now(),
+        coordinates,
+      };
+
+      logger.info('UV index fetched successfully', { coordinates, uvIndex: uvIndex.value });
+      return uvIndex;
     } catch (error) {
       logger.error('Failed to fetch UV index', error as Error, 'WEATHER');
-      throw this.createError('UV_FETCH_FAILED', 'Failed to fetch UV index', error as Error);
+
+      // Try to return cached data even if expired
+      if (this.uvCache?.coordinates.latitude === coordinates.latitude &&
+          this.uvCache?.coordinates.longitude === coordinates.longitude) {
+        logger.warn('Returning stale cached UV index due to API failure');
+        return this.uvCache.data;
+      }
+
+      // Fall back to mock data
+      logger.warn('Falling back to mock UV index');
+      return this.getMockUVIndex();
     }
   }
 
@@ -68,14 +162,78 @@ class WeatherService {
    */
   public async getForecast(coordinates: Coordinates): Promise<Forecast> {
     try {
-      logger.weather('Fetching forecast', { coordinates });
+      // Check cache first
+      if (this.isCacheValid(this.forecastCache, coordinates)) {
+        logger.debug('Returning cached forecast', { coordinates });
+        return this.forecastCache.data;
+      }
 
-      // TODO: Implement actual API call
-      return this.getMockForecast(coordinates);
+      logger.weather('Fetching forecast from Open-Meteo', { coordinates });
+
+      // Fetch from Open-Meteo API
+      const rawData = await openMeteoClient.getForecast(coordinates);
+
+      // Transform to app data structure
+      const forecast = OpenMeteoMapper.transformForecast(
+        rawData.hourly,
+        rawData.daily,
+        coordinates
+      );
+
+      // Cache the result
+      this.forecastCache = {
+        data: forecast,
+        timestamp: Date.now(),
+        coordinates,
+      };
+
+      logger.info('Forecast fetched successfully', {
+        coordinates,
+        days: forecast.days.length
+      });
+      return forecast;
     } catch (error) {
       logger.error('Failed to fetch forecast', error as Error, 'WEATHER');
-      throw this.createError('FORECAST_FAILED', 'Failed to fetch forecast', error as Error);
+
+      // Try to return cached data even if expired
+      if (this.forecastCache?.coordinates.latitude === coordinates.latitude &&
+          this.forecastCache?.coordinates.longitude === coordinates.longitude) {
+        logger.warn('Returning stale cached forecast due to API failure');
+        return this.forecastCache.data;
+      }
+
+      // Fall back to mock data
+      logger.warn('Falling back to mock forecast');
+      return this.getMockForecast(coordinates);
     }
+  }
+
+  /**
+   * Clear all cached data
+   */
+  public clearCache(): void {
+    this.weatherCache = null;
+    this.uvCache = null;
+    this.forecastCache = null;
+    logger.info('Weather cache cleared');
+  }
+
+  /**
+   * Force refresh data (bypass cache)
+   */
+  public async refreshWeatherData(coordinates: Coordinates): Promise<WeatherData> {
+    this.clearCache();
+    return this.getWeatherData(coordinates);
+  }
+
+  public async refreshUVIndex(coordinates: Coordinates): Promise<UVIndex> {
+    this.uvCache = null;
+    return this.getUVIndex(coordinates);
+  }
+
+  public async refreshForecast(coordinates: Coordinates): Promise<Forecast> {
+    this.forecastCache = null;
+    return this.getForecast(coordinates);
   }
 
   /**

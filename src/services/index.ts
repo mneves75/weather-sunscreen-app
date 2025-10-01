@@ -2,12 +2,11 @@
  * Services module exports
  */
 
-export { logger } from './LoggerService';
 export {
-  attachDiagnosticsSink,
-  getBufferedLogs,
-  clearBufferedLogs,
-  getBufferInfo,
-  diagnosticsSink,
+    attachDiagnosticsSink, clearBufferedLogs, diagnosticsSink, getBufferInfo, getBufferedLogs
 } from './diagnosticsSink';
+export { logger } from './LoggerService';
+export { openMeteoClient } from './OpenMeteoClient';
+export { OpenMeteoMapper } from './OpenMeteoMapper';
 export { weatherService } from './WeatherService';
+
