@@ -100,26 +100,26 @@ export function MessagesProvider({ children }: MessagesProviderProps) {
 
         // Initialize services with individual error handling to prevent blocking
         await Promise.allSettled([
-          withTimeout(messageService.initialize(), 5000).catch(err => {
+          withTimeout(messageService.initialize(), 15000).catch(err => {
             logger.error('MessageService init failed', err as Error, 'MESSAGES');
           }),
-          withTimeout(notificationService.initialize(), 5000).catch(err => {
+          withTimeout(notificationService.initialize(), 15000).catch(err => {
             logger.error('NotificationService init failed', err as Error, 'MESSAGES');
           }),
-          withTimeout(alertRuleEngine.initialize(), 5000).catch(err => {
+          withTimeout(alertRuleEngine.initialize(), 15000).catch(err => {
             logger.error('AlertRuleEngine init failed', err as Error, 'MESSAGES');
           }),
         ]);
 
         // Load initial data (these can fail gracefully)
         await Promise.allSettled([
-          withTimeout(loadMessages(), 3000).catch(err => {
+          withTimeout(loadMessages(), 10000).catch(err => {
             logger.error('Failed to load messages', err as Error, 'MESSAGES');
           }),
-          withTimeout(loadStats(), 3000).catch(err => {
+          withTimeout(loadStats(), 10000).catch(err => {
             logger.error('Failed to load stats', err as Error, 'MESSAGES');
           }),
-          withTimeout(loadPermissionStatus(), 3000).catch(err => {
+          withTimeout(loadPermissionStatus(), 10000).catch(err => {
             logger.error('Failed to load permission status', err as Error, 'MESSAGES');
           }),
         ]);

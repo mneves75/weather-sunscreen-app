@@ -3,20 +3,20 @@
  * Handles message CRUD operations, filtering, and persistence
  */
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { logger } from './LoggerService';
 import type {
+  BatchOperationResult,
   Message,
-  MessageInput,
-  MessageUpdate,
-  MessageFilter,
-  MessageStats,
   MessageCategory,
+  MessageFilter,
+  MessageInput,
+  MessageServiceConfig,
   MessageSeverity,
   MessageSort,
-  BatchOperationResult,
-  MessageServiceConfig,
+  MessageStats,
+  MessageUpdate,
 } from '@/src/types';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { logger } from './LoggerService';
 
 const MESSAGES_STORAGE_KEY = '@WeatherSunscreen:messages';
 const CONFIG_STORAGE_KEY = '@WeatherSunscreen:messages:config';
@@ -74,22 +74,31 @@ class MessageService {
 
   private async _initializeInternal(): Promise<void> {
     try {
+      const startTime = Date.now();
       logger.info('Initializing MessageService', 'MESSAGES');
 
       // Load configuration
+      logger.info('Loading message config...', 'MESSAGES');
       await this.loadConfig();
+      logger.info(`Config loaded in ${Date.now() - startTime}ms`, 'MESSAGES');
 
       // Load messages
+      const loadMessagesStart = Date.now();
+      logger.info('Loading messages from storage...', 'MESSAGES');
       await this.loadMessages();
+      logger.info(`Messages loaded in ${Date.now() - loadMessagesStart}ms`, 'MESSAGES');
 
       // Perform automatic cleanup if enabled
       if (this.config.autoCleanup) {
+        const cleanupStart = Date.now();
+        logger.info('Running message cleanup...', 'MESSAGES');
         await this.cleanupExpiredMessages();
         await this.cleanupOldMessages(this.config.retentionDays);
+        logger.info(`Cleanup completed in ${Date.now() - cleanupStart}ms`, 'MESSAGES');
       }
 
       this.isInitialized = true;
-      logger.info(`MessageService initialized with ${this.messages.length} messages`, 'MESSAGES');
+      logger.info(`MessageService initialized with ${this.messages.length} messages (total time: ${Date.now() - startTime}ms)`, 'MESSAGES');
     } catch (error) {
       logger.error('Failed to initialize MessageService', error as Error, 'MESSAGES');
       throw error;
