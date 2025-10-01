@@ -1,0 +1,166 @@
+---
+globs: **/*.test.ts,**/*.test.tsx,**/*.spec.ts,**/*.spec.tsx
+description: Testing patterns and best practices
+---
+
+# Testing Patterns
+
+## Testing Architecture
+- Jest as the primary testing framework
+- React Native Testing Library for component testing
+- Mock external dependencies and services
+- Test both unit and integration scenarios
+
+## Component Testing
+- Test component rendering with different props
+- Test user interactions and event handlers
+- Test accessibility features
+- Test error states and loading states
+- Test theme switching and responsive behavior
+
+## Service Testing
+- Mock external API calls
+- Test error handling scenarios
+- Test retry logic and timeouts
+- Test caching behavior
+- Test singleton pattern implementation
+
+## Context Testing
+- Test context providers in isolation
+- Test custom hooks
+- Test state updates and side effects
+- Test error boundaries
+- Test persistence with AsyncStorage
+
+## Example Test Patterns
+```typescript
+// Component test
+import { render, fireEvent, waitFor } from '@testing-library/react-native';
+import { WeatherCard } from '../WeatherCard';
+
+describe('WeatherCard', () => {
+  const mockWeatherData = {
+    location: { city: 'San Francisco', country: 'US' },
+    current: { temperature: 22, condition: { main: 'Clear' } }
+  };
+
+  it('renders weather data correctly', () => {
+    const { getByText } = render(
+      <WeatherCard data={mockWeatherData} />
+    );
+    
+    expect(getByText('San Francisco')).toBeTruthy();
+    expect(getByText('22°')).toBeTruthy();
+  });
+
+  it('calls onPress when tapped', () => {
+    const onPress = jest.fn();
+    const { getByTestId } = render(
+      <WeatherCard data={mockWeatherData} onPress={onPress} />
+    );
+    
+    fireEvent.press(getByTestId('weather-card'));
+    expect(onPress).toHaveBeenCalled();
+  });
+});
+```
+
+## Service Testing
+```typescript
+// Service test
+import { weatherService } from '../WeatherService';
+
+jest.mock('../LoggerService');
+
+describe('WeatherService', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('returns weather data for valid coordinates', async () => {
+    const coordinates = { latitude: 37.7749, longitude: -122.4194 };
+    const result = await weatherService.getWeatherData(coordinates);
+    
+    expect(result).toHaveProperty('location');
+    expect(result).toHaveProperty('current');
+    expect(result.location.coordinates).toEqual(coordinates);
+  });
+
+  it('handles errors gracefully', async () => {
+    // Mock API failure
+    jest.spyOn(weatherService, 'getWeatherData').mockRejectedValue(new Error('API Error'));
+    
+    await expect(weatherService.getWeatherData({ latitude: 0, longitude: 0 }))
+      .rejects.toThrow('API Error');
+  });
+});
+```
+
+## Context Testing
+```typescript
+// Context test
+import { renderHook, act } from '@testing-library/react-native';
+import { WeatherProvider, useWeather } from '../WeatherContext';
+
+const wrapper = ({ children }: { children: React.ReactNode }) => (
+  <WeatherProvider>{children}</WeatherProvider>
+);
+
+describe('WeatherContext', () => {
+  it('provides weather context', () => {
+    const { result } = renderHook(() => useWeather(), { wrapper });
+    
+    expect(result.current.weatherData).toBeNull();
+    expect(result.current.isLoadingWeather).toBe(false);
+    expect(typeof result.current.refreshWeather).toBe('function');
+  });
+
+  it('updates weather data when location changes', async () => {
+    const { result } = renderHook(() => useWeather(), { wrapper });
+    
+    await act(async () => {
+      result.current.setLocation({ latitude: 37.7749, longitude: -122.4194 });
+    });
+    
+    // Wait for async operations
+    await waitFor(() => {
+      expect(result.current.currentLocation).toEqual({ latitude: 37.7749, longitude: -122.4194 });
+    });
+  });
+});
+```
+
+## Mock Patterns
+- Mock external services and APIs
+- Mock AsyncStorage for persistence testing
+- Mock navigation for screen testing
+- Mock theme context for styling tests
+- Use jest.fn() for function mocks
+
+## Test Organization
+- Group related tests in describe blocks
+- Use descriptive test names
+- Test one behavior per test
+- Use beforeEach/afterEach for setup/cleanup
+- Mock external dependencies consistently
+
+## Coverage Goals
+- Aim for 80%+ code coverage
+- Test critical user flows
+- Test error scenarios
+- Test edge cases and boundary conditions
+- Test accessibility features
+
+## Performance Testing
+- Test component render performance
+- Test memory leaks in long-running tests
+- Test large list rendering
+- Test image loading and caching
+- Test animation performance
+
+## Integration Testing
+- Test complete user workflows
+- Test navigation between screens
+- Test data flow between components
+- Test theme switching end-to-end
+- Test offline/online scenarios

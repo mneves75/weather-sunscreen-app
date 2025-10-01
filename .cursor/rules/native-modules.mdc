@@ -1,0 +1,85 @@
+---
+globs: modules/**/*.ts,modules/**/*.swift,modules/**/*.java
+description: Native module development patterns
+---
+
+# Native Module Patterns
+
+## Module Structure
+- Platform-specific implementations in `modules/weather-native-module/`
+- TypeScript interface definitions
+- iOS Swift implementation
+- Android Java implementation
+
+## TypeScript Interface
+```typescript
+// modules/weather-native-module/index.ts
+export interface WeatherNativeModule {
+  getCurrentWeather(): Promise<WeatherData>;
+  getUVIndex(): Promise<UVIndex>;
+  requestLocationPermission(): Promise<boolean>;
+}
+
+export default WeatherNativeModule;
+```
+
+## iOS Implementation (Swift)
+```swift
+// modules/weather-native-module/ios/WeatherNativeModule.swift
+@objc(WeatherNativeModule)
+class WeatherNativeModule: NSObject, RCTBridgeModule {
+  
+  static func moduleName() -> String! {
+    return "WeatherNativeModule"
+  }
+  
+  @objc
+  func getCurrentWeather(_ resolve: @escaping RCTPromiseResolveBlock,
+                        rejecter reject: @escaping RCTPromiseRejectBlock) {
+    // Implementation
+  }
+}
+```
+
+## Android Implementation (Java)
+```java
+// modules/weather-native-module/android/WeatherNativeModule.java
+public class WeatherNativeModule extends ReactContextBaseJavaModule {
+  
+  @Override
+  public String getName() {
+    return "WeatherNativeModule";
+  }
+  
+  @ReactMethod
+  public void getCurrentWeather(Promise promise) {
+    // Implementation
+  }
+}
+```
+
+## Best Practices
+- Use proper error handling with promises
+- Implement proper TypeScript types
+- Handle platform differences gracefully
+- Test on both iOS and Android
+- Use proper memory management
+- Follow platform-specific UI guidelines
+
+## Error Handling
+- Return meaningful error messages
+- Use proper error codes
+- Handle platform-specific errors
+- Provide fallback behavior
+
+## Performance
+- Avoid blocking the main thread
+- Use background threads for heavy operations
+- Implement proper caching
+- Optimize for battery usage
+
+## Testing
+- Test native modules in isolation
+- Mock native dependencies
+- Test error scenarios
+- Verify platform-specific behavior

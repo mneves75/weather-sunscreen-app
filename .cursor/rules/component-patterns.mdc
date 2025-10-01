@@ -1,0 +1,124 @@
+---
+globs: src/components/**/*.tsx
+description: Component development patterns and best practices
+---
+
+# Component Development Patterns
+
+## Component Structure
+- Functional components with TypeScript interfaces
+- Props interface extending base component props when appropriate
+- Proper destructuring of props
+- Clear component responsibility
+
+## UI Component Patterns
+- Use theme system for consistent styling
+- Implement proper loading and error states
+- Support accessibility features
+- Follow Material Design principles
+
+## Component Categories
+- **UI Components**: Basic building blocks (Button, Text, Card)
+- **Glass Components**: Specialized glass morphism effects
+- **Icon Components**: Weather and UI icons
+- **Screen Components**: Full-screen layouts
+
+## Props Interface Pattern
+```typescript
+interface ComponentProps extends ViewProps {
+  // Required props
+  data: WeatherData;
+  
+  // Optional props with defaults
+  onPress?: () => void;
+  size?: 'small' | 'medium' | 'large';
+  
+  // Style overrides
+  style?: StyleProp<ViewStyle>;
+}
+```
+
+## Styling Patterns
+- Use StyleSheet.create for performance
+- Support style prop overrides
+- Use theme tokens for consistent spacing/colors
+- Implement responsive design
+
+## Error Handling
+- Use ErrorBoundary for component errors
+- Implement proper fallback UI
+- Show user-friendly error messages
+- Provide retry mechanisms
+
+## Accessibility
+- Use proper accessibility labels
+- Support screen readers
+- Implement proper focus management
+- Ensure adequate color contrast
+
+## Example Component
+```typescript
+interface WeatherCardProps extends ViewProps {
+  weather: WeatherData;
+  onPress?: () => void;
+  style?: StyleProp<ViewStyle>;
+}
+
+export function WeatherCard({ 
+  weather, 
+  onPress, 
+  style,
+  ...props 
+}: WeatherCardProps) {
+  const { colors, spacing } = useTheme();
+  
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      style={[
+        styles.container,
+        { backgroundColor: colors.surface },
+        style
+      ]}
+      accessibilityRole="button"
+      accessibilityLabel={`Weather for ${weather.location.city}`}
+      {...props}
+    >
+      <Text style={[styles.title, { color: colors.onSurface }]}>
+        {weather.location.city}
+      </Text>
+      <Text style={[styles.temperature, { color: colors.primary }]}>
+        {weather.current.temperature}°
+      </Text>
+    </TouchableOpacity>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    padding: 16,
+    borderRadius: 12,
+    marginVertical: 8,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: '600',
+  },
+  temperature: {
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+});
+```
+
+## Performance
+- Use React.memo for expensive components
+- Implement proper key props for lists
+- Avoid inline object creation in render
+- Use useCallback for event handlers
+
+## Testing
+- Write unit tests for component logic
+- Test accessibility features
+- Test different prop combinations
+- Test error states and edge cases

@@ -1,0 +1,105 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "save": "Save",
+    "close": "Close",
+    "settings": "Settings",
+    "back": "Back"
+  },
+  "weather": {
+    "title": "Weather",
+    "currentConditions": "Current Conditions",
+    "temperature": "Temperature",
+    "feelsLike": "Feels like",
+    "humidity": "Humidity",
+    "pressure": "Pressure",
+    "windSpeed": "Wind Speed",
+    "visibility": "Visibility",
+    "cloudCover": "Cloud Cover",
+    "lastUpdated": "Last updated",
+    "refreshing": "Refreshing...",
+    "pullToRefresh": "Pull to refresh"
+  },
+  "uv": {
+    "title": "UV Index",
+    "index": "UV Index",
+    "level": "Level",
+    "peakTime": "Peak Time",
+    "recommendations": "Recommendations",
+    "protection": "Sun Protection",
+    "levels": {
+      "low": "Low",
+      "moderate": "Moderate",
+      "high": "High",
+      "veryHigh": "Very High",
+      "extreme": "Extreme"
+    }
+  },
+  "forecast": {
+    "title": "Forecast",
+    "sevenDay": "7-Day Forecast",
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "precipitation": "Precipitation",
+    "precipitationChance": "Chance of rain",
+    "high": "High",
+    "low": "Low",
+    "morning": "Morning",
+    "afternoon": "Afternoon",
+    "evening": "Evening",
+    "night": "Night"
+  },
+  "messages": {
+    "title": "Messages",
+    "comingSoon": "Coming Soon",
+    "description": "Notification and messaging features are being developed",
+    "targetDate": "Target release: September 26, 2025"
+  },
+  "settings": {
+    "title": "Settings",
+    "appearance": "Appearance",
+    "theme": "Theme",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "themeSystem": "System",
+    "highContrast": "High Contrast",
+    "language": "Language",
+    "units": "Units",
+    "temperature": "Temperature",
+    "speed": "Speed",
+    "pressure": "Pressure",
+    "preferences": "Preferences",
+    "skinType": "Skin Type",
+    "notifications": "Notifications",
+    "about": "About",
+    "version": "Version",
+    "developer": "Developer Options",
+    "performanceOverlay": "Performance Overlay",
+    "material3": "Material 3 (Experimental)"
+  },
+  "errors": {
+    "network": "Network error occurred",
+    "location": "Unable to get location",
+    "locationPermission": "Location permission denied",
+    "weatherData": "Failed to load weather data",
+    "unknown": "An unknown error occurred",
+    "tryAgain": "Please try again",
+    "offline": "You are offline"
+  },
+  "skinTypes": {
+    "veryFair": "Very Fair",
+    "fair": "Fair",
+    "medium": "Medium",
+    "olive": "Olive",
+    "brown": "Brown",
+    "black": "Black"
+  },
+  "tabs": {
+    "home": "Home",
+    "messages": "Messages",
+    "settings": "Settings"
+  }
+}

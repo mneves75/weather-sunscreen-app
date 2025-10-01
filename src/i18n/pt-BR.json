@@ -1,0 +1,105 @@
+{
+  "common": {
+    "loading": "Carregando...",
+    "error": "Erro",
+    "retry": "Tentar novamente",
+    "cancel": "Cancelar",
+    "save": "Salvar",
+    "close": "Fechar",
+    "settings": "Configurações",
+    "back": "Voltar"
+  },
+  "weather": {
+    "title": "Clima",
+    "currentConditions": "Condições Atuais",
+    "temperature": "Temperatura",
+    "feelsLike": "Sensação térmica",
+    "humidity": "Umidade",
+    "pressure": "Pressão",
+    "windSpeed": "Velocidade do Vento",
+    "visibility": "Visibilidade",
+    "cloudCover": "Cobertura de Nuvens",
+    "lastUpdated": "Última atualização",
+    "refreshing": "Atualizando...",
+    "pullToRefresh": "Puxe para atualizar"
+  },
+  "uv": {
+    "title": "Índice UV",
+    "index": "Índice UV",
+    "level": "Nível",
+    "peakTime": "Horário de Pico",
+    "recommendations": "Recomendações",
+    "protection": "Proteção Solar",
+    "levels": {
+      "low": "Baixo",
+      "moderate": "Moderado",
+      "high": "Alto",
+      "veryHigh": "Muito Alto",
+      "extreme": "Extremo"
+    }
+  },
+  "forecast": {
+    "title": "Previsão",
+    "sevenDay": "Previsão de 7 Dias",
+    "today": "Hoje",
+    "tomorrow": "Amanhã",
+    "precipitation": "Precipitação",
+    "precipitationChance": "Chance de chuva",
+    "high": "Máxima",
+    "low": "Mínima",
+    "morning": "Manhã",
+    "afternoon": "Tarde",
+    "evening": "Noite",
+    "night": "Madrugada"
+  },
+  "messages": {
+    "title": "Mensagens",
+    "comingSoon": "Em Breve",
+    "description": "Recursos de notificação e mensagens estão sendo desenvolvidos",
+    "targetDate": "Lançamento previsto: 26 de setembro de 2025"
+  },
+  "settings": {
+    "title": "Configurações",
+    "appearance": "Aparência",
+    "theme": "Tema",
+    "themeLight": "Claro",
+    "themeDark": "Escuro",
+    "themeSystem": "Sistema",
+    "highContrast": "Alto Contraste",
+    "language": "Idioma",
+    "units": "Unidades",
+    "temperature": "Temperatura",
+    "speed": "Velocidade",
+    "pressure": "Pressão",
+    "preferences": "Preferências",
+    "skinType": "Tipo de Pele",
+    "notifications": "Notificações",
+    "about": "Sobre",
+    "version": "Versão",
+    "developer": "Opções de Desenvolvedor",
+    "performanceOverlay": "Overlay de Performance",
+    "material3": "Material 3 (Experimental)"
+  },
+  "errors": {
+    "network": "Erro de rede ocorreu",
+    "location": "Não foi possível obter localização",
+    "locationPermission": "Permissão de localização negada",
+    "weatherData": "Falha ao carregar dados do clima",
+    "unknown": "Ocorreu um erro desconhecido",
+    "tryAgain": "Por favor, tente novamente",
+    "offline": "Você está offline"
+  },
+  "skinTypes": {
+    "veryFair": "Muito Clara",
+    "fair": "Clara",
+    "medium": "Média",
+    "olive": "Oliva",
+    "brown": "Morena",
+    "black": "Negra"
+  },
+  "tabs": {
+    "home": "Início",
+    "messages": "Mensagens",
+    "settings": "Configurações"
+  }
+}

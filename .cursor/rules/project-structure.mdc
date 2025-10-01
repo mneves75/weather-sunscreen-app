@@ -1,0 +1,38 @@
+---
+alwaysApply: true
+description: Project structure and architecture patterns for the weather sunscreen app
+---
+
+# Weather Sunscreen App - Project Structure
+
+## Architecture Overview
+This is a React Native Expo app with TypeScript, following a modular architecture with clear separation of concerns.
+
+## Key Directories
+- `app/` - Expo Router file-based routing (main entry point)
+- `src/` - Source code organized by feature/concern
+- `src/components/` - Reusable UI components
+- `src/context/` - React Context providers for state management
+- `src/services/` - Business logic and API integrations
+- `src/types/` - TypeScript type definitions
+- `src/theme/` - Theme system and styling tokens
+- `src/i18n/` - Internationalization (i18n) support
+- `modules/` - Native modules for platform-specific functionality
+
+## File Organization Patterns
+- Use barrel exports (`index.ts`) for clean imports
+- Group related files in feature directories
+- Keep components small and focused on single responsibility
+- Services follow singleton pattern for state management
+- Types are co-located with their usage domains
+
+## Import Paths
+- Use `@/` alias for absolute imports from project root
+- Import from barrel files when available: `@/src/components`
+- Prefer relative imports for closely related files
+
+## Key Files
+- [app/_layout.tsx](mdc:app/_layout.tsx) - Root layout with providers
+- [src/theme/AppProviders.tsx](mdc:src/theme/AppProviders.tsx) - App-wide context providers
+- [src/types/index.ts](mdc:src/types/index.ts) - Central type exports
+- [src/services/index.ts](mdc:src/services/index.ts) - Service layer exports

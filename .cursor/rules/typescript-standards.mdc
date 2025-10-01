@@ -1,0 +1,56 @@
+---
+globs: *.ts,*.tsx
+description: TypeScript coding standards and patterns
+---
+
+# TypeScript Standards
+
+## Type Safety
+- Always use strict TypeScript configuration
+- Define explicit interfaces for all data structures
+- Use union types for controlled variations (e.g., `UVLevel`)
+- Prefer `interface` over `type` for object shapes
+- Use generic types for reusable components and functions
+
+## Naming Conventions
+- Use PascalCase for interfaces, types, and components
+- Use camelCase for variables, functions, and properties
+- Use UPPER_SNAKE_CASE for constants
+- Prefix interfaces with descriptive names (e.g., `WeatherData`, `UVIndex`)
+
+## Type Definitions
+- Define types in dedicated files under `src/types/`
+- Export types from barrel files for easy importing
+- Use branded types for IDs and special values
+- Document complex types with JSDoc comments
+
+## Error Handling
+- Create custom error types that extend Error
+- Use discriminated unions for error states
+- Always handle async operations with try-catch
+- Provide meaningful error messages and codes
+
+## Example Patterns
+```typescript
+// Interface definition
+export interface WeatherData {
+  location: Location;
+  current: CurrentWeather;
+  uvIndex?: UVIndex;
+}
+
+// Union type
+export type UVLevel = 'low' | 'moderate' | 'high' | 'very-high' | 'extreme';
+
+// Generic component
+interface LoadingSpinnerProps extends ViewProps {
+  message?: string;
+  size?: 'small' | 'large';
+}
+```
+
+## Import/Export
+- Use named exports for better tree-shaking
+- Group imports: React, third-party, local
+- Use absolute imports with `@/` alias
+- Re-export from barrel files for clean API
