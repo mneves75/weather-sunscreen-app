@@ -19,6 +19,7 @@ A modern React Native mobile application built with Expo that provides real-time
 - **Modern UI** - Clean, intuitive interface following platform design guidelines
 - **Native Performance** - TurboModules onde faz sentido; abas usam Liquid Glass nativo no iOS 26, Material You no Android (Expo Router v6)
 - **Previsão Detalhada** - Navegação aprofundada com Expo Router v6 e pré-visualizações de cada dia da semana
+- **Localização Completa** - Interface traduzida para inglês e português brasileiro, com alternância dinâmica nas Configurações
 
 ### 🆕 v1.0.1 Enhancements
 
@@ -70,19 +71,21 @@ A modern React Native mobile application built with Expo that provides real-time
 
    ```bash
    # Create development build for iOS
-   npm run ios
+   bun run ios
 
    # Create development build for Android
-   npm run android
+   bun run android
 
    # Start development server
-   npm start
+   bun start
    ```
 
 3. **Web development**
    ```bash
-   npm run web
+   bun run web
    ```
+
+Full guide: see docs/build.md.
 
 ## Expo SDK 54 Documentation
 
@@ -107,6 +110,7 @@ A modern React Native mobile application built with Expo that provides real-time
 - Theme + Liquid Glass exercise (no mocks):
   `npx maestro test maestro/flows/liquid-glass-and-theme.yaml`
 - Full navigation smoke: `npx maestro test maestro/flows/theme-and-scroll.yaml`
+- Native tabs + Perf overlay: toggle Quick Actions menus and enable the Perf overlay via Settings before exiting.
 
 ## 🏗️ Architecture
 
@@ -114,8 +118,9 @@ A modern React Native mobile application built with Expo that provides real-time
 
 - **Framework**: React Native 0.81.4 with Expo SDK 54 (stable)
 - **Language**: TypeScript 5.9.2 (strict mode enabled)
-- **Navigation**: Expo Router v6 (file-based routing)
-- **State Management**: React Context + AsyncStorage
+- **Navigation**: Expo Router v6 (file-based routing with NativeTabs + Link previews)
+- **UI Experiments**: Optional Material 3 components via Expo UI (`material3Enabled` flag, dev-build only)
+- **State Management**: React Context + AsyncStorage; React Query para cache de clima/previsão
 - **Logging**: Custom LoggerService with structured logging
 - **Error Handling**: React Error Boundaries with recovery options
 - **Location Services**: Expo Location + Custom Native Modules
@@ -129,13 +134,18 @@ A modern React Native mobile application built with Expo that provides real-time
 weather-sunscreen-app/
 ├── app/                         # Expo Router routes (file-based)
 │   ├── _layout.tsx              # Root layout/providers
-│   ├── (tabs)/                  # Main tabbed UI
-│   │   ├── _layout.tsx
-│   │   ├── index.tsx            # Home
-│   │   ├── weather.tsx          # Weather screen
-│   │   ├── uv.tsx               # UV Index
-│   │   ├── forecast.tsx         # 7-day forecast
-│   │   └── settings.tsx         # Profile/Settings
+│   ├── (tabs)/                  # Main tabbed UI (feature-flagged NativeTabs)
+│   │   ├── _layout.tsx          # Switches between NativeTabs & legacy Tabs
+│   │   ├── (home)/              # Primary content tabs
+│   │   │   ├── _layout.tsx
+│   │   │   ├── index.tsx        # Dashboard/Home
+│   │   │   ├── weather.tsx      # Detailed weather view
+│   │   │   ├── uv.tsx           # UV insights
+│   │   │   └── forecast.tsx     # 7-day forecast
+│   │   ├── (messages)/          # Messaging placeholder (awaiting scope)
+│   │   │   └── _layout.tsx + index.tsx
+│   │   └── (styles)/            # Personalization & settings (+ Material 3 flag toggle)
+│   │       └── settings.tsx
 │   └── (dev)/                   # Developer routes
 │       ├── icon-gallery.tsx
 │       └── glass-gallery.tsx
@@ -169,9 +179,13 @@ Shows current UV index with safety level, peak time predictions, and personalize
 
 Provides 7-day weather forecast with daily UV index predictions and precipitation chances (coming soon).
 
-### Profile Screen
+### Messages (Placeholder)
 
-User preferences, settings, and app information including temperature units, skin type, and notification preferences.
+Route reserved for future messaging/notification hub. Currently displays localized placeholder text while product scope finalizes (target decision: September 26, 2025).
+
+### Profile & Styles Screen
+
+User preferences, theme controls, and developer toggles (perf overlay, Material 3 experiments).
 
 ## ⚡ Native Modules
 
@@ -201,23 +215,23 @@ Custom native implementations for:
 
 ```bash
 # Development
-npm start                    # Start Expo development server
-npm run ios                  # Build and run iOS
-npm run android             # Build and run Android (with Java 17)
-npm run web                 # Start web development
+bun start                     # Start Expo development server (dev client)
+bun run ios                   # Build and run iOS (auto-selects simulator)
+bun run android               # Build and run Android (Java 17)
+bun run web                   # Start web development
 
 # Version management
-npm run sync-versions       # Sync all versions to CHANGELOG.md
-npm run sync-versions:dry   # Preview version changes
+bun run sync-versions         # Sync all versions to CHANGELOG.md
+bun run sync-versions:dry     # Preview version changes
 
-# Troubleshooting
-npm run fix-pods           # Fix CocoaPods issues
-npm run clean-ios          # Quick iOS cleanup
+# Troubleshooting (iOS)
+bun run fix-pods              # Fix CocoaPods issues
+bun run clean-ios             # Quick iOS cleanup
 ```
 
 #### iOS Destination Auto-Select
 
-The `npm run ios` script now auto-selects and boots a valid iOS Simulator before invoking Expo, preventing failures like:
+The `bun run ios` script now auto-selects and boots a valid iOS Simulator before invoking Expo, preventing failures like:
 
 > xcodebuild: error: Unable to find a destination matching the provided destination specifier: { id:… }
 
@@ -225,10 +239,10 @@ Override selection when needed:
 
 ```bash
 # Explicit simulator
-npm run ios -- --simulator "iPhone 16"
+bun run ios -- --simulator "iPhone 16"
 
 # Physical device by name
-npm run ios -- --device "iPhone de Marcus"
+bun run ios -- --device "iPhone de Marcus"
 ```
 
 ### Environment Setup
@@ -295,6 +309,7 @@ function Example() {
   - `npm test -- navigationStyles`
   - `npm test -- weather-theme`
   - `npm test -- forecast-details`
+  - `npm test -- localization-smoke`
 
 ### Glass UI & Haptics
 
@@ -306,9 +321,9 @@ function Example() {
 ### Development Testing
 
 ```bash
-npm run ios     # Test iOS functionality
-npm run android # Test Android functionality
-npm run web     # Test web compatibility
+bun run ios     # Test iOS functionality
+bun run android # Test Android functionality
+bun run web     # Test web compatibility
 ```
 
 ## 🚀 Desempenho
@@ -369,6 +384,8 @@ npx eas build --platform android --profile production
 - `bun run android:release` – wraps `scripts/build-android-release.sh`, requires `JAVA_HOME=/opt/homebrew/opt/openjdk@17/...` in the environment.
 - `bun run android:aab` – generates a Play-ready App Bundle via Gradle (`./gradlew bundleRelease`).
 
+See `docs/BUILD.md` for the full build matrix, prerequisites, and troubleshooting tips.
+
 ### App Store Submission
 
 1. Configure signing certificates in EAS
@@ -382,8 +399,8 @@ npx eas build --platform android --profile production
 **iOS Build Failures:**
 
 ```bash
-npm run fix-pods              # Fix CocoaPods issues
-npm run clean-ios            # Clean build artifacts
+bun run fix-pods              # Fix CocoaPods issues
+bun run clean-ios             # Clean build artifacts
 ```
 
 - **Expo Updates dependency cycle (EASClient)**: If you hit `Cycle in dependencies between targets 'EASClient' and 'WeatherSunscreen'`, reinstall dependencies so the automated patch runs:
@@ -422,6 +439,8 @@ Enable debug logging by setting `__DEV__` flag:
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🤝 Contributing
+
+Make sure to review the [Repository Guidelines](AGENTS.md) before opening a PR; it covers project layout, workflow commands, and review expectations.
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)

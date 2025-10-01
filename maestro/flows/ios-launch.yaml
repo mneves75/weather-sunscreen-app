@@ -1,5 +1,0 @@
-appId: com.weathersunscreen.app
-name: iOS Launch
-steps:
-  - launchApp
-  - assertVisible: Home

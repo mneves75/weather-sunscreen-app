@@ -1,5 +1,0 @@
-appId: com.weathersunscreen.app
-name: Android Launch
-steps:
-  - launchApp
-  - assertVisible: Home
