@@ -118,12 +118,21 @@ describe('WeatherNativeService', () => {
       mockIsAvailable.mockResolvedValue(true);
       mockGetCurrentLocation.mockResolvedValue({ latitude: 999, longitude: 0, accuracy: 10 });
 
-      await expect(WeatherNativeService.getCurrentLocation()).rejects.toThrow();
-      // It should have logged an input validation failure via ErrorHandler
+      await expect(WeatherNativeService.getCurrentLocation()).rejects.toThrow(
+        'Invalid location data structure from native module',
+      );
+      // It should have logged a Zod validation failure
       expect(logger.error).toHaveBeenCalledWith(
-        'Input validation failed',
-        expect.objectContaining({ name: 'ModuleError', code: 'LATITUDE_OUT_OF_BOUNDS' }),
-        expect.objectContaining({ code: 'LATITUDE_OUT_OF_BOUNDS' }),
+        'Invalid location data from native module',
+        expect.any(Error),
+        expect.objectContaining({
+          errors: expect.arrayContaining([
+            expect.objectContaining({
+              code: 'too_big',
+              path: ['latitude'],
+            }),
+          ]),
+        }),
       );
     });
   });
@@ -212,11 +221,11 @@ describe('WeatherNativeService', () => {
       expect(mockGetWeatherData).toHaveBeenCalledWith(latitude, longitude);
     });
 
-    it('should add default weatherCode if not provided', async () => {
+    it('should reject weather data if weatherCode is missing', async () => {
       const mockWeatherData = {
         temperature: 25,
         description: 'Partly Cloudy',
-        // weatherCode missing
+        // weatherCode missing - Zod will reject this
         humidity: 70,
         windSpeed: 5,
         pressure: 1015,
@@ -227,8 +236,22 @@ describe('WeatherNativeService', () => {
       mockIsAvailable.mockResolvedValue(true);
       mockGetWeatherData.mockResolvedValue(mockWeatherData);
 
-      const result = await WeatherNativeService.getWeatherData(latitude, longitude);
-      expect(result.weatherCode).toBe(0); // Default value
+      // Should reject due to missing weatherCode
+      await expect(WeatherNativeService.getWeatherData(latitude, longitude)).rejects.toThrow();
+
+      // Should have logged Zod validation error
+      expect(logger.error).toHaveBeenCalledWith(
+        'Invalid weather data from native module',
+        expect.any(Error),
+        expect.objectContaining({
+          errors: expect.arrayContaining([
+            expect.objectContaining({
+              code: 'invalid_type',
+              path: ['weatherCode'],
+            }),
+          ]),
+        }),
+      );
     });
 
     it('should log and rethrow errors from native module', async () => {
@@ -297,9 +320,9 @@ describe('WeatherNativeService', () => {
         expect(result).toEqual(mockLocation);
       });
 
-      // isAvailable might be called multiple times due to race conditions
+      // With deduplication, native call should be made once (or twice with races)
       expect(mockIsAvailable.mock.calls.length).toBeGreaterThanOrEqual(5);
-      expect(mockGetCurrentLocation).toHaveBeenCalledTimes(5);
+      expect(mockGetCurrentLocation.mock.calls.length).toBeLessThanOrEqual(2);
     });
   });
 
@@ -312,16 +335,12 @@ describe('WeatherNativeService', () => {
 
       await expect(WeatherNativeService.isAvailable()).resolves.toBe(true);
 
-      (WeatherNativeService as any)._burstCount = 3;
-      (WeatherNativeService as any)._burstScheduled = true;
-      (WeatherNativeService as any)._locationConcurrency = 2;
+      // Set up inflight promises to test cleanup
       (WeatherNativeService as any)._weatherInflight.set('cache', Promise.resolve({} as any));
 
       WeatherNativeService.__resetForTests();
 
-      expect((WeatherNativeService as any)._burstCount).toBe(0);
-      expect((WeatherNativeService as any)._burstScheduled).toBe(false);
-      expect((WeatherNativeService as any)._locationConcurrency).toBe(0);
+      // Verify caches are cleared
       expect((WeatherNativeService as any)._weatherInflight.size).toBe(0);
 
       await expect(WeatherNativeService.isAvailable()).resolves.toBe(false);

@@ -1,6 +1,8 @@
-import { Platform } from 'react-native';
+import { Platform, AppState, AppStateStatus } from 'react-native';
+import { z } from 'zod';
 import { logger } from '../../src/services/loggerService';
-import { ErrorHandler, ErrorSeverity, InputValidator } from '../../src/utils/errorHandling';
+import { ErrorHandler, InputValidator } from '../../src/utils/errorHandling';
+import { TIMINGS } from '../../src/constants/timings';
 
 // Import TurboModule specification
 import WeatherNativeModule from '../../src/specs/WeatherNativeModuleSpec';
@@ -9,10 +11,57 @@ import type { LocationData, WeatherData, UVData } from '../../src/specs/WeatherN
 // Fallback to legacy NativeModules for backwards compatibility
 import { NativeModules } from 'react-native';
 
+// Zod validation schemas for runtime type safety
+const LocationDataSchema = z.object({
+  latitude: z.number().min(-90).max(90),
+  longitude: z.number().min(-180).max(180),
+  accuracy: z.number().nonnegative(),
+});
+
+const WeatherDataSchema = z.object({
+  temperature: z.number().min(-100).max(100),
+  description: z.string().min(1).max(200),
+  weatherCode: z.number().int().min(0).max(99),
+  humidity: z.number().min(0).max(100),
+  windSpeed: z.number().nonnegative(),
+  pressure: z.number().positive(),
+  visibility: z.number().nonnegative(),
+  feelsLike: z.number().min(-100).max(100),
+  uvIndex: z.number().min(0).max(11).optional(),
+  isFallback: z.boolean().optional(),
+});
+
+const UVDataSchema = z.object({
+  uvIndex: z.number().min(0).max(11),
+  maxUVToday: z.number().min(0).max(11),
+  peakTime: z.string().min(1).max(50),
+  isFallback: z.boolean().optional(),
+});
+
 // Cached module resolution for performance
 let cachedModule: any = null;
 let moduleResolutionAttempted = false;
 let moduleResolutionLogged = false;
+let lastResolutionPayload: Record<string, unknown> | null = null;
+let cacheInvalidationTimestamp: number = 0;
+
+// Setup app state listener to invalidate cache when app comes to foreground
+// This allows retry if environment changes (e.g., Expo Go -> dev build)
+if (typeof AppState !== 'undefined' && AppState.addEventListener) {
+  AppState.addEventListener('change', (nextAppState: AppStateStatus) => {
+    if (nextAppState === 'active') {
+      // Invalidate cache when app becomes active
+      // This allows module resolution to retry if environment changed
+      const now = Date.now();
+      if (now - cacheInvalidationTimestamp > TIMINGS.MODULE_CACHE_INVALIDATION_MIN_INTERVAL) {
+        cacheInvalidationTimestamp = now;
+        cachedModule = null;
+        moduleResolutionAttempted = false;
+        logger.info('Native module cache invalidated on app foreground');
+      }
+    }
+  });
+}
 
 function shouldLogResolution() {
   if (moduleResolutionLogged) return false;
@@ -25,10 +74,12 @@ function shouldLogResolution() {
 function logResolution(payload: Record<string, unknown>) {
   if (!shouldLogResolution()) {
     moduleResolutionLogged = true;
+    lastResolutionPayload = payload;
     return;
   }
   logger.info('Weather native module resolution', payload);
   moduleResolutionLogged = true;
+  lastResolutionPayload = payload;
 }
 
 function getNativeModule() {
@@ -83,12 +134,6 @@ class WeatherNativeServiceClass {
       return false;
     }
 
-    const context = {
-      module: this.MODULE_NAME,
-      operation: 'isAvailable',
-      platform: Platform.OS,
-    };
-
     try {
       const nativeModule = getNativeModule();
       if (!nativeModule) {
@@ -139,57 +184,51 @@ class WeatherNativeServiceClass {
       if (!nativeModule) {
         throw new Error('Native module resolved as null after availability check');
       }
-      // Track burst size within current microtask to coalesce extreme concurrency
-      WeatherNativeServiceClass._burstCount += 1;
-      if (!WeatherNativeServiceClass._burstScheduled) {
-        WeatherNativeServiceClass._burstScheduled = true;
-        queueMicrotask(() => {
-          WeatherNativeServiceClass._burstCount = 0;
-          WeatherNativeServiceClass._burstScheduled = false;
-        });
+
+      // Deduplicate concurrent requests using inflight promise
+      if (this._inflightLocationPromise) {
+        logger.info('Reusing inflight location request');
+        return await this._inflightLocationPromise;
       }
-      this._locationConcurrency++;
-      try {
-        if (WeatherNativeServiceClass._burstCount > 5) {
-          let createdHere = false;
-          if (!this._inflightLocationPromise) {
-            this._inflightLocationPromise = (async () => {
-              const loc = await nativeModule.getCurrentLocation();
-              if (!loc || typeof loc.latitude !== 'number' || typeof loc.longitude !== 'number') {
-                throw new Error('Invalid location data');
-              }
-              InputValidator.coordinates(loc.latitude, loc.longitude, {
-                ...context,
-                operation: 'validateLocationResult',
-              });
-              return loc;
-            })();
-            createdHere = true;
+
+      // Create new location request with atomic reference
+      const newPromise: Promise<LocationData> = (async () => {
+        try {
+          const loc = await nativeModule.getCurrentLocation();
+
+          // Validate with Zod schema for runtime type safety
+          const parsed = LocationDataSchema.safeParse(loc);
+          if (!parsed.success) {
+            const validationError = new Error('Invalid location data structure from native module');
+            logger.error('Invalid location data from native module', validationError, {
+              errors: parsed.error.errors,
+              receivedData: loc,
+            });
+            throw validationError;
           }
-          const result = await this._inflightLocationPromise;
-          if (createdHere) {
+
+          // Additional validation with existing validator
+          InputValidator.coordinates(parsed.data.latitude, parsed.data.longitude, {
+            ...context,
+            operation: 'validateLocationResult',
+          });
+          return parsed.data;
+        } finally {
+          // Only clear if this is still the active promise (atomic check-and-clear)
+          if (this._inflightLocationPromise === newPromise) {
             this._inflightLocationPromise = null;
           }
-          return result;
         }
+      })();
 
-        const location = await nativeModule.getCurrentLocation();
-        if (
-          !location ||
-          typeof location.latitude !== 'number' ||
-          typeof location.longitude !== 'number'
-        ) {
-          throw new Error('Invalid location data');
-        }
-        InputValidator.coordinates(location.latitude, location.longitude, {
-          ...context,
-          operation: 'validateLocationResult',
-        });
-        return location;
-      } finally {
-        this._locationConcurrency = Math.max(0, this._locationConcurrency - 1);
-      }
+      // Set as inflight
+      this._inflightLocationPromise = newPromise;
+
+      return await newPromise;
     } catch (error) {
+      // Clear promise on outer error to allow retry
+      this._inflightLocationPromise = null;
+
       const err = error instanceof Error ? error : new Error(String(error));
       // Sanitize coordinates in error message
       const sanitized = err.message.replace(/-?\d{1,3}\.\d+/g, '[REDACTED]');
@@ -241,18 +280,19 @@ class WeatherNativeServiceClass {
 
       const uvData = await nativeModule.getUVIndexData(latitude, longitude);
 
-      // Validate UV index range
-      if (typeof uvData.uvIndex === 'number') {
-        if (uvData.uvIndex < 0 || uvData.uvIndex > 12) {
-          logger.warn('UV index out of expected range', {
-            uvIndex: uvData.uvIndex,
-            latitude,
-            longitude,
-          });
-        }
+      // Validate with Zod schema for runtime type safety
+      const parsed = UVDataSchema.safeParse(uvData);
+      if (!parsed.success) {
+        const validationError = new Error('Invalid UV data structure from native module');
+        logger.error('Invalid UV data from native module', validationError, {
+          errors: parsed.error.errors,
+          receivedData: uvData,
+          location: { latitude, longitude },
+        });
+        throw validationError;
       }
 
-      return uvData;
+      return parsed.data;
     } catch (error) {
       const err = error instanceof Error ? error : new Error(String(error));
       logger.error('Failed to get UV index data', err);
@@ -275,11 +315,11 @@ class WeatherNativeServiceClass {
     // Validate input coordinates
     InputValidator.coordinates(latitude, longitude, context);
 
-    // Cache: 10 minutes per lat/lon key
+    // Cache per lat/lon key
     const cacheKey = `${latitude.toFixed(4)},${longitude.toFixed(4)}`;
     const now = Date.now();
     const cached = this._weatherCache.get(cacheKey);
-    if (cached && now - cached.timestamp < 10 * 60 * 1000) {
+    if (cached && now - cached.timestamp < TIMINGS.WEATHER_CACHE_DURATION) {
       return cached.data;
     }
 
@@ -319,52 +359,37 @@ class WeatherNativeServiceClass {
       const inflight = (async () => {
         const nativeData: any = await nativeModule.getWeatherData(latitude, longitude);
 
-        // Validate weather data ranges
-        if (typeof nativeData.temperature === 'number') {
-          if (nativeData.temperature < -100 || nativeData.temperature > 100) {
-            logger.warn('Temperature out of expected range', {
-              temperature: nativeData.temperature,
-              latitude,
-              longitude,
-            });
-          }
+        // Validate with Zod schema for runtime type safety
+        const parsed = WeatherDataSchema.safeParse(nativeData);
+        if (!parsed.success) {
+          const validationError = new Error('Invalid weather data structure from native module');
+          logger.error('Invalid weather data from native module', validationError, {
+            errors: parsed.error.errors,
+            receivedData: nativeData,
+            location: { latitude, longitude },
+          });
+          throw validationError;
         }
 
-        if (typeof nativeData.humidity === 'number') {
-          if (nativeData.humidity < 0 || nativeData.humidity > 100) {
-            logger.warn('Humidity out of expected range', {
-              humidity: nativeData.humidity,
-              latitude,
-              longitude,
-            });
-          }
+        // Log warnings for edge cases (Zod already validated ranges)
+        if (parsed.data.temperature < -50 || parsed.data.temperature > 50) {
+          logger.warn('Extreme temperature detected', {
+            temperature: parsed.data.temperature,
+            latitude,
+            longitude,
+          });
         }
 
-        // Sanitize ranges but preserve original shape
-        const result: any = { ...nativeData };
-        if (typeof result.humidity === 'number') {
-          if (result.humidity < 0) result.humidity = 0;
-          if (result.humidity > 100) result.humidity = 100;
-        }
-        if (typeof result.windSpeed === 'number') {
-          if (result.windSpeed < 0) result.windSpeed = 0;
-        }
-        if (typeof result.uvIndex === 'number') {
-          if (!Number.isFinite(result.uvIndex)) result.uvIndex = 0;
-          if (result.uvIndex < 0) result.uvIndex = 0;
-          if (result.uvIndex > 11) result.uvIndex = 11;
-        }
-        // Only tag native results when using WeatherData shape (has description)
-        if (typeof result.description === 'string') {
-          if (typeof result.weatherCode !== 'number') {
-            result.weatherCode = 0;
-          }
-          result.isFallback = false;
-        }
+        // Zod validation ensures all data is valid and within ranges
+        // Tag as non-fallback native data
+        const result: WeatherData = {
+          ...parsed.data,
+          isFallback: false,
+        };
 
         // Write-through cache
-        this._weatherCache.set(cacheKey, { data: result as WeatherData, timestamp: Date.now() });
-        return result as WeatherData;
+        this._weatherCache.set(cacheKey, { data: result, timestamp: Date.now() });
+        return result;
       })();
 
       this._weatherInflight.set(cacheKey, inflight);
@@ -415,13 +440,11 @@ class WeatherNativeServiceClass {
     cachedModule = null;
     moduleResolutionAttempted = false;
     moduleResolutionLogged = false;
+    lastResolutionPayload = null;
   }
 
-  // In-flight throttling for location
+  // In-flight deduplication for location
   private static _inflightLocationPromise: Promise<LocationData> | null = null;
-  private static _locationConcurrency: number = 0;
-  private static _burstCount: number = 0;
-  private static _burstScheduled: boolean = false;
   // Weather cache store
   private static _weatherCache: Map<string, { data: WeatherData; timestamp: number }> = new Map();
   private static _lastLocationError: string | null = null;
@@ -433,10 +456,12 @@ class WeatherNativeServiceClass {
     this._weatherCache.clear();
     this._lastLocationError = null;
     this._weatherInflight.clear();
-    this._burstCount = 0;
-    this._burstScheduled = false;
-    this._locationConcurrency = 0;
     this._resetModuleCache();
+    lastResolutionPayload = null;
+  }
+
+  static __getResolutionDiagnostics() {
+    return lastResolutionPayload;
   }
 
   // Additional test helper methods for compatibility

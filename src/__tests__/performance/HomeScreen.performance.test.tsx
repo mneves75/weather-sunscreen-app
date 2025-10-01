@@ -5,24 +5,96 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
 import { jest } from '@jest/globals';
-import HomeScreen from '../../../app/(tabs)/index';
+import HomeScreen from '../../../app/(tabs)/(home)/index';
 import { WeatherProvider } from '../../context/WeatherContext';
 import { ThemeProvider } from '../../theme/theme';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import '../../i18n';
+import { WeatherService } from '../../services/weatherService';
+
+const mockWeatherData: any = {
+  location: { name: 'Test City', country: 'TC', lat: 10, lon: 20 },
+  current: {
+    temperature: 25,
+    description: 'Clear',
+    humidity: 50,
+    windSpeed: 4,
+    pressure: 1012,
+    visibility: 10,
+    feelsLike: 26,
+  },
+  forecast: [
+    {
+      date: '2025-09-16',
+      maxTemp: 26,
+      minTemp: 18,
+      description: 'Clear',
+      icon: '☀️',
+      humidity: 60,
+      uvIndex: 7,
+      precipitationChance: 10,
+    },
+  ],
+  uvIndex: {
+    value: 6,
+    level: 'High',
+    maxToday: 7,
+    peakTime: '12:00 PM',
+    sunscreenRecommendation: {
+      spf: 30,
+      applicationFrequency: 'Every 2 hours',
+      additionalTips: [],
+      skinTypeRecommendations: { fair: '', medium: '', dark: '' },
+    },
+  },
+};
 
 // Mock dependencies
 jest.mock('../../services/weatherService');
 jest.mock('../../services/loggerService', () => ({
   logger: { info: jest.fn(), warn: jest.fn(), error: jest.fn() },
 }));
-jest.mock('expo-router', () => ({
-  useRouter: () => ({ push: jest.fn() }),
-}));
+jest.mock('expo-router', () => {
+  const React = require('react');
+  const mockLink = Object.assign(
+    ({ children }: { children?: React.ReactNode }) => <>{children}</>,
+    {
+      Trigger: ({ children }: { children?: React.ReactNode }) => <>{children}</>,
+      Preview: ({ children }: { children?: React.ReactNode }) => <>{children}</>,
+      Menu: ({ children }: { children?: React.ReactNode }) => <>{children}</>,
+      MenuAction: () => null,
+    },
+  );
 
-const TestWrapper = ({ children }: { children: React.ReactNode }) => (
-  <ThemeProvider>
-    <WeatherProvider>{children}</WeatherProvider>
-  </ThemeProvider>
-);
+  return {
+    useRouter: () => ({ push: jest.fn(), replace: jest.fn(), back: jest.fn() }),
+    Link: mockLink,
+  };
+});
+
+const TestWrapper = ({ children }: { children: React.ReactNode }) => {
+  const [queryClient] = React.useState(
+    () => new QueryClient({ defaultOptions: { queries: { retry: false } } }),
+  );
+  return (
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
+        <WeatherProvider>{children}</WeatherProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
+  );
+};
+
+beforeEach(() => {
+  // Mock location resolution (WeatherContext calls this first)
+  jest.mocked(WeatherService.resolveCurrentLocation).mockResolvedValue({
+    latitude: 10,
+    longitude: 20,
+  });
+
+  jest.mocked(WeatherService.getCurrentWeatherData).mockResolvedValue(mockWeatherData);
+  jest.mocked(WeatherService.getForecastForLocation).mockResolvedValue(mockWeatherData.forecast);
+});
 
 describe('HomeScreen Performance Tests', () => {
   describe('Critical Bug Fix Validation', () => {
@@ -196,15 +268,17 @@ describe('HomeScreen Performance Tests', () => {
       expect(maxNesting).toBeLessThan(100); // Reasonable limit
     });
 
-    it('should contain expected dashboard components', () => {
-      const { getByText } = render(
+    it('should contain expected dashboard components', async () => {
+      const { findByText } = render(
         <TestWrapper>
           <HomeScreen />
         </TestWrapper>,
       );
 
       // Verify that we have real dashboard components instead of fake data
-      expect(getByText('Weather Dashboard')).toBeTruthy();
+      // Use findByText to wait for async data loading to complete
+      const dashboardTitle = await findByText('Weather Dashboard');
+      expect(dashboardTitle).toBeTruthy();
     });
   });
 });
