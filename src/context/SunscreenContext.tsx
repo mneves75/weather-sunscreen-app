@@ -44,7 +44,7 @@ export const SunscreenProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   });
   const [isLoading, setIsLoading] = useState(true);
   const [timeRemaining, setTimeRemaining] = useState(0);
-  const intervalRef = useRef<ReturnType<typeof setInterval>>();
+  const intervalRef = useRef<number | undefined>(undefined);
 
   // Load persisted state on mount
   useEffect(() => {
