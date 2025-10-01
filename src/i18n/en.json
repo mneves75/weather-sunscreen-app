@@ -135,6 +135,16 @@
     "timeFormat12": "12-hour clock",
     "timeFormat24": "24-hour clock"
   },
+  "location": {
+    "permissionDenied": "Permission Denied",
+    "permissionDeniedMessage": "Please enable location permission in device settings.",
+    "error": "Error",
+    "errorMessage": "Could not get your location.",
+    "openSettings": "Open Settings",
+    "welcome": "☀️ Welcome!",
+    "welcomeMessage": "We need your location to provide weather information and UV recommendations.",
+    "allowLocation": "Allow Location"
+  },
   "errors": {
     "network": "Network error occurred",
     "location": "Unable to get location",
@@ -180,6 +190,13 @@
     "olive": "Olive",
     "brown": "Brown",
     "black": "Black"
+  },
+  "home": {
+    "viewDetails": "View Details",
+    "uvAndSpf": "UV & SPF",
+    "sevenDayForecast": "7-Day Forecast",
+    "nextDays": "Next Days",
+    "errorLoadingData": "Could not load weather data."
   },
   "tabs": {
     "home": "Home",

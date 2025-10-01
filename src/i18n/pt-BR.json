@@ -135,6 +135,16 @@
     "timeFormat12": "Relógio de 12 horas",
     "timeFormat24": "Relógio de 24 horas"
   },
+  "location": {
+    "permissionDenied": "Permissão Negada",
+    "permissionDeniedMessage": "Por favor, habilite a permissão de localização nas configurações do dispositivo.",
+    "error": "Erro",
+    "errorMessage": "Não foi possível obter sua localização.",
+    "openSettings": "Abrir Configurações",
+    "welcome": "☀️ Bem-vindo!",
+    "welcomeMessage": "Precisamos da sua localização para fornecer informações meteorológicas e recomendações de UV.",
+    "allowLocation": "Permitir Localização"
+  },
   "errors": {
     "network": "Erro de rede ocorreu",
     "location": "Não foi possível obter localização",
@@ -180,6 +190,13 @@
     "olive": "Oliva",
     "brown": "Morena",
     "black": "Negra"
+  },
+  "home": {
+    "viewDetails": "Ver Detalhes",
+    "uvAndSpf": "UV e SPF",
+    "sevenDayForecast": "Previsão 7 Dias",
+    "nextDays": "Próximos Dias",
+    "errorLoadingData": "Não foi possível carregar os dados meteorológicos."
   },
   "tabs": {
     "home": "Início",

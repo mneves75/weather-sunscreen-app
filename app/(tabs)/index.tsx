@@ -16,12 +16,14 @@ import { useForecast, useLocation, useUVIndex, useWeatherData } from '@/src/hook
 import { useColors } from '@/src/theme/theme';
 import { useRouter } from 'expo-router';
 import React, { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Alert, Linking, Platform, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 
 export default function HomeScreen() {
   const colors = useColors();
   const router = useRouter();
   const { preferences } = useSettings();
+  const { t } = useTranslation();
   const use24HourTime = preferences.timeFormat === '24h' || (preferences.timeFormat === 'system' && preferences.locale === 'pt-BR');
   
   // Get weather data
@@ -36,11 +38,12 @@ export default function HomeScreen() {
   } = useWeatherData();
   
   // Get forecast data
-  const { 
+  const {
     days,
     isLoading: isLoadingForecast,
     error: forecastError,
     refresh: refreshForecast,
+    getTemperatureWithUnit: getForecastTempWithUnit,
   } = useForecast();
   
   // Get UV index data
@@ -72,41 +75,37 @@ export default function HomeScreen() {
   }, [refreshWeather, refreshForecast, refreshUV]);
   
   // Handle location request
-        const handleLocationRequest = useCallback(async () => {
-          if (permissionStatus === 'denied') {
-            Alert.alert(
-              preferences.locale === 'pt-BR' ? 'Permissão Negada' : 'Permission Denied',
-              preferences.locale === 'pt-BR'
-                ? 'Por favor, habilite a permissão de localização nas configurações do dispositivo.'
-                : 'Please enable location permission in device settings.',
-              [
-                { text: 'OK' },
-                {
-                  text: preferences.locale === 'pt-BR' ? 'Abrir Configurações' : 'Open Settings',
-                  onPress: () => {
-                    if (Platform.OS === 'ios') {
-                      Linking.openURL('app-settings:');
-                    } else {
-                      Linking.openSettings();
-                    }
-                  }
-                }
-              ]
-            );
-            return;
+  const handleLocationRequest = useCallback(async () => {
+    if (permissionStatus === 'denied') {
+      Alert.alert(
+        t('location.permissionDenied'),
+        t('location.permissionDeniedMessage'),
+        [
+          { text: 'OK' },
+          {
+            text: t('location.openSettings'),
+            onPress: () => {
+              if (Platform.OS === 'ios') {
+                Linking.openURL('app-settings:');
+              } else {
+                Linking.openSettings();
+              }
+            }
           }
-    
+        ]
+      );
+      return;
+    }
+
     const coords = await getCurrentLocation();
     if (!coords) {
       Alert.alert(
-        preferences.locale === 'pt-BR' ? 'Erro' : 'Error',
-        preferences.locale === 'pt-BR'
-          ? 'Não foi possível obter sua localização.'
-          : 'Could not get your location.',
+        t('location.error'),
+        t('location.errorMessage'),
         [{ text: 'OK' }]
       );
     }
-  }, [permissionStatus, getCurrentLocation, preferences.locale]);
+  }, [permissionStatus, getCurrentLocation, t]);
   
   const isLoading = isLoadingWeather || isLoadingForecast || isLoadingUV;
   const hasError = weatherError || forecastError || uvError;
@@ -115,42 +114,36 @@ export default function HomeScreen() {
   if (isLoading && !weatherData && !uvIndex) {
     return (
       <Container style={styles.centerContainer}>
-        <LoadingSpinner message={preferences.locale === 'pt-BR' ? 'Carregando...' : 'Loading...'} />
+        <LoadingSpinner message={t('common.loading')} />
       </Container>
     );
   }
-  
+
   // Show location request if no location
   if (!currentLocation && !isRequesting) {
     return (
       <Container style={styles.centerContainer}>
         <Text variant="h2" style={[styles.title, { color: colors.onBackground }]}>
-          {preferences.locale === 'pt-BR' ? '☀️ Bem-vindo!' : '☀️ Welcome!'}
+          {t('location.welcome')}
         </Text>
         <Text variant="body1" style={[styles.subtitle, { color: colors.onSurfaceVariant }]}>
-          {preferences.locale === 'pt-BR'
-            ? 'Precisamos da sua localização para fornecer informações meteorológicas e recomendações de UV.'
-            : 'We need your location to provide weather information and UV recommendations.'}
+          {t('location.welcomeMessage')}
         </Text>
         <Button
-          title={preferences.locale === 'pt-BR' ? 'Permitir Localização' : 'Allow Location'}
+          title={t('location.allowLocation')}
           onPress={handleLocationRequest}
           style={styles.button}
         />
       </Container>
     );
   }
-  
+
   // Show error if data failed to load
   if (hasError && !weatherData) {
     return (
       <Container style={styles.centerContainer}>
         <ErrorView
-          message={
-            preferences.locale === 'pt-BR'
-              ? 'Não foi possível carregar os dados meteorológicos.'
-              : 'Could not load weather data.'
-          }
+          message={t('errors.weatherData')}
           onRetry={handleRefresh}
         />
       </Container>
@@ -208,19 +201,19 @@ export default function HomeScreen() {
       {/* Quick Actions */}
       <View style={styles.actionsContainer}>
         <Button
-          title={preferences.locale === 'pt-BR' ? 'Ver Detalhes' : 'View Details'}
+          title={t('home.viewDetails')}
           onPress={() => router.push('/(tabs)/(home)/weather')}
           variant="outline"
           style={styles.actionButton}
         />
         <Button
-          title={preferences.locale === 'pt-BR' ? 'UV e SPF' : 'UV & SPF'}
+          title={t('home.uvAndSpf')}
           onPress={() => router.push('/(tabs)/(home)/uv')}
           variant="outline"
           style={styles.actionButton}
         />
         <Button
-          title={preferences.locale === 'pt-BR' ? 'Previsão 7 Dias' : '7-Day Forecast'}
+          title={t('home.sevenDayForecast')}
           onPress={() => router.push('/(tabs)/(home)/forecast')}
           variant="outline"
           style={styles.actionButton}
@@ -239,7 +232,7 @@ export default function HomeScreen() {
       {days.length > 0 && (
         <View style={[styles.forecastPreview, { backgroundColor: colors.surface }]}>
           <Text variant="h3" style={[styles.forecastTitle, { color: colors.onSurface }]}>
-            {preferences.locale === 'pt-BR' ? 'Próximos Dias' : 'Next Days'}
+            {t('home.nextDays')}
           </Text>
           {days.slice(1, 4).map((day) => (
             <View key={day.date} style={styles.forecastItem}>
@@ -247,7 +240,7 @@ export default function HomeScreen() {
                 {new Date(day.date).toLocaleDateString(preferences.locale, { weekday: 'short' })}
               </Text>
               <Text variant="body2" style={{ color: colors.primary }}>
-                {Math.round(day.temperature.max)}° / {Math.round(day.temperature.min)}°
+                {getForecastTempWithUnit(day.temperature.max)} / {getForecastTempWithUnit(day.temperature.min)}
               </Text>
             </View>
           ))}

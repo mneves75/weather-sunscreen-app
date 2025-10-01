@@ -94,41 +94,82 @@ export function isTomorrow(date: Date | string | number): boolean {
 
 /**
  * Get relative day label (Today, Tomorrow, or day name)
+ * Note: For "Today" and "Tomorrow" labels, this still uses hardcoded strings
+ * for en and pt-BR. For other locales, falls back to weekday name.
+ * Consider using Intl.RelativeTimeFormat for more locales in the future.
  */
 export function getRelativeDayLabel(date: Date | string | number, locale: string = 'en'): string {
   if (isToday(date)) {
-    return locale === 'pt-BR' ? 'Hoje' : 'Today';
+    // Map common locales to "Today" translation
+    const todayMap: Record<string, string> = {
+      'en': 'Today',
+      'en-US': 'Today',
+      'pt-BR': 'Hoje',
+      'pt': 'Hoje',
+    };
+    return todayMap[locale] || 'Today';
   }
-  
+
   if (isTomorrow(date)) {
-    return locale === 'pt-BR' ? 'Amanhã' : 'Tomorrow';
+    // Map common locales to "Tomorrow" translation
+    const tomorrowMap: Record<string, string> = {
+      'en': 'Tomorrow',
+      'en-US': 'Tomorrow',
+      'pt-BR': 'Amanhã',
+      'pt': 'Amanhã',
+    };
+    return tomorrowMap[locale] || 'Tomorrow';
   }
-  
+
   return getDayName(date, locale, false);
 }
 
 /**
  * Format relative time (e.g., "5 minutes ago")
+ * Uses Intl.RelativeTimeFormat for proper locale support
  */
 export function formatRelativeTime(timestamp: number, locale: string = 'en'): string {
   const now = Date.now();
   const diff = now - timestamp;
   const seconds = Math.floor(diff / 1000);
-  const minutes = Math.floor(seconds / 60);
-  const hours = Math.floor(minutes / 60);
-  const days = Math.floor(hours / 24);
-  
-  if (locale === 'pt-BR') {
-    if (seconds < 60) return 'agora mesmo';
-    if (minutes < 60) return `${minutes} ${minutes === 1 ? 'minuto' : 'minutos'} atrás`;
-    if (hours < 24) return `${hours} ${hours === 1 ? 'hora' : 'horas'} atrás`;
-    return `${days} ${days === 1 ? 'dia' : 'dias'} atrás`;
+
+  // For very recent times (< 60 seconds), use locale-specific "just now"
+  if (seconds < 60) {
+    const justNowMap: Record<string, string> = {
+      'en': 'just now',
+      'en-US': 'just now',
+      'pt-BR': 'agora mesmo',
+      'pt': 'agora mesmo',
+    };
+    return justNowMap[locale] || 'just now';
   }
-  
-  if (seconds < 60) return 'just now';
-  if (minutes < 60) return `${minutes} ${minutes === 1 ? 'minute' : 'minutes'} ago`;
-  if (hours < 24) return `${hours} ${hours === 1 ? 'hour' : 'hours'} ago`;
-  return `${days} ${days === 1 ? 'day' : 'days'} ago`;
+
+  try {
+    const rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' });
+
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) {
+      return rtf.format(-minutes, 'minute');
+    }
+
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) {
+      return rtf.format(-hours, 'hour');
+    }
+
+    const days = Math.floor(hours / 24);
+    return rtf.format(-days, 'day');
+  } catch (error) {
+    // Fallback for environments that don't support Intl.RelativeTimeFormat
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes} minute${minutes !== 1 ? 's' : ''} ago`;
+
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours} hour${hours !== 1 ? 's' : ''} ago`;
+
+    const days = Math.floor(hours / 24);
+    return `${days} day${days !== 1 ? 's' : ''} ago`;
+  }
 }
 
 /**
@@ -142,7 +183,9 @@ export function parseISODate(dateString: string): Date {
  * Add days to date
  */
 export function addDays(date: Date | string | number, days: number): Date {
-  const d = typeof date === 'string' || typeof date === 'number' ? new Date(date) : new Date(date);
+  const d = typeof date === 'string' || typeof date === 'number'
+    ? new Date(date)
+    : new Date(date.getTime()); // Clone Date object by timestamp
   d.setDate(d.getDate() + days);
   return d;
 }
@@ -151,7 +194,9 @@ export function addDays(date: Date | string | number, days: number): Date {
  * Get start of day
  */
 export function startOfDay(date: Date | string | number): Date {
-  const d = typeof date === 'string' || typeof date === 'number' ? new Date(date) : new Date(date);
+  const d = typeof date === 'string' || typeof date === 'number'
+    ? new Date(date)
+    : new Date(date.getTime()); // Clone Date object by timestamp
   d.setHours(0, 0, 0, 0);
   return d;
 }
@@ -160,7 +205,9 @@ export function startOfDay(date: Date | string | number): Date {
  * Get end of day
  */
 export function endOfDay(date: Date | string | number): Date {
-  const d = typeof date === 'string' || typeof date === 'number' ? new Date(date) : new Date(date);
+  const d = typeof date === 'string' || typeof date === 'number'
+    ? new Date(date)
+    : new Date(date.getTime()); // Clone Date object by timestamp
   d.setHours(23, 59, 59, 999);
   return d;
 }

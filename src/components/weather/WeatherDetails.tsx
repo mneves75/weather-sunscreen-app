@@ -50,6 +50,8 @@ export const WeatherDetails = React.memo<WeatherDetailsProps>(({
   const temperatureSymbol = temperatureUnit === 'celsius' ? '°C' : '°F';
   const feelsLikeDisplay = `${Math.round(convertedFeelsLike)}${temperatureSymbol}`;
 
+  // Visibility unit follows speed unit convention: mph → miles, km/h → km, m/s → km
+  // This provides a consistent user experience where distance units align with speed units
   const visibilityUnit = speedUnit === 'mph' ? 'imperial' : 'metric';
   
   const DetailItem = ({ label, value, subtitle }: { label: string; value: string; subtitle?: string }) => (
