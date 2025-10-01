@@ -5,7 +5,6 @@
 
 import { useColors } from '@/src/theme/theme';
 import { Stack } from 'expo-router';
-import React from 'react';
 import { useTranslation } from 'react-i18next';
 
 export default function HomeStackLayout() {
@@ -26,28 +25,27 @@ export default function HomeStackLayout() {
       <Stack.Screen
         name="index"
         options={{
-          title: t('screens.home', 'Weather'),
-          headerLargeTitle: true,
+          title: t('weather.title', 'Weather'),
         }}
       />
       <Stack.Screen
         name="weather"
         options={{
-          title: t('screens.weather', 'Weather Details'),
+          title: t('weather.title', 'Weather Details'),
           presentation: 'card',
         }}
       />
       <Stack.Screen
         name="uv"
         options={{
-          title: t('screens.uv', 'UV Index'),
+          title: t('uv.title', 'UV Index'),
           presentation: 'card',
         }}
       />
       <Stack.Screen
         name="forecast"
         options={{
-          title: t('screens.forecast', '7-Day Forecast'),
+          title: t('forecast.sevenDay', '7-Day Forecast'),
           presentation: 'card',
         }}
       />

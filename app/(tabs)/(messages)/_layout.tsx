@@ -5,7 +5,6 @@
 
 import { useColors } from '@/src/theme/theme';
 import { Stack } from 'expo-router';
-import React from 'react';
 import { useTranslation } from 'react-i18next';
 
 export default function MessagesStackLayout() {
@@ -26,7 +25,6 @@ export default function MessagesStackLayout() {
         name="index"
         options={{
           title: t('messages.title', 'Messages'),
-          headerLargeTitle: true,
         }}
       />
       <Stack.Screen
@@ -34,7 +32,6 @@ export default function MessagesStackLayout() {
         options={{
           title: t('messages.detail.title', 'Message'),
           presentation: 'modal',
-          headerLargeTitle: false,
         }}
       />
     </Stack>

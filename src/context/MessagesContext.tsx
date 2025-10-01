@@ -79,15 +79,41 @@ export function MessagesProvider({ children }: MessagesProviderProps) {
         setIsLoading(true);
         logger.info('Initializing MessagesContext', 'MESSAGES');
 
-        // Initialize services
-        await messageService.initialize();
-        await notificationService.initialize();
-        await alertRuleEngine.initialize();
+        // Helper to wrap promises with timeout
+        const withTimeout = <T,>(promise: Promise<T>, timeoutMs: number = 5000): Promise<T> => {
+          return Promise.race([
+            promise,
+            new Promise<T>((_, reject) =>
+              setTimeout(() => reject(new Error('Operation timed out')), timeoutMs)
+            ),
+          ]);
+        };
 
-        // Load initial data
-        await loadMessages();
-        await loadStats();
-        await loadPermissionStatus();
+        // Initialize services with individual error handling to prevent blocking
+        await Promise.allSettled([
+          withTimeout(messageService.initialize(), 5000).catch(err => {
+            logger.error('MessageService init failed', err as Error, 'MESSAGES');
+          }),
+          withTimeout(notificationService.initialize(), 5000).catch(err => {
+            logger.error('NotificationService init failed', err as Error, 'MESSAGES');
+          }),
+          withTimeout(alertRuleEngine.initialize(), 5000).catch(err => {
+            logger.error('AlertRuleEngine init failed', err as Error, 'MESSAGES');
+          }),
+        ]);
+
+        // Load initial data (these can fail gracefully)
+        await Promise.allSettled([
+          withTimeout(loadMessages(), 3000).catch(err => {
+            logger.error('Failed to load messages', err as Error, 'MESSAGES');
+          }),
+          withTimeout(loadStats(), 3000).catch(err => {
+            logger.error('Failed to load stats', err as Error, 'MESSAGES');
+          }),
+          withTimeout(loadPermissionStatus(), 3000).catch(err => {
+            logger.error('Failed to load permission status', err as Error, 'MESSAGES');
+          }),
+        ]);
 
         setIsInitialized(true);
         logger.info('MessagesContext initialized', 'MESSAGES');

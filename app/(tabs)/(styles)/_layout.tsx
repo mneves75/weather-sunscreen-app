@@ -5,7 +5,6 @@
 
 import { useColors } from '@/src/theme/theme';
 import { Stack } from 'expo-router';
-import React from 'react';
 import { useTranslation } from 'react-i18next';
 
 export default function StylesStackLayout() {
@@ -23,10 +22,15 @@ export default function StylesStackLayout() {
       }}
     >
       <Stack.Screen
+        name="index"
+        options={{
+          title: t('common.settings', 'Settings'),
+        }}
+      />
+      <Stack.Screen
         name="settings"
         options={{
-          title: t('screens.settings', 'Settings'),
-          headerLargeTitle: true,
+          title: t('common.settings', 'Settings'),
         }}
       />
     </Stack>
