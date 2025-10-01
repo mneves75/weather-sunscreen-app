@@ -40,16 +40,16 @@ export function useWeatherData() {
     return `${Math.round(converted)}${symbol}`;
   }, [convertedTemperature, preferences.temperatureUnit]);
   
-  // Auto-refresh when location changes - prevent infinite loops
+  // Auto-refresh when location changes - only fetch if no data exists
   useEffect(() => {
-    if (currentLocation && !weatherData && !isLoadingWeather && !weatherError) {
+    if (currentLocation && !weatherData && !isLoadingWeather) {
       // Add small delay to prevent rapid successive calls
       const timeoutId = setTimeout(() => {
         refreshWeather();
       }, 100);
       return () => clearTimeout(timeoutId);
     }
-  }, [currentLocation, weatherData, isLoadingWeather, weatherError, refreshWeather]);
+  }, [currentLocation?.latitude, currentLocation?.longitude, weatherData, isLoadingWeather, refreshWeather]);
   
   return {
     weatherData,

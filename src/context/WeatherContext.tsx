@@ -147,16 +147,16 @@ export function WeatherProvider({ children }: WeatherProviderProps) {
     setCurrentLocation(coords);
   }, []);
 
-  // Auto-refresh when location changes - prevent infinite loops
+  // Auto-refresh when location changes - detect coordinate changes
   useEffect(() => {
-    if (currentLocation && !isLoadingWeather && !isLoadingForecast && !isLoadingUV) {
+    if (currentLocation) {
       // Add small delay to prevent rapid successive calls
       const timeoutId = setTimeout(() => {
         refreshAll();
       }, 100);
       return () => clearTimeout(timeoutId);
     }
-  }, [currentLocation, isLoadingWeather, isLoadingForecast, isLoadingUV, refreshAll]);
+  }, [currentLocation?.latitude, currentLocation?.longitude, refreshAll]);
 
   const value: WeatherContextValue = {
     weatherData,
