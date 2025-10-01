@@ -2,7 +2,7 @@
  * Weather context for app-wide weather state management
  */
 
-import { weatherService } from '@/src/services';
+import { weatherService, alertRuleEngine } from '@/src/services';
 import { logger } from '@/src/services/LoggerService';
 import { Coordinates, Forecast, UVIndex, WeatherData } from '@/src/types';
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
@@ -157,6 +157,21 @@ export function WeatherProvider({ children }: WeatherProviderProps) {
       return () => clearTimeout(timeoutId);
     }
   }, [currentLocation?.latitude, currentLocation?.longitude, refreshAll]);
+
+  // Trigger alert evaluation when weather data updates
+  useEffect(() => {
+    if (weatherData) {
+      // Evaluate alert rules when weather data is available
+      // This is non-blocking and will generate messages if conditions are met
+      alertRuleEngine.evaluateRules({
+        weather: weatherData,
+        // Note: UV data would be passed here if available
+      }).catch(error => {
+        logger.warn('Failed to evaluate alert rules', 'WEATHER', { error });
+        // Don't throw - alert evaluation is not critical for weather display
+      });
+    }
+  }, [weatherData]);
 
   const value: WeatherContextValue = {
     weatherData,

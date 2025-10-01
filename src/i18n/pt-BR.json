@@ -54,6 +54,49 @@
   },
   "messages": {
     "title": "Mensagens",
+    "detail": {
+      "title": "Mensagem",
+      "notFound": "Mensagem Não Encontrada",
+      "notFoundDescription": "A mensagem solicitada não pôde ser encontrada."
+    },
+    "empty": "Ainda não há mensagens",
+    "emptyDescription": "Você receberá alertas de clima e UV aqui",
+    "filters": "Filtros",
+    "markAllRead": "Marcar Todas como Lidas",
+    "deleteAll": "Excluir Todas",
+    "selected": "{{count}} selecionadas",
+    "categories": {
+      "all": "Todas",
+      "weather": "Clima",
+      "uv": "Alertas UV",
+      "system": "Sistema",
+      "info": "Informações"
+    },
+    "severity": {
+      "info": "Informação",
+      "warning": "Aviso",
+      "critical": "Crítico"
+    },
+    "filter": {
+      "read": "Lidas",
+      "unread": "Não Lidas",
+      "all": "Todas"
+    },
+    "actions": {
+      "markRead": "Marcar como Lida",
+      "markUnread": "Marcar como Não Lida",
+      "delete": "Excluir",
+      "share": "Compartilhar",
+      "deleteConfirm": "Tem certeza que deseja excluir esta mensagem?",
+      "deleteAllConfirm": "Tem certeza que deseja excluir todas as mensagens?"
+    },
+    "notifications": {
+      "permissionTitle": "Habilitar Notificações",
+      "permissionMessage": "Mantenha-se informado sobre condições climáticas e níveis de UV",
+      "permissionDenied": "Permissão de notificação negada",
+      "permissionDeniedMessage": "Por favor, habilite notificações nas configurações do seu dispositivo para receber alertas",
+      "enableAlerts": "Habilitar Alertas"
+    },
     "comingSoon": "Em Breve",
     "description": "Recursos de notificação e mensagens estão sendo desenvolvidos",
     "targetDate": "Lançamento previsto: 26 de setembro de 2025"

@@ -19,7 +19,16 @@ export function useLocation() {
   // Check location permission on mount
   useEffect(() => {
     checkPermission();
-  }, []);
+  }, [checkPermission]);
+
+  // Auto-request permission if undetermined
+  useEffect(() => {
+    if (permissionStatus === 'undetermined' && !isRequesting) {
+      requestPermission().catch(() => {
+        // Silently handle permission request failures
+      });
+    }
+  }, [permissionStatus, isRequesting]);
   
   // Check current permission status
   const checkPermission = useCallback(async () => {
@@ -116,9 +125,35 @@ export function useLocation() {
   // Auto-request location on mount if permission is granted
   useEffect(() => {
     if (permissionStatus === 'granted' && !currentLocation && !isRequesting) {
-      getCurrentLocation();
+      // Use the function directly without adding it to dependencies
+      // to avoid circular dependency issues
+      const getLocation = async () => {
+        try {
+          setIsRequesting(true);
+          setError(null);
+
+          const location = await Location.getCurrentPositionAsync({
+            accuracy: Location.Accuracy.Balanced,
+          });
+
+          const coords: Coordinates = {
+            latitude: location.coords.latitude,
+            longitude: location.coords.longitude,
+          };
+
+          logger.info('Location obtained', 'LOCATION', { coords });
+          setLocation(coords);
+        } catch (err) {
+          logger.error('Failed to get current location', err as Error, 'LOCATION');
+          setError(err as Error);
+        } finally {
+          setIsRequesting(false);
+        }
+      };
+
+      getLocation();
     }
-  }, [permissionStatus, currentLocation, isRequesting, getCurrentLocation]);
+  }, [permissionStatus, currentLocation, isRequesting, setLocation]);
   
   return {
     // Current state

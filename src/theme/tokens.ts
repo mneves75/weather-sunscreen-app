@@ -44,6 +44,8 @@ const lightColors: ThemeColors = {
   errorContainer: '#FEE2E2', // Red 100
   onErrorContainer: '#991B1B', // Red 800
   info: '#3B82F6',     // Blue 500
+  infoContainer: '#DBEAFE', // Blue 100
+  onInfoContainer: '#1E3A8A', // Blue 900
 
   // UV level colors
   uvLow: '#10B981',       // Green 500 (0-2)
@@ -107,6 +109,8 @@ const darkColors: ThemeColors = {
   errorContainer: '#7F1D1D', // Red 900
   onErrorContainer: '#FEE2E2', // Red 100
   info: '#60A5FA',     // Blue 400
+  infoContainer: '#1E3A8A', // Blue 900
+  onInfoContainer: '#DBEAFE', // Blue 100
 
   // UV level colors
   uvLow: '#34D399',      // Green 400 (0-2)

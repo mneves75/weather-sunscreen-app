@@ -1,6 +1,6 @@
 /**
  * Messages Stack Navigator Layout
- * Navigation for messages (placeholder)
+ * Navigation for messages with detail view
  */
 
 import { useColors } from '@/src/theme/theme';
@@ -25,8 +25,16 @@ export default function MessagesStackLayout() {
       <Stack.Screen
         name="index"
         options={{
-          title: t('screens.messages', 'Messages'),
+          title: t('messages.title', 'Messages'),
           headerLargeTitle: true,
+        }}
+      />
+      <Stack.Screen
+        name="detail"
+        options={{
+          title: t('messages.detail.title', 'Message'),
+          presentation: 'modal',
+          headerLargeTitle: false,
         }}
       />
     </Stack>

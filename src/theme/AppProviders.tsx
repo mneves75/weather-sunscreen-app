@@ -7,6 +7,7 @@ import { MessagesProvider } from '@/src/context/MessagesContext';
 import { SettingsProvider } from '@/src/context/SettingsContext';
 import { SunscreenProvider } from '@/src/context/SunscreenContext';
 import { WeatherProvider } from '@/src/context/WeatherContext';
+import { initializeBackgroundTasks } from '@/src/services';
 import i18n from '@/src/i18n';
 import React, { useEffect, useState } from 'react';
 import { I18nextProvider } from 'react-i18next';
@@ -28,6 +29,11 @@ export function AppProviders({ children }: AppProvidersProps) {
         setI18nReady(true);
       });
     }
+
+    // Initialize background tasks (non-blocking)
+    initializeBackgroundTasks().catch(error => {
+      console.warn('Failed to initialize background tasks:', error);
+    });
   }, []);
 
   if (!i18nReady) {

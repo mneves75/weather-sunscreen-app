@@ -9,3 +9,4 @@ export { Container } from './Container';
 export { LoadingSpinner } from './LoadingSpinner';
 export { ErrorView } from './ErrorView';
 export { Divider } from './Divider';
+export { TouchableOpacity } from './TouchableOpacity';

@@ -2,7 +2,7 @@
  * Native Tab Navigation Layout
  * Main tab bar with Home, Messages, and Settings tabs using native system tab bar
  * Uses SF Symbols for iOS and platform-specific icons for Android
- * 
+ *
  * @see https://docs.expo.dev/router/advanced/native-tabs/
  */
 
@@ -11,10 +11,12 @@ import { Icon, Label, NativeTabs } from 'expo-router/unstable-native-tabs';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { DynamicColorIOS, Platform } from 'react-native';
+import { useMessages } from '@/src/context/MessagesContext';
 
 export default function TabLayout() {
   const colors = useColors();
   const { t } = useTranslation();
+  const { unreadCount } = useMessages();
 
   return (
     <NativeTabs
@@ -47,11 +49,12 @@ export default function TabLayout() {
       {/* Messages Tab - Notifications and messages */}
       <NativeTabs.Trigger name="(messages)">
         <Label>{t('tabs.messages', 'Messages')}</Label>
-        <Icon 
+        <Icon
           sf={{ default: 'bubble.left', selected: 'bubble.left.fill' }}
           // For Android, you can add custom drawables if available
           // drawable="messages_drawable"
         />
+        {/* Badge is handled differently in NativeTabs - this would need custom implementation */}
       </NativeTabs.Trigger>
 
       {/* Settings Tab - App customization and preferences */}

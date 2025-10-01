@@ -164,6 +164,7 @@ export default function HomeScreen() {
           tintColor={colors.primary}
         />
       }
+      contentInsetAdjustmentBehavior="automatic"
     >
       {/* Location Display */}
       {weatherData?.location && (
