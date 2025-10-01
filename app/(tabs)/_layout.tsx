@@ -1,84 +1,68 @@
 /**
- * Tab Navigation Layout
- * Main tab bar with Home, Messages, and Styles tabs
+ * Native Tab Navigation Layout
+ * Main tab bar with Home, Messages, and Settings tabs using native system tab bar
+ * Uses SF Symbols for iOS and platform-specific icons for Android
+ * 
+ * @see https://docs.expo.dev/router/advanced/native-tabs/
  */
 
 import { useColors } from '@/src/theme/theme';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { Tabs } from 'expo-router';
+import { Icon, Label, NativeTabs } from 'expo-router/unstable-native-tabs';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-
-// Tab bar icon component
-function TabBarIcon(props: {
-  name: React.ComponentProps<typeof FontAwesome>['name'];
-  color: string;
-}) {
-  return <FontAwesome size={24} style={{ marginBottom: -3 }} {...props} />;
-}
+import { DynamicColorIOS, Platform } from 'react-native';
 
 export default function TabLayout() {
   const colors = useColors();
   const { t } = useTranslation();
 
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.onSurfaceVariant,
-        tabBarStyle: {
-          backgroundColor: colors.surface,
-          borderTopColor: colors.outlineVariant,
-        },
-        headerStyle: {
-          backgroundColor: colors.surface,
-        },
-        headerTintColor: colors.onSurface,
-        headerShadowVisible: false,
-      }}>
-      {/* Home Tab (nested stack) */}
-      <Tabs.Screen
-        name="(home)"
-        options={{
-          title: t('tabs.home', 'Home'),
-          tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
-          headerShown: false,
-        }}
-      />
-      
-      {/* Messages Tab (placeholder) */}
-      <Tabs.Screen
-        name="(messages)"
-        options={{
-          title: t('tabs.messages', 'Messages'),
-          tabBarIcon: ({ color }) => <TabBarIcon name="comment" color={color} />,
-          headerShown: false,
-        }}
-      />
-      
-      {/* Styles/Settings Tab */}
-      <Tabs.Screen
-        name="(styles)"
-        options={{
-          title: t('tabs.settings', 'Settings'),
-          tabBarIcon: ({ color }) => <TabBarIcon name="cog" color={color} />,
-          headerShown: false,
-        }}
-      />
-      
-      {/* Hide old placeholder tabs */}
-      <Tabs.Screen
-        name="index"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="two"
-        options={{
-          href: null,
-        }}
-      />
-    </Tabs>
+    <NativeTabs
+      // iOS liquid glass support with dynamic colors
+      labelStyle={{
+        color: Platform.OS === 'ios' 
+          ? DynamicColorIOS({ dark: 'white', light: 'black' })
+          : colors.onSurface,
+        // @ts-ignore - tintColor is valid for NativeTabs
+        tintColor: Platform.OS === 'ios'
+          ? DynamicColorIOS({ dark: colors.primary, light: colors.primary })
+          : colors.primary,
+      }}
+      // Android-specific styling
+      tabBarStyle={Platform.OS === 'android' ? {
+        backgroundColor: colors.surface,
+        borderTopColor: colors.outlineVariant,
+      } : undefined}
+    >
+      {/* Home Tab - Weather and related screens */}
+      <NativeTabs.Trigger name="(home)">
+        <Label>{t('tabs.home', 'Home')}</Label>
+        <Icon 
+          sf={{ default: 'house', selected: 'house.fill' }}
+          // For Android, you can add custom drawables if available
+          // drawable="home_drawable"
+        />
+      </NativeTabs.Trigger>
+
+      {/* Messages Tab - Notifications and messages */}
+      <NativeTabs.Trigger name="(messages)">
+        <Label>{t('tabs.messages', 'Messages')}</Label>
+        <Icon 
+          sf={{ default: 'bubble.left', selected: 'bubble.left.fill' }}
+          // For Android, you can add custom drawables if available
+          // drawable="messages_drawable"
+        />
+      </NativeTabs.Trigger>
+
+      {/* Settings Tab - App customization and preferences */}
+      <NativeTabs.Trigger name="(styles)">
+        <Label>{t('tabs.settings', 'Settings')}</Label>
+        <Icon 
+          sf={{ default: 'gearshape', selected: 'gearshape.fill' }}
+          // For Android, you can add custom drawables if available
+          // drawable="settings_drawable"
+        />
+      </NativeTabs.Trigger>
+    </NativeTabs>
   );
 }

@@ -98,5 +98,59 @@ export interface WeatherUnits {
   pressure: PressureUnit;
 }
 
+// Open-Meteo API Response Types
+export interface OpenMeteoCurrentWeather {
+  temperature_2m: number;
+  relative_humidity_2m: number;
+  apparent_temperature: number;
+  pressure_msl: number;
+  wind_speed_10m: number;
+  wind_direction_10m: number;
+  visibility: number;
+  cloud_cover: number;
+  weather_code: number;
+  is_day: 1 | 0;
+  time: string;
+}
+
+export interface OpenMeteoHourlyData {
+  time: string[];
+  temperature_2m: number[];
+  relative_humidity_2m: number[];
+  uv_index: number[];
+  wind_speed_10m: number[];
+  wind_direction_10m: number[];
+  precipitation_probability: number[];
+  cloud_cover: number[];
+  weather_code: number[];
+}
+
+export interface OpenMeteoDailyData {
+  time: string[];
+  weather_code: number[];
+  temperature_2m_max: number[];
+  temperature_2m_min: number[];
+  uv_index_max: number[];
+  precipitation_probability_max: number[];
+  wind_speed_10m_max: number[];
+  wind_direction_10m_dominant: number[];
+}
+
+export interface OpenMeteoUVIndex {
+  latitude: number;
+  longitude: number;
+  generationtime_ms: number;
+  utc_offset_seconds: number;
+  timezone: string;
+  timezone_abbreviation: string;
+  hourly: {
+    time: string[];
+    uv_index: number[];
+  };
+  hourly_units: {
+    uv_index: string;
+  };
+}
+
 // Re-export SkinType from services for convenience
 export type { SkinType } from './services';
