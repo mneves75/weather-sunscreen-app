@@ -3,11 +3,11 @@
  * Provides filtering options for messages (categories, read status, severity)
  */
 
-import React from 'react';
-import { ScrollView, View, StyleSheet } from 'react-native';
 import { Text, TouchableOpacity } from '@/src/components/ui';
 import { useColors } from '@/src/theme/theme';
-import type { MessageFilter, MessageStats, MessageCategory, MessageSeverity } from '@/src/types';
+import type { MessageCategory, MessageFilter, MessageSeverity, MessageStats } from '@/src/types';
+import React from 'react';
+import { ScrollView, StyleSheet, View } from 'react-native';
 
 interface MessageFiltersProps {
   activeFilter: MessageFilter;

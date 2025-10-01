@@ -3,9 +3,9 @@
  * Wrapper around React Native TouchableOpacity with theme support
  */
 
+import { useColors } from '@/src/theme/theme';
 import React from 'react';
 import { TouchableOpacity as RNTouchableOpacity, TouchableOpacityProps } from 'react-native';
-import { useColors } from '@/src/theme/theme';
 
 export function TouchableOpacity(props: TouchableOpacityProps) {
   const colors = useColors();

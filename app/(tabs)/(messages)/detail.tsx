@@ -3,13 +3,12 @@
  * Displays full message content with actions and auto-mark as read
  */
 
-import React, { useCallback, useMemo } from 'react';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Share } from 'react-native';
-import { useTranslation } from 'react-i18next';
 import { MessageDetail } from '@/src/components/messages/MessageDetail';
 import { useMessages } from '@/src/context/MessagesContext';
-import type { Message } from '@/src/types';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import React, { useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Share } from 'react-native';
 
 export default function MessageDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();

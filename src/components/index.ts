@@ -2,8 +2,9 @@
  * Components module exports
  */
 
-export * from './ui';
+export { ErrorBoundary } from './ErrorBoundary';
 export * from './glass';
 export * from './icons';
 export * from './messages';
-export { ErrorBoundary } from './ErrorBoundary';
+export * from './ui';
+

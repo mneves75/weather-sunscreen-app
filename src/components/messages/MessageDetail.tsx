@@ -3,12 +3,12 @@
  * Displays full message content with actions
  */
 
-import React, { useEffect } from 'react';
-import { ScrollView, View, StyleSheet, Alert } from 'react-native';
-import { Text, Button } from '@/src/components/ui';
+import { Button, Text } from '@/src/components/ui';
 import { useColors } from '@/src/theme/theme';
-import { MessageIcon } from './MessageIcon';
 import type { Message } from '@/src/types';
+import React, { useEffect } from 'react';
+import { Alert, ScrollView, StyleSheet, View } from 'react-native';
+import { MessageIcon } from './MessageIcon';
 
 interface MessageDetailProps {
   message: Message;

@@ -3,12 +3,12 @@
  * Displays a message preview with category icon, title, body snippet
  */
 
-import React from 'react';
-import { TouchableOpacity, View, StyleSheet } from 'react-native';
 import { Text } from '@/src/components/ui';
 import { useColors } from '@/src/theme/theme';
-import { MessageIcon } from './MessageIcon';
 import type { Message } from '@/src/types';
+import React from 'react';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { MessageIcon } from './MessageIcon';
 
 interface MessageCardProps {
   message: Message;

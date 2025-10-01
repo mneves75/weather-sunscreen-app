@@ -3,9 +3,9 @@
  * Displays icons for different message categories and severities
  */
 
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
 import type { MessageCategory, MessageSeverity } from '@/src/types';
+import React from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 
 interface MessageIconProps {
   category: MessageCategory;

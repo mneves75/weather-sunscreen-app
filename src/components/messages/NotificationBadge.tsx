@@ -3,10 +3,10 @@
  * Displays unread message count with animations
  */
 
-import React, { useEffect, useRef } from 'react';
-import { View, StyleSheet, Animated } from 'react-native';
 import { Text } from '@/src/components/ui';
 import { useColors } from '@/src/theme/theme';
+import React, { useEffect, useRef } from 'react';
+import { Animated, StyleSheet } from 'react-native';
 
 interface NotificationBadgeProps {
   count: number;

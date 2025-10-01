@@ -3,18 +3,18 @@
  * Displays a list of messages with filtering, sorting, and actions
  */
 
-import React, { useCallback, useMemo } from 'react';
-import {
-  FlatList,
-  RefreshControl,
-  View,
-  StyleSheet,
-  ActivityIndicator,
-} from 'react-native';
 import { Text } from '@/src/components/ui';
 import { useColors } from '@/src/theme/theme';
+import type { Message } from '@/src/types';
+import React, { useCallback, useMemo } from 'react';
+import {
+    ActivityIndicator,
+    FlatList,
+    RefreshControl,
+    StyleSheet,
+    View,
+} from 'react-native';
 import { MessageCard } from './MessageCard';
-import type { Message, MessageFilter } from '@/src/types';
 
 interface MessageListProps {
   messages: Message[];

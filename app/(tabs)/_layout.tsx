@@ -6,12 +6,12 @@
  * @see https://docs.expo.dev/router/advanced/native-tabs/
  */
 
+import { useMessages } from '@/src/context/MessagesContext';
 import { useColors } from '@/src/theme/theme';
 import { Icon, Label, NativeTabs } from 'expo-router/unstable-native-tabs';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { DynamicColorIOS, Platform } from 'react-native';
-import { useMessages } from '@/src/context/MessagesContext';
 
 export default function TabLayout() {
   const colors = useColors();

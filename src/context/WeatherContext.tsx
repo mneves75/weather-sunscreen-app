@@ -2,7 +2,7 @@
  * Weather context for app-wide weather state management
  */
 
-import { weatherService, alertRuleEngine } from '@/src/services';
+import { alertRuleEngine, weatherService } from '@/src/services';
 import { logger } from '@/src/services/LoggerService';
 import { Coordinates, Forecast, UVIndex, WeatherData } from '@/src/types';
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';

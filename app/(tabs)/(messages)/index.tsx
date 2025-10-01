@@ -3,18 +3,17 @@
  * Full-featured message center with filtering, sorting, and actions
  */
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { View, StyleSheet, Alert, Share } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useTranslation } from 'react-i18next';
-import { Text, Button, TouchableOpacity } from '@/src/components/ui';
-import { useColors } from '@/src/theme/theme';
+import { MessageFilters } from '@/src/components/messages/MessageFilters';
+import { MessageList } from '@/src/components/messages/MessageList';
+import { Button, Text, TouchableOpacity } from '@/src/components/ui';
 import { useMessages } from '@/src/context/MessagesContext';
 import { useSettings } from '@/src/context/SettingsContext';
-import { MessageList } from '@/src/components/messages/MessageList';
-import { MessageFilters } from '@/src/components/messages/MessageFilters';
-import { NotificationBadge } from '@/src/components/messages/NotificationBadge';
+import { useColors } from '@/src/theme/theme';
 import type { Message, MessageFilter } from '@/src/types';
+import { useRouter } from 'expo-router';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Alert, Share, StyleSheet, View } from 'react-native';
 
 export default function MessagesScreen() {
   const colors = useColors();

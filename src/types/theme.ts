@@ -44,6 +44,8 @@ export interface ThemeColors {
   errorContainer: string;
   onErrorContainer: string;
   info: string;
+  infoContainer: string;
+  onInfoContainer: string;
 
   // UV level colors
   uvLow: string;

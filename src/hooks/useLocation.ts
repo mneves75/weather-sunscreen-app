@@ -19,14 +19,17 @@ export function useLocation() {
   // Check location permission on mount
   useEffect(() => {
     checkPermission();
-  }, [checkPermission]);
+  }, []);
 
   // Auto-request permission if undetermined
   useEffect(() => {
     if (permissionStatus === 'undetermined' && !isRequesting) {
-      requestPermission().catch(() => {
-        // Silently handle permission request failures
-      });
+      // Use a timeout to avoid calling requestPermission before it's defined
+      setTimeout(() => {
+        requestPermission().catch(() => {
+          // Silently handle permission request failures
+        });
+      }, 0);
     }
   }, [permissionStatus, isRequesting]);
   

@@ -2,7 +2,7 @@
  * Design tokens - Single source of truth for all design values
  */
 
-import { ThemeColors, Spacing, Typography, BorderRadius, Shadow, ThemeTokens } from '@/src/types/theme';
+import { BorderRadius, Shadow, Spacing, ThemeColors, ThemeTokens, Typography } from '@/src/types/theme';
 
 // Color palettes
 const lightColors: ThemeColors = {
