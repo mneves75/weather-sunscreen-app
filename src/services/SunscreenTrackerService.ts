@@ -5,9 +5,7 @@
  */
 
 import { ReapplicationConditions, ReapplicationResult } from '../types/sunscreen';
-import { LoggerService } from './LoggerService';
-
-const logger = new LoggerService('SunscreenTrackerService');
+import { logger } from './LoggerService';
 
 export class SunscreenTrackerService {
   /**
@@ -32,7 +30,7 @@ export class SunscreenTrackerService {
   ): ReapplicationResult {
     const { uvIndex, humidity, cloudCover, isSwimming = false } = conditions;
 
-    logger.info('Calculating reapplication time', { conditions });
+    logger.info('Calculating reapplication time', 'SUNSCREEN', { conditions });
 
     // Start with base time
     let baseTime = this.BASE_REAPPLICATION_MINUTES;
@@ -103,7 +101,7 @@ export class SunscreenTrackerService {
       },
     };
 
-    logger.info('Reapplication time calculated', { result });
+    logger.info('Reapplication time calculated', 'SUNSCREEN', { result });
 
     return result;
   }

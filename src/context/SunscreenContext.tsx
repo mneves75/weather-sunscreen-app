@@ -6,12 +6,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { LoggerService } from '../services/LoggerService';
+import { logger } from '../services/LoggerService';
 import { SunscreenTrackerService } from '../services/SunscreenTrackerService';
 import { SunscreenApplication, SunscreenState } from '../types/sunscreen';
 import { useWeather } from './WeatherContext';
-
-const logger = new LoggerService('SunscreenContext');
 
 const STORAGE_KEY = '@sunscreen_application';
 
@@ -90,10 +88,10 @@ export const SunscreenProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       if (stored) {
         const parsed: SunscreenState = JSON.parse(stored);
         setState(parsed);
-        logger.info('Loaded persisted sunscreen state', { parsed });
+        logger.info('Loaded persisted sunscreen state', 'SUNSCREEN', { parsed });
       }
     } catch (error) {
-      logger.error('Failed to load persisted state', { error });
+      logger.error('Failed to load persisted state', error as Error, 'SUNSCREEN');
     } finally {
       setIsLoading(false);
     }
@@ -102,9 +100,9 @@ export const SunscreenProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const persistState = async (newState: SunscreenState) => {
     try {
       await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(newState));
-      logger.info('Persisted sunscreen state');
+      logger.info('Persisted sunscreen state', 'SUNSCREEN');
     } catch (error) {
-      logger.error('Failed to persist state', { error });
+      logger.error('Failed to persist state', error as Error, 'SUNSCREEN');
     }
   };
 
@@ -119,10 +117,10 @@ export const SunscreenProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       }
 
       if (finalStatus !== 'granted') {
-        logger.warn('Notification permissions not granted');
+        logger.warn('Notification permissions not granted', 'SUNSCREEN');
       }
     } catch (error) {
-      logger.error('Failed to request notification permissions', { error });
+      logger.error('Failed to request notification permissions', error as Error, 'SUNSCREEN');
     }
   };
 
@@ -155,9 +153,9 @@ export const SunscreenProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         trigger,
       });
 
-      logger.info('Scheduled reapplication notification', { trigger });
+      logger.info('Scheduled reapplication notification', 'SUNSCREEN', { trigger });
     } catch (error) {
-      logger.error('Failed to schedule notification', { error });
+      logger.error('Failed to schedule notification', error as Error, 'SUNSCREEN');
     }
   };
 
@@ -167,13 +165,13 @@ export const SunscreenProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       persistState(newState);
       return newState;
     });
-    logger.info('Reapplication alert activated');
+    logger.info('Reapplication alert activated', 'SUNSCREEN');
   };
 
   const applySunscreen = useCallback(
     async (isSwimming = false) => {
       if (!weatherData) {
-        logger.warn('Cannot apply sunscreen without weather data');
+        logger.warn('Cannot apply sunscreen without weather data', 'SUNSCREEN');
         return;
       }
 
@@ -211,9 +209,9 @@ export const SunscreenProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         await persistState(newState);
         await scheduleNotification(reapplyAt);
 
-        logger.info('Sunscreen applied', { application, calculation });
+        logger.info('Sunscreen applied', 'SUNSCREEN', { application, calculation });
       } catch (error) {
-        logger.error('Failed to apply sunscreen', { error });
+        logger.error('Failed to apply sunscreen', error as Error, 'SUNSCREEN');
         throw error;
       }
     },
@@ -234,9 +232,9 @@ export const SunscreenProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       await persistState(newState);
       setTimeRemaining(0);
 
-      logger.info('Sunscreen application cleared');
+      logger.info('Sunscreen application cleared', 'SUNSCREEN');
     } catch (error) {
-      logger.error('Failed to clear application', { error });
+      logger.error('Failed to clear application', error as Error, 'SUNSCREEN');
       throw error;
     }
   }, []);
