@@ -81,12 +81,21 @@ export function MessagesProvider({ children }: MessagesProviderProps) {
 
         // Helper to wrap promises with timeout
         const withTimeout = <T,>(promise: Promise<T>, timeoutMs: number = 5000): Promise<T> => {
-          return Promise.race([
-            promise,
-            new Promise<T>((_, reject) =>
-              setTimeout(() => reject(new Error('Operation timed out')), timeoutMs)
-            ),
-          ]);
+          return new Promise<T>((resolve, reject) => {
+            const timeoutId = setTimeout(() => {
+              reject(new Error('Operation timed out'));
+            }, timeoutMs);
+
+            promise
+              .then(value => {
+                clearTimeout(timeoutId);
+                resolve(value);
+              })
+              .catch(error => {
+                clearTimeout(timeoutId);
+                reject(error);
+              });
+          });
         };
 
         // Initialize services with individual error handling to prevent blocking
