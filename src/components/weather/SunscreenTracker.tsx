@@ -9,12 +9,12 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSunscreen } from '../../context/SunscreenContext';
-import { useTheme } from '../../context/WeatherContext';
+import { useColors } from '../../theme/theme';
 import { GlassCard } from '../glass/GlassCard';
 
 export const SunscreenTracker: React.FC = () => {
   const { t } = useTranslation();
-  const { theme } = useTheme();
+  const colors = useColors();
   const {
     currentApplication,
     alertActive,
@@ -51,7 +51,7 @@ export const SunscreenTracker: React.FC = () => {
   if (isLoading) {
     return (
       <GlassCard style={styles.container}>
-        <ActivityIndicator size="small" color={theme.colors.text.primary} />
+        <ActivityIndicator size="small" color={colors.text} />
       </GlassCard>
     );
   }
@@ -61,13 +61,13 @@ export const SunscreenTracker: React.FC = () => {
     return (
       <GlassCard style={styles.container}>
         <View style={styles.header}>
-          <Ionicons name="sunny" size={24} color={theme.colors.text.primary} />
-          <Text style={[styles.title, { color: theme.colors.text.primary }]}>
+          <Ionicons name="sunny" size={24} color={colors.text} />
+          <Text style={[styles.title, { color: colors.text }]}>
             {t('sunscreen.title')}
           </Text>
         </View>
 
-        <Text style={[styles.description, { color: theme.colors.text.secondary }]}>
+        <Text style={[styles.description, { color: colors.textSecondary }]}>
           {t('sunscreen.description')}
         </Text>
 
@@ -84,17 +84,17 @@ export const SunscreenTracker: React.FC = () => {
               styles.checkbox,
               {
                 backgroundColor: isSwimming
-                  ? theme.colors.accent.primary
+                  ? colors.primary
                   : 'transparent',
-                borderColor: theme.colors.accent.primary,
+                borderColor: colors.primary,
               },
             ]}
           >
             {isSwimming && (
-              <Ionicons name="checkmark" size={16} color={theme.colors.background.primary} />
+              <Ionicons name="checkmark" size={16} color={colors.background} />
             )}
           </View>
-          <Text style={[styles.toggleLabel, { color: theme.colors.text.primary }]}>
+          <Text style={[styles.toggleLabel, { color: colors.text }]}>
             {t('sunscreen.swimmingMode')}
           </Text>
         </Pressable>
@@ -104,7 +104,7 @@ export const SunscreenTracker: React.FC = () => {
           style={[
             styles.button,
             {
-              backgroundColor: theme.colors.accent.primary,
+              backgroundColor: colors.primary,
             },
           ]}
           onPress={handleApply}
@@ -113,11 +113,11 @@ export const SunscreenTracker: React.FC = () => {
           accessibilityLabel={t('sunscreen.apply')}
         >
           {isApplying ? (
-            <ActivityIndicator size="small" color={theme.colors.background.primary} />
+            <ActivityIndicator size="small" color={colors.background} />
           ) : (
             <>
-              <Ionicons name="shield-checkmark" size={20} color={theme.colors.background.primary} />
-              <Text style={[styles.buttonText, { color: theme.colors.background.primary }]}>
+              <Ionicons name="shield-checkmark" size={20} color={colors.background} />
+              <Text style={[styles.buttonText, { color: colors.background }]}>
                 {t('sunscreen.apply')}
               </Text>
             </>
@@ -141,19 +141,19 @@ export const SunscreenTracker: React.FC = () => {
         <Ionicons
           name={isExpired ? 'alert-circle' : 'shield-checkmark'}
           size={24}
-          color={isExpired ? theme.colors.status.warning : theme.colors.status.success}
+          color={isExpired ? colors.warning : colors.success}
         />
-        <Text style={[styles.title, { color: theme.colors.text.primary }]}>
+        <Text style={[styles.title, { color: colors.text }]}>
           {isExpired ? t('sunscreen.reapplyNeeded') : t('sunscreen.protected')}
         </Text>
       </View>
 
       {/* Application info */}
       <View style={styles.infoContainer}>
-        <Text style={[styles.infoLabel, { color: theme.colors.text.secondary }]}>
+        <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>
           {t('sunscreen.appliedAt')}
         </Text>
-        <Text style={[styles.infoValue, { color: theme.colors.text.primary }]}>
+        <Text style={[styles.infoValue, { color: colors.text }]}>
           {appliedTime}
         </Text>
       </View>
@@ -164,14 +164,14 @@ export const SunscreenTracker: React.FC = () => {
           style={[
             styles.timerText,
             {
-              color: isExpired ? theme.colors.status.warning : theme.colors.accent.primary,
+              color: isExpired ? colors.warning : colors.primary,
             },
           ]}
         >
           {isExpired ? t('sunscreen.expired') : timeRemainingFormatted}
         </Text>
         {!isExpired && (
-          <Text style={[styles.timerLabel, { color: theme.colors.text.secondary }]}>
+          <Text style={[styles.timerLabel, { color: colors.textSecondary }]}>
             {t('sunscreen.remaining')}
           </Text>
         )}
@@ -179,8 +179,8 @@ export const SunscreenTracker: React.FC = () => {
 
       {/* UV Index info */}
       <View style={styles.uvContainer}>
-        <Ionicons name="sunny-outline" size={16} color={theme.colors.text.secondary} />
-        <Text style={[styles.uvText, { color: theme.colors.text.secondary }]}>
+        <Ionicons name="sunny-outline" size={16} color={colors.textSecondary} />
+        <Text style={[styles.uvText, { color: colors.textSecondary }]}>
           UV {currentApplication.uvIndex.toFixed(1)} • {currentApplication.reapplicationMinutes}min {t('sunscreen.interval')}
         </Text>
       </View>
@@ -188,8 +188,8 @@ export const SunscreenTracker: React.FC = () => {
       {/* Swimming indicator */}
       {isSwimming && (
         <View style={styles.swimmingBadge}>
-          <Ionicons name="water" size={14} color={theme.colors.accent.secondary} />
-          <Text style={[styles.swimmingText, { color: theme.colors.accent.secondary }]}>
+          <Ionicons name="water" size={14} color={colors.accentSecondary} />
+          <Text style={[styles.swimmingText, { color: colors.accentSecondary }]}>
             {t('sunscreen.swimmingActive')}
           </Text>
         </View>
@@ -201,14 +201,14 @@ export const SunscreenTracker: React.FC = () => {
           style={[
             styles.secondaryButton,
             {
-              borderColor: theme.colors.text.secondary,
+              borderColor: colors.textSecondary,
             },
           ]}
           onPress={handleClear}
           accessibilityRole="button"
           accessibilityLabel={t('sunscreen.clear')}
         >
-          <Text style={[styles.secondaryButtonText, { color: theme.colors.text.secondary }]}>
+          <Text style={[styles.secondaryButtonText, { color: colors.textSecondary }]}>
             {t('sunscreen.clear')}
           </Text>
         </Pressable>
@@ -219,8 +219,8 @@ export const SunscreenTracker: React.FC = () => {
             styles.reapplyButton,
             {
               backgroundColor: isExpired
-                ? theme.colors.status.warning
-                : theme.colors.accent.primary,
+                ? colors.warning
+                : colors.primary,
             },
           ]}
           onPress={handleApply}
@@ -229,11 +229,11 @@ export const SunscreenTracker: React.FC = () => {
           accessibilityLabel={t('sunscreen.reapply')}
         >
           {isApplying ? (
-            <ActivityIndicator size="small" color={theme.colors.background.primary} />
+            <ActivityIndicator size="small" color={colors.background} />
           ) : (
             <>
-              <Ionicons name="refresh" size={20} color={theme.colors.background.primary} />
-              <Text style={[styles.buttonText, { color: theme.colors.background.primary }]}>
+              <Ionicons name="refresh" size={20} color={colors.background} />
+              <Text style={[styles.buttonText, { color: colors.background }]}>
                 {t('sunscreen.reapply')}
               </Text>
             </>

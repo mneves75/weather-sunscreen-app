@@ -30,6 +30,8 @@ Notifications.setNotificationHandler({
     shouldShowAlert: true,
     shouldPlaySound: true,
     shouldSetBadge: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
   }),
 });
 
@@ -307,9 +309,9 @@ class NotificationService {
           title: notification.notification.title,
           body: notification.notification.body,
           data: notification.notification.data || {},
-          badge: notification.notification.badge,
-          sound: this.config.soundEnabled ? (notification.notification.sound || 'default') : null,
-          categoryIdentifier: notification.notification.categoryId,
+          badge: notification.notification.badge || undefined,
+          sound: this.config.soundEnabled ? (notification.notification.sound || 'default') : undefined,
+          categoryIdentifier: notification.notification.categoryId || undefined,
         },
         trigger,
       });
@@ -331,7 +333,6 @@ class NotificationService {
         return {
           type: Notifications.SchedulableTriggerInputTypes.DATE,
           date: (trigger as DateTrigger).date,
-          repeats: trigger.repeats || false,
         };
       
       case 'interval':
@@ -347,11 +348,10 @@ class NotificationService {
           type: Notifications.SchedulableTriggerInputTypes.DAILY,
           hour: dailyTrigger.hour,
           minute: dailyTrigger.minute,
-          repeats: true,
         };
       
       default:
-        throw new Error(`Unsupported trigger type: ${trigger.type}`);
+        throw new Error(`Unsupported trigger type: ${(trigger as any).type}`);
     }
   }
 
@@ -392,9 +392,9 @@ class NotificationService {
           title: n.content.title || '',
           body: n.content.body || '',
           data: n.content.data,
-          badge: n.content.badge,
-          sound: n.content.sound,
-          categoryId: n.content.categoryIdentifier,
+          badge: n.content.badge ?? undefined,
+          sound: n.content.sound ? String(n.content.sound) : undefined,
+          categoryId: n.content.categoryIdentifier ?? undefined,
         },
         trigger: this.convertExpoTrigger(n.trigger),
         createdAt: Date.now(), // Not available from Expo
@@ -414,7 +414,7 @@ class NotificationService {
       return {
         type: 'date',
         date: new Date(trigger.value),
-        repeats: trigger.repeats,
+        repeats: trigger.repeats || false,
       };
     }
     
@@ -437,7 +437,7 @@ class NotificationService {
           body: payload.body,
           data: payload.data || {},
           badge: payload.badge,
-          sound: this.config.soundEnabled ? (payload.sound || 'default') : null,
+          sound: this.config.soundEnabled ? (payload.sound || 'default') : undefined,
           categoryIdentifier: payload.categoryId,
         },
         trigger: null, // Immediate

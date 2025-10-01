@@ -30,6 +30,8 @@ Notifications.setNotificationHandler({
     shouldShowAlert: true,
     shouldPlaySound: true,
     shouldSetBadge: false,
+    shouldShowBanner: true,
+    shouldShowList: true,
   }),
 });
 
@@ -42,16 +44,18 @@ export const SunscreenProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   });
   const [isLoading, setIsLoading] = useState(true);
   const [timeRemaining, setTimeRemaining] = useState(0);
-  const intervalRef = useRef<NodeJS.Timeout>();
+  const intervalRef = useRef<ReturnType<typeof setInterval>>();
 
   // Load persisted state on mount
   useEffect(() => {
     loadPersistedState();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Request notification permissions on mount
   useEffect(() => {
     requestNotificationPermissions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Update time remaining every minute
@@ -140,9 +144,7 @@ export const SunscreenProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       // Cancel any existing notifications
       await Notifications.cancelAllScheduledNotificationsAsync();
 
-      // Schedule new notification
-      const trigger = new Date(reapplyAt);
-      
+      // Schedule new notification      
       await Notifications.scheduleNotificationAsync({
         content: {
           title: '☀️ Sunscreen Reapplication',
@@ -150,10 +152,13 @@ export const SunscreenProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           sound: true,
           priority: Notifications.AndroidNotificationPriority.HIGH,
         },
-        trigger,
+        trigger: { 
+          type: Notifications.SchedulableTriggerInputTypes.DATE,
+          date: new Date(reapplyAt) 
+        },
       });
 
-      logger.info('Scheduled reapplication notification', 'SUNSCREEN', { trigger });
+      logger.info('Scheduled reapplication notification', 'SUNSCREEN', { reapplyAt });
     } catch (error) {
       logger.error('Failed to schedule notification', error as Error, 'SUNSCREEN');
     }
@@ -180,10 +185,10 @@ export const SunscreenProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
         // Calculate reapplication time
         const calculation = SunscreenTrackerService.calculateReapplicationTime({
-          uvIndex: weatherData.uvIndex,
-          temperature: weatherData.temperature,
-          humidity: weatherData.humidity,
-          cloudCover: weatherData.cloudCover || 0,
+          uvIndex: weatherData.uvIndex?.value || 0,
+          temperature: weatherData.current.temperature,
+          humidity: weatherData.current.humidity,
+          cloudCover: weatherData.current.cloudCover || 0,
           isSwimming,
         });
 
@@ -191,10 +196,10 @@ export const SunscreenProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
         const application: SunscreenApplication = {
           appliedAt: now,
-          uvIndex: weatherData.uvIndex,
-          temperature: weatherData.temperature,
-          humidity: weatherData.humidity,
-          cloudCover: weatherData.cloudCover || 0,
+          uvIndex: weatherData.uvIndex?.value || 0,
+          temperature: weatherData.current.temperature,
+          humidity: weatherData.current.humidity,
+          cloudCover: weatherData.current.cloudCover || 0,
           reapplicationMinutes: calculation.minutes,
           reapplyAt,
         };
