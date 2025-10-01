@@ -97,11 +97,6 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
     isLoading,
   };
 
-  // Don't render until preferences are loaded
-  if (isLoading) {
-    return null;
-  }
-
   return (
     <SettingsContext.Provider value={value}>
       {children}
