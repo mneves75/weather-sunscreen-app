@@ -6,6 +6,7 @@
 import { Button, Container, ErrorView, LoadingSpinner, Text } from '@/src/components/ui';
 import {
     LocationDisplay,
+    SunscreenTracker,
     UVIndicator,
     UVRecommendations,
     WeatherCard,
@@ -188,6 +189,9 @@ export default function HomeScreen() {
           size="small"
         />
       )}
+      
+      {/* Sunscreen Tracker */}
+      <SunscreenTracker />
       
       {/* Quick Actions */}
       <View style={styles.actionsContainer}>

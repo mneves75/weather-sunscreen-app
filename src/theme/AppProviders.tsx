@@ -3,12 +3,14 @@
  * Combines all global providers (Theme, i18n, etc.)
  */
 
+import { MessagesProvider } from '@/src/context/MessagesContext';
+import { SettingsProvider } from '@/src/context/SettingsContext';
+import { SunscreenProvider } from '@/src/context/SunscreenContext';
+import { WeatherProvider } from '@/src/context/WeatherContext';
+import i18n from '@/src/i18n';
 import React, { useEffect, useState } from 'react';
 import { I18nextProvider } from 'react-i18next';
 import { ThemeProvider } from './theme';
-import { WeatherProvider } from '@/src/context/WeatherContext';
-import { SettingsProvider } from '@/src/context/SettingsContext';
-import i18n from '@/src/i18n';
 
 interface AppProvidersProps {
   children: React.ReactNode;
@@ -37,10 +39,14 @@ export function AppProviders({ children }: AppProvidersProps) {
       <ThemeProvider>
         <SettingsProvider>
           <WeatherProvider>
-            {/* Future providers:
-              - QueryClientProvider (React Query) for caching
-            */}
-            {children}
+            <MessagesProvider>
+              <SunscreenProvider>
+                {/* Future providers:
+                  - QueryClientProvider (React Query) for caching
+                */}
+                {children}
+              </SunscreenProvider>
+            </MessagesProvider>
           </WeatherProvider>
         </SettingsProvider>
       </ThemeProvider>

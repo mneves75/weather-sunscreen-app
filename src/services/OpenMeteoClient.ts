@@ -63,7 +63,7 @@ export class OpenMeteoClient {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), this.config.timeout);
 
-        logger.debug('Making Open-Meteo API request', { url, attempt: attempt + 1 });
+        logger.debug('Making Open-Meteo API request', 'OPEN_METEO', { url, attempt: attempt + 1 });
 
         const response = await fetch(url, {
           signal: controller.signal,
@@ -80,7 +80,7 @@ export class OpenMeteoClient {
         }
 
         const data = await response.json();
-        logger.debug('Open-Meteo API request successful', { url, status: response.status });
+        logger.debug('Open-Meteo API request successful', 'OPEN_METEO', { url, status: response.status });
         return data as T;
 
       } catch (error) {
@@ -95,7 +95,7 @@ export class OpenMeteoClient {
         const delay = Math.min(1000 * Math.pow(2, attempt), 5000);
         await new Promise(resolve => setTimeout(resolve, delay));
 
-        logger.warn('Retrying Open-Meteo API request', {
+        logger.warn('Retrying Open-Meteo API request', 'OPEN_METEO', {
           url,
           attempt: attempt + 1,
           error: lastError.message
@@ -195,7 +195,7 @@ export class OpenMeteoClient {
    */
   public updateConfig(newConfig: Partial<OpenMeteoConfig>): void {
     this.config = { ...this.config, ...newConfig };
-    logger.info('Open-Meteo client configuration updated', { config: this.config });
+    logger.info('Open-Meteo client configuration updated', 'OPEN_METEO', { config: this.config });
   }
 }
 

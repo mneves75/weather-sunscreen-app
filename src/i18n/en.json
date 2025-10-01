@@ -101,5 +101,20 @@
     "home": "Home",
     "messages": "Messages",
     "settings": "Settings"
+  },
+  "sunscreen": {
+    "title": "Sunscreen Protection",
+    "description": "Track when you apply sunscreen and get notified when it's time to reapply based on current weather conditions.",
+    "apply": "Apply Sunscreen",
+    "reapply": "Reapply Now",
+    "clear": "Clear",
+    "protected": "Protected",
+    "reapplyNeeded": "Reapply Needed!",
+    "appliedAt": "Applied at",
+    "remaining": "remaining",
+    "expired": "TIME'S UP",
+    "interval": "interval",
+    "swimmingMode": "Swimming/Water Activities",
+    "swimmingActive": "Swimming Mode Active"
   }
 }

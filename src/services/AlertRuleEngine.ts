@@ -3,20 +3,20 @@
  * Evaluates weather and UV data against rules to generate alerts
  */
 
+import type {
+    AlertRule,
+    AlertRuleCondition,
+    AlertRuleEvaluationResult,
+    AlertRuleOperator,
+    Message,
+    MessageInput,
+    SkinType,
+    UVIndex,
+    WeatherData,
+} from '@/src/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { logger } from './LoggerService';
 import { messageService } from './MessageService';
-import type {
-  AlertRule,
-  AlertRuleCondition,
-  AlertRuleEvaluationResult,
-  AlertRuleOperator,
-  WeatherData,
-  UVIndex,
-  Message,
-  MessageInput,
-  SkinType,
-} from '@/src/types';
 
 const ALERT_RULES_STORAGE_KEY = '@WeatherSunscreen:alertRules';
 
@@ -452,19 +452,20 @@ class AlertRuleEngine {
       context.visibility = data.weather.current.visibility;
       context.cloudCover = data.weather.current.cloudCover;
       context.condition = data.weather.current.condition;
-      context.precipitationProbability = data.weather.current.precipitationProbability || 0;
+      // Note: precipitationProbability is only available in forecast data, not current weather
+      context.precipitationProbability = 0;
     }
 
     if (rule.type === 'uv' && data.uvIndex) {
-      context.current = data.uvIndex.current;
-      context.max = data.uvIndex.max;
+      context.current = data.uvIndex.value;
+      context.value = data.uvIndex.value;
       context.peakTime = data.uvIndex.peakTime;
       context.level = data.uvIndex.level;
       context.riskLevel = this.getUVRiskDescription(data.uvIndex.level);
       
       // Calculate SPF recommendation based on skin type and UV index
       if (data.skinType) {
-        context.spf = this.calculateSPF(data.uvIndex.current, data.skinType);
+        context.spf = this.calculateSPF(data.uvIndex.value, data.skinType);
       }
     }
 

@@ -101,5 +101,20 @@
     "home": "Início",
     "messages": "Mensagens",
     "settings": "Configurações"
+  },
+  "sunscreen": {
+    "title": "Proteção Solar",
+    "description": "Acompanhe quando você aplica protetor solar e receba notificações sobre quando reaplicar com base nas condições climáticas atuais.",
+    "apply": "Aplicar Protetor",
+    "reapply": "Reaplicar Agora",
+    "clear": "Limpar",
+    "protected": "Protegido",
+    "reapplyNeeded": "Hora de Reaplicar!",
+    "appliedAt": "Aplicado às",
+    "remaining": "restantes",
+    "expired": "TEMPO ESGOTADO",
+    "interval": "intervalo",
+    "swimmingMode": "Natação/Atividades Aquáticas",
+    "swimmingActive": "Modo Natação Ativo"
   }
 }

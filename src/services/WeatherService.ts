@@ -68,7 +68,7 @@ class WeatherService {
     try {
       // Check cache first
       if (this.isCacheValid(this.weatherCache, coordinates)) {
-        logger.debug('Returning cached weather data', { coordinates });
+        logger.debug('Returning cached weather data', 'WEATHER', { coordinates });
         return this.weatherCache.data;
       }
 
@@ -85,7 +85,7 @@ class WeatherService {
         const uvIndex = await this.getUVIndex(coordinates);
         weatherData.uvIndex = uvIndex;
       } catch (error) {
-        logger.warn('Failed to fetch UV index, continuing without it', { error });
+        logger.warn('Failed to fetch UV index, continuing without it', 'WEATHER', { error });
       }
 
       // Cache the result
@@ -95,7 +95,7 @@ class WeatherService {
         coordinates,
       };
 
-      logger.info('Weather data fetched successfully', { coordinates });
+      logger.info('Weather data fetched successfully', 'WEATHER', { coordinates });
       return weatherData;
     } catch (error) {
       logger.error('Failed to fetch weather data', error as Error, 'WEATHER');
@@ -120,7 +120,7 @@ class WeatherService {
     try {
       // Check cache first
       if (this.isCacheValid(this.uvCache, coordinates)) {
-        logger.debug('Returning cached UV index', { coordinates });
+        logger.debug('Returning cached UV index', 'WEATHER', { coordinates });
         return this.uvCache.data;
       }
 
@@ -139,7 +139,7 @@ class WeatherService {
         coordinates,
       };
 
-      logger.info('UV index fetched successfully', { coordinates, uvIndex: uvIndex.value });
+      logger.info('UV index fetched successfully', 'WEATHER', { coordinates, uvIndex: uvIndex.value });
       return uvIndex;
     } catch (error) {
       logger.error('Failed to fetch UV index', error as Error, 'WEATHER');
@@ -164,7 +164,7 @@ class WeatherService {
     try {
       // Check cache first
       if (this.isCacheValid(this.forecastCache, coordinates)) {
-        logger.debug('Returning cached forecast', { coordinates });
+        logger.debug('Returning cached forecast', 'WEATHER', { coordinates });
         return this.forecastCache.data;
       }
 
@@ -187,7 +187,7 @@ class WeatherService {
         coordinates,
       };
 
-      logger.info('Forecast fetched successfully', {
+      logger.info('Forecast fetched successfully', 'WEATHER', {
         coordinates,
         days: forecast.days.length
       });
