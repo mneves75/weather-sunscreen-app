@@ -4,8 +4,8 @@
 
 import { useSettings } from '@/src/context/SettingsContext';
 import { useWeather } from '@/src/context/WeatherContext';
-import { convertPressure, convertSpeed, convertTemperature } from '@/src/utils';
-import { useCallback, useEffect, useRef } from 'react';
+import { convertPressure, convertSpeed, convertTemperature, formatPressure as formatPressureValue, formatSpeed } from '@/src/utils';
+import { useCallback } from 'react';
 
 export function useWeatherData() {
   const {
@@ -17,9 +17,6 @@ export function useWeatherData() {
   } = useWeather();
 
   const { preferences } = useSettings();
-
-  const hasRequestedInitialWeatherRef = useRef(false);
-  const lastLocationKeyRef = useRef<string | null>(null);
   
   // Convert temperature based on user preference
   const convertedTemperature = useCallback((celsius: number) => {
@@ -42,30 +39,16 @@ export function useWeatherData() {
     const symbol = preferences.temperatureUnit === 'celsius' ? '°C' : '°F';
     return `${Math.round(converted)}${symbol}`;
   }, [convertedTemperature, preferences.temperatureUnit]);
-  
-  // Auto-refresh when location changes - only fetch once per coordinate change
-  useEffect(() => {
-    if (!currentLocation) {
-      hasRequestedInitialWeatherRef.current = false;
-      lastLocationKeyRef.current = null;
-      return;
-    }
 
-    const locationKey = `${currentLocation.latitude}:${currentLocation.longitude}`;
-    if (lastLocationKeyRef.current !== locationKey) {
-      hasRequestedInitialWeatherRef.current = false;
-      lastLocationKeyRef.current = locationKey;
-    }
+  const formatWindSpeed = useCallback((kmh: number) => {
+    const converted = convertedSpeed(kmh);
+    return formatSpeed(converted, preferences.speedUnit, preferences.speedUnit === 'ms' ? 2 : 1);
+  }, [convertedSpeed, preferences.speedUnit]);
 
-    if (
-      !hasRequestedInitialWeatherRef.current &&
-      !weatherData &&
-      !isLoadingWeather
-    ) {
-      hasRequestedInitialWeatherRef.current = true;
-      void refreshWeather();
-    }
-  }, [currentLocation?.latitude, currentLocation?.longitude, weatherData, isLoadingWeather, refreshWeather]);
+  const formatPressure = useCallback((hPa: number) => {
+    const converted = convertedPressure(hPa);
+    return formatPressureValue(converted, preferences.pressureUnit);
+  }, [convertedPressure, preferences.pressureUnit]);
   
   return {
     weatherData,
@@ -79,7 +62,9 @@ export function useWeatherData() {
     convertedSpeed,
     convertedPressure,
     getTemperatureWithUnit,
-    
+    formatWindSpeed,
+    formatPressure,
+
     // Units
     temperatureUnit: preferences.temperatureUnit,
     speedUnit: preferences.speedUnit,

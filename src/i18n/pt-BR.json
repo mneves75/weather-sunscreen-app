@@ -34,6 +34,7 @@
     "aboutTitle": "Sobre o Índice UV",
     "aboutDescription": "O índice UV mede a intensidade da radiação ultravioleta do sol. Valores mais altos indicam maior risco de danos à pele e aos olhos.",
     "spfBanner": "FPS {{value}}+",
+    "peakLabel": "Pico: {{time}}",
     "levels": {
       "low": "Baixo",
       "moderate": "Moderado",
@@ -48,6 +49,8 @@
     "today": "Hoje",
     "tomorrow": "Amanhã",
     "noData": "Nenhuma previsão disponível",
+    "uvLabel": "UV",
+    "daySummary": "{{day}}. {{condition}}. Máxima {{high}}, Mínima {{low}}. Índice UV {{uv}}",
     "precipitation": "Precipitação",
     "precipitationChance": "Chance de chuva",
     "high": "Máxima",
@@ -126,7 +129,11 @@
     "version": "Versão",
     "developer": "Opções de Desenvolvedor",
     "performanceOverlay": "Overlay de Performance",
-    "material3": "Material 3 (Experimental)"
+    "material3": "Material 3 (Experimental)",
+    "timeFormat": "Formato de Hora",
+    "timeFormatSystem": "Usar configuração do dispositivo",
+    "timeFormat12": "Relógio de 12 horas",
+    "timeFormat24": "Relógio de 24 horas"
   },
   "errors": {
     "network": "Erro de rede ocorreu",
@@ -138,6 +145,33 @@
     "unknown": "Ocorreu um erro desconhecido",
     "tryAgain": "Por favor, tente novamente",
     "offline": "Você está offline"
+  },
+  "weatherCard": {
+    "feelsLike": "Sensação de {{value}}",
+    "humidity": "Umidade",
+    "wind": "Vento",
+    "pressure": "Pressão",
+    "updated": "Atualizado {{time}}"
+  },
+  "weatherDetails": {
+    "title": "Detalhes",
+    "humidity": "Umidade",
+    "wind": "Vento",
+    "pressure": "Pressão",
+    "visibility": "Visibilidade",
+    "cloudCover": "Cobertura de Nuvens",
+    "feelsLike": "Sensação"
+  },
+  "skinTypeSelector": {
+    "label": "Tipo de Pele"
+  },
+  "accessibility": {
+    "weatherCard": {
+      "summary": "Clima para {{city}}. Temperatura {{temperature}}. {{description}}"
+    },
+    "uvIndicator": {
+      "summary": "Índice UV {{value}}, Nível {{label}}"
+    }
   },
   "skinTypes": {
     "veryFair": "Muito Clara",

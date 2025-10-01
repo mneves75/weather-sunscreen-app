@@ -7,6 +7,7 @@ import { useColors } from '@/src/theme/theme';
 import { SkinType } from '@/src/types';
 import { getSkinTypeLabel } from '@/src/utils';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 interface SkinTypeSelectorProps {
@@ -23,11 +24,12 @@ export const SkinTypeSelector = React.memo<SkinTypeSelectorProps>(({
   locale = 'en',
 }) => {
   const colors = useColors();
+  const { t } = useTranslation();
   
   return (
     <View style={styles.container}>
       <Text variant="body1" style={[styles.label, { color: colors.onSurface }]}>
-        {locale === 'pt-BR' ? 'Tipo de Pele' : 'Skin Type'}
+        {t('skinTypeSelector.label', 'Skin Type')}
       </Text>
       
       <ScrollView
@@ -89,4 +91,3 @@ const styles = StyleSheet.create({
     borderWidth: 2,
   },
 });
-

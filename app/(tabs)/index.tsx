@@ -22,6 +22,7 @@ export default function HomeScreen() {
   const colors = useColors();
   const router = useRouter();
   const { preferences } = useSettings();
+  const use24HourTime = preferences.timeFormat === '24h' || (preferences.timeFormat === 'system' && preferences.locale === 'pt-BR');
   
   // Get weather data
   const { 
@@ -29,6 +30,9 @@ export default function HomeScreen() {
     isLoading: isLoadingWeather, 
     error: weatherError, 
     refresh: refreshWeather,
+    getTemperatureWithUnit,
+    formatWindSpeed,
+    formatPressure,
   } = useWeatherData();
   
   // Get forecast data
@@ -179,6 +183,13 @@ export default function HomeScreen() {
         <WeatherCard
           data={weatherData}
           onPress={() => router.push('/(tabs)/(home)/weather')}
+          temperatureText={getTemperatureWithUnit(weatherData.current.temperature)}
+          feelsLikeText={getTemperatureWithUnit(weatherData.current.feelsLike)}
+          windText={formatWindSpeed(weatherData.current.windSpeed)}
+          pressureText={formatPressure(weatherData.current.pressure)}
+          humidityText={`${weatherData.current.humidity}%`}
+          locale={preferences.locale}
+          use24HourTime={use24HourTime}
         />
       )}
       

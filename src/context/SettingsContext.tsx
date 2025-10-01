@@ -18,6 +18,7 @@ const DEFAULT_PREFERENCES: UserPreferences = {
   uvAlerts: false,
   weatherAlerts: false,
   locale: 'en',
+  timeFormat: 'system',
 };
 
 interface SettingsContextValue {

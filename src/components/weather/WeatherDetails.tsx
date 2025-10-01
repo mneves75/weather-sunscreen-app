@@ -4,34 +4,53 @@
 
 import { Text } from '@/src/components/ui';
 import { useColors } from '@/src/theme/theme';
-import { WeatherData } from '@/src/types';
+import { PressureUnit, SpeedUnit, TemperatureUnit, WeatherData } from '@/src/types';
 import {
     degreesToCardinal,
     formatVisibility,
     getHumidityLevel,
     getWindDescription,
 } from '@/src/utils';
+import { convertPressure, convertSpeed, convertTemperature } from '@/src/utils';
+import { useTranslation } from 'react-i18next';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 
 interface WeatherDetailsProps {
   data: WeatherData;
   locale?: string;
-  speedUnit?: string;
-  pressureUnit?: string;
+  speedUnit?: SpeedUnit;
+  pressureUnit?: PressureUnit;
+  temperatureUnit?: TemperatureUnit;
 }
 
 export const WeatherDetails = React.memo<WeatherDetailsProps>(({ 
   data,
   locale = 'en',
-  speedUnit = 'km/h',
+  speedUnit = 'kmh',
   pressureUnit = 'hPa',
+  temperatureUnit = 'celsius',
 }) => {
   const colors = useColors();
-  
+  const { t } = useTranslation();
+
   const windDirection = degreesToCardinal(data.current.windDirection);
   const windDesc = getWindDescription(data.current.windSpeed, locale);
   const humidityLevel = getHumidityLevel(data.current.humidity, locale);
+
+  const convertedWind = convertSpeed(data.current.windSpeed, 'kmh', speedUnit);
+  const windUnitLabel = speedUnit === 'kmh' ? 'km/h' : speedUnit === 'mph' ? 'mph' : 'm/s';
+  const windValueDisplay = `${Math.round(convertedWind)} ${windUnitLabel}`;
+
+  const convertedPressureValue = convertPressure(data.current.pressure, 'hPa', pressureUnit);
+  const pressureUnitLabel = pressureUnit;
+  const pressureValueDisplay = `${Math.round(convertedPressureValue)} ${pressureUnitLabel}`;
+
+  const convertedFeelsLike = convertTemperature(data.current.feelsLike, 'celsius', temperatureUnit);
+  const temperatureSymbol = temperatureUnit === 'celsius' ? '°C' : '°F';
+  const feelsLikeDisplay = `${Math.round(convertedFeelsLike)}${temperatureSymbol}`;
+
+  const visibilityUnit = speedUnit === 'mph' ? 'imperial' : 'metric';
   
   const DetailItem = ({ label, value, subtitle }: { label: string; value: string; subtitle?: string }) => (
     <View style={styles.detailItem}>
@@ -54,40 +73,40 @@ export const WeatherDetails = React.memo<WeatherDetailsProps>(({
       style={[styles.container, { backgroundColor: colors.surface }]}
     >
       <Text variant="h3" style={[styles.title, { color: colors.onSurface }]}>
-        {locale === 'pt-BR' ? 'Detalhes' : 'Details'}
+        {t('weatherDetails.title', 'Details')}
       </Text>
       
       <View style={styles.grid}>
         <DetailItem
-          label={locale === 'pt-BR' ? 'Umidade' : 'Humidity'}
+          label={t('weatherDetails.humidity', 'Humidity')}
           value={`${data.current.humidity}%`}
           subtitle={humidityLevel}
         />
         
         <DetailItem
-          label={locale === 'pt-BR' ? 'Vento' : 'Wind'}
-          value={`${Math.round(data.current.windSpeed)} ${speedUnit}`}
+          label={t('weatherDetails.wind', 'Wind')}
+          value={windValueDisplay}
           subtitle={`${windDirection} • ${windDesc}`}
         />
         
         <DetailItem
-          label={locale === 'pt-BR' ? 'Pressão' : 'Pressure'}
-          value={`${data.current.pressure} ${pressureUnit}`}
+          label={t('weatherDetails.pressure', 'Pressure')}
+          value={pressureValueDisplay}
         />
         
         <DetailItem
-          label={locale === 'pt-BR' ? 'Visibilidade' : 'Visibility'}
-          value={formatVisibility(data.current.visibility)}
+          label={t('weatherDetails.visibility', 'Visibility')}
+          value={formatVisibility(data.current.visibility, visibilityUnit)}
         />
         
         <DetailItem
-          label={locale === 'pt-BR' ? 'Nuvens' : 'Cloud Cover'}
+          label={t('weatherDetails.cloudCover', 'Cloud Cover')}
           value={`${data.current.cloudCover}%`}
         />
         
         <DetailItem
-          label={locale === 'pt-BR' ? 'Sensação' : 'Feels Like'}
-          value={`${Math.round(data.current.feelsLike)}°`}
+          label={t('weatherDetails.feelsLike', 'Feels Like')}
+          value={feelsLikeDisplay}
         />
       </View>
     </View>
@@ -115,4 +134,3 @@ const styles = StyleSheet.create({
     gap: 4,
   },
 });
-

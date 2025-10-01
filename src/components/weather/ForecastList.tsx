@@ -14,6 +14,7 @@ interface ForecastListProps {
   onRefresh?: () => void;
   refreshing?: boolean;
   locale?: string;
+  formatTemperature?: (value: number) => string;
 }
 
 export const ForecastList = React.memo<ForecastListProps>(({ 
@@ -22,6 +23,7 @@ export const ForecastList = React.memo<ForecastListProps>(({
   onRefresh,
   refreshing = false,
   locale = 'en',
+  formatTemperature,
 }) => {
   const colors = useColors();
   
@@ -30,8 +32,9 @@ export const ForecastList = React.memo<ForecastListProps>(({
       day={item}
       onPress={onDayPress ? () => onDayPress(item) : undefined}
       locale={locale}
+      formatTemperature={formatTemperature}
     />
-  ), [onDayPress, locale]);
+  ), [onDayPress, locale, formatTemperature]);
   
   const keyExtractor = useCallback((item: ForecastDay) => item.date, []);
   
@@ -66,4 +69,3 @@ const styles = StyleSheet.create({
     paddingBottom: 32,
   },
 });
-

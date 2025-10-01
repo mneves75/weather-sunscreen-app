@@ -15,7 +15,7 @@ export default function SettingsScreen() {
   const colors = useColors();
   const { themeMode, setThemeMode, highContrast, setHighContrast } = useTheme();
   const { preferences, updatePreference, resetPreferences } = useSettings();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   
   const handleReset = useCallback(() => {
     Alert.alert(
@@ -41,6 +41,12 @@ export default function SettingsScreen() {
     await updatePreference('locale', locale);
     i18n.changeLanguage(locale);
   }, [updatePreference, i18n]);
+
+  const timeFormatLabel = preferences.timeFormat === '24h'
+    ? t('settings.timeFormat24')
+    : preferences.timeFormat === '12h'
+      ? t('settings.timeFormat12')
+      : t('settings.timeFormatSystem');
   
   const SettingItem = ({ 
     title, 
@@ -194,6 +200,20 @@ export default function SettingsScreen() {
           }}
           rightElement={<Text style={styles.chevron}>›</Text>}
         />
+
+        <Divider />
+
+        <SettingItem
+          title={t('settings.timeFormat')}
+          subtitle={timeFormatLabel}
+          onPress={() => {
+            const formats = ['system', '12h', '24h'] as const;
+            const currentIndex = formats.indexOf(preferences.timeFormat ?? 'system');
+            const nextFormat = formats[(currentIndex + 1) % formats.length];
+            void updatePreference('timeFormat', nextFormat);
+          }}
+          rightElement={<Text style={styles.chevron}>›</Text>}
+        />
       </View>
       
       {/* Skin Type Section */}
@@ -311,4 +331,3 @@ const styles = StyleSheet.create({
     gap: 4,
   },
 });
-

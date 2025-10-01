@@ -6,6 +6,7 @@ import { Text } from '@/src/components/ui';
 import { useColors } from '@/src/theme/theme';
 import { WeatherData } from '@/src/types';
 import { formatTime, getWeatherEmoji } from '@/src/utils';
+import { useTranslation } from 'react-i18next';
 import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 
@@ -13,23 +14,48 @@ interface WeatherCardProps {
   data: WeatherData;
   onPress?: () => void;
   showLastUpdated?: boolean;
+  temperatureText?: string;
+  feelsLikeText?: string;
+  windText?: string;
+  pressureText?: string;
+  humidityText?: string;
+  locale?: string;
+  use24HourTime?: boolean;
 }
 
 export const WeatherCard = React.memo<WeatherCardProps>(({ 
   data, 
   onPress,
   showLastUpdated = true,
+  temperatureText,
+  feelsLikeText,
+  windText,
+  pressureText,
+  humidityText,
+  locale = 'en-US',
+  use24HourTime = false,
 }) => {
   const colors = useColors();
+  const { t } = useTranslation();
   
   const Container = onPress ? TouchableOpacity : View;
+  const temperatureDisplay = temperatureText ?? `${Math.round(data.current.temperature)}°`;
+  const feelsLikeDisplay = feelsLikeText ?? `${Math.round(data.current.feelsLike)}°`;
+  const windDisplay = windText ?? `${Math.round(data.current.windSpeed)} km/h`;
+  const pressureDisplay = pressureText ?? `${data.current.pressure} hPa`;
+  const humidityDisplay = humidityText ?? `${data.current.humidity}%`;
   
   return (
     <Container
       style={[styles.container, { backgroundColor: colors.surface }]}
       onPress={onPress}
       accessibilityRole={onPress ? "button" : undefined}
-      accessibilityLabel={`Weather for ${data.location.city}. Temperature ${Math.round(data.current.temperature)} degrees. ${data.current.condition.description}`}
+      accessibilityLabel={t('accessibility.weatherCard.summary', {
+        defaultValue: 'Weather for {{city}}. Temperature {{temperature}}. {{description}}',
+        city: data.location.city,
+        temperature: temperatureDisplay,
+        description: data.current.condition.description,
+      })}
     >
       <View style={styles.header}>
         <View style={styles.locationContainer}>
@@ -47,10 +73,10 @@ export const WeatherCard = React.memo<WeatherCardProps>(({
       <View style={styles.main}>
         <View style={styles.temperatureContainer}>
           <Text style={[styles.temperature, { color: colors.primary }]}>
-            {Math.round(data.current.temperature)}°
+            {temperatureDisplay}
           </Text>
           <Text variant="body1" style={{ color: colors.onSurfaceVariant }}>
-            Feels like {Math.round(data.current.feelsLike)}°
+            {t('weatherCard.feelsLike', { defaultValue: 'Feels like {{value}}', value: feelsLikeDisplay })}
           </Text>
         </View>
         
@@ -67,35 +93,38 @@ export const WeatherCard = React.memo<WeatherCardProps>(({
       <View style={styles.details}>
         <View style={styles.detailItem}>
           <Text variant="caption" style={{ color: colors.onSurfaceVariant }}>
-            Humidity
+            {t('weatherCard.humidity', 'Humidity')}
           </Text>
           <Text variant="body2" style={{ color: colors.onSurface }}>
-            {data.current.humidity}%
+            {humidityDisplay}
           </Text>
         </View>
         
         <View style={styles.detailItem}>
           <Text variant="caption" style={{ color: colors.onSurfaceVariant }}>
-            Wind
+            {t('weatherCard.wind', 'Wind')}
           </Text>
           <Text variant="body2" style={{ color: colors.onSurface }}>
-            {Math.round(data.current.windSpeed)} km/h
+            {windDisplay}
           </Text>
         </View>
         
         <View style={styles.detailItem}>
           <Text variant="caption" style={{ color: colors.onSurfaceVariant }}>
-            Pressure
+            {t('weatherCard.pressure', 'Pressure')}
           </Text>
           <Text variant="body2" style={{ color: colors.onSurface }}>
-            {data.current.pressure} hPa
+            {pressureDisplay}
           </Text>
         </View>
       </View>
       
       {showLastUpdated && (
         <Text variant="caption" style={[styles.timestamp, { color: colors.onSurfaceVariant }]}>
-          Updated {formatTime(data.current.timestamp)}
+          {t('weatherCard.updated', {
+            defaultValue: 'Updated {{time}}',
+            time: formatTime(data.current.timestamp, { locale, use24Hour: use24HourTime }),
+          })}
         </Text>
       )}
     </Container>
@@ -153,4 +182,3 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
-

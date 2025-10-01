@@ -7,6 +7,7 @@ import { useColors } from '@/src/theme/theme';
 import { UVIndex } from '@/src/types';
 import { formatUVIndex, getUVLevelColor, getUVLevelLabel } from '@/src/utils';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
 
 interface UVIndicatorProps {
@@ -21,6 +22,7 @@ export const UVIndicator = React.memo<UVIndicatorProps>(({
   size = 'large',
 }) => {
   const colors = useColors();
+  const { t } = useTranslation();
   const uvColor = getUVLevelColor(uvIndex.level);
   const uvLabel = getUVLevelLabel(uvIndex.level, locale);
   
@@ -34,7 +36,11 @@ export const UVIndicator = React.memo<UVIndicatorProps>(({
         isSmall && styles.containerSmall,
       ]}
       accessibilityRole="text"
-      accessibilityLabel={`UV Index ${uvIndex.value}, Level ${uvLabel}`}
+      accessibilityLabel={t('accessibility.uvIndicator.summary', {
+        defaultValue: 'UV Index {{value}}, Level {{label}}',
+        value: formatUVIndex(uvIndex.value),
+        label: uvLabel,
+      })}
     >
       <View style={styles.content}>
         <View style={styles.header}>
@@ -42,7 +48,7 @@ export const UVIndicator = React.memo<UVIndicatorProps>(({
             variant={isSmall ? "body2" : "body1"} 
             style={{ color: colors.onSurfaceVariant }}
           >
-            UV Index
+            {t('uv.title')}
           </Text>
         </View>
         
@@ -75,7 +81,7 @@ export const UVIndicator = React.memo<UVIndicatorProps>(({
             
             {uvIndex.peakTime && !isSmall && (
               <Text variant="caption" style={{ color: colors.onSurfaceVariant }}>
-                Peak: {uvIndex.peakTime}
+                {t('uv.peakLabel', { defaultValue: 'Peak: {{time}}', time: uvIndex.peakTime })}
               </Text>
             )}
           </View>
@@ -178,4 +184,3 @@ const styles = StyleSheet.create({
     marginLeft: -8,
   },
 });
-

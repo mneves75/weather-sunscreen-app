@@ -2,25 +2,27 @@
  * Date formatting and manipulation utilities
  */
 
+export interface FormatTimeOptions {
+  locale?: string;
+  use24Hour?: boolean;
+  timeZone?: string;
+}
+
 /**
  * Format timestamp to time string (e.g., "2:30 PM")
  */
-export function formatTime(timestamp: number, use24Hour: boolean = false): string {
+export function formatTime(timestamp: number, options: FormatTimeOptions = {}): string {
+  const { locale = 'en-US', use24Hour, timeZone } = options;
   const date = new Date(timestamp);
-  
-  if (use24Hour) {
-    return date.toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-    });
-  }
-  
-  return date.toLocaleTimeString('en-US', {
+
+  const formatter = new Intl.DateTimeFormat(locale, {
     hour: 'numeric',
     minute: '2-digit',
-    hour12: true,
+    hour12: use24Hour === undefined ? undefined : !use24Hour,
+    timeZone,
   });
+
+  return formatter.format(date);
 }
 
 /**
@@ -162,4 +164,3 @@ export function endOfDay(date: Date | string | number): Date {
   d.setHours(23, 59, 59, 999);
   return d;
 }
-

@@ -34,6 +34,7 @@
     "aboutTitle": "About UV Index",
     "aboutDescription": "The UV index measures the strength of ultraviolet radiation from the sun. Higher values indicate greater risk of harm to skin and eyes.",
     "spfBanner": "SPF {{value}}+",
+    "peakLabel": "Peak: {{time}}",
     "levels": {
       "low": "Low",
       "moderate": "Moderate",
@@ -48,6 +49,8 @@
     "today": "Today",
     "tomorrow": "Tomorrow",
     "noData": "No forecast available",
+    "uvLabel": "UV",
+    "daySummary": "{{day}}. {{condition}}. High {{high}}, Low {{low}}. UV Index {{uv}}",
     "precipitation": "Precipitation",
     "precipitationChance": "Chance of rain",
     "high": "High",
@@ -126,7 +129,11 @@
     "version": "Version",
     "developer": "Developer Options",
     "performanceOverlay": "Performance Overlay",
-    "material3": "Material 3 (Experimental)"
+    "material3": "Material 3 (Experimental)",
+    "timeFormat": "Time Format",
+    "timeFormatSystem": "Use device setting",
+    "timeFormat12": "12-hour clock",
+    "timeFormat24": "24-hour clock"
   },
   "errors": {
     "network": "Network error occurred",
@@ -138,6 +145,33 @@
     "unknown": "An unknown error occurred",
     "tryAgain": "Please try again",
     "offline": "You are offline"
+  },
+  "weatherCard": {
+    "feelsLike": "Feels like {{value}}",
+    "humidity": "Humidity",
+    "wind": "Wind",
+    "pressure": "Pressure",
+    "updated": "Updated {{time}}"
+  },
+  "weatherDetails": {
+    "title": "Details",
+    "humidity": "Humidity",
+    "wind": "Wind",
+    "pressure": "Pressure",
+    "visibility": "Visibility",
+    "cloudCover": "Cloud Cover",
+    "feelsLike": "Feels Like"
+  },
+  "skinTypeSelector": {
+    "label": "Skin Type"
+  },
+  "accessibility": {
+    "weatherCard": {
+      "summary": "Weather for {{city}}. Temperature {{temperature}}. {{description}}"
+    },
+    "uvIndicator": {
+      "summary": "UV Index {{value}}, Level {{label}}"
+    }
   },
   "skinTypes": {
     "veryFair": "Very Fair",

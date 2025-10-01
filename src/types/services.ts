@@ -56,6 +56,7 @@ export interface UserPreferences {
   uvAlerts: boolean;
   weatherAlerts: boolean;
   locale: 'en' | 'pt-BR';
+  timeFormat: 'system' | '12h' | '24h';
 }
 
 /**

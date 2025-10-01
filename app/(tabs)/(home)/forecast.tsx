@@ -22,6 +22,7 @@ export default function ForecastScreen() {
     isLoading, 
     error, 
     refresh,
+    getTemperatureWithUnit,
   } = useForecast();
   
   // Show loading on first load
@@ -53,6 +54,7 @@ export default function ForecastScreen() {
           onRefresh={refresh}
           refreshing={isLoading}
           locale={preferences.locale}
+          formatTemperature={getTemperatureWithUnit}
         />
       ) : (
         <Container style={styles.centerContainer}>

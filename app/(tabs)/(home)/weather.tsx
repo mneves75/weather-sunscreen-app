@@ -15,6 +15,7 @@ import { RefreshControl, ScrollView, StyleSheet } from 'react-native';
 export default function WeatherDetailScreen() {
   const colors = useColors();
   const { preferences } = useSettings();
+  const use24HourTime = preferences.timeFormat === '24h' || (preferences.timeFormat === 'system' && preferences.locale === 'pt-BR');
   const { t } = useTranslation();
   
   const { 
@@ -24,6 +25,10 @@ export default function WeatherDetailScreen() {
     refresh,
     speedUnit,
     pressureUnit,
+    temperatureUnit,
+    getTemperatureWithUnit,
+    formatWindSpeed,
+    formatPressure,
   } = useWeatherData();
   
   // Show loading on first load
@@ -82,6 +87,13 @@ export default function WeatherDetailScreen() {
       <WeatherCard
         data={weatherData}
         showLastUpdated
+        temperatureText={getTemperatureWithUnit(weatherData.current.temperature)}
+        feelsLikeText={getTemperatureWithUnit(weatherData.current.feelsLike)}
+        windText={formatWindSpeed(weatherData.current.windSpeed)}
+        pressureText={formatPressure(weatherData.current.pressure)}
+        humidityText={`${weatherData.current.humidity}%`}
+        locale={preferences.locale}
+        use24HourTime={use24HourTime}
       />
       
       {/* Detailed Information */}
@@ -90,6 +102,7 @@ export default function WeatherDetailScreen() {
         locale={preferences.locale}
         speedUnit={speedUnit}
         pressureUnit={pressureUnit}
+        temperatureUnit={temperatureUnit}
       />
     </ScrollView>
   );

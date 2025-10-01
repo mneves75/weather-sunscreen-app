@@ -7,32 +7,45 @@ import { useColors } from '@/src/theme/theme';
 import { ForecastDay } from '@/src/types';
 import { formatShortDate, getRelativeDayLabel, getWeatherEmoji } from '@/src/utils';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 
 interface ForecastDayCardProps {
   day: ForecastDay;
   onPress?: () => void;
   locale?: string;
+  formatTemperature?: (value: number) => string;
 }
 
 export const ForecastDayCard = React.memo<ForecastDayCardProps>(({ 
   day, 
   onPress,
   locale = 'en',
+  formatTemperature,
 }) => {
   const colors = useColors();
+  const { t } = useTranslation();
   
   const dayLabel = getRelativeDayLabel(day.date, locale);
   const dateLabel = formatShortDate(day.date, locale);
+  const highTemp = formatTemperature ? formatTemperature(day.temperature.max) : `${Math.round(day.temperature.max)}°`;
+  const lowTemp = formatTemperature ? formatTemperature(day.temperature.min) : `${Math.round(day.temperature.min)}°`;
   
   const Container = onPress ? TouchableOpacity : View;
-  
+
   return (
     <Container
       style={[styles.container, { backgroundColor: colors.surface }]}
       onPress={onPress}
       accessibilityRole={onPress ? "button" : undefined}
-      accessibilityLabel={`${dayLabel}. ${day.condition.description}. High ${Math.round(day.temperature.max)}, Low ${Math.round(day.temperature.min)} degrees. UV Index ${day.uvIndex.max}`}
+      accessibilityLabel={t('forecast.daySummary', {
+        defaultValue: '{{day}}. {{condition}}. High {{high}}, Low {{low}}. UV Index {{uv}}',
+        day: dayLabel,
+        condition: day.condition.description,
+        high: highTemp,
+        low: lowTemp,
+        uv: day.uvIndex.max,
+      })}
     >
       <View style={styles.dateContainer}>
         <Text variant="body1" style={{ color: colors.onSurface }}>
@@ -52,16 +65,16 @@ export const ForecastDayCard = React.memo<ForecastDayCardProps>(({
       
       <View style={styles.temperatureContainer}>
         <Text variant="body1" style={{ color: colors.primary }}>
-          {Math.round(day.temperature.max)}°
+          {highTemp}
         </Text>
         <Text variant="body2" style={{ color: colors.onSurfaceVariant }}>
-          {Math.round(day.temperature.min)}°
+          {lowTemp}
         </Text>
       </View>
       
       <View style={styles.uvContainer}>
         <Text variant="caption" style={{ color: colors.onSurfaceVariant }}>
-          UV
+          {t('forecast.uvLabel', 'UV')}
         </Text>
         <Text variant="body2" style={{ color: colors.onSurface }}>
           {day.uvIndex.max}
@@ -126,4 +139,3 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 });
-

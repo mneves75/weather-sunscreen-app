@@ -5,7 +5,7 @@
 import { useSettings } from '@/src/context/SettingsContext';
 import { useWeather } from '@/src/context/WeatherContext';
 import { convertTemperature } from '@/src/utils';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback } from 'react';
 
 export function useForecast() {
   const {
@@ -17,9 +17,6 @@ export function useForecast() {
   } = useWeather();
 
   const { preferences } = useSettings();
-
-  const hasRequestedInitialForecastRef = useRef(false);
-  const lastLocationKeyRef = useRef<string | null>(null);
   
   // Convert temperature based on user preference
   const convertedTemperature = useCallback((celsius: number) => {
@@ -32,30 +29,6 @@ export function useForecast() {
     const symbol = preferences.temperatureUnit === 'celsius' ? '°C' : '°F';
     return `${Math.round(converted)}${symbol}`;
   }, [convertedTemperature, preferences.temperatureUnit]);
-  
-  // Auto-refresh when location changes - only once per coordinate change
-  useEffect(() => {
-    if (!currentLocation) {
-      hasRequestedInitialForecastRef.current = false;
-      lastLocationKeyRef.current = null;
-      return;
-    }
-
-    const locationKey = `${currentLocation.latitude}:${currentLocation.longitude}`;
-    if (lastLocationKeyRef.current !== locationKey) {
-      hasRequestedInitialForecastRef.current = false;
-      lastLocationKeyRef.current = locationKey;
-    }
-
-    if (
-      !hasRequestedInitialForecastRef.current &&
-      !forecast &&
-      !isLoadingForecast
-    ) {
-      hasRequestedInitialForecastRef.current = true;
-      void refreshForecast();
-    }
-  }, [currentLocation?.latitude, currentLocation?.longitude, forecast, isLoadingForecast, refreshForecast]);
   
   return {
     forecast,

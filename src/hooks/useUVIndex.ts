@@ -10,7 +10,7 @@ import {
     getUVLevelLabel,
     getUVRecommendations,
 } from '@/src/utils';
-import { useEffect, useMemo, useRef } from 'react';
+import { useMemo } from 'react';
 
 export function useUVIndex() {
   const {
@@ -22,9 +22,6 @@ export function useUVIndex() {
   } = useWeather();
 
   const { preferences } = useSettings();
-
-  const hasRequestedInitialUVRef = useRef(false);
-  const lastLocationKeyRef = useRef<string | null>(null);
   
   // Get personalized SPF recommendation
   const spfRecommendation = useMemo(() => {
@@ -53,26 +50,6 @@ export function useUVIndex() {
     if (!uvIndex) return '';
     return getUVLevelLabel(uvIndex.level, preferences.locale);
   }, [uvIndex, preferences.locale]);
-  
-  // Auto-refresh when location changes - only once per coordinate change
-  useEffect(() => {
-    if (!currentLocation) {
-      hasRequestedInitialUVRef.current = false;
-      lastLocationKeyRef.current = null;
-      return;
-    }
-
-    const locationKey = `${currentLocation.latitude}:${currentLocation.longitude}`;
-    if (lastLocationKeyRef.current !== locationKey) {
-      hasRequestedInitialUVRef.current = false;
-      lastLocationKeyRef.current = locationKey;
-    }
-
-    if (!hasRequestedInitialUVRef.current && !uvIndex && !isLoadingUV) {
-      hasRequestedInitialUVRef.current = true;
-      void refreshUV();
-    }
-  }, [currentLocation?.latitude, currentLocation?.longitude, uvIndex, isLoadingUV, refreshUV]);
   
   return {
     uvIndex,
