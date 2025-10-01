@@ -8,12 +8,14 @@ import { ForecastList } from '@/src/components/weather';
 import { useSettings } from '@/src/context/SettingsContext';
 import { useForecast } from '@/src/hooks';
 import { useColors } from '@/src/theme/theme';
+import { useTranslation } from 'react-i18next';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 
 export default function ForecastScreen() {
   const colors = useColors();
   const { preferences } = useSettings();
+  const { t } = useTranslation();
   
   const { 
     days,
@@ -26,7 +28,7 @@ export default function ForecastScreen() {
   if (isLoading && days.length === 0) {
     return (
       <Container style={styles.centerContainer}>
-        <LoadingSpinner message={preferences.locale === 'pt-BR' ? 'Carregando...' : 'Loading...'} />
+        <LoadingSpinner message={t('common.loading')} />
       </Container>
     );
   }
@@ -36,11 +38,7 @@ export default function ForecastScreen() {
     return (
       <Container style={styles.centerContainer}>
         <ErrorView
-          message={
-            preferences.locale === 'pt-BR'
-              ? 'Não foi possível carregar a previsão.'
-              : 'Could not load forecast.'
-          }
+          message={t('errors.forecastData')}
           onRetry={refresh}
         />
       </Container>
@@ -59,9 +57,7 @@ export default function ForecastScreen() {
       ) : (
         <Container style={styles.centerContainer}>
           <Text variant="body1" style={{ color: colors.onSurfaceVariant }}>
-            {preferences.locale === 'pt-BR'
-              ? 'Nenhuma previsão disponível'
-              : 'No forecast available'}
+            {t('forecast.noData')}
           </Text>
         </Container>
       )}
@@ -80,4 +76,3 @@ const styles = StyleSheet.create({
     padding: 24,
   },
 });
-

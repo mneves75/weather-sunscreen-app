@@ -5,7 +5,7 @@
 import { alertRuleEngine, weatherService } from '@/src/services';
 import { logger } from '@/src/services/LoggerService';
 import { Coordinates, Forecast, UVIndex, WeatherData } from '@/src/types';
-import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 
 interface WeatherContextValue {
   // State
@@ -51,6 +51,8 @@ export function WeatherProvider({ children }: WeatherProviderProps) {
   const [weatherError, setWeatherError] = useState<Error | null>(null);
   const [forecastError, setForecastError] = useState<Error | null>(null);
   const [uvError, setUVError] = useState<Error | null>(null);
+
+  const isRefreshingAllRef = useRef(false);
 
   // Refresh weather data
   const refreshWeather = useCallback(async () => {
@@ -120,24 +122,33 @@ export function WeatherProvider({ children }: WeatherProviderProps) {
 
   // Refresh all data with proper error handling
   const refreshAll = useCallback(async () => {
-    // Use Promise.allSettled to handle individual failures gracefully
-    const results = await Promise.allSettled([
-      refreshWeather(),
-      refreshForecast(),
-      refreshUV(),
-    ]);
+    if (isRefreshingAllRef.current) {
+      logger.debug('Skipping refreshAll: refresh already in progress', 'WEATHER');
+      return;
+    }
 
-    // Log any failures but don't throw - let individual refresh methods handle errors
-    results.forEach((result, index) => {
-      if (result.status === 'rejected') {
-        logger.error(`Refresh ${index} failed`, result.reason, 'WEATHER');
+    isRefreshingAllRef.current = true;
+    const sources = ['weather', 'forecast', 'uv'] as const;
+
+    try {
+      const results = await Promise.allSettled([
+        refreshWeather(),
+        refreshForecast(),
+        refreshUV(),
+      ]);
+
+      results.forEach((result, index) => {
+        if (result.status === 'rejected') {
+          const source = sources[index] ?? 'unknown';
+          logger.error(`Failed to refresh ${source}`, result.reason, 'WEATHER');
+        }
+      });
+
+      if (results.every(result => result.status === 'rejected')) {
+        logger.warn('All refresh operations failed', 'WEATHER');
       }
-    });
-
-    // If all failed, log a warning
-    const failedCount = results.filter(r => r.status === 'rejected').length;
-    if (failedCount === results.length) {
-      logger.warn('All refresh operations failed', 'WEATHER');
+    } finally {
+      isRefreshingAllRef.current = false;
     }
   }, [refreshWeather, refreshForecast, refreshUV]);
 
@@ -152,7 +163,7 @@ export function WeatherProvider({ children }: WeatherProviderProps) {
     if (currentLocation) {
       // Add small delay to prevent rapid successive calls
       const timeoutId = setTimeout(() => {
-        refreshAll();
+        void refreshAll();
       }, 100);
       return () => clearTimeout(timeoutId);
     }

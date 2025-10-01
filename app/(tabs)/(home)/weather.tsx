@@ -8,12 +8,14 @@ import { LocationDisplay, WeatherCard, WeatherDetails } from '@/src/components/w
 import { useSettings } from '@/src/context/SettingsContext';
 import { useWeatherData } from '@/src/hooks';
 import { useColors } from '@/src/theme/theme';
+import { useTranslation } from 'react-i18next';
 import React from 'react';
 import { RefreshControl, ScrollView, StyleSheet } from 'react-native';
 
 export default function WeatherDetailScreen() {
   const colors = useColors();
   const { preferences } = useSettings();
+  const { t } = useTranslation();
   
   const { 
     weatherData, 
@@ -28,36 +30,28 @@ export default function WeatherDetailScreen() {
   if (isLoading && !weatherData) {
     return (
       <Container style={styles.centerContainer}>
-        <LoadingSpinner message={preferences.locale === 'pt-BR' ? 'Carregando...' : 'Loading...'} />
+        <LoadingSpinner message={t('common.loading')} />
       </Container>
     );
   }
-  
+
   // Show error if data failed to load
   if (error && !weatherData) {
     return (
       <Container style={styles.centerContainer}>
         <ErrorView
-          message={
-            preferences.locale === 'pt-BR'
-              ? 'Não foi possível carregar os dados meteorológicos.'
-              : 'Could not load weather data.'
-          }
+          message={t('errors.weatherData')}
           onRetry={refresh}
         />
       </Container>
     );
   }
-  
+
   if (!weatherData) {
     return (
       <Container style={styles.centerContainer}>
         <ErrorView
-          message={
-            preferences.locale === 'pt-BR'
-              ? 'Não foi possível carregar os dados meteorológicos.'
-              : 'Could not load weather data.'
-          }
+          message={t('errors.weatherData')}
           onRetry={refresh}
         />
       </Container>
@@ -116,4 +110,3 @@ const styles = StyleSheet.create({
     padding: 24,
   },
 });
-

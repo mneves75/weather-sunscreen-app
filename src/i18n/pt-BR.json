@@ -30,6 +30,10 @@
     "peakTime": "Horário de Pico",
     "recommendations": "Recomendações",
     "protection": "Proteção Solar",
+    "skinTypePrompt": "Selecione seu tipo de pele para recomendações personalizadas de FPS",
+    "aboutTitle": "Sobre o Índice UV",
+    "aboutDescription": "O índice UV mede a intensidade da radiação ultravioleta do sol. Valores mais altos indicam maior risco de danos à pele e aos olhos.",
+    "spfBanner": "FPS {{value}}+",
     "levels": {
       "low": "Baixo",
       "moderate": "Moderado",
@@ -43,6 +47,7 @@
     "sevenDay": "Previsão de 7 Dias",
     "today": "Hoje",
     "tomorrow": "Amanhã",
+    "noData": "Nenhuma previsão disponível",
     "precipitation": "Precipitação",
     "precipitationChance": "Chance de chuva",
     "high": "Máxima",
@@ -128,6 +133,8 @@
     "location": "Não foi possível obter localização",
     "locationPermission": "Permissão de localização negada",
     "weatherData": "Falha ao carregar dados do clima",
+    "uvData": "Falha ao carregar o índice UV",
+    "forecastData": "Falha ao carregar a previsão",
     "unknown": "Ocorreu um erro desconhecido",
     "tryAgain": "Por favor, tente novamente",
     "offline": "Você está offline"

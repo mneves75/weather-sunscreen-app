@@ -5,7 +5,7 @@
 import { useSettings } from '@/src/context/SettingsContext';
 import { useWeather } from '@/src/context/WeatherContext';
 import { convertPressure, convertSpeed, convertTemperature } from '@/src/utils';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 export function useWeatherData() {
   const {
@@ -15,8 +15,11 @@ export function useWeatherData() {
     refreshWeather,
     currentLocation,
   } = useWeather();
-  
+
   const { preferences } = useSettings();
+
+  const hasRequestedInitialWeatherRef = useRef(false);
+  const lastLocationKeyRef = useRef<string | null>(null);
   
   // Convert temperature based on user preference
   const convertedTemperature = useCallback((celsius: number) => {
@@ -40,14 +43,27 @@ export function useWeatherData() {
     return `${Math.round(converted)}${symbol}`;
   }, [convertedTemperature, preferences.temperatureUnit]);
   
-  // Auto-refresh when location changes - only fetch if no data exists
+  // Auto-refresh when location changes - only fetch once per coordinate change
   useEffect(() => {
-    if (currentLocation && !weatherData && !isLoadingWeather) {
-      // Add small delay to prevent rapid successive calls
-      const timeoutId = setTimeout(() => {
-        refreshWeather();
-      }, 100);
-      return () => clearTimeout(timeoutId);
+    if (!currentLocation) {
+      hasRequestedInitialWeatherRef.current = false;
+      lastLocationKeyRef.current = null;
+      return;
+    }
+
+    const locationKey = `${currentLocation.latitude}:${currentLocation.longitude}`;
+    if (lastLocationKeyRef.current !== locationKey) {
+      hasRequestedInitialWeatherRef.current = false;
+      lastLocationKeyRef.current = locationKey;
+    }
+
+    if (
+      !hasRequestedInitialWeatherRef.current &&
+      !weatherData &&
+      !isLoadingWeather
+    ) {
+      hasRequestedInitialWeatherRef.current = true;
+      void refreshWeather();
     }
   }, [currentLocation?.latitude, currentLocation?.longitude, weatherData, isLoadingWeather, refreshWeather]);
   
@@ -70,4 +86,3 @@ export function useWeatherData() {
     pressureUnit: preferences.pressureUnit,
   };
 }
-

@@ -5,6 +5,7 @@
 import { Text } from '@/src/components/ui';
 import { useColors } from '@/src/theme/theme';
 import { UVRecommendation } from '@/src/types';
+import { useTranslation } from 'react-i18next';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -18,6 +19,7 @@ export const UVRecommendations = React.memo<UVRecommendationsProps>(({
   spfRecommendation,
 }) => {
   const colors = useColors();
+  const { t } = useTranslation();
   
   const getIconForType = (type: UVRecommendation['type']): string => {
     switch (type) {
@@ -53,14 +55,14 @@ export const UVRecommendations = React.memo<UVRecommendationsProps>(({
       accessibilityRole="list"
     >
       <Text variant="h3" style={[styles.title, { color: colors.onSurface }]}>
-        Recommendations
+        {t('uv.recommendations')}
       </Text>
-      
+
       {spfRecommendation && (
         <View style={[styles.spfBanner, { backgroundColor: colors.primaryContainer }]}>
           <Text style={styles.spfEmoji}>🧴</Text>
           <Text variant="h3" style={{ color: colors.onPrimaryContainer }}>
-            SPF {spfRecommendation}+
+            {t('uv.spfBanner', { value: spfRecommendation })}
           </Text>
         </View>
       )}
@@ -153,4 +155,3 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
 });
-

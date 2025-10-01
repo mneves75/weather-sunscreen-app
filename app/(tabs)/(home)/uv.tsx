@@ -8,12 +8,14 @@ import { SkinTypeSelector, UVIndicator, UVRecommendations } from '@/src/componen
 import { useSettings } from '@/src/context/SettingsContext';
 import { useUVIndex } from '@/src/hooks';
 import { useColors } from '@/src/theme/theme';
+import { useTranslation } from 'react-i18next';
 import React from 'react';
 import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 
 export default function UVIndexScreen() {
   const colors = useColors();
   const { preferences, updatePreference } = useSettings();
+  const { t } = useTranslation();
   
   const { 
     uvIndex,
@@ -29,7 +31,7 @@ export default function UVIndexScreen() {
   if (isLoading && !uvIndex) {
     return (
       <Container style={styles.centerContainer}>
-        <LoadingSpinner message={preferences.locale === 'pt-BR' ? 'Carregando...' : 'Loading...'} />
+        <LoadingSpinner message={t('common.loading')} />
       </Container>
     );
   }
@@ -39,26 +41,18 @@ export default function UVIndexScreen() {
     return (
       <Container style={styles.centerContainer}>
         <ErrorView
-          message={
-            preferences.locale === 'pt-BR'
-              ? 'Não foi possível carregar o índice UV.'
-              : 'Could not load UV index.'
-          }
+          message={t('errors.uvData')}
           onRetry={refresh}
         />
       </Container>
     );
   }
-  
+
   if (!uvIndex) {
     return (
       <Container style={styles.centerContainer}>
         <ErrorView
-          message={
-            preferences.locale === 'pt-BR'
-              ? 'Não foi possível carregar o índice UV.'
-              : 'Could not load UV index.'
-          }
+          message={t('errors.uvData')}
           onRetry={refresh}
         />
       </Container>
@@ -87,9 +81,7 @@ export default function UVIndexScreen() {
       {/* Skin Type Selector */}
       <View style={[styles.section, { backgroundColor: colors.surface }]}>
         <Text variant="body2" style={[styles.sectionNote, { color: colors.onSurfaceVariant }]}>
-          {preferences.locale === 'pt-BR'
-            ? 'Selecione seu tipo de pele para recomendações personalizadas de FPS'
-            : 'Select your skin type for personalized SPF recommendations'}
+          {t('uv.skinTypePrompt')}
         </Text>
         <SkinTypeSelector
           value={skinType}
@@ -109,12 +101,10 @@ export default function UVIndexScreen() {
       {/* UV Information */}
       <View style={[styles.infoSection, { backgroundColor: colors.surface }]}>
         <Text variant="h3" style={[styles.infoTitle, { color: colors.onSurface }]}>
-          {preferences.locale === 'pt-BR' ? 'Sobre o Índice UV' : 'About UV Index'}
+          {t('uv.aboutTitle')}
         </Text>
         <Text variant="body2" style={{ color: colors.onSurfaceVariant }}>
-          {preferences.locale === 'pt-BR'
-            ? 'O índice UV mede a intensidade da radiação ultravioleta do sol. Valores mais altos indicam maior risco de danos à pele e aos olhos.'
-            : 'The UV index measures the strength of ultraviolet radiation from the sun. Higher values indicate greater risk of harm to skin and eyes.'}
+          {t('uv.aboutDescription')}
         </Text>
       </View>
     </ScrollView>
@@ -153,4 +143,3 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
 });
-

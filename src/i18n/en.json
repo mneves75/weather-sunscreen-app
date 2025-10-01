@@ -30,6 +30,10 @@
     "peakTime": "Peak Time",
     "recommendations": "Recommendations",
     "protection": "Sun Protection",
+    "skinTypePrompt": "Select your skin type for personalized SPF recommendations",
+    "aboutTitle": "About UV Index",
+    "aboutDescription": "The UV index measures the strength of ultraviolet radiation from the sun. Higher values indicate greater risk of harm to skin and eyes.",
+    "spfBanner": "SPF {{value}}+",
     "levels": {
       "low": "Low",
       "moderate": "Moderate",
@@ -43,6 +47,7 @@
     "sevenDay": "7-Day Forecast",
     "today": "Today",
     "tomorrow": "Tomorrow",
+    "noData": "No forecast available",
     "precipitation": "Precipitation",
     "precipitationChance": "Chance of rain",
     "high": "High",
@@ -128,6 +133,8 @@
     "location": "Unable to get location",
     "locationPermission": "Location permission denied",
     "weatherData": "Failed to load weather data",
+    "uvData": "Failed to load UV index",
+    "forecastData": "Failed to load forecast",
     "unknown": "An unknown error occurred",
     "tryAgain": "Please try again",
     "offline": "You are offline"
