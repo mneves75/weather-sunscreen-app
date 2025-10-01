@@ -26,3 +26,4 @@ export function TouchableOpacity(props: TouchableOpacityProps) {
     </RNTouchableOpacity>
   );
 }
+
