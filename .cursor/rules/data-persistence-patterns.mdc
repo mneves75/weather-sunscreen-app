@@ -1,0 +1,525 @@
+---
+description: Data persistence patterns using AsyncStorage and SQLite
+---
+
+# Data Persistence Patterns
+
+## Overview
+This app uses AsyncStorage for simple key-value storage and SQLite for structured data. Choose the right storage method based on data complexity and query requirements.
+
+## Storage Strategy
+
+### When to Use AsyncStorage
+- User preferences and settings
+- Simple key-value data
+- Small amounts of data (< 10MB recommended)
+- Data that doesn't need querying
+- Cache for API responses
+- Feature flags and configuration
+
+### When to Use SQLite
+- Structured data with relationships
+- Large datasets
+- Data requiring complex queries
+- Full-text search requirements
+- Historical data tracking
+- Offline-first data storage
+
+## AsyncStorage Patterns
+
+### Basic Operations
+```typescript
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+// Store data
+async function saveData<T>(key: string, data: T): Promise<void> {
+  try {
+    await AsyncStorage.setItem(key, JSON.stringify(data));
+  } catch (error) {
+    logger.error('Failed to save data', error as Error, 'STORAGE');
+    throw error;
+  }
+}
+
+// Retrieve data
+async function loadData<T>(key: string): Promise<T | null> {
+  try {
+    const stored = await AsyncStorage.getItem(key);
+    return stored ? JSON.parse(stored) as T : null;
+  } catch (error) {
+    logger.error('Failed to load data', error as Error, 'STORAGE');
+    return null;
+  }
+}
+
+// Remove data
+async function removeData(key: string): Promise<void> {
+  try {
+    await AsyncStorage.removeItem(key);
+  } catch (error) {
+    logger.error('Failed to remove data', error as Error, 'STORAGE');
+    throw error;
+  }
+}
+```
+
+### Storage Keys Convention
+```typescript
+// Use consistent key naming with namespace
+const STORAGE_KEYS = {
+  // User preferences
+  THEME: '@WeatherApp:theme',
+  LANGUAGE: '@WeatherApp:language',
+  UNITS: '@WeatherApp:units',
+  
+  // App data
+  WEATHER_CACHE: '@WeatherApp:weather:cache',
+  LOCATION: '@WeatherApp:location',
+  
+  // Feature state
+  ONBOARDING_COMPLETE: '@WeatherApp:onboarding:complete',
+  MESSAGES: '@WeatherApp:messages',
+} as const;
+
+// Usage
+await AsyncStorage.setItem(STORAGE_KEYS.THEME, 'dark');
+```
+
+### Batch Operations
+```typescript
+// Save multiple items
+async function saveBatch(items: Record<string, unknown>): Promise<void> {
+  try {
+    const pairs: [string, string][] = Object.entries(items).map(
+      ([key, value]) => [key, JSON.stringify(value)]
+    );
+    await AsyncStorage.multiSet(pairs);
+  } catch (error) {
+    logger.error('Batch save failed', error as Error, 'STORAGE');
+    throw error;
+  }
+}
+
+// Load multiple items
+async function loadBatch(keys: string[]): Promise<Record<string, unknown>> {
+  try {
+    const pairs = await AsyncStorage.multiGet(keys);
+    return pairs.reduce((acc, [key, value]) => {
+      acc[key] = value ? JSON.parse(value) : null;
+      return acc;
+    }, {} as Record<string, unknown>);
+  } catch (error) {
+    logger.error('Batch load failed', error as Error, 'STORAGE');
+    return {};
+  }
+}
+```
+
+### Migration Pattern
+```typescript
+// Versioned storage schema
+interface StorageSchema {
+  version: number;
+  data: unknown;
+}
+
+async function migrateStorage(): Promise<void> {
+  const versionKey = '@WeatherApp:schema:version';
+  const currentVersion = 2; // Increment when schema changes
+
+  try {
+    const storedVersion = await AsyncStorage.getItem(versionKey);
+    const version = storedVersion ? parseInt(storedVersion, 10) : 0;
+
+    if (version < currentVersion) {
+      // Perform migrations
+      if (version < 1) {
+        await migrateToV1();
+      }
+      if (version < 2) {
+        await migrateToV2();
+      }
+
+      await AsyncStorage.setItem(versionKey, String(currentVersion));
+      logger.info(`Migrated storage from v${version} to v${currentVersion}`, 'STORAGE');
+    }
+  } catch (error) {
+    logger.error('Storage migration failed', error as Error, 'STORAGE');
+  }
+}
+
+async function migrateToV1(): Promise<void> {
+  // Example: Rename old key to new key
+  const oldKey = '@App:weather';
+  const newKey = '@WeatherApp:weather:cache';
+  const data = await AsyncStorage.getItem(oldKey);
+  if (data) {
+    await AsyncStorage.setItem(newKey, data);
+    await AsyncStorage.removeItem(oldKey);
+  }
+}
+```
+
+### Cache Pattern with Expiration
+```typescript
+interface CacheEntry<T> {
+  data: T;
+  timestamp: number;
+  expiresAt: number;
+}
+
+class StorageCache<T> {
+  constructor(
+    private key: string,
+    private ttl: number = 5 * 60 * 1000 // 5 minutes default
+  ) {}
+
+  async set(data: T): Promise<void> {
+    const entry: CacheEntry<T> = {
+      data,
+      timestamp: Date.now(),
+      expiresAt: Date.now() + this.ttl,
+    };
+    await AsyncStorage.setItem(this.key, JSON.stringify(entry));
+  }
+
+  async get(): Promise<T | null> {
+    try {
+      const stored = await AsyncStorage.getItem(this.key);
+      if (!stored) return null;
+
+      const entry = JSON.parse(stored) as CacheEntry<T>;
+      
+      // Check if expired
+      if (Date.now() > entry.expiresAt) {
+        await this.clear();
+        return null;
+      }
+
+      return entry.data;
+    } catch (error) {
+      logger.error('Cache get failed', error as Error, 'CACHE');
+      return null;
+    }
+  }
+
+  async clear(): Promise<void> {
+    await AsyncStorage.removeItem(this.key);
+  }
+}
+
+// Usage
+const weatherCache = new StorageCache<WeatherData>('@WeatherApp:weather:cache', 10 * 60 * 1000);
+await weatherCache.set(weatherData);
+const cached = await weatherCache.get(); // null if expired
+```
+
+## SQLite Patterns
+
+### Database Setup
+```typescript
+import { openDatabaseAsync, SQLiteDatabase } from 'expo-sqlite';
+
+class DatabaseManager {
+  private static instance: DatabaseManager;
+  private db: SQLiteDatabase | null = null;
+
+  private constructor() {}
+
+  static getInstance(): DatabaseManager {
+    if (!DatabaseManager.instance) {
+      DatabaseManager.instance = new DatabaseManager();
+    }
+    return DatabaseManager.instance;
+  }
+
+  async initialize(): Promise<void> {
+    if (this.db) return;
+
+    try {
+      this.db = await openDatabaseAsync('weather.db');
+      await this.createTables();
+      logger.info('Database initialized', 'DATABASE');
+    } catch (error) {
+      logger.error('Failed to initialize database', error as Error, 'DATABASE');
+      throw error;
+    }
+  }
+
+  private async createTables(): Promise<void> {
+    if (!this.db) throw new Error('Database not initialized');
+
+    await this.db.execAsync(`
+      CREATE TABLE IF NOT EXISTS weather_history (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        location_id TEXT NOT NULL,
+        temperature REAL NOT NULL,
+        humidity INTEGER NOT NULL,
+        uv_index INTEGER NOT NULL,
+        timestamp INTEGER NOT NULL,
+        data TEXT NOT NULL
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_location_timestamp 
+        ON weather_history(location_id, timestamp);
+
+      CREATE TABLE IF NOT EXISTS locations (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        latitude REAL NOT NULL,
+        longitude REAL NOT NULL,
+        is_favorite BOOLEAN DEFAULT 0,
+        created_at INTEGER NOT NULL
+      );
+    `);
+  }
+
+  getDatabase(): SQLiteDatabase {
+    if (!this.db) {
+      throw new Error('Database not initialized. Call initialize() first.');
+    }
+    return this.db;
+  }
+}
+
+// Export singleton
+export const dbManager = DatabaseManager.getInstance();
+```
+
+### CRUD Operations
+```typescript
+interface WeatherRecord {
+  id?: number;
+  location_id: string;
+  temperature: number;
+  humidity: number;
+  uv_index: number;
+  timestamp: number;
+  data: string;
+}
+
+class WeatherRepository {
+  private db: SQLiteDatabase;
+
+  constructor(database: SQLiteDatabase) {
+    this.db = database;
+  }
+
+  async create(record: Omit<WeatherRecord, 'id'>): Promise<number> {
+    const result = await this.db.runAsync(
+      `INSERT INTO weather_history 
+       (location_id, temperature, humidity, uv_index, timestamp, data)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      record.location_id,
+      record.temperature,
+      record.humidity,
+      record.uv_index,
+      record.timestamp,
+      record.data
+    );
+    return result.lastInsertRowId;
+  }
+
+  async findById(id: number): Promise<WeatherRecord | null> {
+    const result = await this.db.getFirstAsync<WeatherRecord>(
+      'SELECT * FROM weather_history WHERE id = ?',
+      id
+    );
+    return result || null;
+  }
+
+  async findByLocation(
+    locationId: string,
+    limit: number = 10
+  ): Promise<WeatherRecord[]> {
+    return await this.db.getAllAsync<WeatherRecord>(
+      `SELECT * FROM weather_history 
+       WHERE location_id = ? 
+       ORDER BY timestamp DESC 
+       LIMIT ?`,
+      locationId,
+      limit
+    );
+  }
+
+  async update(id: number, updates: Partial<WeatherRecord>): Promise<void> {
+    const fields = Object.keys(updates)
+      .map(key => `${key} = ?`)
+      .join(', ');
+    
+    const values = [...Object.values(updates), id];
+
+    await this.db.runAsync(
+      `UPDATE weather_history SET ${fields} WHERE id = ?`,
+      ...values
+    );
+  }
+
+  async delete(id: number): Promise<void> {
+    await this.db.runAsync('DELETE FROM weather_history WHERE id = ?', id);
+  }
+
+  async deleteOldRecords(daysOld: number): Promise<number> {
+    const cutoffTime = Date.now() - (daysOld * 24 * 60 * 60 * 1000);
+    const result = await this.db.runAsync(
+      'DELETE FROM weather_history WHERE timestamp < ?',
+      cutoffTime
+    );
+    return result.changes;
+  }
+}
+```
+
+### Transactions
+```typescript
+async function saveWeatherDataTransactionally(
+  locationId: string,
+  weatherData: WeatherData
+): Promise<void> {
+  const db = dbManager.getDatabase();
+
+  try {
+    await db.execAsync('BEGIN TRANSACTION');
+
+    // Insert weather record
+    const weatherId = await weatherRepo.create({
+      location_id: locationId,
+      temperature: weatherData.temperature,
+      humidity: weatherData.humidity,
+      uv_index: weatherData.uvIndex,
+      timestamp: Date.now(),
+      data: JSON.stringify(weatherData),
+    });
+
+    // Update location last_updated
+    await db.runAsync(
+      'UPDATE locations SET last_updated = ? WHERE id = ?',
+      Date.now(),
+      locationId
+    );
+
+    await db.execAsync('COMMIT');
+    logger.info('Weather data saved', 'DATABASE', { weatherId });
+  } catch (error) {
+    await db.execAsync('ROLLBACK');
+    logger.error('Transaction failed', error as Error, 'DATABASE');
+    throw error;
+  }
+}
+```
+
+### Full-Text Search
+```typescript
+// Create FTS table
+await db.execAsync(`
+  CREATE VIRTUAL TABLE IF NOT EXISTS locations_fts
+  USING fts5(name, content='locations', content_rowid='id');
+
+  CREATE TRIGGER IF NOT EXISTS locations_ai 
+  AFTER INSERT ON locations BEGIN
+    INSERT INTO locations_fts(rowid, name) VALUES (new.id, new.name);
+  END;
+
+  CREATE TRIGGER IF NOT EXISTS locations_ad 
+  AFTER DELETE ON locations BEGIN
+    DELETE FROM locations_fts WHERE rowid = old.id;
+  END;
+
+  CREATE TRIGGER IF NOT EXISTS locations_au 
+  AFTER UPDATE ON locations BEGIN
+    DELETE FROM locations_fts WHERE rowid = old.id;
+    INSERT INTO locations_fts(rowid, name) VALUES (new.id, new.name);
+  END;
+`);
+
+// Search
+async function searchLocations(query: string): Promise<Location[]> {
+  const db = dbManager.getDatabase();
+  return await db.getAllAsync<Location>(
+    `SELECT locations.* FROM locations
+     JOIN locations_fts ON locations.id = locations_fts.rowid
+     WHERE locations_fts MATCH ?
+     ORDER BY rank`,
+    query
+  );
+}
+```
+
+## Best Practices
+
+### DO
+✅ Use AsyncStorage for simple key-value data
+✅ Use SQLite for complex queries and relationships
+✅ Implement proper error handling
+✅ Use transactions for related operations
+✅ Create indexes for frequently queried columns
+✅ Implement data migration strategies
+✅ Clean up old data periodically
+✅ Use typed interfaces for storage data
+✅ Implement cache expiration
+✅ Test storage operations thoroughly
+
+### DON'T
+❌ Don't store sensitive data without encryption
+❌ Don't use AsyncStorage for large datasets
+❌ Don't forget to handle storage failures
+❌ Don't skip database initialization
+❌ Don't perform heavy operations on main thread
+❌ Don't store circular references
+❌ Don't forget to close database connections
+❌ Don't use synchronous storage methods
+❌ Don't skip data validation before storing
+❌ Don't hardcode storage keys
+
+## Testing
+
+### AsyncStorage Tests
+```typescript
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+describe('Storage', () => {
+  beforeEach(async () => {
+    await AsyncStorage.clear();
+  });
+
+  it('saves and loads data', async () => {
+    const data = { theme: 'dark' };
+    await saveData('settings', data);
+    const loaded = await loadData('settings');
+    expect(loaded).toEqual(data);
+  });
+
+  it('handles missing keys', async () => {
+    const loaded = await loadData('nonexistent');
+    expect(loaded).toBeNull();
+  });
+});
+```
+
+### SQLite Tests
+```typescript
+describe('Database', () => {
+  beforeAll(async () => {
+    await dbManager.initialize();
+  });
+
+  it('creates and retrieves records', async () => {
+    const id = await weatherRepo.create({
+      location_id: 'sf',
+      temperature: 72,
+      humidity: 65,
+      uv_index: 5,
+      timestamp: Date.now(),
+      data: '{}',
+    });
+
+    const record = await weatherRepo.findById(id);
+    expect(record?.temperature).toBe(72);
+  });
+});
+```
+
+## Related Documentation
+- See [service-layer.mdc](mdc:.cursor/rules/service-layer.mdc) for service patterns
+- See [security-patterns.mdc](mdc:.cursor/rules/security-patterns.mdc) for data encryption
+- See [expo-sdk-54-patterns.mdc](mdc:.cursor/rules/expo-sdk-54-patterns.mdc) for SDK-specific features

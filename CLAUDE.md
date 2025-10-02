@@ -234,16 +234,18 @@ weather-suncreen-app/
 - Automatically used in SDK 54 unless `use_frameworks!` is set
 
 ### iOS 26 & Liquid Glass
-- **expo-glass-effect**: `<GlassView>`, `<GlassContainer>` components
-- **Icon Composer Support**: `.icon` format for Liquid Glass app icons
+- **expo-glass-effect**: `<GlassView>`, `<GlassContainer>` components with native UIVisualEffectView
+- **Icon Composer Support**: `.icon` format for Liquid Glass app icons (macOS only tooling)
 - **NativeTabs Enhancements**:
   - Badge support for notifications
   - Tab bar minimize behavior (`minimizeBehavior="onScrollDown"`)
   - Separate search tab (`role="search"`)
   - Tab bar search input with `headerSearchBarOptions`
-  - DynamicColorIOS for adaptive colors
-- Check availability: `isLiquidGlassAvailable()`
-- Accessibility: `AccessibilityInfo.isReduceTransparencyEnabled()`
+  - DynamicColorIOS for adaptive colors in glass contexts
+- Check availability: `isLiquidGlassAvailable()` before rendering glass components
+- Accessibility: `AccessibilityInfo.isReduceTransparencyEnabled()` for fallback to solid backgrounds
+- **Performance Guidance**: Limit to 5-10 glass effects on static screens, disable during heavy animations/scrolling
+- **Interactive Glass**: `isInteractive` prop set-once on mount (remount with different key to toggle)
 
 ### React Native 0.81 & React 19.1
 - **React 19.1** with improved hooks (`use` hook, enhanced refs)

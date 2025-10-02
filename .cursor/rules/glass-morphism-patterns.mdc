@@ -1,0 +1,301 @@
+---
+description: Glass morphism UI patterns and liquid glass implementation
+---
+
+# Glass Morphism & Liquid Glass Patterns
+
+## Overview
+This app implements glass morphism UI with iOS 26+ liquid glass support. Glass effects provide visual depth and modern aesthetics while maintaining readability and accessibility.
+
+## Core Components
+- [src/components/glass/GlassView.tsx](mdc:src/components/glass/GlassView.tsx) - Base glass view wrapper
+- [src/components/glass/GlassCard.tsx](mdc:src/components/glass/GlassCard.tsx) - Glass card component
+- [src/components/glass/GlassContainer.tsx](mdc:src/components/glass/GlassContainer.tsx) - Glass container for layouts
+
+## Liquid Glass Implementation (iOS 26+)
+
+### Installation
+```bash
+npx expo install expo-glass-effect
+```
+
+### Basic Usage
+```typescript
+import { GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
+import { AccessibilityInfo } from 'react-native';
+
+export function GlassCard({ children }: { children: React.ReactNode }) {
+  const [reduceTransparency, setReduceTransparency] = useState(false);
+  const canUseGlass = isLiquidGlassAvailable();
+
+  useEffect(() => {
+    AccessibilityInfo.isReduceTransparencyEnabled().then(setReduceTransparency);
+  }, []);
+
+  // Fallback to regular view if glass not available or transparency reduced
+  if (!canUseGlass || reduceTransparency) {
+    return (
+      <View style={styles.fallback}>
+        {children}
+      </View>
+    );
+  }
+
+  return (
+    <GlassView
+      isInteractive={true}
+      style={styles.glass}
+    >
+      {children}
+    </GlassView>
+  );
+}
+```
+
+## Key Principles
+
+### 1. Availability Check
+Always check if liquid glass is available before using:
+```typescript
+import { isLiquidGlassAvailable } from 'expo-glass-effect';
+
+const canUseGlass = isLiquidGlassAvailable(); // iOS 26+ only
+```
+
+### 2. Accessibility First
+Query transparency settings and provide fallbacks:
+```typescript
+import { AccessibilityInfo } from 'react-native';
+
+const [reduceTransparency, setReduceTransparency] = useState(false);
+
+useEffect(() => {
+  AccessibilityInfo.isReduceTransparencyEnabled()
+    .then(setReduceTransparency);
+}, []);
+
+if (reduceTransparency) {
+  return <SolidFallback />;
+}
+```
+
+### 3. Interactive Property
+The `isInteractive` prop is **set-once** - remount the component to change it:
+```typescript
+// ❌ Won't work - isInteractive can't be toggled
+<GlassView isInteractive={isActive} />
+
+// ✅ Correct - remount with different key
+<GlassView key={isActive ? 'active' : 'inactive'} isInteractive={isActive} />
+```
+
+### 4. Performance Considerations
+Limit glass elements on a screen:
+- **Static screens**: 5-10 glass elements maximum
+- **Scrolling content**: Disable during scroll for performance
+- **Animations**: Avoid glass during heavy animations
+- **Use GlassContainer**: Group related glass surfaces for better performance
+
+```typescript
+export function WeatherList({ data }: { data: WeatherData[] }) {
+  const [isScrolling, setIsScrolling] = useState(false);
+
+  return (
+    <FlatList
+      data={data}
+      renderItem={({ item }) => (
+        <GlassCard disabled={isScrolling}>
+          <WeatherInfo data={item} />
+        </GlassCard>
+      )}
+      onScrollBeginDrag={() => setIsScrolling(true)}
+      onScrollEndDrag={() => setIsScrolling(false)}
+    />
+  );
+}
+```
+
+## Glass Morphism Design Guidelines
+
+### Visual Hierarchy
+```typescript
+// Level 1: Background surfaces
+<GlassContainer style={styles.background}>
+  {/* Level 2: Card surfaces */}
+  <GlassCard style={styles.card}>
+    {/* Level 3: Interactive elements */}
+    <GlassView isInteractive={true}>
+      <Button />
+    </GlassView>
+  </GlassCard>
+</GlassContainer>
+```
+
+### Color and Contrast
+```typescript
+import { DynamicColorIOS } from 'react-native';
+
+// Use DynamicColorIOS for text on glass to maintain legibility
+const textColor = DynamicColorIOS({
+  light: 'rgba(0, 0, 0, 0.85)',
+  dark: 'rgba(255, 255, 255, 0.95)',
+});
+
+<Text style={{ color: textColor }}>Readable text on glass</Text>
+```
+
+### Spacing and Borders
+```typescript
+const styles = StyleSheet.create({
+  glass: {
+    borderRadius: 16,
+    overflow: 'hidden', // Required for proper clipping
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  glassDark: {
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+});
+```
+
+## Fallback Patterns
+
+### Platform Fallback
+```typescript
+export function GlassCard({ children, style }: GlassCardProps) {
+  const { colors } = useColors();
+  const canUseGlass = isLiquidGlassAvailable();
+
+  if (!canUseGlass) {
+    return (
+      <View style={[styles.fallback, {
+        backgroundColor: colors.surfaceVariant,
+        shadowColor: colors.shadow,
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+        elevation: 4,
+      }, style]}>
+        {children}
+      </View>
+    );
+  }
+
+  return (
+    <GlassView style={[styles.glass, style]}>
+      {children}
+    </GlassView>
+  );
+}
+```
+
+### Theme-Aware Glass
+```typescript
+export function ThemedGlassCard({ children }: { children: React.ReactNode }) {
+  const { theme, colors } = useTheme();
+  const canUseGlass = isLiquidGlassAvailable();
+  const [reduceTransparency] = useReduceTransparency();
+
+  if (!canUseGlass || reduceTransparency) {
+    return (
+      <View style={{
+        backgroundColor: theme === 'dark' 
+          ? 'rgba(28, 28, 30, 0.95)' 
+          : 'rgba(255, 255, 255, 0.95)',
+        borderColor: colors.border,
+        borderWidth: 1,
+      }}>
+        {children}
+      </View>
+    );
+  }
+
+  return <GlassView>{children}</GlassView>;
+}
+```
+
+## Testing Glass Components
+
+### Visual Testing
+```typescript
+describe('GlassCard', () => {
+  it('renders glass effect when available', () => {
+    jest.spyOn(glassModule, 'isLiquidGlassAvailable').mockReturnValue(true);
+    const { getByTestId } = render(<GlassCard testID="glass" />);
+    expect(getByTestId('glass')).toBeTruthy();
+  });
+
+  it('falls back to solid view when glass unavailable', () => {
+    jest.spyOn(glassModule, 'isLiquidGlassAvailable').mockReturnValue(false);
+    const { getByTestId } = render(<GlassCard testID="solid" />);
+    expect(getByTestId('solid')).toBeTruthy();
+  });
+
+  it('respects reduce transparency setting', async () => {
+    jest.spyOn(AccessibilityInfo, 'isReduceTransparencyEnabled')
+      .mockResolvedValue(true);
+    const { queryByType } = render(<GlassCard />);
+    await waitFor(() => {
+      expect(queryByType(GlassView)).toBeNull();
+    });
+  });
+});
+```
+
+## Best Practices
+
+### DO
+✅ Always check `isLiquidGlassAvailable()` before using glass
+✅ Honor `AccessibilityInfo.isReduceTransparencyEnabled()`
+✅ Provide solid fallbacks for all glass components
+✅ Limit glass elements to 5-10 per screen
+✅ Use `GlassContainer` to group related surfaces
+✅ Disable glass during scrolling and heavy animations
+✅ Use `DynamicColorIOS` for text on glass surfaces
+✅ Test both glass and fallback modes
+
+### DON'T
+❌ Don't assume glass is available on all iOS devices
+❌ Don't toggle `isInteractive` prop dynamically
+❌ Don't use glass for all UI elements
+❌ Don't forget accessibility considerations
+❌ Don't stack too many glass layers
+❌ Don't use glass during performance-critical operations
+❌ Don't rely solely on glass for visual hierarchy
+❌ Don't forget to test on real devices
+
+## Performance Optimization
+
+### Conditional Rendering
+```typescript
+export function OptimizedGlassCard({ children, enabled }: Props) {
+  const canUseGlass = isLiquidGlassAvailable();
+  const shouldRenderGlass = canUseGlass && enabled;
+
+  if (!shouldRenderGlass) {
+    return <View style={styles.fallback}>{children}</View>;
+  }
+
+  return <GlassView>{children}</GlassView>;
+}
+```
+
+### Memory Management
+```typescript
+export function GlassList({ data }: { data: Item[] }) {
+  return (
+    <FlatList
+      data={data}
+      renderItem={({ item }) => <GlassCard>{item.content}</GlassCard>}
+      removeClippedSubviews // Important for glass performance
+      maxToRenderPerBatch={5}
+      windowSize={10}
+    />
+  );
+}
+```
+
+## Related Documentation
+- See [Apple Liquid Glass Guide](mdc:docs/apple/liquid-glass/) for native SwiftUI patterns
+- See [component-patterns.mdc](mdc:.cursor/rules/component-patterns.mdc) for general component guidelines
+- See [accessibility-patterns.mdc](mdc:.cursor/rules/accessibility-patterns.mdc) for accessibility requirements
