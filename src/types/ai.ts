@@ -85,3 +85,10 @@ export interface AIError {
   message: string;
   details?: any;
 }
+
+export interface TranslateMessageRequest {
+  sourceLanguage: string;
+  targetLanguage: string;
+  title: string;
+  body: string;
+}
