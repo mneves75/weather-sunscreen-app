@@ -65,7 +65,8 @@
     },
     "buildCacheProvider": "eas",
     "experiments": {
-      "typedRoutes": true
+      "typedRoutes": true,
+      "autolinkingModuleResolution": true
     }
   }
 }

@@ -1,15 +1,16 @@
 /**
  * Message List Component
  * Displays a list of messages with filtering, sorting, and actions
+ * Uses FlashList for optimized rendering performance
  */
 
+import { FlashList } from '@shopify/flash-list';
 import { Text } from '@/src/components/ui';
 import { useColors } from '@/src/theme/theme';
 import type { Message } from '@/src/types';
 import React, { useCallback, useMemo } from 'react';
 import {
     ActivityIndicator,
-    FlatList,
     RefreshControl,
     StyleSheet,
     View,
@@ -177,7 +178,7 @@ export function MessageList({
   }
 
   return (
-    <FlatList
+    <FlashList
       data={groupedMessages}
       renderItem={({ item: section }) => (
         <View>
@@ -190,6 +191,7 @@ export function MessageList({
         </View>
       )}
       keyExtractor={(section) => section.title}
+      estimatedItemSize={120}
       refreshControl={renderRefreshControl()}
       ListEmptyComponent={renderEmpty}
       showsVerticalScrollIndicator={false}
@@ -197,7 +199,7 @@ export function MessageList({
         styles.container,
         messages.length === 0 && styles.emptyListContainer,
       ]}
-      style={{ backgroundColor: colors.background }}
+      estimatedListSize={{ height: 600, width: 400 }}
     />
   );
 }

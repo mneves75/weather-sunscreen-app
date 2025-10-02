@@ -1,9 +1,5 @@
 /**
- * Utility functions barrel export
+ * Utilities module exports
  */
 
-export * from './date';
-export * from './units';
-export * from './uv';
-export * from './weather';
-
+export { performanceMonitor, measurePerformance, useRenderPerformance } from './performance';
