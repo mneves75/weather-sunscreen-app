@@ -37,6 +37,18 @@ export interface Message {
   
   /** Message body content */
   body: string;
+
+  /** Optional original language code provided by source service */
+  language?: string;
+
+  /** Optional translated title when app locale differs from original */
+  translatedTitle?: string;
+  
+  /** Optional translated body when app locale differs from original */
+  translatedBody?: string;
+
+  /** Optional map of locale-specific translations provided by the API */
+  translations?: Record<string, { title: string; body: string }>;
   
   /** Unix timestamp of message creation */
   timestamp: number;
