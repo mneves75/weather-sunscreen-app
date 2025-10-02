@@ -17,7 +17,10 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.mneves.weather-suncreen-app",
       "infoPlist": {
-        "UIBackgroundModes": ["fetch", "remote-notification"],
+        "UIBackgroundModes": [
+          "fetch",
+          "remote-notification"
+        ],
         "NSLocationWhenInUseUsageDescription": "This app uses location to provide weather and UV index information.",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "This app uses location to provide weather and UV index information."
       }
@@ -53,7 +56,8 @@
           "sounds": [],
           "mode": "production"
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "notification": {
       "icon": "./assets/images/icon.png",

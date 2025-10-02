@@ -22,15 +22,22 @@ This is a React Native Expo weather application with TypeScript, featuring glass
 - **[project-structure.mdc](mdc:.cursor/rules/project-structure.mdc)** - Project architecture and file organization
 - **[typescript-standards.mdc](mdc:.cursor/rules/typescript-standards.mdc)** - TypeScript coding standards and patterns
 - **[react-native-expo.mdc](mdc:.cursor/rules/react-native-expo.mdc)** - React Native and Expo specific patterns
+- **[expo-sdk-54-patterns.mdc](mdc:.cursor/rules/expo-sdk-54-patterns.mdc)** - Expo SDK 54 and React Native 0.81 patterns
 
 ### UI & Styling Rules
 - **[component-patterns.mdc](mdc:.cursor/rules/component-patterns.mdc)** - Component development patterns and best practices
 - **[theme-styling.mdc](mdc:.cursor/rules/theme-styling.mdc)** - Theme system and styling patterns
+- **[glass-morphism-patterns.mdc](mdc:.cursor/rules/glass-morphism-patterns.mdc)** - Glass morphism UI and liquid glass implementation
 - **[accessibility-patterns.mdc](mdc:.cursor/rules/accessibility-patterns.mdc)** - Accessibility patterns and best practices
+
+### Navigation & Routing Rules
+- **[routing-navigation.mdc](mdc:.cursor/rules/routing-navigation.mdc)** - Expo Router v6 routing and navigation patterns
 
 ### State & Data Rules
 - **[context-state-management.mdc](mdc:.cursor/rules/context-state-management.mdc)** - Context and state management patterns
 - **[service-layer.mdc](mdc:.cursor/rules/service-layer.mdc)** - Service layer patterns and API integration
+- **[data-persistence-patterns.mdc](mdc:.cursor/rules/data-persistence-patterns.mdc)** - AsyncStorage and SQLite patterns
+- **[messages-notifications.mdc](mdc:.cursor/rules/messages-notifications.mdc)** - Message and notification system patterns
 - **[internationalization.mdc](mdc:.cursor/rules/internationalization.mdc)** - i18n patterns and best practices
 
 ### Quality & Performance Rules

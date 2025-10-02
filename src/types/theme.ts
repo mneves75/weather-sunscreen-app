@@ -68,6 +68,7 @@ export interface ThemeColors {
   // Glass effect colors (for fallback)
   glassBackground: string;
   glassBorder: string;
+  surfaceTint: string;
 }
 
 export interface Spacing {

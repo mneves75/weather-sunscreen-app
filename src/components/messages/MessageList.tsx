@@ -4,10 +4,10 @@
  * Uses FlashList for optimized rendering performance
  */
 
-import { FlashList } from '@shopify/flash-list';
 import { Text } from '@/src/components/ui';
 import { useColors } from '@/src/theme/theme';
 import type { Message } from '@/src/types';
+import { FlashList, ListRenderItem } from '@shopify/flash-list';
 import React, { useCallback, useMemo } from 'react';
 import {
     ActivityIndicator,
@@ -173,25 +173,50 @@ export function MessageList({
     );
   }, [isLoading, onRefresh, colors]);
 
+  const sectionedData = useMemo(() => {
+    return groupedMessages.flatMap(section => [
+      { type: 'header' as const, title: section.title, id: `header-${section.title}` },
+      ...section.data.map(message => ({ type: 'item' as const, message })),
+    ]);
+  }, [groupedMessages]);
+
+  const renderSectionedItem: ListRenderItem<typeof sectionedData[number]> = useCallback(({ item }) => {
+    if (item.type === 'header') {
+      return (
+        <View
+          style={[styles.sectionHeader, { backgroundColor: colors.background }]}
+          accessibilityRole="header"
+        >
+          <Text variant="body2" style={[styles.sectionTitle, { color: colors.onBackground }]}>
+            {item.title}
+          </Text>
+        </View>
+      );
+    }
+
+    return (
+      <View>
+        {renderItem({ item: item.message })}
+      </View>
+    );
+  }, [colors, renderItem]);
+
+  const keyExtractor = useCallback((item: typeof sectionedData[number], index: number) => {
+    if (item.type === 'header') {
+      return item.id;
+    }
+    return item.message.id ?? `message-${index}`;
+  }, []);
+
   if (error && messages.length === 0) {
     return renderEmpty();
   }
 
   return (
     <FlashList
-      data={groupedMessages}
-      renderItem={({ item: section }) => (
-        <View>
-          {renderSectionHeader({ section })}
-          {section.data.map(message => (
-            <View key={message.id}>
-              {renderItem({ item: message })}
-            </View>
-          ))}
-        </View>
-      )}
-      keyExtractor={(section) => section.title}
-      estimatedItemSize={120}
+      data={sectionedData}
+      renderItem={renderSectionedItem}
+      keyExtractor={keyExtractor}
       refreshControl={renderRefreshControl()}
       ListEmptyComponent={renderEmpty}
       showsVerticalScrollIndicator={false}
@@ -199,7 +224,6 @@ export function MessageList({
         styles.container,
         messages.length === 0 && styles.emptyListContainer,
       ]}
-      estimatedListSize={{ height: 600, width: 400 }}
     />
   );
 }

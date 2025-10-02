@@ -1,11 +1,18 @@
 /**
  * Single forecast day card component
+ * 
+ * Modernized with:
+ * - Liquid Glass effects (iOS 26+) with accessibility fallbacks
+ * - Material Design elevation for Android/iOS < 26
+ * - Optimized for FlashList (consistent height ~104px)
+ * - Accessibility-friendly labels and roles
  */
 
 import { Text } from '@/src/components/ui';
-import { useColors } from '@/src/theme/theme';
+import { useColors, useGlassAvailability } from '@/src/theme';
 import { ForecastDay } from '@/src/types';
 import { formatShortDate, getRelativeDayLabel, getWeatherEmoji } from '@/src/utils';
+import { GlassView } from 'expo-glass-effect';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
@@ -24,6 +31,7 @@ export const ForecastDayCard = React.memo<ForecastDayCardProps>(({
   formatTemperature,
 }) => {
   const colors = useColors();
+  const { canUseGlass } = useGlassAvailability();
   const { t } = useTranslation();
   
   const dayLabel = getRelativeDayLabel(day.date, locale);
@@ -31,22 +39,18 @@ export const ForecastDayCard = React.memo<ForecastDayCardProps>(({
   const highTemp = formatTemperature ? formatTemperature(day.temperature.max) : `${Math.round(day.temperature.max)}°`;
   const lowTemp = formatTemperature ? formatTemperature(day.temperature.min) : `${Math.round(day.temperature.min)}°`;
   
-  const Container = onPress ? TouchableOpacity : View;
+  const accessibilityLabel = t('forecast.daySummary', {
+    defaultValue: '{{day}}. {{condition}}. High {{high}}, Low {{low}}. UV Index {{uv}}',
+    day: dayLabel,
+    condition: day.condition.description,
+    high: highTemp,
+    low: lowTemp,
+    uv: day.uvIndex.max,
+  });
 
-  return (
-    <Container
-      style={[styles.container, { backgroundColor: colors.surface }]}
-      onPress={onPress}
-      accessibilityRole={onPress ? "button" : undefined}
-      accessibilityLabel={t('forecast.daySummary', {
-        defaultValue: '{{day}}. {{condition}}. High {{high}}, Low {{low}}. UV Index {{uv}}',
-        day: dayLabel,
-        condition: day.condition.description,
-        high: highTemp,
-        low: lowTemp,
-        uv: day.uvIndex.max,
-      })}
-    >
+  // Card content (used in both glass and solid variants)
+  const cardContent = (
+    <>
       <View style={styles.dateContainer}>
         <Text variant="body1" style={{ color: colors.onSurface }}>
           {dayLabel}
@@ -89,21 +93,74 @@ export const ForecastDayCard = React.memo<ForecastDayCardProps>(({
           </Text>
         </View>
       )}
-    </Container>
+    </>
+  );
+
+  // Glass effect variant (iOS 26+)
+  if (canUseGlass) {
+    const GlassContainer = onPress ? TouchableOpacity : View;
+    return (
+      <GlassContainer
+        style={styles.glassWrapper}
+        onPress={onPress}
+        accessibilityRole={onPress ? "button" : undefined}
+        accessibilityLabel={accessibilityLabel}
+      >
+        <GlassView
+          style={styles.glassCard}
+          glassEffectStyle="regular"
+          tintColor={colors.surfaceTint}
+        >
+          {cardContent}
+        </GlassView>
+      </GlassContainer>
+    );
+  }
+
+  // Solid Material Design variant (Android, iOS < 26, accessibility)
+  const SolidContainer = onPress ? TouchableOpacity : View;
+  return (
+    <SolidContainer
+      style={[styles.solidCard, { backgroundColor: colors.surface }]}
+      onPress={onPress}
+      accessibilityRole={onPress ? "button" : undefined}
+      accessibilityLabel={accessibilityLabel}
+    >
+      {cardContent}
+    </SolidContainer>
   );
 });
 
 ForecastDayCard.displayName = 'ForecastDayCard';
 
 const styles = StyleSheet.create({
-  container: {
+  // Glass wrapper (iOS 26+)
+  glassWrapper: {
+    borderRadius: 16,
+    marginVertical: 4,
+    overflow: 'hidden',
+  },
+  glassCard: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
-    borderRadius: 12,
-    marginVertical: 4,
     gap: 12,
   },
+  // Solid card (Android, iOS < 26, accessibility)
+  solidCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderRadius: 16,
+    marginVertical: 4,
+    gap: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  // Content sections
   dateContainer: {
     flex: 2,
     gap: 2,

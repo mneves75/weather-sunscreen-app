@@ -282,9 +282,11 @@ weather-suncreen-app/
 
 ### Android Updates
 - **Target API 36** (Android 16)
-- **Edge-to-edge**: Always enabled, cannot be disabled
+- **Edge-to-edge**: Always enabled, cannot be disabled - use `react-native-safe-area-context`
 - **Predictive back gesture**: Opt-in via `android.predictiveBackGestureEnabled`
 - `androidNavigationBar.enforceContrast` for navigation bar contrast
+- **Material Design 3**: Use Material You color system for Android parity with iOS Liquid Glass
+- **Native Tabs**: Max 5 tabs on Android, drawable-only icons (no SF Symbols)
 
 ### Expo CLI Enhancements
 - React Compiler enabled by default
@@ -308,6 +310,59 @@ weather-suncreen-app/
 - **Node**: Minimum 20.19.4
 - **Java**: 17 for Android builds
 
+## UI/UX Modernization Best Practices
+
+### Liquid Glass Design Patterns
+- **Glass Cards**: Use `GlassView` for cards, modals, headers (iOS 26+)
+- **Containers**: Wrap multiple glass elements in `GlassContainer` with `spacing` prop for merging
+- **Fallbacks**: Provide `BlurView` or solid backgrounds for iOS < 26 and reduced transparency mode
+- **Tinting**: Apply subtle `tintColor` to match theme, avoid heavy tints that obscure content
+- **Performance**: Disable glass during scrolling/animations, limit to 5-10 effects per screen
+
+### Material Design 3 (Android)
+- **Color System**: Use theme-based Material You colors for Android parity
+- **Components**: Elevated cards, filled buttons, outlined text fields
+- **Motion**: Emphasize delight with container transforms and shared element transitions
+- **Accessibility**: Ensure 4.5:1 contrast ratios, large touch targets (48dp minimum)
+
+### React Native Performance
+- **StyleSheet.create**: Always use for style definitions, never inline objects in render
+- **Console.log Removal**: Strip all `console.log` statements in production builds
+- **FlashList**: Use `@shopify/flash-list` for lists with 10+ items
+- **Memoization**: Let React Compiler handle, remove manual `useMemo`/`useCallback` unless profiled
+- **Release Build Testing**: Always test performance in release mode with `--no-dev --minify`
+
+### Component Style Patterns
+```typescript
+// ✅ Good: StyleSheet with theme integration
+export function Card({ children, style }: CardProps) {
+  const { colors } = useColors();
+  return (
+    <View style={[styles.card, { backgroundColor: colors.surface }, style]}>
+      {children}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  card: {
+    borderRadius: 16,
+    padding: 20,
+    marginVertical: 8,
+  },
+});
+
+// ❌ Bad: Inline objects
+<View style={{ borderRadius: 16, padding: 20 }}> // Creates new object every render
+```
+
+### Accessibility Requirements
+- **Labels**: All interactive elements need `accessibilityLabel`
+- **Roles**: Use `accessibilityRole` ("button", "link", "header", etc.)
+- **States**: Apply `accessibilityState` for disabled, selected, checked
+- **Screen Readers**: Test with VoiceOver (iOS) and TalkBack (Android)
+- **Contrast**: Minimum 4.5:1 for text, 3:1 for large text/UI components
+
 ## External Documentation
 
 - **Expo SDK 54**: https://docs.expo.dev/versions/v54.0.0/
@@ -317,6 +372,7 @@ weather-suncreen-app/
 - **React Native New Architecture**: https://reactnative.dev/docs/the-new-architecture/landing-page
 - **Performance Best Practices**: https://expo.dev/blog/best-practices-for-reducing-lag-in-expo-apps
 - **Precompiled React Native**: https://expo.dev/blog/precompiled-react-native-for-ios
+- **Material Design 3**: https://m3.material.io/
 - **Vercel AI SDK**: https://sdk.vercel.ai/docs
 
 ## AI Integration

@@ -1,6 +1,12 @@
 /**
  * Home/Dashboard Screen
  * Main screen showing weather summary, UV index, and quick actions
+ * 
+ * Modernized with:
+ * - Liquid Glass effects (iOS 26+) with accessibility fallbacks
+ * - Performance-optimized with StyleSheet.create
+ * - Accessibility labels and roles
+ * - Platform-adaptive design (iOS Glass + Android Material)
  */
 
 import { Button, Container, ErrorView, LoadingSpinner, Text } from '@/src/components/ui';
@@ -13,7 +19,8 @@ import {
 } from '@/src/components/weather';
 import { useSettings } from '@/src/context/SettingsContext';
 import { useForecast, useLocation, useUVIndex, useWeatherData } from '@/src/hooks';
-import { useColors } from '@/src/theme/theme';
+import { useColors, useGlassAvailability } from '@/src/theme';
+import { GlassView } from 'expo-glass-effect';
 import { useRouter } from 'expo-router';
 import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -21,6 +28,7 @@ import { Alert, Linking, Platform, RefreshControl, ScrollView, StyleSheet, View 
 
 export default function HomeScreen() {
   const colors = useColors();
+  const { canUseGlass } = useGlassAvailability();
   const router = useRouter();
   const { preferences } = useSettings();
   const { t } = useTranslation();
@@ -171,28 +179,80 @@ export default function HomeScreen() {
         />
       )}
       
-      {/* Weather Card */}
+      {/* Weather Card with Glass Effect */}
       {weatherData && (
-        <WeatherCard
-          data={weatherData}
-          onPress={() => router.push('/(tabs)/(home)/weather')}
-          temperatureText={getTemperatureWithUnit(weatherData.current.temperature)}
-          feelsLikeText={getTemperatureWithUnit(weatherData.current.feelsLike)}
-          windText={formatWindSpeed(weatherData.current.windSpeed)}
-          pressureText={formatPressure(weatherData.current.pressure)}
-          humidityText={`${weatherData.current.humidity}%`}
-          locale={preferences.locale}
-          use24HourTime={use24HourTime}
-        />
+        canUseGlass ? (
+          <GlassView 
+            style={styles.glassCard}
+            glassEffectStyle="regular"
+            tintColor={colors.surfaceTint}
+            accessibilityRole="button"
+            accessibilityLabel={`Current weather: ${weatherData.current.temperature} degrees, ${weatherData.current.condition.description}`}
+            accessibilityHint="Double tap to view detailed weather information"
+          >
+            <WeatherCard
+              data={weatherData}
+              onPress={() => router.push('/(tabs)/(home)/weather')}
+              temperatureText={getTemperatureWithUnit(weatherData.current.temperature)}
+              feelsLikeText={getTemperatureWithUnit(weatherData.current.feelsLike)}
+              windText={formatWindSpeed(weatherData.current.windSpeed)}
+              pressureText={formatPressure(weatherData.current.pressure)}
+              humidityText={`${weatherData.current.humidity}%`}
+              locale={preferences.locale}
+              use24HourTime={use24HourTime}
+            />
+          </GlassView>
+        ) : (
+          <View 
+            style={[styles.solidCard, { backgroundColor: colors.surface }]}
+            accessibilityRole="button"
+            accessibilityLabel={`Current weather: ${weatherData.current.temperature} degrees, ${weatherData.current.condition.description}`}
+            accessibilityHint="Double tap to view detailed weather information"
+          >
+            <WeatherCard
+              data={weatherData}
+              onPress={() => router.push('/(tabs)/(home)/weather')}
+              temperatureText={getTemperatureWithUnit(weatherData.current.temperature)}
+              feelsLikeText={getTemperatureWithUnit(weatherData.current.feelsLike)}
+              windText={formatWindSpeed(weatherData.current.windSpeed)}
+              pressureText={formatPressure(weatherData.current.pressure)}
+              humidityText={`${weatherData.current.humidity}%`}
+              locale={preferences.locale}
+              use24HourTime={use24HourTime}
+            />
+          </View>
+        )
       )}
       
-      {/* UV Index */}
+      {/* UV Index with Glass Effect */}
       {uvIndex && (
-        <UVIndicator
-          uvIndex={uvIndex}
-          locale={preferences.locale}
-          size="small"
-        />
+        canUseGlass ? (
+          <GlassView 
+            style={styles.glassCard}
+            glassEffectStyle="regular"
+            tintColor={colors.surfaceTint}
+            accessibilityRole="alert"
+            accessibilityLabel={`UV Index: ${uvIndex.value}, ${uvIndex.level}`}
+          >
+            <UVIndicator
+              uvIndex={uvIndex}
+              locale={preferences.locale}
+              size="small"
+            />
+          </GlassView>
+        ) : (
+          <View 
+            style={[styles.solidCard, { backgroundColor: colors.surface }]}
+            accessibilityRole="alert"
+            accessibilityLabel={`UV Index: ${uvIndex.value}, ${uvIndex.level}`}
+          >
+            <UVIndicator
+              uvIndex={uvIndex}
+              locale={preferences.locale}
+              size="small"
+            />
+          </View>
+        )
       )}
       
       {/* Sunscreen Tracker */}
@@ -274,6 +334,22 @@ const styles = StyleSheet.create({
   },
   button: {
     minWidth: 200,
+  },
+  // Glass card wrapper (iOS 26+)
+  glassCard: {
+    borderRadius: 20,
+    marginVertical: 8,
+    overflow: 'hidden',
+  },
+  // Solid card fallback (iOS < 26, Android, accessibility)
+  solidCard: {
+    borderRadius: 20,
+    marginVertical: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   actionsContainer: {
     flexDirection: 'row',

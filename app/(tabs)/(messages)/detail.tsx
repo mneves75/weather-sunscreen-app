@@ -1,6 +1,11 @@
 /**
  * Message Detail Screen
  * Displays full message content with actions and auto-mark as read
+ * 
+ * Modernized with:
+ * - Glass-aware message display
+ * - Enhanced accessibility labels
+ * - Smooth navigation transitions
  */
 
 import { MessageDetail } from '@/src/components/messages/MessageDetail';

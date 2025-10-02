@@ -1,18 +1,27 @@
 /**
  * Settings Screen
  * User preferences and app configuration
+ * 
+ * Modernized with:
+ * - Categorized glass cards for organized settings
+ * - Expo UI toggle patterns (Switch components)
+ * - Consistent typography with theme tokens
+ * - Enhanced accessibility labels and roles
+ * - Platform-adaptive Material fallbacks
  */
 
 import { Divider, Text } from '@/src/components/ui';
 import { SkinTypeSelector } from '@/src/components/weather';
 import { useSettings } from '@/src/context/SettingsContext';
-import { useColors, useTheme } from '@/src/theme/theme';
+import { useColors, useGlassAvailability, useTheme } from '@/src/theme';
+import { GlassView } from 'expo-glass-effect';
 import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, ScrollView, StyleSheet, Switch, TouchableOpacity, View } from 'react-native';
 
 export default function SettingsScreen() {
   const colors = useColors();
+  const { canUseGlass } = useGlassAvailability();
   const { themeMode, setThemeMode, highContrast, setHighContrast } = useTheme();
   const { preferences, updatePreference, resetPreferences } = useSettings();
   const { t, i18n } = useTranslation();
@@ -48,22 +57,26 @@ export default function SettingsScreen() {
       ? t('settings.timeFormat12')
       : t('settings.timeFormatSystem');
   
+  // Reusable Setting Item component
   const SettingItem = ({ 
     title, 
     subtitle, 
     onPress,
     rightElement,
+    accessibilityLabel,
   }: { 
     title: string; 
     subtitle?: string; 
     onPress?: () => void;
     rightElement?: React.ReactNode;
+    accessibilityLabel?: string;
   }) => (
     <TouchableOpacity
       style={styles.settingItem}
       onPress={onPress}
       disabled={!onPress}
       accessibilityRole={onPress ? "button" : undefined}
+      accessibilityLabel={accessibilityLabel || `${title}${subtitle ? `, ${subtitle}` : ''}`}
     >
       <View style={styles.settingTextContainer}>
         <Text variant="body1" style={{ color: colors.onSurface }}>
@@ -78,6 +91,43 @@ export default function SettingsScreen() {
       {rightElement}
     </TouchableOpacity>
   );
+
+  // Reusable Section wrapper with glass/solid variants
+  const SettingSection = ({ 
+    title, 
+    children,
+    accessibilityLabel,
+  }: { 
+    title: string; 
+    children: React.ReactNode;
+    accessibilityLabel?: string;
+  }) => (
+    canUseGlass ? (
+      <GlassView 
+        style={styles.glassSection}
+        glassEffectStyle="regular"
+        tintColor={colors.surfaceTint}
+        accessibilityLabel={accessibilityLabel || title}
+      >
+        <View style={styles.sectionContent}>
+          <Text variant="h3" style={[styles.sectionTitle, { color: colors.onSurface }]}>
+            {title}
+          </Text>
+          {children}
+        </View>
+      </GlassView>
+    ) : (
+      <View 
+        style={[styles.solidSection, { backgroundColor: colors.surface }]}
+        accessibilityLabel={accessibilityLabel || title}
+      >
+        <Text variant="h3" style={[styles.sectionTitle, { color: colors.onSurface }]}>
+          {title}
+        </Text>
+        {children}
+      </View>
+    )
+  );
   
   return (
     <ScrollView
@@ -85,10 +135,10 @@ export default function SettingsScreen() {
       contentContainerStyle={styles.contentContainer}
     >
       {/* Appearance Section */}
-      <View style={[styles.section, { backgroundColor: colors.surface }]}>
-        <Text variant="h3" style={[styles.sectionTitle, { color: colors.onSurface }]}>
-          {preferences.locale === 'pt-BR' ? 'Aparência' : 'Appearance'}
-        </Text>
+      <SettingSection 
+        title={t('settings.appearance', preferences.locale === 'pt-BR' ? 'Aparência' : 'Appearance')}
+        accessibilityLabel={t('settings.appearanceSection', 'Appearance settings')}
+      >
         
         <SettingItem
           title={preferences.locale === 'pt-BR' ? 'Tema' : 'Theme'}
@@ -120,13 +170,13 @@ export default function SettingsScreen() {
             />
           }
         />
-      </View>
+      </SettingSection>
       
       {/* Language Section */}
-      <View style={[styles.section, { backgroundColor: colors.surface }]}>
-        <Text variant="h3" style={[styles.sectionTitle, { color: colors.onSurface }]}>
-          {preferences.locale === 'pt-BR' ? 'Idioma' : 'Language'}
-        </Text>
+      <SettingSection 
+        title={t('settings.language', preferences.locale === 'pt-BR' ? 'Idioma' : 'Language')}
+        accessibilityLabel={t('settings.languageSection', 'Language settings')}
+      >
         
         <SettingItem
           title="English"
@@ -149,13 +199,13 @@ export default function SettingsScreen() {
             )
           }
         />
-      </View>
+      </SettingSection>
       
       {/* Units Section */}
-      <View style={[styles.section, { backgroundColor: colors.surface }]}>
-        <Text variant="h3" style={[styles.sectionTitle, { color: colors.onSurface }]}>
-          {preferences.locale === 'pt-BR' ? 'Unidades' : 'Units'}
-        </Text>
+      <SettingSection 
+        title={t('settings.units', preferences.locale === 'pt-BR' ? 'Unidades' : 'Units')}
+        accessibilityLabel={t('settings.unitsSection', 'Units settings')}
+      >
         
         <SettingItem
           title={preferences.locale === 'pt-BR' ? 'Temperatura' : 'Temperature'}
@@ -214,26 +264,25 @@ export default function SettingsScreen() {
           }}
           rightElement={<Text style={styles.chevron}>›</Text>}
         />
-      </View>
+      </SettingSection>
       
       {/* Skin Type Section */}
-      <View style={[styles.section, { backgroundColor: colors.surface }]}>
-        <Text variant="h3" style={[styles.sectionTitle, { color: colors.onSurface }]}>
-          {preferences.locale === 'pt-BR' ? 'Recomendações UV' : 'UV Recommendations'}
-        </Text>
-        
+      <SettingSection 
+        title={t('settings.uvRecommendations', preferences.locale === 'pt-BR' ? 'Recomendações UV' : 'UV Recommendations')}
+        accessibilityLabel={t('settings.skinTypeSection', 'UV recommendations and skin type')}
+      >
         <SkinTypeSelector
           value={preferences.skinType}
           onChange={(type) => updatePreference('skinType', type)}
           locale={preferences.locale}
         />
-      </View>
+      </SettingSection>
       
       {/* Notifications Section */}
-      <View style={[styles.section, { backgroundColor: colors.surface }]}>
-        <Text variant="h3" style={[styles.sectionTitle, { color: colors.onSurface }]}>
-          {preferences.locale === 'pt-BR' ? 'Notificações' : 'Notifications'}
-        </Text>
+      <SettingSection 
+        title={t('settings.notifications', preferences.locale === 'pt-BR' ? 'Notificações' : 'Notifications')}
+        accessibilityLabel={t('settings.notificationsSection', 'Notification settings')}
+      >
         
         <SettingItem
           title={preferences.locale === 'pt-BR' ? 'Notificações' : 'Notifications'}
@@ -264,7 +313,7 @@ export default function SettingsScreen() {
             />
           }
         />
-      </View>
+      </SettingSection>
       
       {/* Reset Section */}
       <TouchableOpacity
@@ -297,10 +346,25 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingBottom: 32,
   },
-  section: {
-    borderRadius: 16,
+  // Glass section (iOS 26+)
+  glassSection: {
+    borderRadius: 20,
+    marginVertical: 8,
+    overflow: 'hidden',
+  },
+  sectionContent: {
+    padding: 20,
+  },
+  // Solid section (Android, iOS < 26, accessibility)
+  solidSection: {
+    borderRadius: 20,
     padding: 20,
     marginVertical: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   sectionTitle: {
     marginBottom: 16,

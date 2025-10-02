@@ -68,6 +68,7 @@ const lightColors: ThemeColors = {
   // Glass effect colors (for fallback)
   glassBackground: 'rgba(255, 255, 255, 0.7)',
   glassBorder: 'rgba(255, 255, 255, 0.18)',
+  surfaceTint: 'rgba(37, 99, 235, 0.1)', // Primary with 10% opacity
 };
 
 const darkColors: ThemeColors = {
@@ -133,6 +134,7 @@ const darkColors: ThemeColors = {
   // Glass effect colors (for fallback)
   glassBackground: 'rgba(31, 41, 55, 0.7)',
   glassBorder: 'rgba(255, 255, 255, 0.1)',
+  surfaceTint: 'rgba(59, 130, 246, 0.1)', // Primary with 10% opacity
 };
 
 const highContrastLightColors: ThemeColors = {

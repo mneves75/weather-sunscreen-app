@@ -15,5 +15,7 @@
 export async function initializeBackgroundTasks(): Promise<void> {
   // Background tasks require additional dependencies and complex implementation
   // For now, this is a no-op placeholder
-  console.log('Background tasks initialization skipped - requires additional dependencies');
+  if (__DEV__) {
+    console.log('[BackgroundTasks] Initialization skipped - requires additional dependencies');
+  }
 }

@@ -2,4 +2,9 @@
  * Utilities module exports
  */
 
-export { performanceMonitor, measurePerformance, useRenderPerformance } from './performance';
+export * from './date';
+export { measurePerformance, performanceMonitor, useRenderPerformance } from './performance';
+export * from './units';
+export * from './uv';
+export * from './weather';
+

@@ -3,7 +3,8 @@
  */
 
 export { ErrorBoundary } from './ErrorBoundary';
-export * from './glass';
+export { GlassContainer } from './glass/GlassContainer';
+export { GlassView } from './glass/GlassView';
 export * from './icons';
 export * from './messages';
 export * from './ui';
