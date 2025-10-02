@@ -52,18 +52,25 @@ class AlertRuleEngine {
     }
 
     try {
+      const startTime = Date.now();
       logger.info('Initializing AlertRuleEngine', 'ALERTS');
 
       // Load rules from storage
+      const loadStart = Date.now();
+      logger.info('Loading alert rules from storage...', 'ALERTS');
       await this.loadRules();
+      logger.info(`Rules loaded in ${Date.now() - loadStart}ms`, 'ALERTS');
 
       // If no rules exist, initialize defaults
       if (this.rules.length === 0) {
+        const defaultsStart = Date.now();
+        logger.info('No rules found, creating defaults...', 'ALERTS');
         await this.initializeDefaultRules();
+        logger.info(`Default rules created in ${Date.now() - defaultsStart}ms`, 'ALERTS');
       }
 
       this.isInitialized = true;
-      logger.info(`AlertRuleEngine initialized with ${this.rules.length} rules`, 'ALERTS');
+      logger.info(`AlertRuleEngine initialized with ${this.rules.length} rules (total time: ${Date.now() - startTime}ms)`, 'ALERTS');
     } catch (error) {
       logger.error('Failed to initialize AlertRuleEngine', error as Error, 'ALERTS');
       throw error;
@@ -248,10 +255,17 @@ class AlertRuleEngine {
       },
     ];
 
-    // Create rules with generated IDs
-    for (const rule of defaultRules) {
-      await this.createRule(rule);
-    }
+    // Create rules with generated IDs (batch operation for performance)
+    const createdRules: AlertRule[] = defaultRules.map(rule => ({
+      ...rule,
+      id: `rule_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    }));
+
+    // Add all rules at once
+    this.rules.push(...createdRules);
+
+    // Single save operation instead of 7 sequential saves
+    await this.saveRules();
 
     logger.info(`Created ${defaultRules.length} default alert rules`, 'ALERTS');
   }

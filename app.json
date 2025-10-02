@@ -63,6 +63,7 @@
       "androidCollapsedTitle": "#{unread_messages_count} new interactions",
       "androidChannelId": "default"
     },
+    "buildCacheProvider": "eas",
     "experiments": {
       "typedRoutes": true
     }

@@ -2,6 +2,7 @@
  * Services module exports
  */
 
+export { aiService } from './AIService';
 export { alertRuleEngine } from './AlertRuleEngine';
 export {
     attachDiagnosticsSink, clearBufferedLogs, diagnosticsSink, getBufferInfo, getBufferedLogs

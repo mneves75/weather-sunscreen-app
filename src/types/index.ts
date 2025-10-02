@@ -2,6 +2,7 @@
  * Central type definitions export
  */
 
+export * from './ai';
 export * from './i18n';
 export * from './messages';
 export * from './notifications';

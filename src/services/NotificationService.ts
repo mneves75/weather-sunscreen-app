@@ -79,6 +79,7 @@ class NotificationService {
     }
 
     try {
+      const startTime = Date.now();
       logger.info('Initializing NotificationService', 'NOTIFICATIONS');
 
       // Merge config
@@ -88,16 +89,22 @@ class NotificationService {
 
       // Set up notification channels (Android)
       if (Platform.OS === 'android') {
+        const channelStart = Date.now();
+        logger.info('Setting up Android notification channels...', 'NOTIFICATIONS');
         await this.setupAndroidChannels();
+        logger.info(`Android channels configured in ${Date.now() - channelStart}ms`, 'NOTIFICATIONS');
       }
 
       // Auto-register if enabled
       if (this.config.autoRegister) {
+        const registerStart = Date.now();
+        logger.info('Auto-registering for push notifications...', 'NOTIFICATIONS');
         await this.registerForPushNotifications();
+        logger.info(`Push registration completed in ${Date.now() - registerStart}ms`, 'NOTIFICATIONS');
       }
 
       this.isInitialized = true;
-      logger.info('NotificationService initialized', 'NOTIFICATIONS');
+      logger.info(`NotificationService initialized (total time: ${Date.now() - startTime}ms)`, 'NOTIFICATIONS');
     } catch (error) {
       logger.error('Failed to initialize NotificationService', error as Error, 'NOTIFICATIONS');
       throw error;

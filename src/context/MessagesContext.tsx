@@ -98,10 +98,12 @@ export function MessagesProvider({ children }: MessagesProviderProps) {
           });
         };
 
-        // Initialize services with individual error handling to prevent blocking
-        await Promise.allSettled([
+        // STEP 1: Initialize services FIRST (sequential, not parallel with data loading)
+        logger.info('Initializing services...', 'MESSAGES');
+        const initResults = await Promise.allSettled([
           withTimeout(messageService.initialize(), 15000).catch(err => {
             logger.error('MessageService init failed', err as Error, 'MESSAGES');
+            throw err; // Re-throw to mark as rejected
           }),
           withTimeout(notificationService.initialize(), 15000).catch(err => {
             logger.error('NotificationService init failed', err as Error, 'MESSAGES');
@@ -111,15 +113,24 @@ export function MessagesProvider({ children }: MessagesProviderProps) {
           }),
         ]);
 
-        // Load initial data (these can fail gracefully)
+        // STEP 2: Check if MessageService initialized successfully (critical service)
+        const messageServiceResult = initResults[0];
+        if (messageServiceResult.status === 'rejected') {
+          throw new Error('MessageService failed to initialize - cannot continue');
+        }
+
+        logger.info('Services initialized successfully', 'MESSAGES');
+
+        // STEP 3: NOW load data (services are ready, no race condition!)
+        logger.info('Loading initial data...', 'MESSAGES');
         await Promise.allSettled([
-          withTimeout(loadMessages(), 10000).catch(err => {
+          loadMessages().catch(err => {
             logger.error('Failed to load messages', err as Error, 'MESSAGES');
           }),
-          withTimeout(loadStats(), 10000).catch(err => {
+          loadStats().catch(err => {
             logger.error('Failed to load stats', err as Error, 'MESSAGES');
           }),
-          withTimeout(loadPermissionStatus(), 10000).catch(err => {
+          loadPermissionStatus().catch(err => {
             logger.error('Failed to load permission status', err as Error, 'MESSAGES');
           }),
         ]);

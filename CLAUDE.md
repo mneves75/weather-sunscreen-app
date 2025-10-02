@@ -225,13 +225,123 @@ weather-suncreen-app/
 
 6. **Native Project Settings**: Keep build configurations (bundleIdentifier, entitlements, deployment targets) in native projects (`ios/`, `android/`), not `app.json`, to avoid EAS Build divergence.
 
+## SDK 54 Key Features
+
+### Precompiled React Native for iOS
+- **Build Speed:** 120s → 10s (12x improvement) on React Native core
+- XCFrameworks shipped alongside source
+- Not compatible with `use_frameworks!` in Podfile
+- Automatically used in SDK 54 unless `use_frameworks!` is set
+
+### iOS 26 & Liquid Glass
+- **expo-glass-effect**: `<GlassView>`, `<GlassContainer>` components
+- **Icon Composer Support**: `.icon` format for Liquid Glass app icons
+- **NativeTabs Enhancements**:
+  - Badge support for notifications
+  - Tab bar minimize behavior (`minimizeBehavior="onScrollDown"`)
+  - Separate search tab (`role="search"`)
+  - Tab bar search input with `headerSearchBarOptions`
+  - DynamicColorIOS for adaptive colors
+- Check availability: `isLiquidGlassAvailable()`
+- Accessibility: `AccessibilityInfo.isReduceTransparencyEnabled()`
+
+### React Native 0.81 & React 19.1
+- **React 19.1** with improved hooks (`use` hook, enhanced refs)
+- **React Compiler** enabled by default (auto-memoization)
+- Owner stacks for better error messages
+- Unhandled promise rejections now logged as errors
+- First-party JSC support removed (use community JSC if needed)
+
+### New & Stable APIs
+- **expo-file-system**: Stable object-oriented API (was `/next`)
+  - `File` and `Directory` classes
+  - Legacy API at `expo-file-system/legacy` (deprecated in SDK 55)
+- **expo-sqlite**: localStorage API for web compatibility
+  - SQLite extensions support (`loadExtensionAsync`)
+  - sqlite-vec bundled for vector data
+- **expo-app-integrity**: DeviceCheck (iOS) & Play Integrity API (Android)
+- **expo/blob**: Binary data handling (beta)
+- **expo-updates**:
+  - `setUpdateRequestHeadersOverride()` for runtime header overrides
+  - `downloadProgress` in `useUpdates()` hook
+  - `reloadScreenOptions` for custom reload screens
+
+### Performance & Developer Experience
+- **buildCacheProvider**: Skip rebuilds with same fingerprint
+  - EAS provider: `"buildCacheProvider": "eas"` in app.json
+  - Downloads cached builds instead of recompiling
+- **Improved Autolinking**:
+  - Transitive dependencies now autolinked (React Native modules)
+  - Unified behavior across Expo/React Native modules
+  - Better monorepo support
+- **Import Stack Traces**: Enabled by default, shows import chains on errors
+- **experimentalImportSupport**: Default on (better ESM, tree shaking, React Compiler)
+- **CSS Autoprefixing**: Rust-based `lightningcss` by default
+
+### Android Updates
+- **Target API 36** (Android 16)
+- **Edge-to-edge**: Always enabled, cannot be disabled
+- **Predictive back gesture**: Opt-in via `android.predictiveBackGestureEnabled`
+- `androidNavigationBar.enforceContrast` for navigation bar contrast
+
+### Expo CLI Enhancements
+- React Compiler enabled by default
+- Import stack traces enabled
+- `experimentalImportSupport` default on
+- Unhandled promise rejections logged as errors
+- TypeScript 5.9.2 recommended
+- Autolinking module resolution experiment (`experiments.autolinkingModuleResolution`)
+
+### Deprecations & Breaking Changes
+- **expo-av** removed in SDK 55 (migrate to expo-audio/expo-video)
+- **SafeAreaView** deprecated (use react-native-safe-area-context)
+- **notification config** deprecated (use expo-notifications plugin)
+- **expo-file-system**: Legacy API at `/legacy`, removed in SDK 55
+- **Reanimated v4**: Requires New Architecture, introduces react-native-worklets
+- **Metro internals**: `metro/src/..` → `metro/private/..`
+- **locales config**: Now supports both iOS and Android
+
+### Tool Requirements
+- **Xcode**: Minimum 16.1, recommended 26 (for iOS 26 features)
+- **Node**: Minimum 20.19.4
+- **Java**: 17 for Android builds
+
 ## External Documentation
 
 - **Expo SDK 54**: https://docs.expo.dev/versions/v54.0.0/
 - **Expo Router v6**: https://docs.expo.dev/router/introduction/
+- **Expo Router Native Tabs**: https://docs.expo.dev/router/advanced/native-tabs/
+- **expo-glass-effect**: https://docs.expo.dev/versions/v54.0.0/sdk/glass-effect/
 - **React Native New Architecture**: https://reactnative.dev/docs/the-new-architecture/landing-page
 - **Performance Best Practices**: https://expo.dev/blog/best-practices-for-reducing-lag-in-expo-apps
+- **Precompiled React Native**: https://expo.dev/blog/precompiled-react-native-for-ios
+- **Vercel AI SDK**: https://sdk.vercel.ai/docs
+
+## AI Integration
+
+This project can integrate with the **Vercel AI SDK** for intelligent features:
+- AI-powered sunscreen recommendations
+- Smart notification content generation
+- Weather insights chatbot
+- Activity suggestions based on conditions
+
+**Setup:**
+```bash
+npx expo install ai @ai-sdk/anthropic
+```
+
+See `docs/AI_INTEGRATION.md` (when available) for implementation guide.
 
 ## Repository Guidelines
 
 See `AGENTS.md` for project layout, workflow commands, and PR review expectations before contributing.
+
+## Modernization
+
+See `docs/MODERNIZATION_PLAN.md` for comprehensive modernization roadmap including:
+- Critical bug fixes
+- SDK 54 feature adoption
+- iOS 26 native capabilities
+- React 19.1 patterns
+- AI integration
+- Performance optimizations

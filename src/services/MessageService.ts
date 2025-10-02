@@ -78,9 +78,10 @@ class MessageService {
       logger.info('Initializing MessageService', 'MESSAGES');
 
       // Load configuration
+      const configStart = Date.now();
       logger.info('Loading message config...', 'MESSAGES');
       await this.loadConfig();
-      logger.info(`Config loaded in ${Date.now() - startTime}ms`, 'MESSAGES');
+      logger.info(`Config loaded in ${Date.now() - configStart}ms`, 'MESSAGES');
 
       // Load messages
       const loadMessagesStart = Date.now();
@@ -92,8 +93,8 @@ class MessageService {
       if (this.config.autoCleanup) {
         const cleanupStart = Date.now();
         logger.info('Running message cleanup...', 'MESSAGES');
-        await this.cleanupExpiredMessages();
-        await this.cleanupOldMessages(this.config.retentionDays);
+        await this._cleanupExpiredMessagesInternal();
+        await this._cleanupOldMessagesInternal(this.config.retentionDays);
         logger.info(`Cleanup completed in ${Date.now() - cleanupStart}ms`, 'MESSAGES');
       }
 
@@ -103,6 +104,47 @@ class MessageService {
       logger.error('Failed to initialize MessageService', error as Error, 'MESSAGES');
       throw error;
     }
+  }
+
+  /**
+   * Internal cleanup for expired messages (no initialization check - called during init)
+   */
+  private async _cleanupExpiredMessagesInternal(): Promise<number> {
+    const now = Date.now();
+    const initialCount = this.messages.length;
+
+    this.messages = this.messages.filter(m => !m.expiresAt || m.expiresAt > now);
+
+    const deleted = initialCount - this.messages.length;
+
+    if (deleted > 0) {
+      await this.saveMessages();
+      logger.info(`Cleaned up ${deleted} expired messages`, 'MESSAGES');
+    }
+
+    return deleted;
+  }
+
+  /**
+   * Internal cleanup for old messages (no initialization check - called during init)
+   */
+  private async _cleanupOldMessagesInternal(daysOld: number): Promise<number> {
+    const cutoffTime = Date.now() - (daysOld * 24 * 60 * 60 * 1000);
+    const initialCount = this.messages.length;
+
+    // Keep unread messages, delete old read messages
+    this.messages = this.messages.filter(m =>
+      !m.isRead || m.timestamp >= cutoffTime
+    );
+
+    const deleted = initialCount - this.messages.length;
+
+    if (deleted > 0) {
+      await this.saveMessages();
+      logger.info(`Cleaned up ${deleted} old messages (older than ${daysOld} days)`, 'MESSAGES');
+    }
+
+    return deleted;
   }
 
   /**
@@ -434,48 +476,19 @@ class MessageService {
   }
 
   /**
-   * Clean up expired messages
+   * Clean up expired messages (public API with initialization check)
    */
   public async cleanupExpiredMessages(): Promise<number> {
     await this.ensureInitialized();
-
-    const now = Date.now();
-    const initialCount = this.messages.length;
-
-    this.messages = this.messages.filter(m => !m.expiresAt || m.expiresAt > now);
-
-    const deleted = initialCount - this.messages.length;
-
-    if (deleted > 0) {
-      await this.saveMessages();
-      logger.info(`Cleaned up ${deleted} expired messages`, 'MESSAGES');
-    }
-
-    return deleted;
+    return this._cleanupExpiredMessagesInternal();
   }
 
   /**
-   * Clean up old messages
+   * Clean up old messages (public API with initialization check)
    */
   public async cleanupOldMessages(daysOld: number): Promise<number> {
     await this.ensureInitialized();
-
-    const cutoffTime = Date.now() - (daysOld * 24 * 60 * 60 * 1000);
-    const initialCount = this.messages.length;
-
-    // Keep unread messages, delete old read messages
-    this.messages = this.messages.filter(m => 
-      !m.isRead || m.timestamp >= cutoffTime
-    );
-
-    const deleted = initialCount - this.messages.length;
-
-    if (deleted > 0) {
-      await this.saveMessages();
-      logger.info(`Cleaned up ${deleted} old messages (older than ${daysOld} days)`, 'MESSAGES');
-    }
-
-    return deleted;
+    return this._cleanupOldMessagesInternal(daysOld);
   }
 
   /**
