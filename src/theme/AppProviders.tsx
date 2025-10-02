@@ -18,28 +18,15 @@ interface AppProvidersProps {
 }
 
 export function AppProviders({ children }: AppProvidersProps) {
-  const [i18nReady, setI18nReady] = useState(false);
-
   useEffect(() => {
-    // Wait for i18n to initialize
-    if (i18n.isInitialized) {
-      setI18nReady(true);
-    } else {
-      i18n.on('initialized', () => {
-        setI18nReady(true);
-      });
-    }
-
     // Initialize background tasks (non-blocking)
     // initializeBackgroundTasks().catch((error: unknown) => {
     //   console.warn('Failed to initialize background tasks:', error);
     // });
   }, []);
 
-  if (!i18nReady) {
-    return null; // Or a loading screen
-  }
-
+  // ✅ Always render providers immediately (i18n initializes asynchronously)
+  // This fixes "useTheme must be used within a ThemeProvider" error
   return (
     <I18nextProvider i18n={i18n}>
       <ThemeProvider>

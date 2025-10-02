@@ -48,6 +48,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Full accessibility support
 
 ### Fixed
+- **CRITICAL: Runtime errors blocking app startup** - Nuclear fix applied
+  - Fixed Worklets version mismatch (0.6.0 vs 0.5.1) - Reinstalled pods
+  - Fixed "useTheme must be used within ThemeProvider" - Removed i18n loading gate
+  - Cleared all build caches (watchman, Metro, iOS pods)
+  - **Impact:** App now starts successfully, no red screen errors
 - **CRITICAL: MessageService deadlock** - Fixed circular dependency causing 100% failure
   - Created internal cleanup methods without initialization guards (`_cleanupExpiredMessagesInternal`, `_cleanupOldMessagesInternal`)
   - Initialization now calls internal methods directly (no circular wait)
@@ -133,6 +138,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Performance metrics and cost estimation
   - Security, privacy, and compliance considerations
   - Testing and troubleshooting guides
+- **Runtime Errors Fix Plan** (`docs/RUNTIME_ERRORS_FIX_PLAN.md`)
+  - Analysis of 3 critical startup errors
+  - Nuclear fix strategy (cache clear + pods reinstall)
+  - ThemeProvider error fix (i18n loading gate removal)
+  - Worklets version mismatch resolution
 - **MessageService Deadlock Fix** (`docs/CRITICAL_MESSAGESERVICE_DEADLOCK.md`)
   - Complete root cause analysis of circular dependency deadlock
   - Internal vs public method pattern explanation
