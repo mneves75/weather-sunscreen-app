@@ -18,13 +18,15 @@ import {
     WeatherCard,
 } from '@/src/components/weather';
 import { useSettings } from '@/src/context/SettingsContext';
-import { useForecast, useLocation, useUVIndex, useWeatherData } from '@/src/hooks';
+import { LocationError, useForecast, useLocation, useUVIndex, useWeatherData } from '@/src/hooks';
 import { useColors, useGlassAvailability } from '@/src/theme';
+import { createFadeInComponent, createSlideUpComponent } from '@/src/theme/animations';
 import { GlassView } from 'expo-glass-effect';
 import { useRouter } from 'expo-router';
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, Linking, Platform, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, Animated, Linking, Platform, RefreshControl, ScrollView, StyleSheet, View, TouchableOpacity, ActivityIndicator } from 'react-native';
+import Feather from '@expo/vector-icons/Feather';
 
 export default function HomeScreen() {
   const colors = useColors();
@@ -33,6 +35,11 @@ export default function HomeScreen() {
   const { preferences } = useSettings();
   const { t } = useTranslation();
   const use24HourTime = preferences.timeFormat === '24h' || (preferences.timeFormat === 'system' && preferences.locale === 'pt-BR');
+
+  // Entrance animations
+  const weatherCardAnim = createSlideUpComponent(50, 100);
+  const uvCardAnim = createSlideUpComponent(50, 200);
+  const actionsAnim = createFadeInComponent(300);
   
   // Get weather data
   const { 
@@ -69,9 +76,79 @@ export default function HomeScreen() {
     currentLocation,
     permissionStatus,
     isRequesting,
-    requestPermission,
     getCurrentLocation,
   } = useLocation();
+
+  const showPermissionDeniedAlert = useCallback(() => {
+    Alert.alert(
+      t('location.permissionDenied'),
+      t('location.permissionDeniedMessage'),
+      [
+        { text: t('common.cancel', 'Cancel'), style: 'cancel' },
+        {
+          text: t('location.openSettings'),
+          onPress: () => {
+            if (Platform.OS === 'ios') {
+              Linking.openURL('app-settings:');
+            } else {
+              Linking.openSettings();
+            }
+          }
+        }
+      ]
+    );
+  }, [t]);
+
+  const showServicesDisabledAlert = useCallback(() => {
+    Alert.alert(
+      t('location.servicesDisabled'),
+      t('location.servicesDisabledMessage'),
+      [
+        { text: t('common.cancel', 'Cancel'), style: 'cancel' },
+        {
+          text: t('location.openSettings'),
+          onPress: () => {
+            if (Platform.OS === 'ios') {
+              Linking.openURL('app-settings:');
+            } else {
+              Linking.openSettings();
+            }
+          }
+        }
+      ]
+    );
+  }, [t]);
+
+  const requestLocationWithHandling = useCallback(async (promptForServices: boolean) => {
+    if (permissionStatus === 'denied') {
+      showPermissionDeniedAlert();
+      return false;
+    }
+
+    try {
+      await getCurrentLocation({ promptForServices });
+      return true;
+    } catch (err) {
+      if (err instanceof LocationError) {
+        if (err.code === 'permission-denied') {
+          showPermissionDeniedAlert();
+          return false;
+        }
+
+        if (err.code === 'services-disabled') {
+          showServicesDisabledAlert();
+          return false;
+        }
+      }
+
+      Alert.alert(
+        t('location.error'),
+        t('location.errorMessage'),
+        [{ text: 'OK' }]
+      );
+      return false;
+    }
+  }, [permissionStatus, getCurrentLocation, showPermissionDeniedAlert, showServicesDisabledAlert, t]);
   
   // Handle refresh
   const handleRefresh = useCallback(async () => {
@@ -84,36 +161,32 @@ export default function HomeScreen() {
   
   // Handle location request
   const handleLocationRequest = useCallback(async () => {
-    if (permissionStatus === 'denied') {
-      Alert.alert(
-        t('location.permissionDenied'),
-        t('location.permissionDeniedMessage'),
-        [
-          { text: 'OK' },
-          {
-            text: t('location.openSettings'),
-            onPress: () => {
-              if (Platform.OS === 'ios') {
-                Linking.openURL('app-settings:');
-              } else {
-                Linking.openSettings();
-              }
-            }
-          }
-        ]
-      );
-      return;
-    }
+    await requestLocationWithHandling(true);
+  }, [requestLocationWithHandling]);
 
-    const coords = await getCurrentLocation();
-    if (!coords) {
-      Alert.alert(
-        t('location.error'),
-        t('location.errorMessage'),
-        [{ text: 'OK' }]
-      );
+  const handleRefreshPress = useCallback(async () => {
+    await requestLocationWithHandling(true);
+    await handleRefresh();
+  }, [requestLocationWithHandling, handleRefresh]);
+
+  // Trigger entrance animations when data loads
+  useEffect(() => {
+    if (weatherData) {
+      weatherCardAnim.animate();
     }
-  }, [permissionStatus, getCurrentLocation, t]);
+  }, [weatherData]);
+
+  useEffect(() => {
+    if (uvIndex) {
+      uvCardAnim.animate();
+    }
+  }, [uvIndex]);
+
+  useEffect(() => {
+    if (weatherData && uvIndex) {
+      actionsAnim.animate();
+    }
+  }, [weatherData, uvIndex]);
   
   const isLoading = isLoadingWeather || isLoadingForecast || isLoadingUV;
   const hasError = weatherError || forecastError || uvError;
@@ -173,112 +246,151 @@ export default function HomeScreen() {
     >
       {/* Location Display */}
       {weatherData?.location && (
-        <LocationDisplay
-          location={weatherData.location}
-          onPress={() => router.push('/(tabs)/(home)/weather')}
-        />
+        <View style={styles.locationHeader}>
+          <TouchableOpacity
+            onPress={handleRefreshPress}
+            accessibilityRole="button"
+            accessibilityLabel={t('home.refreshWeather')}
+            disabled={isRequesting || isLoading}
+            style={[
+              styles.refreshIconButton,
+              { backgroundColor: colors.surfaceVariant },
+              (isRequesting || isLoading) && styles.refreshIconButtonDisabled,
+            ]}
+            activeOpacity={0.7}
+          >
+            {isRequesting || isLoading ? (
+              <ActivityIndicator size="small" color={colors.primary} />
+            ) : (
+              <Feather name="refresh-ccw" size={20} color={colors.primary} />
+            )}
+          </TouchableOpacity>
+          <View style={styles.locationDisplayWrapper}>
+            <LocationDisplay
+              location={weatherData.location}
+              onPress={() => router.push('/(tabs)/(home)/weather')}
+            />
+          </View>
+        </View>
       )}
       
-      {/* Weather Card with Glass Effect */}
+      {/* Weather Card with Glass Effect and Animation */}
       {weatherData && (
-        canUseGlass ? (
-          <GlassView 
-            style={styles.glassCard}
-            glassEffectStyle="regular"
-            tintColor={colors.surfaceTint}
-            accessibilityRole="button"
-            accessibilityLabel={`Current weather: ${weatherData.current.temperature} degrees, ${weatherData.current.condition.description}`}
-            accessibilityHint="Double tap to view detailed weather information"
-          >
-            <WeatherCard
-              data={weatherData}
-              onPress={() => router.push('/(tabs)/(home)/weather')}
-              temperatureText={getTemperatureWithUnit(weatherData.current.temperature)}
-              feelsLikeText={getTemperatureWithUnit(weatherData.current.feelsLike)}
-              windText={formatWindSpeed(weatherData.current.windSpeed)}
-              pressureText={formatPressure(weatherData.current.pressure)}
-              humidityText={`${weatherData.current.humidity}%`}
-              locale={preferences.locale}
-              use24HourTime={use24HourTime}
-            />
-          </GlassView>
-        ) : (
-          <View 
-            style={[styles.solidCard, { backgroundColor: colors.surface }]}
-            accessibilityRole="button"
-            accessibilityLabel={`Current weather: ${weatherData.current.temperature} degrees, ${weatherData.current.condition.description}`}
-            accessibilityHint="Double tap to view detailed weather information"
-          >
-            <WeatherCard
-              data={weatherData}
-              onPress={() => router.push('/(tabs)/(home)/weather')}
-              temperatureText={getTemperatureWithUnit(weatherData.current.temperature)}
-              feelsLikeText={getTemperatureWithUnit(weatherData.current.feelsLike)}
-              windText={formatWindSpeed(weatherData.current.windSpeed)}
-              pressureText={formatPressure(weatherData.current.pressure)}
-              humidityText={`${weatherData.current.humidity}%`}
-              locale={preferences.locale}
-              use24HourTime={use24HourTime}
-            />
-          </View>
-        )
+        <Animated.View
+          style={{
+            opacity: weatherCardAnim.opacity,
+            transform: [{ translateY: weatherCardAnim.translateY }],
+          }}
+        >
+          {canUseGlass ? (
+            <GlassView
+              style={styles.glassCard}
+              glassEffectStyle="regular"
+              tintColor={colors.surfaceTint}
+              accessibilityRole="button"
+              accessibilityLabel={`Current weather: ${weatherData.current.temperature} degrees, ${weatherData.current.condition.description}`}
+              accessibilityHint="Double tap to view detailed weather information"
+            >
+              <WeatherCard
+                data={weatherData}
+                onPress={() => router.push('/(tabs)/(home)/weather')}
+                temperatureText={getTemperatureWithUnit(weatherData.current.temperature)}
+                feelsLikeText={getTemperatureWithUnit(weatherData.current.feelsLike)}
+                windText={formatWindSpeed(weatherData.current.windSpeed)}
+                pressureText={formatPressure(weatherData.current.pressure)}
+                humidityText={`${weatherData.current.humidity}%`}
+                locale={preferences.locale}
+                use24HourTime={use24HourTime}
+              />
+            </GlassView>
+          ) : (
+            <View
+              style={[styles.solidCard, { backgroundColor: colors.surface }]}
+              accessibilityRole="button"
+              accessibilityLabel={`Current weather: ${weatherData.current.temperature} degrees, ${weatherData.current.condition.description}`}
+              accessibilityHint="Double tap to view detailed weather information"
+            >
+              <WeatherCard
+                data={weatherData}
+                onPress={() => router.push('/(tabs)/(home)/weather')}
+                temperatureText={getTemperatureWithUnit(weatherData.current.temperature)}
+                feelsLikeText={getTemperatureWithUnit(weatherData.current.feelsLike)}
+                windText={formatWindSpeed(weatherData.current.windSpeed)}
+                pressureText={formatPressure(weatherData.current.pressure)}
+                humidityText={`${weatherData.current.humidity}%`}
+                locale={preferences.locale}
+                use24HourTime={use24HourTime}
+              />
+            </View>
+          )}
+        </Animated.View>
       )}
       
-      {/* UV Index with Glass Effect */}
+      {/* UV Index with Glass Effect and Animation */}
       {uvIndex && (
-        canUseGlass ? (
-          <GlassView 
-            style={styles.glassCard}
-            glassEffectStyle="regular"
-            tintColor={colors.surfaceTint}
-            accessibilityRole="alert"
-            accessibilityLabel={`UV Index: ${uvIndex.value}, ${uvIndex.level}`}
-          >
-            <UVIndicator
-              uvIndex={uvIndex}
-              locale={preferences.locale}
-              size="small"
-            />
-          </GlassView>
-        ) : (
-          <View 
-            style={[styles.solidCard, { backgroundColor: colors.surface }]}
-            accessibilityRole="alert"
-            accessibilityLabel={`UV Index: ${uvIndex.value}, ${uvIndex.level}`}
-          >
-            <UVIndicator
-              uvIndex={uvIndex}
-              locale={preferences.locale}
-              size="small"
-            />
-          </View>
-        )
+        <Animated.View
+          style={{
+            opacity: uvCardAnim.opacity,
+            transform: [{ translateY: uvCardAnim.translateY }],
+          }}
+        >
+          {canUseGlass ? (
+            <GlassView
+              style={styles.glassCard}
+              glassEffectStyle="regular"
+              tintColor={colors.surfaceTint}
+              accessibilityRole="alert"
+              accessibilityLabel={`UV Index: ${uvIndex.value}, ${uvIndex.level}`}
+            >
+              <UVIndicator
+                uvIndex={uvIndex}
+                locale={preferences.locale}
+                size="small"
+              />
+            </GlassView>
+          ) : (
+            <View
+              style={[styles.solidCard, { backgroundColor: colors.surface }]}
+              accessibilityRole="alert"
+              accessibilityLabel={`UV Index: ${uvIndex.value}, ${uvIndex.level}`}
+            >
+              <UVIndicator
+                uvIndex={uvIndex}
+                locale={preferences.locale}
+                size="small"
+              />
+            </View>
+          )}
+        </Animated.View>
       )}
       
       {/* Sunscreen Tracker */}
       <SunscreenTracker />
       
-      {/* Quick Actions */}
-      <View style={styles.actionsContainer}>
+      {/* Quick Actions with Animation */}
+      <Animated.View style={[styles.actionsContainer, { opacity: actionsAnim.opacity }]}>
         <Button
           title={t('home.viewDetails')}
           onPress={() => router.push('/(tabs)/(home)/weather')}
-          variant="outline"
-          style={styles.actionButton}
+          variant="tonal"
+          size="medium"
         />
         <Button
           title={t('home.uvAndSpf')}
           onPress={() => router.push('/(tabs)/(home)/uv')}
-          variant="outline"
-          style={styles.actionButton}
+          variant="tonal"
+          size="medium"
         />
+      </Animated.View>
+      <Animated.View style={[styles.forecastButton, { opacity: actionsAnim.opacity }]}>
         <Button
           title={t('home.sevenDayForecast')}
           onPress={() => router.push('/(tabs)/(home)/forecast')}
-          variant="outline"
-          style={styles.actionButton}
+          variant="outlined"
+          size="medium"
+          fullWidth
         />
-      </View>
+      </Animated.View>
       
       {/* UV Recommendations Preview */}
       {uvIndex && recommendations.length > 0 && spfRecommendation && (
@@ -315,36 +427,57 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   contentContainer: {
-    padding: 16,
-    paddingBottom: 32,
+    padding: 24,        // Up from 16 - using new spacing.lg
+    paddingBottom: 48,  // Up from 32 - using new spacing.xxl
+    gap: 12,           // Consistent spacing between sections
+  },
+  locationHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: 4,
+  },
+  refreshIconButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.04)',
+  },
+  refreshIconButtonDisabled: {
+    opacity: 0.4,
+  },
+  locationDisplayWrapper: {
+    flex: 1,
   },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 24,
+    padding: 32,        // Using new spacing.xl
   },
   title: {
     textAlign: 'center',
-    marginBottom: 16,
+    marginBottom: 16,   // Using spacing.md
   },
   subtitle: {
     textAlign: 'center',
-    marginBottom: 24,
+    marginBottom: 24,   // Using spacing.lg
   },
   button: {
     minWidth: 200,
   },
   // Glass card wrapper (iOS 26+)
   glassCard: {
-    borderRadius: 20,
-    marginVertical: 8,
+    borderRadius: 24,   // Increased for more modern look
+    marginVertical: 12, // Using spacing.sm
     overflow: 'hidden',
   },
   // Solid card fallback (iOS < 26, Android, accessibility)
   solidCard: {
-    borderRadius: 20,
-    marginVertical: 8,
+    borderRadius: 24,   // Increased for more modern look
+    marginVertical: 12, // Using spacing.sm
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -353,23 +486,23 @@ const styles = StyleSheet.create({
   },
   actionsContainer: {
     flexDirection: 'row',
-    gap: 8,
-    marginVertical: 8,
+    gap: 12,            // Using spacing.sm
+    marginVertical: 12, // Using spacing.sm
   },
-  actionButton: {
-    flex: 1,
+  forecastButton: {
+    marginVertical: 4,  // Small spacing
   },
   forecastPreview: {
-    borderRadius: 16,
-    padding: 20,
-    marginVertical: 8,
+    borderRadius: 20,
+    padding: 24,        // Using spacing.lg
+    marginVertical: 12, // Using spacing.sm
   },
   forecastTitle: {
-    marginBottom: 12,
+    marginBottom: 16,   // Using spacing.md
   },
   forecastItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 8,
+    paddingVertical: 12, // Using spacing.sm
   },
 });

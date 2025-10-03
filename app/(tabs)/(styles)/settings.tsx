@@ -25,26 +25,24 @@ export default function SettingsScreen() {
   const { themeMode, setThemeMode, highContrast, setHighContrast } = useTheme();
   const { preferences, updatePreference, resetPreferences } = useSettings();
   const { t, i18n } = useTranslation();
-  
+
   const handleReset = useCallback(() => {
     Alert.alert(
-      preferences.locale === 'pt-BR' ? 'Redefinir Configurações' : 'Reset Settings',
-      preferences.locale === 'pt-BR'
-        ? 'Tem certeza de que deseja redefinir todas as configurações para os padrões?'
-        : 'Are you sure you want to reset all settings to defaults?',
+      t('settings.resetConfirmTitle'),
+      t('settings.resetConfirmMessage'),
       [
         {
-          text: preferences.locale === 'pt-BR' ? 'Cancelar' : 'Cancel',
+          text: t('settings.resetCancel'),
           style: 'cancel',
         },
         {
-          text: preferences.locale === 'pt-BR' ? 'Redefinir' : 'Reset',
+          text: t('settings.resetConfirm'),
           style: 'destructive',
           onPress: resetPreferences,
         },
       ]
     );
-  }, [preferences.locale, resetPreferences]);
+  }, [resetPreferences, t]);
   
   const handleLanguageChange = useCallback(async (locale: 'en' | 'pt-BR') => {
     await updatePreference('locale', locale);
@@ -136,17 +134,17 @@ export default function SettingsScreen() {
     >
       {/* Appearance Section */}
       <SettingSection 
-        title={t('settings.appearance', preferences.locale === 'pt-BR' ? 'Aparência' : 'Appearance')}
-        accessibilityLabel={t('settings.appearanceSection', 'Appearance settings')}
+        title={t('settings.appearance')}
+        accessibilityLabel={t('settings.appearanceSection')}
       >
         
         <SettingItem
-          title={preferences.locale === 'pt-BR' ? 'Tema' : 'Theme'}
+          title={t('settings.theme')}
           subtitle={themeMode === 'system' 
-            ? (preferences.locale === 'pt-BR' ? 'Sistema' : 'System')
+            ? t('settings.themeSystem')
             : themeMode === 'dark'
-              ? (preferences.locale === 'pt-BR' ? 'Escuro' : 'Dark')
-              : (preferences.locale === 'pt-BR' ? 'Claro' : 'Light')
+              ? t('settings.themeDark')
+              : t('settings.themeLight')
           }
           onPress={() => {
             const modes = ['light', 'dark', 'system'] as const;
@@ -160,7 +158,7 @@ export default function SettingsScreen() {
         <Divider />
         
         <SettingItem
-          title={preferences.locale === 'pt-BR' ? 'Alto Contraste' : 'High Contrast'}
+          title={t('settings.highContrast')}
           rightElement={
             <Switch
               value={highContrast}
@@ -174,12 +172,12 @@ export default function SettingsScreen() {
       
       {/* Language Section */}
       <SettingSection 
-        title={t('settings.language', preferences.locale === 'pt-BR' ? 'Idioma' : 'Language')}
-        accessibilityLabel={t('settings.languageSection', 'Language settings')}
+        title={t('settings.language')}
+        accessibilityLabel={t('settings.languageSection')}
       >
         
         <SettingItem
-          title="English"
+          title={t('settings.languageEnglish')}
           onPress={() => handleLanguageChange('en')}
           rightElement={
             preferences.locale === 'en' && (
@@ -191,7 +189,7 @@ export default function SettingsScreen() {
         <Divider />
         
         <SettingItem
-          title="Português (Brasil)"
+          title={t('settings.languagePortuguese')}
           onPress={() => handleLanguageChange('pt-BR')}
           rightElement={
             preferences.locale === 'pt-BR' && (
@@ -203,12 +201,12 @@ export default function SettingsScreen() {
       
       {/* Units Section */}
       <SettingSection 
-        title={t('settings.units', preferences.locale === 'pt-BR' ? 'Unidades' : 'Units')}
-        accessibilityLabel={t('settings.unitsSection', 'Units settings')}
+        title={t('settings.units')}
+        accessibilityLabel={t('settings.unitsSection')}
       >
         
         <SettingItem
-          title={preferences.locale === 'pt-BR' ? 'Temperatura' : 'Temperature'}
+          title={t('settings.temperature')}
           subtitle={preferences.temperatureUnit === 'celsius' ? '°C (Celsius)' : '°F (Fahrenheit)'}
           onPress={() => updatePreference(
             'temperatureUnit', 
@@ -220,7 +218,7 @@ export default function SettingsScreen() {
         <Divider />
         
         <SettingItem
-          title={preferences.locale === 'pt-BR' ? 'Velocidade do Vento' : 'Wind Speed'}
+          title={t('settings.windSpeed')}
           subtitle={
             preferences.speedUnit === 'kmh' ? 'km/h' :
             preferences.speedUnit === 'mph' ? 'mph' : 'm/s'
@@ -237,7 +235,7 @@ export default function SettingsScreen() {
         <Divider />
         
         <SettingItem
-          title={preferences.locale === 'pt-BR' ? 'Pressão' : 'Pressure'}
+          title={t('settings.pressure')}
           subtitle={
             preferences.pressureUnit === 'hPa' ? 'hPa' :
             preferences.pressureUnit === 'inHg' ? 'inHg' : 'mmHg'
@@ -268,8 +266,8 @@ export default function SettingsScreen() {
       
       {/* Skin Type Section */}
       <SettingSection 
-        title={t('settings.uvRecommendations', preferences.locale === 'pt-BR' ? 'Recomendações UV' : 'UV Recommendations')}
-        accessibilityLabel={t('settings.skinTypeSection', 'UV recommendations and skin type')}
+        title={t('settings.uvRecommendations')}
+        accessibilityLabel={t('settings.skinTypeSection')}
       >
         <SkinTypeSelector
           value={preferences.skinType}
@@ -280,13 +278,13 @@ export default function SettingsScreen() {
       
       {/* Notifications Section */}
       <SettingSection 
-        title={t('settings.notifications', preferences.locale === 'pt-BR' ? 'Notificações' : 'Notifications')}
-        accessibilityLabel={t('settings.notificationsSection', 'Notification settings')}
+        title={t('settings.notifications')}
+        accessibilityLabel={t('settings.notificationsSection')}
       >
         
         <SettingItem
-          title={preferences.locale === 'pt-BR' ? 'Notificações' : 'Notifications'}
-          subtitle={preferences.locale === 'pt-BR' ? 'Em breve' : 'Coming soon'}
+          title={t('settings.notificationsToggle')}
+          subtitle={t('settings.comingSoon')}
           rightElement={
             <Switch
               value={preferences.notificationsEnabled}
@@ -301,8 +299,8 @@ export default function SettingsScreen() {
         <Divider />
         
         <SettingItem
-          title={preferences.locale === 'pt-BR' ? 'Alertas UV' : 'UV Alerts'}
-          subtitle={preferences.locale === 'pt-BR' ? 'Em breve' : 'Coming soon'}
+          title={t('settings.uvAlerts')}
+          subtitle={t('settings.comingSoon')}
           rightElement={
             <Switch
               value={preferences.uvAlerts}
@@ -321,17 +319,17 @@ export default function SettingsScreen() {
         onPress={handleReset}
       >
         <Text variant="body1" style={{ color: colors.onErrorContainer }}>
-          {preferences.locale === 'pt-BR' ? 'Redefinir Configurações' : 'Reset Settings'}
+          {t('settings.reset')}
         </Text>
       </TouchableOpacity>
       
       {/* About Section */}
       <View style={styles.aboutSection}>
         <Text variant="caption" style={{ color: colors.onSurfaceVariant, textAlign: 'center' }}>
-          Weather Sunscreen App
+          {t('settings.appName')}
         </Text>
         <Text variant="caption" style={{ color: colors.onSurfaceVariant, textAlign: 'center' }}>
-          Version 1.0.0
+          {t('settings.versionLabel', { version: '1.0.0' })}
         </Text>
       </View>
     </ScrollView>

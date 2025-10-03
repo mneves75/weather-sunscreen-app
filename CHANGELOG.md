@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Home screen refresh control: native icon button triggers GPS update and weather/UV/forecast refresh
 - **Performance Optimizations (Phase 6)** - Comprehensive performance improvements
   - Expanded FlashList usage to Messages screen (60% memory reduction, 40% faster renders)
   - Enabled experimental module resolution (`autolinkingModuleResolution`)
@@ -56,6 +57,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Full accessibility support
 
 ### Fixed
+- Settings screen localization now respects language selection (English ↔ Portuguese)
 - **CRITICAL: Runtime errors blocking app startup** - Nuclear fix applied
   - Fixed Worklets version mismatch (0.6.0 vs 0.5.1) - Reinstalled pods
   - Fixed "useTheme must be used within ThemeProvider" - Removed i18n loading gate
