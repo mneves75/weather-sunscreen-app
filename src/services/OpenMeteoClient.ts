@@ -19,22 +19,14 @@ export interface OpenMeteoConfig {
 }
 
 export class OpenMeteoClient {
-  private static instance: OpenMeteoClient;
   private config: OpenMeteoConfig;
 
-  private constructor() {
+  constructor() {
     this.config = {
       baseUrl: 'https://api.open-meteo.com/v1',
       timeout: 10000,
       retryAttempts: 3,
     };
-  }
-
-  public static getInstance(): OpenMeteoClient {
-    if (!OpenMeteoClient.instance) {
-      OpenMeteoClient.instance = new OpenMeteoClient();
-    }
-    return OpenMeteoClient.instance;
   }
 
   /**
@@ -200,4 +192,4 @@ export class OpenMeteoClient {
 }
 
 // Export singleton instance
-export const openMeteoClient = OpenMeteoClient.getInstance();
+export const openMeteoClient = new OpenMeteoClient();

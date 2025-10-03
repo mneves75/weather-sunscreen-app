@@ -6,6 +6,7 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Locale } from '@/src/types/i18n';
+import { logger } from '@/src/services/LoggerService';
 
 import en from './en.json';
 import ptBR from './pt-BR.json';
@@ -24,7 +25,7 @@ const languageDetector = {
         return;
       }
     } catch (error) {
-      console.error('Failed to load saved language:', error);
+      logger.error('Failed to load saved language', error as Error, 'I18N');
     }
 
     // Fallback to English
@@ -35,7 +36,7 @@ const languageDetector = {
     try {
       await AsyncStorage.setItem(LANGUAGE_STORAGE_KEY, language);
     } catch (error) {
-      console.error('Failed to save language:', error);
+      logger.error('Failed to save language', error as Error, 'I18N');
     }
   },
 };

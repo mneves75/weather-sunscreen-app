@@ -23,25 +23,17 @@ interface CacheEntry<T> {
 }
 
 class WeatherService {
-  private static instance: WeatherService;
   private config: WeatherServiceConfig;
   private weatherCache: CacheEntry<WeatherData> | null = null;
   private uvCache: CacheEntry<UVIndex> | null = null;
   private forecastCache: CacheEntry<Forecast> | null = null;
 
-  private constructor() {
+  constructor() {
     this.config = {
       timeout: 10000, // 10 seconds
       retryAttempts: 3,
       cacheTimeout: 300000, // 5 minutes
     };
-  }
-
-  public static getInstance(): WeatherService {
-    if (!WeatherService.instance) {
-      WeatherService.instance = new WeatherService();
-    }
-    return WeatherService.instance;
   }
 
   /**
@@ -75,12 +67,15 @@ class WeatherService {
         logger.debug('Returning cached weather data', 'WEATHER', { coordinates });
 
         if (locationDetails) {
-          const cached = this.weatherCache.data;
-          cached.location = {
-            coordinates: cached.location.coordinates ?? coordinates,
-            city: cached.location.city ?? locationDetails.city,
-            country: cached.location.country ?? locationDetails.country,
-            timezone: cached.location.timezone ?? locationDetails.timezone,
+          // Return new object with updated location details (immutable)
+          return {
+            ...this.weatherCache.data,
+            location: {
+              coordinates: this.weatherCache.data.location.coordinates ?? coordinates,
+              city: locationDetails.city ?? this.weatherCache.data.location.city,
+              country: locationDetails.country ?? this.weatherCache.data.location.country,
+              timezone: locationDetails.timezone ?? this.weatherCache.data.location.timezone,
+            },
           };
         }
 
@@ -192,11 +187,14 @@ class WeatherService {
         logger.debug('Returning cached forecast', 'WEATHER', { coordinates });
 
         if (locationDetails) {
-          const cached = this.forecastCache.data;
-          cached.location = {
-            coordinates: cached.location.coordinates ?? coordinates,
-            city: cached.location.city ?? locationDetails.city,
-            country: cached.location.country ?? locationDetails.country,
+          // Return new object with updated location details (immutable)
+          return {
+            ...this.forecastCache.data,
+            location: {
+              coordinates: this.forecastCache.data.location.coordinates ?? coordinates,
+              city: locationDetails.city ?? this.forecastCache.data.location.city,
+              country: locationDetails.country ?? this.forecastCache.data.location.country,
+            },
           };
         }
 
@@ -508,5 +506,5 @@ class WeatherService {
   }
 }
 
-// Export singleton instance
-export const weatherService = WeatherService.getInstance();
+// Export single instance (simple module pattern)
+export const weatherService = new WeatherService();

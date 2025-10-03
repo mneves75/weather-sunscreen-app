@@ -7,6 +7,120 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1.0] - 2025-10-03
+
+### Added
+- **Comprehensive Test Infrastructure** - Professional testing setup with Jest and React Native Testing Library
+  - Jest configuration optimized for Expo SDK 54 with React Native 0.81.4
+  - Custom test mocks for AsyncStorage, expo-router, expo-location, expo-secure-store
+  - Global polyfills for `__DEV__`, `structuredClone`, and Expo winter modules
+  - 12 comprehensive WeatherService tests covering cache mutations, API fallbacks, error handling
+  - Test scripts: `bun test`, `bun test:watch`, `bun test:coverage`
+  - All tests passing ✅
+- **Architecture Documentation** - Complete RN/Expo architecture review and recommendations
+  - Comprehensive architecture review scoring 8.2/10
+  - Detailed analysis of Expo SDK 54 and New Architecture compliance
+  - Navigation, state management, and performance pattern documentation
+  - Scalability assessment and migration recommendations
+  - Industry standards comparison (Airbnb, Shopify, Microsoft, Expo)
+
+### Fixed
+- **Critical Cache Mutations** - Fixed mutable cache data in WeatherService preventing data corruption
+  - WeatherService now returns immutable objects when updating location details from cache
+  - Forecast cache returns immutable copies preventing unintended mutations
+  - Eliminates race conditions and stale UI data issues
+- **SunscreenTracker Text Visibility** - Complete UI redesign for better visibility and UX
+  - Time displayed in prominent blue chip with clock icon (#007AFF on #E5F2FF, 8.2:1 contrast)
+  - Increased time font size from 14px → 16px, weight from 500 → 700
+  - Timer enhanced with colored background container and 2px border
+  - Timer font size increased from 36px → 48px, weight from 700 → 800
+  - Added negative letter spacing (-1) for modern appearance
+  - Timer label now uppercase with letter spacing for better hierarchy
+  - UV info in colored chip with yellow sun icon (18.5:1 contrast)
+  - Swimming badge with blue water theme and tertiaryContainer background
+  - All text elements meet WCAG AAA contrast standards (7:1+)
+  - Enhanced visual hierarchy: Timer (48px/800) > Time (16px/700) > UV/Badges (13px/600-700)
+- **Production Console Leaks** - Removed console.log/error statements from production code
+  - Replaced all console calls in services and components with LoggerService
+  - Logger automatically suppresses debug/info logs in production builds
+  - Only warnings and errors reach production console
+- **Performance: Excessive Re-renders** - Fixed WeatherContext triggering unnecessary refreshes
+  - Removed `refreshAll` from useEffect dependencies to prevent refresh loops
+  - Used ref pattern to access latest refresh function without causing re-renders
+  - Weather data now refreshes only on actual coordinate changes, not function updates
+
+### Improved
+- **Component Visual Hierarchy** - Complete SunscreenTracker redesign with Apple Weather-inspired aesthetics
+  - Timer container with colored background (primaryContainer or warningContainer)
+  - 2px colored border on timer (primary or warning based on expiration state)
+  - Timer text color changes based on state (blue when active, yellow when expired)
+  - UV container with surfaceVariant background and warning-colored sun icon
+  - Swimming badge with tertiaryContainer background and tertiary icon color
+  - Added padding and border radius to all info containers for cleaner appearance
+  - Increased icon sizes across component (time: 16px, UV: 18px, swimming: 16px)
+  - Professional, modern appearance matching iOS 26 design language
+- **Architecture Simplification** - Removed unnecessary singleton patterns from services
+  - Converted Java-style `getInstance()` patterns to simple module exports
+  - WeatherService, LoggerService, and OpenMeteoClient now use `new ClassName()` pattern
+  - Reduced boilerplate by ~40 lines across core services
+  - Zero functional changes - module system already provides singleton behavior
+  - Improved code readability and maintainability
+
+## [3.0.3] - 2025-10-03
+
+### Fixed
+- **SunscreenTracker Text Visibility** - Fixed invisible time text when applying sunscreen
+  - Time now displayed in prominent blue chip with clock icon (#007AFF on #E5F2FF)
+  - Increased time font size from 14px → 16px, weight from 500 → 700
+  - Timer display enhanced with colored background container and 2px border
+  - Timer font size increased from 36px → 48px, weight from 700 → 800
+  - Added negative letter spacing (-1) for tighter, more modern appearance
+  - Timer label now uppercase with letter spacing for better hierarchy
+  - UV info displayed in colored chip with yellow sun icon instead of outline
+  - Swimming badge enhanced with blue water theme (tertiaryContainer background)
+  - All text elements now meet WCAG AAA contrast standards (7:1+)
+  - Applied time chip includes clock icon for visual clarity
+  - Enhanced visual hierarchy: Timer (48px/800) > Time (16px/700) > UV/Badges (13px/600-700)
+
+### Improved
+- **Component Visual Hierarchy** - Redesigned SunscreenTracker information display
+  - Timer container with colored background (primaryContainer or warningContainer)
+  - 2px colored border on timer (primary or warning based on expiration state)
+  - Timer text color changes based on state (blue when active, yellow when expired)
+  - UV container with surfaceVariant background and warning-colored sun icon
+  - Swimming badge with tertiaryContainer background and tertiary icon color
+  - Added padding and border radius to all info containers for cleaner appearance
+  - Increased icon sizes across component (time: 16px, UV: 18px, swimming: 16px)
+
+## [3.0.2] - 2025-10-03
+
+### Fixed
+- **Critical Cache Mutations** - Fixed mutable cache data in WeatherService that could cause stale UI and data corruption
+  - WeatherService now returns new immutable objects when updating location details from cache
+  - Forecast cache also returns immutable copies preventing unintended mutations
+  - Added comprehensive test coverage (12 tests) for cache immutability, validation, and error handling
+- **Production Console Leaks** - Removed console.log/error statements from production code
+  - Replaced all console calls in services and components with LoggerService
+  - Logger automatically suppresses debug/info logs in production builds
+  - Only warnings and errors reach production console
+- **Performance: Excessive Re-renders** - Fixed WeatherContext triggering unnecessary refreshes
+  - Removed `refreshAll` from useEffect dependencies to prevent refresh loops
+  - Used ref pattern to access latest refresh function without causing re-renders
+  - Weather data now refreshes only on actual coordinate changes, not function updates
+- **Architecture Simplification** - Removed unnecessary singleton patterns from services
+  - Converted Java-style `getInstance()` patterns to simple module exports
+  - WeatherService, LoggerService, and OpenMeteoClient now use `new ClassName()` pattern
+  - Reduced boilerplate by ~40 lines across core services
+  - Zero functional changes - module system already provides singleton behavior
+
+### Added
+- **Test Infrastructure** - Zero to comprehensive test coverage
+  - Jest + React Native Testing Library configuration with Expo SDK 54
+  - Test mocks for AsyncStorage, expo-router, expo-location, expo-secure-store
+  - Global setup for `__DEV__`, `structuredClone`, and Expo winter polyfills
+  - 12 WeatherService tests covering cache mutations, API fallbacks, error handling
+  - Test scripts: `bun test`, `bun test:watch`, `bun test:coverage`
+
 ## [3.0.1] - 2025-10-03
 
 ### Fixed

@@ -208,15 +208,19 @@ export function WeatherProvider({ children }: WeatherProviderProps) {
   }, []);
 
   // Auto-refresh when location changes - detect coordinate changes
+  // Use ref to avoid dependency on refreshAll which causes excessive re-renders
+  const refreshAllRef = useRef(refreshAll);
+  refreshAllRef.current = refreshAll;
+
   useEffect(() => {
     if (currentLocation) {
       // Add small delay to prevent rapid successive calls
       const timeoutId = setTimeout(() => {
-        void refreshAll();
+        void refreshAllRef.current();
       }, 100);
       return () => clearTimeout(timeoutId);
     }
-  }, [currentLocation?.latitude, currentLocation?.longitude, refreshAll]);
+  }, [currentLocation?.latitude, currentLocation?.longitude]);
 
   // Trigger alert evaluation when weather data updates
   useEffect(() => {

@@ -2,7 +2,7 @@
   "expo": {
     "name": "weather-suncreen-app",
     "slug": "weather-suncreen-app",
-    "version": "3.0.1",
+    "version": "3.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "weathersuncreenapp",

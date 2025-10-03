@@ -11,6 +11,7 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-nati
 import { useSunscreen } from '../../context/SunscreenContext';
 import { useColors } from '../../theme/theme';
 import { GlassCard } from '../glass/GlassCard';
+import { logger } from '../../services/LoggerService';
 
 export const SunscreenTracker: React.FC = () => {
   const { t } = useTranslation();
@@ -34,8 +35,8 @@ export const SunscreenTracker: React.FC = () => {
       setIsApplying(true);
       await applySunscreen(isSwimming);
     } catch (error) {
-      console.error('Failed to apply sunscreen:', error);
-    } finally {
+      logger.error('Failed to apply sunscreen', error as Error, 'SUNSCREEN');
+    } finally{
       setIsApplying(false);
     }
   };
@@ -44,7 +45,7 @@ export const SunscreenTracker: React.FC = () => {
     try {
       await clearApplication();
     } catch (error) {
-      console.error('Failed to clear application:', error);
+      logger.error('Failed to clear application', error as Error, 'SUNSCREEN');
     }
   };
 
@@ -153,13 +154,25 @@ export const SunscreenTracker: React.FC = () => {
         <Text style={[styles.infoLabel, { color: colors.onSurfaceVariant }]}>
           {t('sunscreen.appliedAt')}
         </Text>
-        <Text style={[styles.infoValue, { color: colors.onSurface }]}>
-          {appliedTime}
-        </Text>
+        <View style={[styles.timeChip, { backgroundColor: colors.primaryContainer }]}>
+          <Ionicons name="time-outline" size={16} color={colors.primary} />
+          <Text style={[styles.infoValue, { color: colors.primary, fontWeight: '700' }]}>
+            {appliedTime}
+          </Text>
+        </View>
       </View>
 
       {/* Timer display */}
-      <View style={styles.timerContainer}>
+      <View style={[
+        styles.timerContainer,
+        {
+          backgroundColor: isExpired
+            ? colors.warningContainer
+            : colors.primaryContainer,
+          borderWidth: 2,
+          borderColor: isExpired ? colors.warning : colors.primary,
+        }
+      ]}>
         <Text
           style={[
             styles.timerText,
@@ -171,25 +184,25 @@ export const SunscreenTracker: React.FC = () => {
           {isExpired ? t('sunscreen.expired') : timeRemainingFormatted}
         </Text>
         {!isExpired && (
-          <Text style={[styles.timerLabel, { color: colors.onSurfaceVariant }]}>
+          <Text style={[styles.timerLabel, { color: colors.primary }]}>
             {t('sunscreen.remaining')}
           </Text>
         )}
       </View>
 
       {/* UV Index info */}
-      <View style={styles.uvContainer}>
-        <Ionicons name="sunny-outline" size={16} color={colors.onSurfaceVariant} />
-        <Text style={[styles.uvText, { color: colors.onSurfaceVariant }]}>
+      <View style={[styles.uvContainer, { backgroundColor: colors.surfaceVariant }]}>
+        <Ionicons name="sunny" size={18} color={colors.warning} />
+        <Text style={[styles.uvText, { color: colors.onSurface, fontWeight: '600' }]}>
           UV {currentApplication.uvIndex.toFixed(1)} • {currentApplication.reapplicationMinutes}min {t('sunscreen.interval')}
         </Text>
       </View>
 
       {/* Swimming indicator */}
       {isSwimming && (
-        <View style={styles.swimmingBadge}>
-          <Ionicons name="water" size={14} color={colors.accentSecondary} />
-          <Text style={[styles.swimmingText, { color: colors.accentSecondary }]}>
+        <View style={[styles.swimmingBadge, { backgroundColor: colors.tertiaryContainer }]}>
+          <Ionicons name="water" size={16} color={colors.tertiary} />
+          <Text style={[styles.swimmingText, { color: colors.onTertiaryContainer }]}>
             {t('sunscreen.swimmingActive')}
           </Text>
         </View>
@@ -304,45 +317,64 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   infoValue: {
-    fontSize: 14,
-    fontWeight: '500',
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  timeChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 8,
   },
   timerContainer: {
     alignItems: 'center',
     marginVertical: 16,
+    paddingVertical: 20,
+    paddingHorizontal: 24,
+    borderRadius: 16,
   },
   timerText: {
-    fontSize: 36,
-    fontWeight: '700',
+    fontSize: 48,
+    fontWeight: '800',
+    letterSpacing: -1,
   },
   timerLabel: {
     fontSize: 14,
-    marginTop: 4,
+    marginTop: 6,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
   uvContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 6,
+    gap: 8,
     marginBottom: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 12,
   },
   uvText: {
-    fontSize: 12,
+    fontSize: 13,
+    fontWeight: '600',
   },
   swimmingBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
+    gap: 6,
     marginBottom: 16,
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    borderRadius: 8,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 10,
     alignSelf: 'center',
   },
   swimmingText: {
-    fontSize: 12,
-    fontWeight: '500',
+    fontSize: 13,
+    fontWeight: '700',
   },
   buttonRow: {
     flexDirection: 'row',

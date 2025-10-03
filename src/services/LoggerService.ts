@@ -5,18 +5,10 @@
 import { LogLevel, LogEntry } from '@/src/types/services';
 
 class LoggerService {
-  private static instance: LoggerService;
   private isDevelopment: boolean;
 
-  private constructor() {
+  constructor() {
     this.isDevelopment = __DEV__;
-  }
-
-  public static getInstance(): LoggerService {
-    if (!LoggerService.instance) {
-      LoggerService.instance = new LoggerService();
-    }
-    return LoggerService.instance;
   }
 
   private shouldLog(level: LogLevel): boolean {
@@ -116,4 +108,4 @@ class LoggerService {
 }
 
 // Export singleton instance
-export const logger = LoggerService.getInstance();
+export const logger = new LoggerService();

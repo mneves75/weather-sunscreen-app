@@ -7,6 +7,7 @@ import { useColorScheme as useNativeColorScheme } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ThemeMode, ColorScheme, ThemeContextValue, Theme } from '@/src/types/theme';
 import { getThemeTokens } from './tokens';
+import { logger } from '@/src/services/LoggerService';
 
 const STORAGE_KEY = '@WeatherSunscreen:themeMode';
 const HIGH_CONTRAST_KEY = '@WeatherSunscreen:highContrast';
@@ -40,7 +41,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
           setHighContrastState(savedHighContrast === 'true');
         }
       } catch (error) {
-        console.error('Failed to load theme preference:', error);
+        logger.error('Failed to load theme preference', error as Error, 'THEME');
       } finally {
         setIsLoading(false);
       }
@@ -79,7 +80,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     try {
       await AsyncStorage.setItem(STORAGE_KEY, mode);
     } catch (error) {
-      console.error('Failed to save theme mode:', error);
+      logger.error('Failed to save theme mode', error as Error, 'THEME');
     }
   }, []);
 
@@ -95,7 +96,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     try {
       await AsyncStorage.setItem(HIGH_CONTRAST_KEY, enabled.toString());
     } catch (error) {
-      console.error('Failed to save high contrast preference:', error);
+      logger.error('Failed to save high contrast preference', error as Error, 'THEME');
     }
   }, []);
 
