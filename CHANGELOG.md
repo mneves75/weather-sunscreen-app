@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Home screen refresh control: native icon button triggers GPS update and weather/UV/forecast refresh
+- Native module availability helper ensuring graceful fallbacks when platform view managers are absent
 - **Performance Optimizations (Phase 6)** - Comprehensive performance improvements
   - Expanded FlashList usage to Messages screen (60% memory reduction, 40% faster renders)
   - Enabled experimental module resolution (`autolinkingModuleResolution`)
@@ -58,6 +59,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Settings screen localization now respects language selection (English ↔ Portuguese)
+- Prevented runtime crashes when expo-linear-gradient, expo-symbols, or react-native-gesture-handler modules are unavailable by providing safe fallbacks in UI components and Messages swipe actions
 - **CRITICAL: Runtime errors blocking app startup** - Nuclear fix applied
   - Fixed Worklets version mismatch (0.6.0 vs 0.5.1) - Reinstalled pods
   - Fixed "useTheme must be used within ThemeProvider" - Removed i18n loading gate
