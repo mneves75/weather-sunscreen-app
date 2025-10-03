@@ -51,7 +51,7 @@ export const SunscreenTracker: React.FC = () => {
   if (isLoading) {
     return (
       <GlassCard style={styles.container}>
-        <ActivityIndicator size="small" color={colors.text} />
+        <ActivityIndicator size="small" color={colors.primary} />
       </GlassCard>
     );
   }
@@ -61,13 +61,13 @@ export const SunscreenTracker: React.FC = () => {
     return (
       <GlassCard style={styles.container}>
         <View style={styles.header}>
-          <Ionicons name="sunny" size={24} color={colors.text} />
-          <Text style={[styles.title, { color: colors.text }]}>
+          <Ionicons name="sunny" size={24} color={colors.onSurface} />
+          <Text style={[styles.title, { color: colors.onSurface }]}>
             {t('sunscreen.title')}
           </Text>
         </View>
 
-        <Text style={[styles.description, { color: colors.textSecondary }]}>
+        <Text style={[styles.description, { color: colors.onSurfaceVariant }]}>
           {t('sunscreen.description')}
         </Text>
 
@@ -91,10 +91,10 @@ export const SunscreenTracker: React.FC = () => {
             ]}
           >
             {isSwimming && (
-              <Ionicons name="checkmark" size={16} color={colors.background} />
+              <Ionicons name="checkmark" size={16} color={colors.onPrimary} />
             )}
           </View>
-          <Text style={[styles.toggleLabel, { color: colors.text }]}>
+          <Text style={[styles.toggleLabel, { color: colors.onSurface }]}>
             {t('sunscreen.swimmingMode')}
           </Text>
         </Pressable>
@@ -113,11 +113,11 @@ export const SunscreenTracker: React.FC = () => {
           accessibilityLabel={t('sunscreen.apply')}
         >
           {isApplying ? (
-            <ActivityIndicator size="small" color={colors.background} />
+            <ActivityIndicator size="small" color={colors.onPrimary} />
           ) : (
             <>
-              <Ionicons name="shield-checkmark" size={20} color={colors.background} />
-              <Text style={[styles.buttonText, { color: colors.background }]}>
+              <Ionicons name="shield-checkmark" size={20} color={colors.onPrimary} />
+              <Text style={[styles.buttonText, { color: colors.onPrimary }]}>
                 {t('sunscreen.apply')}
               </Text>
             </>
@@ -143,17 +143,17 @@ export const SunscreenTracker: React.FC = () => {
           size={24}
           color={isExpired ? colors.warning : colors.success}
         />
-        <Text style={[styles.title, { color: colors.text }]}>
+        <Text style={[styles.title, { color: colors.onSurface }]}>
           {isExpired ? t('sunscreen.reapplyNeeded') : t('sunscreen.protected')}
         </Text>
       </View>
 
       {/* Application info */}
       <View style={styles.infoContainer}>
-        <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>
+        <Text style={[styles.infoLabel, { color: colors.onSurfaceVariant }]}>
           {t('sunscreen.appliedAt')}
         </Text>
-        <Text style={[styles.infoValue, { color: colors.text }]}>
+        <Text style={[styles.infoValue, { color: colors.onSurface }]}>
           {appliedTime}
         </Text>
       </View>
@@ -171,7 +171,7 @@ export const SunscreenTracker: React.FC = () => {
           {isExpired ? t('sunscreen.expired') : timeRemainingFormatted}
         </Text>
         {!isExpired && (
-          <Text style={[styles.timerLabel, { color: colors.textSecondary }]}>
+          <Text style={[styles.timerLabel, { color: colors.onSurfaceVariant }]}>
             {t('sunscreen.remaining')}
           </Text>
         )}
@@ -179,8 +179,8 @@ export const SunscreenTracker: React.FC = () => {
 
       {/* UV Index info */}
       <View style={styles.uvContainer}>
-        <Ionicons name="sunny-outline" size={16} color={colors.textSecondary} />
-        <Text style={[styles.uvText, { color: colors.textSecondary }]}>
+        <Ionicons name="sunny-outline" size={16} color={colors.onSurfaceVariant} />
+        <Text style={[styles.uvText, { color: colors.onSurfaceVariant }]}>
           UV {currentApplication.uvIndex.toFixed(1)} • {currentApplication.reapplicationMinutes}min {t('sunscreen.interval')}
         </Text>
       </View>
@@ -201,14 +201,14 @@ export const SunscreenTracker: React.FC = () => {
           style={[
             styles.secondaryButton,
             {
-              borderColor: colors.textSecondary,
+              borderColor: colors.outline,
             },
           ]}
           onPress={handleClear}
           accessibilityRole="button"
           accessibilityLabel={t('sunscreen.clear')}
         >
-          <Text style={[styles.secondaryButtonText, { color: colors.textSecondary }]}>
+          <Text style={[styles.secondaryButtonText, { color: colors.onSurface }]}>
             {t('sunscreen.clear')}
           </Text>
         </Pressable>
@@ -229,11 +229,11 @@ export const SunscreenTracker: React.FC = () => {
           accessibilityLabel={t('sunscreen.reapply')}
         >
           {isApplying ? (
-            <ActivityIndicator size="small" color={colors.background} />
+            <ActivityIndicator size="small" color={colors.onPrimary} />
           ) : (
             <>
-              <Ionicons name="refresh" size={20} color={colors.background} />
-              <Text style={[styles.buttonText, { color: colors.background }]}>
+              <Ionicons name="refresh" size={20} color={colors.onPrimary} />
+              <Text style={[styles.buttonText, { color: colors.onPrimary }]}>
                 {t('sunscreen.reapply')}
               </Text>
             </>

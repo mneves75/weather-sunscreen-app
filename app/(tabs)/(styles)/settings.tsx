@@ -152,7 +152,7 @@ export default function SettingsScreen() {
             const nextMode = modes[(currentIndex + 1) % modes.length];
             setThemeMode(nextMode);
           }}
-          rightElement={<Text style={styles.chevron}>›</Text>}
+          rightElement={<Text style={[styles.chevron, { color: colors.onSurfaceVariant }]}>›</Text>}
         />
         
         <Divider />
@@ -212,7 +212,7 @@ export default function SettingsScreen() {
             'temperatureUnit', 
             preferences.temperatureUnit === 'celsius' ? 'fahrenheit' : 'celsius'
           )}
-          rightElement={<Text style={styles.chevron}>›</Text>}
+          rightElement={<Text style={[styles.chevron, { color: colors.onSurfaceVariant }]}>›</Text>}
         />
         
         <Divider />
@@ -229,7 +229,7 @@ export default function SettingsScreen() {
             const nextUnit = units[(currentIndex + 1) % units.length];
             updatePreference('speedUnit', nextUnit);
           }}
-          rightElement={<Text style={styles.chevron}>›</Text>}
+          rightElement={<Text style={[styles.chevron, { color: colors.onSurfaceVariant }]}>›</Text>}
         />
         
         <Divider />
@@ -246,7 +246,7 @@ export default function SettingsScreen() {
             const nextUnit = units[(currentIndex + 1) % units.length];
             updatePreference('pressureUnit', nextUnit);
           }}
-          rightElement={<Text style={styles.chevron}>›</Text>}
+          rightElement={<Text style={[styles.chevron, { color: colors.onSurfaceVariant }]}>›</Text>}
         />
 
         <Divider />
@@ -260,7 +260,7 @@ export default function SettingsScreen() {
             const nextFormat = formats[(currentIndex + 1) % formats.length];
             void updatePreference('timeFormat', nextFormat);
           }}
-          rightElement={<Text style={styles.chevron}>›</Text>}
+          rightElement={<Text style={[styles.chevron, { color: colors.onSurfaceVariant }]}>›</Text>}
         />
       </SettingSection>
       
@@ -380,7 +380,6 @@ const styles = StyleSheet.create({
   },
   chevron: {
     fontSize: 24,
-    opacity: 0.7,
   },
   resetButton: {
     borderRadius: 12,
