@@ -36,10 +36,10 @@ export default function HomeScreen() {
   const { t } = useTranslation();
   const use24HourTime = preferences.timeFormat === '24h' || (preferences.timeFormat === 'system' && preferences.locale === 'pt-BR');
 
-  // Entrance animations
-  const weatherCardAnim = createSlideUpComponent(50, 100);
-  const uvCardAnim = createSlideUpComponent(50, 200);
-  const actionsAnim = createFadeInComponent(300);
+  // Entrance animations - Snappier timings for better UX
+  const weatherCardAnim = createSlideUpComponent(50, 50);
+  const uvCardAnim = createSlideUpComponent(50, 100);
+  const actionsAnim = createFadeInComponent(150);
   
   // Get weather data
   const { 
@@ -289,7 +289,7 @@ export default function HomeScreen() {
               tintColor={colors.surfaceTint}
               accessibilityRole="button"
               accessibilityLabel={`Current weather: ${weatherData.current.temperature} degrees, ${weatherData.current.condition.description}`}
-              accessibilityHint="Double tap to view detailed weather information"
+              accessibilityHint={t('accessibility.weatherCard.hint', 'Double tap to view detailed weather information')}
             >
               <WeatherCard
                 data={weatherData}
@@ -308,7 +308,7 @@ export default function HomeScreen() {
               style={[styles.solidCard, { backgroundColor: colors.surface }]}
               accessibilityRole="button"
               accessibilityLabel={`Current weather: ${weatherData.current.temperature} degrees, ${weatherData.current.condition.description}`}
-              accessibilityHint="Double tap to view detailed weather information"
+              accessibilityHint={t('accessibility.weatherCard.hint', 'Double tap to view detailed weather information')}
             >
               <WeatherCard
                 data={weatherData}
@@ -402,21 +402,45 @@ export default function HomeScreen() {
       
       {/* Next Days Preview */}
       {days.length > 0 && (
-        <View style={[styles.forecastPreview, { backgroundColor: colors.surface }]}>
-          <Text variant="h3" style={[styles.forecastTitle, { color: colors.onSurface }]}>
-            {t('home.nextDays')}
-          </Text>
-          {days.slice(1, 4).map((day) => (
-            <View key={day.date} style={styles.forecastItem}>
-              <Text variant="body2" style={{ color: colors.onSurface }}>
-                {new Date(day.date).toLocaleDateString(preferences.locale, { weekday: 'short' })}
+        canUseGlass ? (
+          <GlassView
+            style={styles.forecastPreviewGlass}
+            glassEffectStyle="regular"
+            tintColor={colors.surfaceTint}
+          >
+            <View style={styles.forecastPreviewContent}>
+              <Text variant="h3" style={[styles.forecastTitle, { color: colors.onSurface }]}>
+                {t('home.nextDays')}
               </Text>
-              <Text variant="body2" style={{ color: colors.primary }}>
-                {getForecastTempWithUnit(day.temperature.max)} / {getForecastTempWithUnit(day.temperature.min)}
-              </Text>
+              {days.slice(1, 4).map((day) => (
+                <View key={day.date} style={[styles.forecastItem, { borderBottomColor: colors.divider }]}>
+                  <Text variant="body2" style={{ color: colors.onSurface }}>
+                    {new Date(day.date).toLocaleDateString(preferences.locale, { weekday: 'short' })}
+                  </Text>
+                  <Text variant="body2" style={{ color: colors.primary }}>
+                    {getForecastTempWithUnit(day.temperature.max)} / {getForecastTempWithUnit(day.temperature.min)}
+                  </Text>
+                </View>
+              ))}
             </View>
-          ))}
-        </View>
+          </GlassView>
+        ) : (
+          <View style={[styles.forecastPreview, { backgroundColor: colors.surfaceVariant }]}>
+            <Text variant="h3" style={[styles.forecastTitle, { color: colors.onSurface }]}>
+              {t('home.nextDays')}
+            </Text>
+            {days.slice(1, 4).map((day) => (
+              <View key={day.date} style={[styles.forecastItem, { borderBottomColor: colors.divider }]}>
+                <Text variant="body2" style={{ color: colors.onSurface }}>
+                  {new Date(day.date).toLocaleDateString(preferences.locale, { weekday: 'short' })}
+                </Text>
+                <Text variant="body2" style={{ color: colors.primary }}>
+                  {getForecastTempWithUnit(day.temperature.max)} / {getForecastTempWithUnit(day.temperature.min)}
+                </Text>
+              </View>
+            ))}
+          </View>
+        )
       )}
     </ScrollView>
   );
@@ -427,9 +451,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   contentContainer: {
-    padding: 24,        // Up from 16 - using new spacing.lg
-    paddingBottom: 48,  // Up from 32 - using new spacing.xxl
-    gap: 12,           // Consistent spacing between sections
+    padding: 16,        // spacing.md
+    paddingBottom: 32,  // spacing.xl
+    gap: 12,            // spacing.sm
   },
   locationHeader: {
     flexDirection: 'row',
@@ -443,7 +467,7 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.04)',
+    // backgroundColor set dynamically to colors.surfaceVariant in JSX
   },
   refreshIconButtonDisabled: {
     opacity: 0.4,
@@ -455,29 +479,29 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 32,        // Using new spacing.xl
+    padding: 24,        // spacing.lg
   },
   title: {
     textAlign: 'center',
-    marginBottom: 16,   // Using spacing.md
+    marginBottom: 16,   // spacing.md
   },
   subtitle: {
     textAlign: 'center',
-    marginBottom: 24,   // Using spacing.lg
+    marginBottom: 20,   // spacing.lg (20 is closer to lg than 24)
   },
   button: {
     minWidth: 200,
   },
   // Glass card wrapper (iOS 26+)
   glassCard: {
-    borderRadius: 24,   // Increased for more modern look
-    marginVertical: 12, // Using spacing.sm
+    borderRadius: 20,   // borderRadius.xl = 16, but using 20 for prominence
+    marginVertical: 8,  // spacing.xs for tighter grouping
     overflow: 'hidden',
   },
   // Solid card fallback (iOS < 26, Android, accessibility)
   solidCard: {
-    borderRadius: 24,   // Increased for more modern look
-    marginVertical: 12, // Using spacing.sm
+    borderRadius: 20,   // borderRadius.xl = 16, but using 20 for prominence
+    marginVertical: 8,  // spacing.xs for tighter grouping
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -492,17 +516,32 @@ const styles = StyleSheet.create({
   forecastButton: {
     marginVertical: 4,  // Small spacing
   },
+  forecastPreviewGlass: {
+    borderRadius: 20,
+    marginVertical: 8,
+    overflow: 'hidden',
+  },
+  forecastPreviewContent: {
+    padding: 20,
+  },
   forecastPreview: {
     borderRadius: 20,
-    padding: 24,        // Using spacing.lg
-    marginVertical: 12, // Using spacing.sm
+    padding: 20,
+    marginVertical: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
   },
   forecastTitle: {
-    marginBottom: 16,   // Using spacing.md
+    marginBottom: 12,   // spacing.sm
   },
   forecastItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 12, // Using spacing.sm
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    // borderBottomColor set dynamically in JSX
   },
 });

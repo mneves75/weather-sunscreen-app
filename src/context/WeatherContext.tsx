@@ -4,7 +4,7 @@
 
 import { alertRuleEngine, weatherService } from '@/src/services';
 import { logger } from '@/src/services/LoggerService';
-import { Coordinates, Forecast, UVIndex, WeatherData } from '@/src/types';
+import { Coordinates, Forecast, Location, UVIndex, WeatherData } from '@/src/types';
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 
 interface WeatherContextValue {
@@ -13,6 +13,7 @@ interface WeatherContextValue {
   forecast: Forecast | null;
   uvIndex: UVIndex | null;
   currentLocation: Coordinates | null;
+  currentLocationDetails: Location | null;
 
   // Loading states
   isLoadingWeather: boolean;
@@ -25,7 +26,7 @@ interface WeatherContextValue {
   uvError: Error | null;
 
   // Actions
-  setLocation: (coords: Coordinates) => void;
+  setLocation: (coords: Coordinates, details?: Partial<Location>) => void;
   refreshWeather: () => Promise<void>;
   refreshForecast: () => Promise<void>;
   refreshUV: () => Promise<void>;
@@ -43,6 +44,7 @@ export function WeatherProvider({ children }: WeatherProviderProps) {
   const [forecast, setForecast] = useState<Forecast | null>(null);
   const [uvIndex, setUVIndex] = useState<UVIndex | null>(null);
   const [currentLocation, setCurrentLocation] = useState<Coordinates | null>(null);
+  const [currentLocationDetails, setCurrentLocationDetails] = useState<Location | null>(null);
 
   const [isLoadingWeather, setIsLoadingWeather] = useState(false);
   const [isLoadingForecast, setIsLoadingForecast] = useState(false);
@@ -65,16 +67,35 @@ export function WeatherProvider({ children }: WeatherProviderProps) {
     setWeatherError(null);
 
     try {
-      logger.info('Refreshing weather data', 'WEATHER', { location: currentLocation });
-      const data = await weatherService.getWeatherData(currentLocation);
-      setWeatherData(data);
+      logger.info('Refreshing weather data', 'WEATHER', {
+        location: currentLocation,
+        details: currentLocationDetails ?? undefined,
+      });
+      const data = await weatherService.getWeatherData(
+        currentLocation,
+        currentLocationDetails ?? undefined
+      );
+
+      const enrichedData = currentLocationDetails
+        ? {
+            ...data,
+            location: {
+              coordinates: data.location.coordinates ?? currentLocation,
+              city: currentLocationDetails.city ?? data.location.city,
+              country: currentLocationDetails.country ?? data.location.country,
+              timezone: data.location.timezone ?? currentLocationDetails.timezone,
+            },
+          }
+        : data;
+
+      setWeatherData(enrichedData);
     } catch (error) {
       logger.error('Failed to refresh weather', error as Error, 'WEATHER');
       setWeatherError(error as Error);
     } finally {
       setIsLoadingWeather(false);
     }
-  }, [currentLocation]);
+  }, [currentLocation, currentLocationDetails]);
 
   // Refresh forecast data
   const refreshForecast = useCallback(async () => {
@@ -87,8 +108,14 @@ export function WeatherProvider({ children }: WeatherProviderProps) {
     setForecastError(null);
 
     try {
-      logger.info('Refreshing forecast', 'WEATHER', { location: currentLocation });
-      const data = await weatherService.getForecast(currentLocation);
+      logger.info('Refreshing forecast', 'WEATHER', {
+        location: currentLocation,
+        details: currentLocationDetails ?? undefined,
+      });
+      const data = await weatherService.getForecast(
+        currentLocation,
+        currentLocationDetails ?? undefined
+      );
       setForecast(data);
     } catch (error) {
       logger.error('Failed to refresh forecast', error as Error, 'WEATHER');
@@ -96,7 +123,7 @@ export function WeatherProvider({ children }: WeatherProviderProps) {
     } finally {
       setIsLoadingForecast(false);
     }
-  }, [currentLocation]);
+  }, [currentLocation, currentLocationDetails]);
 
   // Refresh UV index
   const refreshUV = useCallback(async () => {
@@ -153,9 +180,31 @@ export function WeatherProvider({ children }: WeatherProviderProps) {
   }, [refreshWeather, refreshForecast, refreshUV]);
 
   // Set location and automatically fetch data
-  const setLocation = useCallback((coords: Coordinates) => {
-    logger.info('Setting new location', 'WEATHER', { coords });
+  const setLocation = useCallback((coords: Coordinates, details?: Partial<Location>) => {
+    logger.info('Setting new location', 'WEATHER', { coords, details });
     setCurrentLocation(coords);
+    setCurrentLocationDetails(prev => {
+      if (details) {
+        return {
+          coordinates: coords,
+          city: details.city,
+          country: details.country,
+          timezone: details.timezone ?? prev?.timezone,
+        };
+      }
+
+      if (
+        prev &&
+        prev.coordinates.latitude === coords.latitude &&
+        prev.coordinates.longitude === coords.longitude
+      ) {
+        return { ...prev, coordinates: coords };
+      }
+
+      return {
+        coordinates: coords,
+      };
+    });
   }, []);
 
   // Auto-refresh when location changes - detect coordinate changes
@@ -189,6 +238,7 @@ export function WeatherProvider({ children }: WeatherProviderProps) {
     forecast,
     uvIndex,
     currentLocation,
+    currentLocationDetails,
     isLoadingWeather,
     isLoadingForecast,
     isLoadingUV,

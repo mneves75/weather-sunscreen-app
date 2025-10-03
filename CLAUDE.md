@@ -76,15 +76,14 @@ This project uses **Expo Router v6** (file-based routing) with a nested tab stru
 Routes follow Expo Router conventions: `index.tsx` = default route, `_layout.tsx` = nested layout, `(folder)` = route group (not in URL).
 
 ### Theme System
-**Single source of truth**: The README mentions `src/theme/theme.tsx` but the `src/` directory doesn't exist yet in this baseline. Current implementation uses:
-
-- `constants/Colors.ts` - Color definitions for light/dark modes
-- `components/Themed.tsx` - Themed `Text` and `View` components with `useThemeColor` hook
-- `components/useColorScheme.ts` - Re-exports React Native's `useColorScheme`
-
-When `src/theme/` is implemented, it will provide:
-- `useTheme()` hook with `{ themeMode, toggleTheme, colors, highContrast, ... }`
+**Single source of truth**: `src/theme/theme.tsx` with `useTheme()` hook providing:
+- `{ themeMode, toggleTheme, colors, highContrast, ... }`
 - Persisted preference to AsyncStorage (`@WeatherSunscreen:themeMode`)
+- Token-based design system in `src/theme/tokens.ts`
+- Support for light/dark/high-contrast modes
+- DynamicColorIOS for glass effects on iOS 26+
+
+Color definitions also available in legacy `constants/Colors.ts` for backward compatibility.
 
 ### Platform Support
 - **iOS 16+**: WeatherKit integration (requires bundle ID capability in Apple Developer portal)
@@ -150,39 +149,85 @@ import { Text } from '@/components/Themed';
 - Mock data reused via shared modules to minimize re-renders
 - Validate metrics with `npx expo start --no-dev --minify` or Release builds
 
-## Project Structure (as-is)
+## Project Structure
 ```
 weather-suncreen-app/
 ├── app/                      # Expo Router v6 routes (file-based)
 │   ├── _layout.tsx           # Root layout with fonts, splash, theme
 │   ├── (tabs)/               # Main tabbed navigation
 │   │   ├── _layout.tsx       # Tab layout (NativeTabs/legacy switch)
-│   │   ├── index.tsx         # Home tab
-│   │   └── two.tsx           # Second tab
+│   │   ├── (home)/           # Home tab stack
+│   │   ├── (messages)/       # Messages tab stack
+│   │   └── (styles)/         # Styles/Settings tab stack
+│   ├── (dev)/                # Development screens
 │   ├── modal.tsx             # Modal route
 │   └── +not-found.tsx        # 404 page
-├── components/               # Reusable UI components
-│   ├── Themed.tsx            # Themed Text/View wrappers
-│   ├── useColorScheme.ts     # Color scheme hook
-│   ├── EditScreenInfo.tsx    # Info component
-│   ├── ExternalLink.tsx      # External link component
-│   └── StyledText.tsx        # Styled text component
-├── constants/                # App constants
-│   └── Colors.ts             # Light/dark color definitions
+├── src/                      # Source code organized by feature
+│   ├── components/           # Reusable UI components
+│   │   ├── ui/               # Basic UI components
+│   │   ├── glass/            # Glass morphism components
+│   │   └── icons/            # Icon components
+│   ├── context/              # React Context providers
+│   │   ├── WeatherContext.tsx
+│   │   ├── MessagesContext.tsx
+│   │   └── ThemeContext.tsx
+│   ├── services/             # Business logic and API services
+│   │   ├── WeatherService.ts
+│   │   ├── MessageService.ts
+│   │   ├── AIService.ts
+│   │   └── AlertRuleEngine.ts
+│   ├── types/                # TypeScript type definitions
+│   ├── theme/                # Theme system and tokens
+│   │   ├── theme.tsx         # Theme context and hooks
+│   │   ├── tokens.ts         # Design tokens
+│   │   └── AppProviders.tsx  # App-wide providers
+│   ├── i18n/                 # Internationalization (i18next)
+│   └── utils/                # Utility functions
 ├── assets/                   # Images, fonts, icons
 ├── docs/                     # Technical documentation
-│   ├── PROMPT_README.md      # Project instructions
-│   ├── EXPO_SDK_54_MIGRATION.md
-│   ├── BUILD.md
-│   └── liquid-glass.md
+│   ├── MODERNIZATION_PLAN.md
+│   ├── AI_INTEGRATION.md
+│   ├── REACT_19_PATTERNS.md
+│   └── apple/                # iOS-specific docs
+├── .cursor/rules/            # Cursor AI rules (20 total)
 ├── app.json                  # Expo configuration
 ├── package.json              # Dependencies and scripts
 └── tsconfig.json             # TypeScript config with strict mode
 ```
 
-**Note**: The README references `src/` directory structure (components/ui, context/, services/, theme/, i18n/, types/) which is planned but not yet implemented in this baseline. When adding new features, follow the `src/` structure outlined in the README.
-
 ## Development Best Practices
+
+### Service Layer Pattern
+All services follow singleton pattern:
+```typescript
+class WeatherService {
+  private static instance: WeatherService;
+
+  private constructor() {
+    // Initialize
+  }
+
+  public static getInstance(): WeatherService {
+    if (!WeatherService.instance) {
+      WeatherService.instance = new WeatherService();
+    }
+    return WeatherService.instance;
+  }
+
+  public async getWeatherData(): Promise<WeatherData> {
+    // Implementation with error handling
+  }
+}
+```
+
+### Context Pattern
+State management via React Context:
+```typescript
+// Use context for global state
+const { weather, isLoading, error } = useWeather();
+const { messages, unreadCount } = useMessages();
+const { colors, themeMode, toggleTheme } = useTheme();
+```
 
 ### TypeScript
 - Strict mode enabled (`"strict": true` in tsconfig.json)
@@ -363,6 +408,21 @@ const styles = StyleSheet.create({
 - **Screen Readers**: Test with VoiceOver (iOS) and TalkBack (Android)
 - **Contrast**: Minimum 4.5:1 for text, 3:1 for large text/UI components
 
+## AI Integration
+
+This project integrates with the **Vercel AI SDK** for intelligent features:
+- AI-powered sunscreen recommendations
+- Smart notification content generation
+- Weather insights chatbot
+- Activity suggestions based on conditions
+
+**Setup:**
+```bash
+npx expo install ai @ai-sdk/anthropic
+```
+
+See `docs/AI_INTEGRATION.md` for implementation guide.
+
 ## External Documentation
 
 - **Expo SDK 54**: https://docs.expo.dev/versions/v54.0.0/
@@ -375,24 +435,21 @@ const styles = StyleSheet.create({
 - **Material Design 3**: https://m3.material.io/
 - **Vercel AI SDK**: https://sdk.vercel.ai/docs
 
-## AI Integration
-
-This project can integrate with the **Vercel AI SDK** for intelligent features:
-- AI-powered sunscreen recommendations
-- Smart notification content generation
-- Weather insights chatbot
-- Activity suggestions based on conditions
-
-**Setup:**
-```bash
-npx expo install ai @ai-sdk/anthropic
-```
-
-See `docs/AI_INTEGRATION.md` (when available) for implementation guide.
-
 ## Repository Guidelines
 
 See `AGENTS.md` for project layout, workflow commands, and PR review expectations before contributing.
+
+## Cursor Rules
+
+This project has 20 comprehensive Cursor Rules in `.cursor/rules/` covering:
+- Core Development (4): project-structure, development-overview, typescript-standards, expo-sdk-54-patterns
+- UI & Styling (4): component-patterns, theme-styling, glass-morphism-patterns, accessibility-patterns
+- Navigation & Routing (1): routing-navigation
+- State & Data (5): context-state-management, service-layer, data-persistence-patterns, messages-notifications, internationalization
+- Quality & Performance (4): testing-patterns, performance-optimization, error-handling-patterns, security-patterns
+- Platform-Specific (2): react-native-expo, native-modules
+
+See `docs/CURSOR_RULES_SUMMARY.md` for detailed index and usage guidelines.
 
 ## Modernization
 

@@ -14,6 +14,12 @@ export interface ThemeColors {
   onPrimary: string;
   onPrimaryContainer: string;
 
+  // Secondary colors
+  secondary: string;
+  secondaryContainer: string;
+  onSecondary: string;
+  onSecondaryContainer: string;
+
   // Background colors
   background: string;
   backgroundElevated: string;
@@ -23,6 +29,9 @@ export interface ThemeColors {
   // Surface colors
   surface: string;
   surfaceVariant: string;
+  surfaceElevated1: string;
+  surfaceElevated2: string;
+  surfaceElevated3: string;
   onSurface: string;
   onSurfaceVariant: string;
 
@@ -36,14 +45,29 @@ export interface ThemeColors {
   accent: string;
   accentSecondary: string;
   tertiary: string;
+  tertiaryContainer: string;
+  onTertiary: string;
+  onTertiaryContainer: string;
 
   // Status colors
   success: string;
+  successLight: string;
+  successDark: string;
+  successContainer: string;
+  onSuccessContainer: string;
   warning: string;
+  warningLight: string;
+  warningDark: string;
+  warningContainer: string;
+  onWarningContainer: string;
   error: string;
+  errorLight: string;
+  errorDark: string;
   errorContainer: string;
   onErrorContainer: string;
   info: string;
+  infoLight: string;
+  infoDark: string;
   infoContainer: string;
   onInfoContainer: string;
 
@@ -68,22 +92,33 @@ export interface ThemeColors {
   // Glass effect colors (for fallback)
   glassBackground: string;
   glassBorder: string;
+  glassHighlight: string;
   surfaceTint: string;
+
+  // Weather-adaptive gradients (stored as color values, used in LinearGradient)
+  gradientSunnyStart: string;
+  gradientSunnyEnd: string;
+  gradientRainyStart: string;
+  gradientRainyEnd: string;
+  gradientCloudyStart: string;
+  gradientCloudyEnd: string;
 }
 
 export interface Spacing {
-  xs: number;    // 4
-  sm: number;    // 8
-  md: number;    // 16
-  lg: number;    // 24
-  xl: number;    // 32
-  xxl: number;   // 48
-  xxxl: number;  // 64
+  xxs: number;   // 4  - Tight spacing
+  xs: number;    // 8  - Small gaps
+  sm: number;    // 12 - Moderate gaps
+  md: number;    // 16 - Default component padding
+  lg: number;    // 24 - Section spacing
+  xl: number;    // 32 - Screen padding, large gaps
+  xxl: number;   // 48 - Hero sections
+  xxxl: number;  // 64 - Maximum vertical spacing
 }
 
 export interface Typography {
   fontFamily: {
     regular: string;
+    display: string;
     medium: string;
     semibold: string;
     bold: string;
@@ -99,11 +134,34 @@ export interface Typography {
     '3xl': number; // 30
     '4xl': number; // 36
     '5xl': number; // 48
+    '6xl': number; // 60
+    '7xl': number; // 72
   };
   lineHeight: {
-    tight: number;   // 1.2
-    normal: number;  // 1.5
-    relaxed: number; // 1.75
+    tight: number;   // 1.2 - Large headings
+    snug: number;    // 1.375 - Medium headings
+    normal: number;  // 1.5 - Body text
+    relaxed: number; // 1.625 - Long-form
+    loose: number;   // 1.75 - Maximum spacing
+  };
+  fontWeight: {
+    thin: '100' | '200';
+    extralight: '200' | '300';
+    light: '300';
+    regular: '400';
+    medium: '500';
+    semibold: '600';
+    bold: '700';
+    extrabold: '800';
+    black: '900';
+  };
+  letterSpacing: {
+    tightest: number; // -0.5 (large headings)
+    tighter: number;  // -0.4 (medium headings)
+    tight: number;    // -0.08 (body text)
+    normal: number;   // 0 (small text)
+    wide: number;     // 0.5 (all caps)
+    wider: number;    // 1.0 (very wide)
   };
 }
 

@@ -1,9 +1,15 @@
 /**
  * Message Icon Component
  * Displays icons for different message categories and severities
+ *
+ * Modernized with:
+ * - Theme-aware colors
+ * - Proper semantic color usage
+ * - No hardcoded rgba values
  */
 
 import type { MessageCategory, MessageSeverity } from '@/src/types';
+import { useColors } from '@/src/theme';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
@@ -55,6 +61,7 @@ export function MessageIcon({
   severity,
   size = 24,
 }: MessageIconProps) {
+  const colors = useColors();
   const icon = getCategoryIcon(category);
   const backgroundColor = getCategoryColor(category, severity);
 
@@ -67,6 +74,7 @@ export function MessageIcon({
           height: size,
           backgroundColor,
           borderRadius: size / 2,
+          borderColor: colors.surface,
         },
       ]}
     >
@@ -82,7 +90,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
+    // borderColor set dynamically in component
   },
   icon: {
     textAlign: 'center',

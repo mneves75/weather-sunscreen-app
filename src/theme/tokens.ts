@@ -2,139 +2,212 @@
  * Design tokens - Single source of truth for all design values
  */
 
+import { Platform } from 'react-native';
 import { BorderRadius, Shadow, Spacing, ThemeColors, ThemeTokens, Typography } from '@/src/types/theme';
 
-// Color palettes
+// Color palettes - Premium design system (Apple Weather inspired)
 const lightColors: ThemeColors = {
-  // Primary colors
-  primary: '#2563EB',      // Blue 600
-  primaryDark: '#1E40AF',  // Blue 700
-  primaryLight: '#3B82F6', // Blue 500
-  primaryContainer: '#DBEAFE', // Blue 100
+  // Primary colors - Electric Blue (Apple system blue, premium accent)
+  primary: '#007AFF',        // Apple Blue
+  primaryDark: '#0051D5',
+  primaryLight: '#4DA2FF',
+  primaryContainer: '#E5F2FF',
   onPrimary: '#FFFFFF',
-  onPrimaryContainer: '#1E3A8A', // Blue 900
+  onPrimaryContainer: '#003D99',
+
+  // Secondary colors - Fresh Green (complementary accent)
+  secondary: '#30D158',       // Apple Green
+  secondaryContainer: '#E5F9EC',
+  onSecondary: '#FFFFFF',
+  onSecondaryContainer: '#0D8A2E',
 
   // Background colors
   background: '#FFFFFF',
-  backgroundElevated: '#F9FAFB',
-  backgroundSecondary: '#F3F4F6',
-  onBackground: '#111827',
+  backgroundElevated: '#F9F9F9',
+  backgroundSecondary: '#F2F2F7',    // Apple light gray
+  onBackground: '#000000',
 
-  // Surface colors
+  // Surface colors - Apple-style subtle elevations
   surface: '#FFFFFF',
-  surfaceVariant: '#E5E7EB',
-  onSurface: '#111827',
-  onSurfaceVariant: '#6B7280',
+  surfaceVariant: '#F2F2F7',         // Apple light gray
+  surfaceElevated1: '#FAFAFA',
+  surfaceElevated2: '#F5F5F5',
+  surfaceElevated3: '#F0F0F0',
+  onSurface: '#000000',
+  onSurfaceVariant: '#3C3C43',       // Apple secondary label (60% opacity equivalent)
 
-  // Text colors
-  text: '#111827',           // Gray 900
-  textSecondary: '#6B7280',  // Gray 500
-  textTertiary: '#9CA3AF',   // Gray 400
+  // Text colors - Apple-style hierarchy
+  text: '#000000',                   // Pure black
+  textSecondary: '#3C3C43',          // 60% opacity gray
+  textTertiary: '#8E8E93',           // 30% opacity gray
   textInverse: '#FFFFFF',
 
-  // Accent colors
-  accent: '#8B5CF6',         // Purple 500
-  accentSecondary: '#EC4899', // Pink 500
-  tertiary: '#06B6D4',       // Cyan 500
+  // Accent colors - Simplified (single primary focus)
+  accent: '#5E5CE6',             // Apple Purple (secondary accent only)
+  accentSecondary: '#FF375F',    // Apple Pink
+  tertiary: '#64D2FF',           // Apple Light Blue
+  tertiaryContainer: '#E5F6FF',
+  onTertiary: '#000000',
+  onTertiaryContainer: '#003D5C',
 
-  // Status colors
-  success: '#10B981',  // Green 500
-  warning: '#F59E0B',  // Amber 500
-  error: '#EF4444',    // Red 500
-  errorContainer: '#FEE2E2', // Red 100
-  onErrorContainer: '#991B1B', // Red 800
-  info: '#3B82F6',     // Blue 500
-  infoContainer: '#DBEAFE', // Blue 100
-  onInfoContainer: '#1E3A8A', // Blue 900
+  // Status colors - Apple system colors
+  success: '#30D158',            // Apple Green
+  successLight: '#6EE7B7',
+  successDark: '#0D8A2E',
+  successContainer: '#E5F9EC',
+  onSuccessContainer: '#0D8A2E',
 
-  // UV level colors
-  uvLow: '#10B981',       // Green 500 (0-2)
-  uvModerate: '#F59E0B',  // Amber 500 (3-5)
-  uvHigh: '#F97316',      // Orange 500 (6-7)
-  uvVeryHigh: '#EF4444',  // Red 500 (8-10)
-  uvExtreme: '#9333EA',   // Purple 600 (11+)
+  warning: '#FFD60A',            // Apple Yellow
+  warningLight: '#FFE566',
+  warningDark: '#CC9F00',
+  warningContainer: '#FFF9E5',
+  onWarningContainer: '#8C6600',
 
-  // Border and divider
-  border: '#E5E7EB',    // Gray 200
-  divider: '#E5E7EB',   // Gray 200
-  outline: '#D1D5DB',   // Gray 300
-  outlineVariant: '#E5E7EB', // Gray 200
+  error: '#FF453A',              // Apple Red
+  errorLight: '#FF6961',
+  errorDark: '#D70015',
+  errorContainer: '#FFE5E5',
+  onErrorContainer: '#990011',
+
+  info: '#64D2FF',               // Apple Light Blue
+  infoLight: '#8FDDFF',
+  infoDark: '#0099D6',
+  infoContainer: '#E5F6FF',
+  onInfoContainer: '#006699',
+
+  // UV level colors - Apple system colors
+  uvLow: '#30D158',              // Apple Green (0-2)
+  uvModerate: '#FFD60A',         // Apple Yellow (3-5)
+  uvHigh: '#FF9F0A',             // Apple Orange (6-7)
+  uvVeryHigh: '#FF453A',         // Apple Red (8-10)
+  uvExtreme: '#BF5AF2',          // Apple Purple (11+)
+
+  // Border and divider - Subtle
+  border: '#E5E5EA',             // Apple separator light
+  divider: '#E5E5EA',
+  outline: '#D1D1D6',
+  outlineVariant: '#E5E5EA',
 
   // Tab bar
-  tabBarBackground: '#FFFFFF',
-  tabBarActive: '#2563EB',
-  tabBarInactive: '#9CA3AF',
+  tabBarBackground: '#F9F9F9',
+  tabBarActive: '#007AFF',       // Apple Blue
+  tabBarInactive: '#8E8E93',
 
-  // Glass effect colors (for fallback)
-  glassBackground: 'rgba(255, 255, 255, 0.7)',
-  glassBorder: 'rgba(255, 255, 255, 0.18)',
-  surfaceTint: 'rgba(37, 99, 235, 0.1)', // Primary with 10% opacity
+  // Glass effect colors - Premium light glass
+  glassBackground: 'rgba(255, 255, 255, 0.72)',
+  glassBorder: 'rgba(0, 0, 0, 0.04)',
+  glassHighlight: 'rgba(255, 255, 255, 0.90)',
+  surfaceTint: 'rgba(0, 122, 255, 0.06)',
+
+  // Weather-adaptive gradients - Atmospheric, subtle
+  gradientSunnyStart: '#4A90E2',
+  gradientSunnyEnd: '#87CEEB',
+  gradientRainyStart: '#5D6D7E',
+  gradientRainyEnd: '#34495E',
+  gradientCloudyStart: '#95A5A6',
+  gradientCloudyEnd: '#7F8C8D',
 };
 
 const darkColors: ThemeColors = {
-  // Primary colors
-  primary: '#3B82F6',      // Blue 500
-  primaryDark: '#2563EB',  // Blue 600
-  primaryLight: '#60A5FA', // Blue 400
-  primaryContainer: '#1E3A8A', // Blue 900
+  // Primary colors - Electric Blue (Apple adaptive blue for dark mode)
+  primary: '#0A84FF',            // Apple Blue (vibrant, premium)
+  primaryDark: '#0051D5',
+  primaryLight: '#409CFF',
+  primaryContainer: '#003D99',
   onPrimary: '#FFFFFF',
-  onPrimaryContainer: '#DBEAFE', // Blue 100
+  onPrimaryContainer: '#B3D7FF',
 
-  // Background colors
-  background: '#111827',         // Gray 900
-  backgroundElevated: '#1F2937', // Gray 800
-  backgroundSecondary: '#374151', // Gray 700
-  onBackground: '#F9FAFB',
+  // Secondary colors - Fresh Green
+  secondary: '#32D74B',          // Apple Green (dark mode variant)
+  secondaryContainer: '#0D8A2E',
+  onSecondary: '#FFFFFF',
+  onSecondaryContainer: '#AEFFC7',
 
-  // Surface colors
-  surface: '#1F2937',      // Gray 800
-  surfaceVariant: '#374151', // Gray 700
-  onSurface: '#F9FAFB',
-  onSurfaceVariant: '#9CA3AF',
+  // Background colors - True black OLED + Apple card backgrounds
+  background: '#000000',             // True black (OLED power savings)
+  backgroundElevated: '#1C1C1E',     // Apple elevated background
+  backgroundSecondary: '#2C2C2E',    // Apple secondary background
+  onBackground: '#FFFFFF',           // Pure white (infinite contrast on OLED)
 
-  // Text colors
-  text: '#F9FAFB',           // Gray 50
-  textSecondary: '#9CA3AF',  // Gray 400
-  textTertiary: '#6B7280',   // Gray 500
-  textInverse: '#111827',    // Gray 900
+  // Surface colors - Apple-style material hierarchy
+  surface: '#1C1C1E',            // Apple card background (primary)
+  surfaceVariant: '#2C2C2E',     // Apple secondary surface
+  surfaceElevated1: '#2C2C2E',   // Level 1 elevation
+  surfaceElevated2: '#3A3A3C',   // Level 2 elevation (modals)
+  surfaceElevated3: '#48484A',   // Level 3 elevation (popovers)
+  onSurface: '#FFFFFF',          // Pure white primary text
+  onSurfaceVariant: 'rgba(235, 235, 245, 0.6)',   // Apple 60% opacity (secondary labels)
 
-  // Accent colors
-  accent: '#A78BFA',         // Purple 400
-  accentSecondary: '#F472B6', // Pink 400
-  tertiary: '#22D3EE',       // Cyan 400
+  // Text colors - Apple-style 3-tier hierarchy
+  text: '#FFFFFF',               // Pure white (21.0:1 contrast - perfect)
+  textSecondary: 'rgba(235, 235, 245, 0.6)',      // 60% opacity (~8.5:1 contrast)
+  textTertiary: 'rgba(235, 235, 245, 0.3)',       // 30% opacity (~4.5:1 contrast)
+  textInverse: '#000000',
 
-  // Status colors
-  success: '#34D399',  // Green 400
-  warning: '#FBBF24',  // Amber 400
-  error: '#F87171',    // Red 400
-  errorContainer: '#7F1D1D', // Red 900
-  onErrorContainer: '#FEE2E2', // Red 100
-  info: '#60A5FA',     // Blue 400
-  infoContainer: '#1E3A8A', // Blue 900
-  onInfoContainer: '#DBEAFE', // Blue 100
+  // Accent colors - Apple system (simplified)
+  accent: '#BF5AF2',             // Apple Purple
+  accentSecondary: '#FF375F',    // Apple Pink
+  tertiary: '#64D2FF',           // Apple Light Blue
+  tertiaryContainer: '#003D5C',
+  onTertiary: '#FFFFFF',
+  onTertiaryContainer: '#B3E5FF',
 
-  // UV level colors
-  uvLow: '#34D399',      // Green 400 (0-2)
-  uvModerate: '#FBBF24', // Amber 400 (3-5)
-  uvHigh: '#FB923C',     // Orange 400 (6-7)
-  uvVeryHigh: '#F87171', // Red 400 (8-10)
-  uvExtreme: '#A855F7',  // Purple 500 (11+)
+  // Status colors - Apple system (dark mode)
+  success: '#32D74B',            // Apple Green
+  successLight: '#6EE7B7',
+  successDark: '#0D8A2E',
+  successContainer: '#0D8A2E',
+  onSuccessContainer: '#AEFFC7',
 
-  // Border and divider
-  border: '#374151',   // Gray 700
-  divider: '#374151',  // Gray 700
-  outline: '#4B5563',  // Gray 600
-  outlineVariant: '#374151', // Gray 700
+  warning: '#FFD60A',            // Apple Yellow
+  warningLight: '#FFE566',
+  warningDark: '#CC9F00',
+  warningContainer: '#8C6600',
+  onWarningContainer: '#FFF9CC',
+
+  error: '#FF453A',              // Apple Red
+  errorLight: '#FF6961',
+  errorDark: '#D70015',
+  errorContainer: '#990011',
+  onErrorContainer: '#FFCCCC',
+
+  info: '#64D2FF',               // Apple Light Blue
+  infoLight: '#8FDDFF',
+  infoDark: '#0099D6',
+  infoContainer: '#006699',
+  onInfoContainer: '#B3E5FF',
+
+  // UV level colors - Apple system (vibrant for dark mode)
+  uvLow: '#32D74B',              // Apple Green (0-2)
+  uvModerate: '#FFD60A',         // Apple Yellow (3-5)
+  uvHigh: '#FF9F0A',             // Apple Orange (6-7)
+  uvVeryHigh: '#FF453A',         // Apple Red (8-10)
+  uvExtreme: '#BF5AF2',          // Apple Purple (11+)
+
+  // Border and divider - Apple subtle separators
+  border: 'rgba(84, 84, 88, 0.6)',     // Apple separator (dark)
+  divider: 'rgba(84, 84, 88, 0.65)',
+  outline: 'rgba(84, 84, 88, 0.48)',
+  outlineVariant: 'rgba(84, 84, 88, 0.36)',
 
   // Tab bar
-  tabBarBackground: '#1F2937',
-  tabBarActive: '#3B82F6',
-  tabBarInactive: '#6B7280',
+  tabBarBackground: '#1C1C1E',
+  tabBarActive: '#0A84FF',             // Apple Blue
+  tabBarInactive: 'rgba(235, 235, 245, 0.6)',
 
-  // Glass effect colors (for fallback)
-  glassBackground: 'rgba(31, 41, 55, 0.7)',
-  glassBorder: 'rgba(255, 255, 255, 0.1)',
-  surfaceTint: 'rgba(59, 130, 246, 0.1)', // Primary with 10% opacity
+  // Glass effect colors - Premium Apple Weather style
+  glassBackground: 'rgba(28, 28, 30, 0.72)',    // 72% opacity + blur for depth
+  glassBorder: 'rgba(255, 255, 255, 0.08)',     // Subtle edge
+  glassHighlight: 'rgba(255, 255, 255, 0.12)',  // Gentle highlight
+  surfaceTint: 'rgba(10, 132, 255, 0.08)',      // Blue tint
+
+  // Weather-adaptive gradients - Atmospheric, sky-like
+  gradientSunnyStart: '#4A90E2',       // Soft blue
+  gradientSunnyEnd: '#5DADE2',         // Light blue
+  gradientRainyStart: '#34495E',       // Dark blue-gray
+  gradientRainyEnd: '#2C3E50',         // Deeper gray
+  gradientCloudyStart: '#566573',      // Medium gray
+  gradientCloudyEnd: '#455A64',        // Darker gray
 };
 
 const highContrastLightColors: ThemeColors = {
@@ -153,84 +226,133 @@ const highContrastDarkColors: ThemeColors = {
   divider: '#4B5563',
 };
 
-// Spacing scale (4px base grid)
+// Spacing scale (8px base grid)
 const spacing: Spacing = {
-  xs: 4,
-  sm: 8,
-  md: 16,
-  lg: 24,
-  xl: 32,
-  xxl: 48,
-  xxxl: 64,
+  xxs: 4,    // Tight spacing (icon padding, hairline gaps)
+  xs: 8,     // Small gaps between related elements
+  sm: 12,    // Moderate gaps within components
+  md: 16,    // Default component padding
+  lg: 24,    // Section spacing
+  xl: 32,    // Screen padding, large gaps
+  xxl: 48,   // Hero sections, major separations
+  xxxl: 64,  // Maximum vertical spacing
 };
 
-// Typography scale
+// Typography scale - Platform-specific
 const typography: Typography = {
   fontFamily: {
-    regular: 'System',
-    medium: 'System',
-    semibold: 'System',
-    bold: 'System',
-    mono: 'SpaceMono',
+    regular: Platform.select({
+      ios: 'SF Pro Text',
+      android: 'Inter-Regular',
+      default: 'System',
+    })!,
+    display: Platform.select({
+      ios: 'SF Pro Display',
+      android: 'Inter-Bold',
+      default: 'System',
+    })!,
+    medium: Platform.select({
+      ios: 'SF Pro Text',
+      android: 'Inter-Medium',
+      default: 'System',
+    })!,
+    semibold: Platform.select({
+      ios: 'SF Pro Text',
+      android: 'Inter-SemiBold',
+      default: 'System',
+    })!,
+    bold: Platform.select({
+      ios: 'SF Pro Display',
+      android: 'Inter-Bold',
+      default: 'System',
+    })!,
+    mono: Platform.select({
+      ios: 'SF Mono',
+      android: 'RobotoMono-Regular',
+      default: 'SpaceMono',
+    })!,
   },
   fontSize: {
-    xs: 12,
-    sm: 14,
-    base: 16,
-    lg: 18,
-    xl: 20,
-    '2xl': 24,
-    '3xl': 30,
-    '4xl': 36,
-    '5xl': 48,
+    xs: 11,      // Captions (Apple-style)
+    sm: 13,      // Secondary text
+    base: 15,    // Body text (Apple uses 15px, not 16px)
+    lg: 17,      // Emphasized body
+    xl: 20,      // Small heading
+    '2xl': 22,   // Medium heading
+    '3xl': 28,   // Large heading
+    '4xl': 34,   // Hero heading
+    '5xl': 48,   // Temperature display
+    '6xl': 64,   // Large temperature
+    '7xl': 76,   // Extra large (hero)
   },
   lineHeight: {
-    tight: 1.2,
-    normal: 1.5,
-    relaxed: 1.75,
+    tight: 1.1,      // Large numbers (temperature display)
+    snug: 1.2,       // Headings
+    normal: 1.4,     // Body text (tighter than 1.5 for Apple feel)
+    relaxed: 1.5,    // Long-form reading
+    loose: 1.6,      // Maximum spacing
+  },
+  fontWeight: {
+    thin: Platform.select({ ios: '100', android: '200', default: '100' }) as '100' | '200',
+    extralight: Platform.select({ ios: '200', android: '300', default: '200' }) as '200' | '300',
+    light: '300',
+    regular: '400',
+    medium: '500',
+    semibold: '600',
+    bold: '700',
+    extrabold: '800',
+    black: '900',
+  },
+  letterSpacing: {
+    tightest: -0.5,    // Large headings (64px+ temperature)
+    tighter: -0.4,     // Medium headings (28-48px)
+    tight: -0.08,      // Body text (15-17px) - Apple precision
+    normal: 0,         // Small text (11-13px)
+    wide: 0.5,         // All caps labels
+    wider: 1.0,        // Very wide spacing
   },
 };
 
-// Border radius scale
+// Border radius scale - Premium rounded (Apple-style)
 const borderRadius: BorderRadius = {
   none: 0,
-  sm: 4,
-  md: 8,
-  lg: 12,
-  xl: 16,
-  '2xl': 24,
-  full: 9999,
+  sm: 8,       // Small UI elements
+  md: 12,      // Buttons, chips
+  lg: 16,      // Small cards
+  xl: 20,      // Standard cards (Apple uses 20px)
+  '2xl': 24,   // Hero cards, modals
+  full: 9999,  // Pills, circular elements
 };
 
-// Shadow definitions (works for both iOS and Android)
+// Shadow definitions - Soft, layered (Apple-style)
 const shadow: Shadow = {
   sm: {
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
+    shadowOpacity: 0.04,     // Softer
+    shadowRadius: 3,         // Slightly larger blur
     elevation: 1,
   },
   md: {
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,     // Softer
+    shadowRadius: 12,        // Much larger blur for smoothness
+    elevation: 2,
   },
   lg: {
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 5,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.08,     // Softer
+    shadowRadius: 24,        // Large blur for premium depth
+    elevation: 4,
   },
   xl: {
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.2,
-    shadowRadius: 16,
-    elevation: 8,
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.10,     // Softer but noticeable
+    shadowRadius: 32,        // Very large blur for dramatic depth
+    elevation: 6,
   },
 };
 

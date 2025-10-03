@@ -184,7 +184,7 @@ export function MessageList({
     if (item.type === 'header') {
       return (
         <View
-          style={[styles.sectionHeader, { backgroundColor: colors.background }]}
+          style={[styles.sectionHeader, { backgroundColor: colors.background, borderBottomColor: colors.divider }]}
           accessibilityRole="header"
         >
           <Text variant="body2" style={[styles.sectionTitle, { color: colors.onBackground }]}>
@@ -240,7 +240,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0, 0, 0, 0.1)',
+    // borderBottomColor set dynamically in component
   },
   sectionTitle: {
     fontWeight: '600',

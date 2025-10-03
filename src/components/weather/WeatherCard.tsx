@@ -47,7 +47,7 @@ export const WeatherCard = React.memo<WeatherCardProps>(({
   
   return (
     <Container
-      style={[styles.container, { backgroundColor: colors.surface }]}
+      style={styles.container}
       onPress={onPress}
       accessibilityRole={onPress ? "button" : undefined}
       accessibilityLabel={t('accessibility.weatherCard.summary', {
@@ -81,6 +81,7 @@ export const WeatherCard = React.memo<WeatherCardProps>(({
         </View>
         
         <View style={styles.conditionContainer}>
+          {/* TODO: Replace emoji with SF Symbols (iOS) or Material Icons (Android) for premium feel */}
           <Text style={styles.emoji}>
             {getWeatherEmoji(data.current.condition.wmoCode || 0)}
           </Text>
@@ -90,7 +91,7 @@ export const WeatherCard = React.memo<WeatherCardProps>(({
         </View>
       </View>
       
-      <View style={styles.details}>
+      <View style={[styles.details, { borderTopColor: colors.divider }]}>
         <View style={styles.detailItem}>
           <Text variant="caption" style={{ color: colors.onSurfaceVariant }}>
             {t('weatherCard.humidity', 'Humidity')}
@@ -99,7 +100,7 @@ export const WeatherCard = React.memo<WeatherCardProps>(({
             {humidityDisplay}
           </Text>
         </View>
-        
+
         <View style={styles.detailItem}>
           <Text variant="caption" style={{ color: colors.onSurfaceVariant }}>
             {t('weatherCard.wind', 'Wind')}
@@ -108,7 +109,7 @@ export const WeatherCard = React.memo<WeatherCardProps>(({
             {windDisplay}
           </Text>
         </View>
-        
+
         <View style={styles.detailItem}>
           <Text variant="caption" style={{ color: colors.onSurfaceVariant }}>
             {t('weatherCard.pressure', 'Pressure')}
@@ -135,9 +136,10 @@ WeatherCard.displayName = 'WeatherCard';
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: 16,
+    borderRadius: 20,    // Premium 20px radius (Apple standard)
     padding: 20,
     marginVertical: 8,
+    // Shadow applied via theme shadow.lg for soft, layered depth
   },
   header: {
     marginBottom: 16,
@@ -157,7 +159,8 @@ const styles = StyleSheet.create({
   temperature: {
     fontSize: 64,
     fontWeight: '300',
-    lineHeight: 72,
+    lineHeight: 70,      // Tighter line height (1.1 ratio)
+    letterSpacing: -0.5, // Apple-style tight spacing for large numbers
   },
   conditionContainer: {
     alignItems: 'center',
@@ -171,7 +174,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(128, 128, 128, 0.2)',
+    // borderTopColor will be set dynamically in component
   },
   detailItem: {
     alignItems: 'center',

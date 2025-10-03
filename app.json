@@ -19,10 +19,13 @@
       "infoPlist": {
         "UIBackgroundModes": [
           "fetch",
+          "remote-notification",
+          "fetch",
           "remote-notification"
         ],
         "NSLocationWhenInUseUsageDescription": "This app uses location to provide weather and UV index information.",
-        "NSLocationAlwaysAndWhenInUseUsageDescription": "This app uses location to provide weather and UV index information."
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "This app uses location to provide weather and UV index information.",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
@@ -49,6 +52,15 @@
     "plugins": [
       "expo-router",
       [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "This app uses location to provide weather and UV index information.",
+          "locationAlwaysPermission": "This app uses location to provide weather and UV index information.",
+          "locationWhenInUsePermission": "This app uses location to provide weather and UV index information.",
+          "isIosBackgroundLocationEnabled": false
+        }
+      ],
+      [
         "expo-notifications",
         {
           "icon": "./assets/images/icon.png",
@@ -71,6 +83,12 @@
     "experiments": {
       "typedRoutes": true,
       "autolinkingModuleResolution": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "d39fae61-ef6e-4783-99ef-6773d0503277"
+      }
     }
   }
 }

@@ -214,8 +214,8 @@ export default function MessagesScreen() {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header with Glass */}
       {canUseGlass ? (
-        <GlassView 
-          style={styles.glassHeader}
+        <GlassView
+          style={[styles.glassHeader, { borderBottomColor: colors.divider }]}
           glassEffectStyle="regular"
           tintColor={colors.surfaceTint}
         >
@@ -262,7 +262,7 @@ export default function MessagesScreen() {
           </View>
         </GlassView>
       ) : (
-        <View style={[styles.solidHeader, { backgroundColor: colors.surface }]}>
+        <View style={[styles.solidHeader, { backgroundColor: colors.surface, borderBottomColor: colors.divider }]}>
           <View style={styles.headerTop}>
             <Text variant="h1" style={[styles.title, { color: colors.onSurface }]}>
               {t('messages.title', 'Messages')}
@@ -414,7 +414,7 @@ export default function MessagesScreen() {
           {unreadCount > 0 && (
             <Button
               title={`Mark All Read (${unreadCount})`}
-              variant="outline"
+              variant="outlined"
               size="small"
               onPress={handleMarkAllAsRead}
               style={styles.quickActionButton}
@@ -423,7 +423,7 @@ export default function MessagesScreen() {
 
           <Button
             title="Setup Notifications"
-            variant="outline"
+            variant="outlined"
             size="small"
             onPress={handleSetupNotifications}
             style={styles.quickActionButton}
@@ -452,7 +452,7 @@ export default function MessagesScreen() {
               </Text>
           <Button
             title={t('messages.notifications.enableAlerts', 'Enable Alerts')}
-            variant="ghost"
+            variant="text"
             size="small"
             onPress={handleSetupNotifications}
           />
@@ -469,7 +469,7 @@ const styles = StyleSheet.create({
   // Glass header (iOS 26+)
   glassHeader: {
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0, 0, 0, 0.05)',
+    // borderBottomColor set via inline style for theme awareness
   },
   headerContent: {
     paddingHorizontal: 16,
@@ -482,7 +482,7 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0, 0, 0, 0.1)',
+    // borderBottomColor set via inline style for theme awareness
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,

@@ -61,6 +61,7 @@ export const ForecastDayCard = React.memo<ForecastDayCardProps>(({
       </View>
       
       <View style={styles.conditionContainer}>
+        {/* TODO: Replace emoji with SF Symbols (iOS) or Material Icons (Android) */}
         <Text style={styles.emoji}>{getWeatherEmoji(day.condition.wmoCode || 0)}</Text>
         <Text variant="caption" style={{ color: colors.onSurfaceVariant }}>
           {day.condition.main}
@@ -87,6 +88,7 @@ export const ForecastDayCard = React.memo<ForecastDayCardProps>(({
       
       {day.precipitation.probability > 0 && (
         <View style={styles.precipContainer}>
+          {/* TODO: Replace emoji with SF Symbol (drop.fill) or Material Icon (water_drop) */}
           <Text style={styles.rainEmoji}>💧</Text>
           <Text variant="caption" style={{ color: colors.primary }}>
             {Math.round(day.precipitation.probability)}%
@@ -136,7 +138,7 @@ ForecastDayCard.displayName = 'ForecastDayCard';
 const styles = StyleSheet.create({
   // Glass wrapper (iOS 26+)
   glassWrapper: {
-    borderRadius: 16,
+    borderRadius: 20,    // Premium 20px (Apple standard)
     marginVertical: 4,
     overflow: 'hidden',
   },
@@ -151,13 +153,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
-    borderRadius: 16,
+    borderRadius: 20,    // Premium 20px (Apple standard)
     marginVertical: 4,
     gap: 12,
+    // Soft shadow (Apple-style)
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
     elevation: 2,
   },
   // Content sections

@@ -1,17 +1,17 @@
+import { ErrorBoundary } from '@/src/components/ErrorBoundary';
+import { AppProviders } from '@/src/theme/AppProviders';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
+import 'react-native-gesture-handler';
 import 'react-native-reanimated';
 
-import { ErrorBoundary } from '@/src/components/ErrorBoundary';
-import { AppProviders } from '@/src/theme/AppProviders';
-
 export {
-    // Catch any errors thrown by the Layout component.
-    ErrorBoundary as ExpoErrorBoundary
+  // Catch any errors thrown by the Layout component.
+  ErrorBoundary as ExpoErrorBoundary
 } from 'expo-router';
 
 export const unstable_settings = {

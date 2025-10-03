@@ -109,7 +109,7 @@ export function MessageDetail({
           <View style={styles.headerActions}>
             <Button
               title="Close"
-              variant="ghost"
+              variant="text"
               onPress={onClose}
               style={styles.closeButton}
             />
@@ -231,16 +231,16 @@ export function MessageDetail({
         {onShare && (
           <Button
             title="Share"
-            variant="outline"
+            variant="outlined"
             onPress={onShare}
             style={styles.actionButton}
           />
         )}
         <Button
           title="Delete"
-          variant="outline"
+          variant="outlined"
           onPress={handleDelete}
-          style={[styles.actionButton, { borderColor: colors.error }]}
+          style={styles.actionButton}
         />
       </View>
     </ScrollView>

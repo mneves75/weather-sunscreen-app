@@ -5,6 +5,7 @@
 import {
     Coordinates,
     Forecast,
+    Location,
     SkinType,
     UVIndex,
     UVLevel,
@@ -64,11 +65,25 @@ class WeatherService {
   /**
    * Fetch weather data for given coordinates
    */
-  public async getWeatherData(coordinates: Coordinates): Promise<WeatherData> {
+  public async getWeatherData(
+    coordinates: Coordinates,
+    locationDetails?: Partial<Location>
+  ): Promise<WeatherData> {
     try {
       // Check cache first
       if (this.isCacheValid(this.weatherCache, coordinates)) {
         logger.debug('Returning cached weather data', 'WEATHER', { coordinates });
+
+        if (locationDetails) {
+          const cached = this.weatherCache.data;
+          cached.location = {
+            coordinates: cached.location.coordinates ?? coordinates,
+            city: cached.location.city ?? locationDetails.city,
+            country: cached.location.country ?? locationDetails.country,
+            timezone: cached.location.timezone ?? locationDetails.timezone,
+          };
+        }
+
         return this.weatherCache.data;
       }
 
@@ -78,7 +93,11 @@ class WeatherService {
       const rawData = await openMeteoClient.getCurrentWeather(coordinates);
 
       // Transform to app data structure
-      const weatherData = OpenMeteoMapper.transformCurrentWeather(rawData, coordinates);
+      const weatherData = OpenMeteoMapper.transformCurrentWeather(
+        rawData,
+        coordinates,
+        locationDetails
+      );
 
       // Fetch and add UV index
       try {
@@ -95,7 +114,10 @@ class WeatherService {
         coordinates,
       };
 
-      logger.info('Weather data fetched successfully', 'WEATHER', { coordinates });
+      logger.info('Weather data fetched successfully', 'WEATHER', {
+        coordinates,
+        locationDetails,
+      });
       return weatherData;
     } catch (error) {
       logger.error('Failed to fetch weather data', error as Error, 'WEATHER');
@@ -109,7 +131,7 @@ class WeatherService {
 
       // Fall back to mock data
       logger.warn('Falling back to mock weather data');
-      return this.getMockWeatherData(coordinates);
+      return this.getMockWeatherData(coordinates, locationDetails);
     }
   }
 
@@ -160,11 +182,24 @@ class WeatherService {
   /**
    * Fetch forecast data
    */
-  public async getForecast(coordinates: Coordinates): Promise<Forecast> {
+  public async getForecast(
+    coordinates: Coordinates,
+    locationDetails?: Partial<Location>
+  ): Promise<Forecast> {
     try {
       // Check cache first
       if (this.isCacheValid(this.forecastCache, coordinates)) {
         logger.debug('Returning cached forecast', 'WEATHER', { coordinates });
+
+        if (locationDetails) {
+          const cached = this.forecastCache.data;
+          cached.location = {
+            coordinates: cached.location.coordinates ?? coordinates,
+            city: cached.location.city ?? locationDetails.city,
+            country: cached.location.country ?? locationDetails.country,
+          };
+        }
+
         return this.forecastCache.data;
       }
 
@@ -177,7 +212,8 @@ class WeatherService {
       const forecast = OpenMeteoMapper.transformForecast(
         rawData.hourly,
         rawData.daily,
-        coordinates
+        coordinates,
+        locationDetails
       );
 
       // Cache the result
@@ -189,7 +225,8 @@ class WeatherService {
 
       logger.info('Forecast fetched successfully', 'WEATHER', {
         coordinates,
-        days: forecast.days.length
+        days: forecast.days.length,
+        locationDetails,
       });
       return forecast;
     } catch (error) {
@@ -204,7 +241,7 @@ class WeatherService {
 
       // Fall back to mock data
       logger.warn('Falling back to mock forecast');
-      return this.getMockForecast(coordinates);
+      return this.getMockForecast(coordinates, locationDetails);
     }
   }
 
@@ -221,9 +258,12 @@ class WeatherService {
   /**
    * Force refresh data (bypass cache)
    */
-  public async refreshWeatherData(coordinates: Coordinates): Promise<WeatherData> {
+  public async refreshWeatherData(
+    coordinates: Coordinates,
+    locationDetails?: Partial<Location>
+  ): Promise<WeatherData> {
     this.clearCache();
-    return this.getWeatherData(coordinates);
+    return this.getWeatherData(coordinates, locationDetails);
   }
 
   public async refreshUVIndex(coordinates: Coordinates): Promise<UVIndex> {
@@ -231,9 +271,12 @@ class WeatherService {
     return this.getUVIndex(coordinates);
   }
 
-  public async refreshForecast(coordinates: Coordinates): Promise<Forecast> {
+  public async refreshForecast(
+    coordinates: Coordinates,
+    locationDetails?: Partial<Location>
+  ): Promise<Forecast> {
     this.forecastCache = null;
-    return this.getForecast(coordinates);
+    return this.getForecast(coordinates, locationDetails);
   }
 
   /**
@@ -331,7 +374,10 @@ class WeatherService {
    * Mock weather data for development/fallback
    * Uses coordinates to determine mock location for more realistic testing
    */
-  private getMockWeatherData(coordinates: Coordinates): WeatherData {
+  private getMockWeatherData(
+    coordinates: Coordinates,
+    locationDetails?: Partial<Location>
+  ): WeatherData {
     // Use coordinates to determine mock location (simplified logic)
     const mockLocation = this.getMockLocationFromCoordinates(coordinates);
 
@@ -342,9 +388,9 @@ class WeatherService {
     return {
       location: {
         coordinates,
-        city: mockLocation.city,
-        country: mockLocation.country,
-        timezone: mockLocation.timezone,
+        city: locationDetails?.city ?? mockLocation.city,
+        country: locationDetails?.country ?? mockLocation.country,
+        timezone: locationDetails?.timezone ?? mockLocation.timezone,
       },
       current: {
         temperature: Math.round(baseTemp + variation),
@@ -399,7 +445,10 @@ class WeatherService {
    * Mock forecast for development/fallback
    * Uses deterministic calculations based on day index for consistent testing
    */
-  private getMockForecast(coordinates: Coordinates): Forecast {
+  private getMockForecast(
+    coordinates: Coordinates,
+    locationDetails?: Partial<Location>
+  ): Forecast {
     const days = Array.from({ length: 7 }, (_, i) => {
       const date = new Date();
       date.setDate(date.getDate() + i);
@@ -450,8 +499,8 @@ class WeatherService {
     return {
       location: {
         coordinates,
-        city: 'San Francisco',
-        country: 'US',
+        city: locationDetails?.city ?? 'San Francisco',
+        country: locationDetails?.country ?? 'US',
       },
       days,
       updatedAt: Date.now(),

@@ -17,6 +17,8 @@ import type {
 } from '@/src/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { logger } from './LoggerService';
+import { translationService } from './TranslationService';
+import { getCurrentLanguage } from '@/src/i18n';
 
 const MESSAGES_STORAGE_KEY = '@WeatherSunscreen:messages';
 const CONFIG_STORAGE_KEY = '@WeatherSunscreen:messages:config';

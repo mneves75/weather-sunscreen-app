@@ -13,6 +13,7 @@ export { notificationService } from './NotificationService';
 export { openMeteoClient } from './OpenMeteoClient';
 export { OpenMeteoMapper } from './OpenMeteoMapper';
 export { SunscreenTrackerService } from './SunscreenTrackerService';
+export { translationService } from './TranslationService';
 export { weatherService } from './WeatherService';
 // Background tasks are not implemented in this version
 

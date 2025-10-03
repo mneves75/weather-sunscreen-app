@@ -3,7 +3,7 @@
  */
 
 import React from 'react';
-import { Text as RNText, TextProps as RNTextProps, StyleSheet } from 'react-native';
+import { StyleSheet, Text as RNText, TextProps as RNTextProps } from 'react-native';
 import { useColors, useThemeTokens } from '@/src/theme';
 
 type TextVariant = 'h1' | 'h2' | 'h3' | 'h4' | 'body' | 'body1' | 'body2' | 'caption' | 'overline';
@@ -12,20 +12,21 @@ type TextWeight = 'regular' | 'medium' | 'semibold' | 'bold';
 interface TextProps extends RNTextProps {
   variant?: TextVariant;
   weight?: TextWeight;
-  color?: 'primary' | 'secondary' | 'tertiary' | 'inverse' | 'error';
+  color?: 'primary' | 'secondary' | 'tertiary' | 'inverse' | 'error' | 'onSurface' | 'onBackground';
   children: React.ReactNode;
 }
 
 export function Text({
   variant = 'body',
   weight = 'regular',
-  color = 'primary',
+  color,
   style,
   children,
   ...props
 }: TextProps) {
   const colors = useColors();
   const { typography } = useThemeTokens();
+  const flattenedStyle = StyleSheet.flatten(style) || {};
 
   const colorMap = {
     primary: colors.text,
@@ -33,6 +34,8 @@ export function Text({
     tertiary: colors.textTertiary,
     inverse: colors.textInverse,
     error: colors.error,
+    onSurface: colors.onSurface,
+    onBackground: colors.onBackground,
   };
 
   const fontSizeMap = {
@@ -54,13 +57,23 @@ export function Text({
     bold: '700',
   };
 
+  const finalFontSize = typeof flattenedStyle.fontSize === 'number'
+    ? flattenedStyle.fontSize
+    : fontSizeMap[variant];
+
+  const finalLineHeight = typeof flattenedStyle.lineHeight === 'number'
+    ? flattenedStyle.lineHeight
+    : (variant.startsWith('h')
+      ? typography.lineHeight.tight * finalFontSize
+      : typography.lineHeight.normal * finalFontSize);
+
   const textStyles = [
     styles.text,
     {
-      color: colorMap[color],
-      fontSize: fontSizeMap[variant],
+      color: color ? colorMap[color] : colors.onSurface,
+      fontSize: finalFontSize,
       fontWeight: fontWeightMap[weight],
-      lineHeight: variant.startsWith('h') ? typography.lineHeight.tight * fontSizeMap[variant] : typography.lineHeight.normal * fontSizeMap[variant],
+      lineHeight: finalLineHeight,
     },
     variant === 'overline' && styles.overline,
     style,

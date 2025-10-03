@@ -24,6 +24,7 @@ import type {
   ActivitySuggestion,
   AIServiceConfig,
   AIError,
+  TranslateMessageRequest,
 } from '@/src/types/ai';
 import { logger } from './LoggerService';
 
@@ -206,6 +207,55 @@ class AIService {
     } catch (error) {
       logger.error('Failed to get weather insight', error as Error, 'AI_SERVICE');
       throw error;
+    }
+  }
+
+  /**
+   * Translate dynamic message content between languages.
+   * Falls back to original content if AI service is disabled or translation fails.
+   */
+  public async translateMessage(request: TranslateMessageRequest): Promise<{ title: string; body: string }> {
+    const { sourceLanguage, targetLanguage, title, body } = request;
+
+    if (!targetLanguage || targetLanguage === sourceLanguage) {
+      return { title, body };
+    }
+
+    if (!this.isEnabled()) {
+      logger.warn('AI translation requested but service is disabled', 'AI_SERVICE', {
+        sourceLanguage,
+        targetLanguage,
+      });
+      return { title, body };
+    }
+
+    try {
+      const startTime = Date.now();
+      logger.info('Translating message content', 'AI_SERVICE', {
+        sourceLanguage,
+        targetLanguage,
+      });
+
+      const prompt = this.buildTranslationPrompt(request);
+      const { text } = await generateText({
+        model: this.model,
+        prompt,
+        temperature: 0.2,
+        maxTokens: Math.min(this.config.maxTokens ?? 500, 400),
+      });
+
+      const translation = this.parseTranslation(text, request);
+
+      logger.info(
+        `Translated message in ${Date.now() - startTime}ms`,
+        'AI_SERVICE',
+        { sourceLanguage, targetLanguage }
+      );
+
+      return translation;
+    } catch (error) {
+      logger.error('Failed to translate message content', error as Error, 'AI_SERVICE');
+      return { title, body };
     }
   }
 
@@ -474,6 +524,43 @@ Format as JSON array.`;
         reasoning: 'Lower UV index in morning hours',
       },
     ];
+  }
+
+  private buildTranslationPrompt(request: TranslateMessageRequest): string {
+    const { sourceLanguage, targetLanguage, title, body } = request;
+    return [
+      'You are a professional translator. Translate the following message content.',
+      'Preserve the original meaning, tone, and formatting. Do not add commentary.',
+      'Return a JSON object with keys "title" and "body" only.',
+      `Source language: ${sourceLanguage}.`,
+      `Target language: ${targetLanguage}.`,
+      'Original content:',
+      `TITLE: ${JSON.stringify(title)}`,
+      `BODY: ${JSON.stringify(body)}`,
+    ].join('\n');
+  }
+
+  private parseTranslation(text: string, request: TranslateMessageRequest): { title: string; body: string } {
+    const fallback = { title: request.title, body: request.body };
+
+    try {
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        return fallback;
+      }
+
+      const parsed = JSON.parse(jsonMatch[0]);
+      const translatedTitle = typeof parsed.title === 'string' ? parsed.title.trim() : fallback.title;
+      const translatedBody = typeof parsed.body === 'string' ? parsed.body.trim() : fallback.body;
+
+      return {
+        title: translatedTitle || fallback.title,
+        body: translatedBody || fallback.body,
+      };
+    } catch (error) {
+      logger.warn('Failed to parse translation response', 'AI_SERVICE', { error: (error as Error).message });
+      return fallback;
+    }
   }
 }
 
