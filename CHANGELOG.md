@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.1] - 2025-10-03
+
+### Fixed
+- **Color Contrast Issues** - Improved readability across all themes
+  - SunscreenTracker: Migrated from legacy color tokens to Material Design 3 semantic tokens
+  - Fixed invisible button text/icons in light mode (white-on-white issue)
+  - Fixed invisible checkbox checkmarks when checked
+  - Updated all text colors: `colors.text` → `colors.onSurface`, `colors.textSecondary` → `colors.onSurfaceVariant`
+  - Fixed secondary button border: `colors.textSecondary` → `colors.outline`
+  - Settings screen: Replaced hardcoded chevron opacity with semantic color token `colors.onSurfaceVariant`
+  - **Result:** WCAG AAA contrast ratios (7:1+) across light/dark/high-contrast modes
+- **Metro Bundler Asset Error** - Fixed missing icon path
+  - Added `assets/icon.png` (Metro expected it at root, but only existed at `assets/images/icon.png`)
+  - App now builds successfully without asset resolution errors
+
+## [3.0.0] - 2025-XX-XX
+
 ### Added
 - Home screen refresh control: native icon button triggers GPS update and weather/UV/forecast refresh
 - Native module availability helper ensuring graceful fallbacks when platform view managers are absent
