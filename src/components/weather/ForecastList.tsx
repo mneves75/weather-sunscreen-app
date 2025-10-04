@@ -50,6 +50,7 @@ export const ForecastList = React.memo<ForecastListProps>(({
       data={days}
       renderItem={renderItem}
       keyExtractor={keyExtractor}
+      estimatedItemSize={108}
       contentContainerStyle={styles.container}
       refreshControl={
         onRefresh ? (

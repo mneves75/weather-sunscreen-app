@@ -5,17 +5,18 @@
  */
 
 import Ionicons from '@expo/vector-icons/Ionicons';
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSunscreen } from '../../context/SunscreenContext';
-import { useColors } from '../../theme/theme';
+import { useColors, useThemeTokens } from '../../theme/theme';
 import { GlassCard } from '../glass/GlassCard';
 import { logger } from '../../services/LoggerService';
 
 export const SunscreenTracker: React.FC = () => {
   const { t } = useTranslation();
   const colors = useColors();
+  const { typography, borderRadius, spacing } = useThemeTokens();
   const {
     currentApplication,
     alertActive,
@@ -29,6 +30,9 @@ export const SunscreenTracker: React.FC = () => {
   } = useSunscreen();
 
   const [isApplying, setIsApplying] = useState(false);
+
+  // Create styles with theme tokens
+  const styles = useMemo(() => createStyles(typography, borderRadius, spacing), [typography, borderRadius, spacing]);
 
   const handleApply = async () => {
     try {
@@ -257,142 +261,143 @@ export const SunscreenTracker: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
+// Create styles function to access theme tokens
+const createStyles = (typography: any, borderRadius: any, spacing: any) => StyleSheet.create({
   container: {
-    padding: 16,
-    marginVertical: 8,
+    padding: spacing.md,
+    marginVertical: spacing.xs,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
-    gap: 8,
+    marginBottom: spacing.sm,
+    gap: spacing.xs,
   },
   title: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontSize: typography.fontSize.xl,
+    fontWeight: typography.fontWeight.semibold,
   },
   description: {
-    fontSize: 14,
-    lineHeight: 20,
-    marginBottom: 16,
+    fontSize: typography.fontSize.sm,
+    lineHeight: typography.fontSize.sm * typography.lineHeight.relaxed,
+    marginBottom: spacing.md,
   },
   toggleContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
-    gap: 8,
+    marginBottom: spacing.md,
+    gap: spacing.xs,
   },
   checkbox: {
     width: 20,
     height: 20,
-    borderRadius: 4,
+    borderRadius: borderRadius.sm,
     borderWidth: 2,
     alignItems: 'center',
     justifyContent: 'center',
   },
   toggleLabel: {
-    fontSize: 14,
+    fontSize: typography.fontSize.sm,
   },
   button: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    gap: 8,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    borderRadius: borderRadius.md,
+    gap: spacing.xs,
   },
   buttonText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: typography.fontSize.base,
+    fontWeight: typography.fontWeight.semibold,
   },
   infoContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: spacing.sm,
   },
   infoLabel: {
-    fontSize: 14,
+    fontSize: typography.fontSize.sm,
   },
   infoValue: {
-    fontSize: 16,
-    fontWeight: '700',
+    fontSize: typography.fontSize.base,
+    fontWeight: typography.fontWeight.bold,
   },
   timeChip: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
     paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 8,
+    paddingHorizontal: spacing.sm,
+    borderRadius: borderRadius.sm,
   },
   timerContainer: {
     alignItems: 'center',
-    marginVertical: 16,
-    paddingVertical: 20,
-    paddingHorizontal: 24,
-    borderRadius: 16,
+    marginVertical: spacing.md,
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.lg,
+    borderRadius: borderRadius.lg,
   },
   timerText: {
-    fontSize: 48,
-    fontWeight: '800',
-    letterSpacing: -1,
+    fontSize: typography.fontSize['6xl'],
+    fontWeight: typography.fontWeight.extrabold,
+    letterSpacing: typography.letterSpacing.tightest,
   },
   timerLabel: {
-    fontSize: 14,
+    fontSize: typography.fontSize.sm,
     marginTop: 6,
-    fontWeight: '600',
+    fontWeight: typography.fontWeight.semibold,
     textTransform: 'uppercase',
-    letterSpacing: 1,
+    letterSpacing: typography.letterSpacing.wide,
   },
   uvContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
-    marginBottom: 12,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 12,
+    gap: spacing.xs,
+    marginBottom: spacing.sm,
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.md,
+    borderRadius: borderRadius.md,
   },
   uvText: {
-    fontSize: 13,
-    fontWeight: '600',
+    fontSize: typography.fontSize.xs,
+    fontWeight: typography.fontWeight.semibold,
   },
   swimmingBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
-    marginBottom: 16,
+    marginBottom: spacing.md,
     paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 10,
+    paddingHorizontal: spacing.sm,
+    borderRadius: borderRadius.sm,
     alignSelf: 'center',
   },
   swimmingText: {
-    fontSize: 13,
-    fontWeight: '700',
+    fontSize: typography.fontSize.xs,
+    fontWeight: typography.fontWeight.bold,
   },
   buttonRow: {
     flexDirection: 'row',
-    gap: 12,
+    gap: spacing.sm,
   },
   secondaryButton: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 12,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    borderRadius: borderRadius.md,
     borderWidth: 1,
   },
   secondaryButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: typography.fontSize.base,
+    fontWeight: typography.fontWeight.semibold,
   },
   reapplyButton: {
     flex: 1,

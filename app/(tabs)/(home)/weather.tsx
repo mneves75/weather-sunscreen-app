@@ -14,15 +14,18 @@ import { LocationDisplay, WeatherCard, WeatherDetails } from '@/src/components/w
 import { useSettings } from '@/src/context/SettingsContext';
 import { useWeatherData } from '@/src/hooks';
 import { useColors, useGlassAvailability, useThemeTokens } from '@/src/theme';
+import { tokens } from '@/src/theme/tokens';
 import { GlassView } from 'expo-glass-effect';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import Feather from '@expo/vector-icons/Feather';
+
+const { spacing, borderRadius } = tokens;
 
 export default function WeatherDetailScreen() {
   const colors = useColors();
   const { canUseGlass } = useGlassAvailability();
-  const { spacing } = useThemeTokens();
   const { preferences } = useSettings();
   const use24HourTime = preferences.timeFormat === '24h' || (preferences.timeFormat === 'system' && preferences.locale === 'pt-BR');
   const { t } = useTranslation();
@@ -77,17 +80,17 @@ export default function WeatherDetailScreen() {
     {
       label: t('weather.feelsLike', 'Feels Like'),
       value: getTemperatureWithUnit(weatherData.current.feelsLike),
-      icon: '🌡️',
+      icon: <Feather name="thermometer" size={20} color={colors.primary} />,
     },
     {
       label: t('weather.humidity', 'Humidity'),
       value: `${weatherData.current.humidity}%`,
-      icon: '💧',
+      icon: <Feather name="droplet" size={20} color={colors.primary} />,
     },
     {
       label: t('weather.wind', 'Wind'),
       value: formatWindSpeed(weatherData.current.windSpeed),
-      icon: '💨',
+      icon: <Feather name="wind" size={20} color={colors.primary} />,
     },
   ];
 
@@ -183,11 +186,11 @@ export default function WeatherDetailScreen() {
             accessibilityLabel={`${chip.label}: ${chip.value}`}
           >
             {canUseGlass ? (
-              <GlassView 
+              <GlassView
                 style={styles.chipContent}
                 glassEffectStyle="regular"
               >
-                <Text style={styles.chipIcon}>{chip.icon}</Text>
+                <View style={styles.chipIcon}>{chip.icon}</View>
                 <Text variant="caption" style={[styles.chipLabel, { color: colors.onSurfaceVariant }]}>
                   {chip.label}
                 </Text>
@@ -197,7 +200,7 @@ export default function WeatherDetailScreen() {
               </GlassView>
             ) : (
               <View style={styles.chipContent}>
-                <Text style={styles.chipIcon}>{chip.icon}</Text>
+                <View style={styles.chipIcon}>{chip.icon}</View>
                 <Text variant="caption" style={[styles.chipLabel, { color: colors.onSurfaceVariant }]}>
                   {chip.label}
                 </Text>
@@ -246,20 +249,20 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     paddingTop: 0, // Sticky header handles its own padding
-    paddingHorizontal: 16,
-    paddingBottom: 32,
+    paddingHorizontal: spacing.md,
+    paddingBottom: spacing.xl,
   },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 24,
+    padding: spacing.lg,
   },
   // Sticky header (iOS 26+ glass, others solid)
   stickyHeader: {
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    marginBottom: 12,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.sm,
   },
   solidHeader: {
     shadowColor: '#000',
@@ -270,8 +273,8 @@ const styles = StyleSheet.create({
   },
   // Hero weather card
   heroCard: {
-    borderRadius: 24,
-    marginBottom: 16,
+    borderRadius: borderRadius['2xl'],
+    marginBottom: spacing.md,
     overflow: 'hidden',
   },
   // Glass card wrapper
@@ -285,17 +288,17 @@ const styles = StyleSheet.create({
   // Metric chips row
   chipRow: {
     flexDirection: 'row',
-    gap: 12,
-    marginBottom: 16,
+    gap: spacing.sm,
+    marginBottom: spacing.md,
   },
   chipGlass: {
     flex: 1,
-    borderRadius: 16,
+    borderRadius: borderRadius.lg,
     overflow: 'hidden',
   },
   chipSolid: {
     flex: 1,
-    borderRadius: 16,
+    borderRadius: borderRadius.lg,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.08,
@@ -303,12 +306,11 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   chipContent: {
-    padding: 12,
+    padding: spacing.sm,
     alignItems: 'center',
     gap: 4,
   },
   chipIcon: {
-    fontSize: 24,
     marginBottom: 4,
   },
   chipLabel: {
@@ -322,7 +324,7 @@ const styles = StyleSheet.create({
   },
   // Details section
   detailsCard: {
-    borderRadius: 20,
+    borderRadius: borderRadius.xl,
     overflow: 'hidden',
   },
 });

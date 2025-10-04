@@ -20,13 +20,16 @@ import {
 import { useSettings } from '@/src/context/SettingsContext';
 import { LocationError, useForecast, useLocation, useUVIndex, useWeatherData } from '@/src/hooks';
 import { useColors, useGlassAvailability } from '@/src/theme';
+import { tokens } from '@/src/theme/tokens';
 import { createFadeInComponent, createSlideUpComponent } from '@/src/theme/animations';
 import { GlassView } from 'expo-glass-effect';
 import { useRouter } from 'expo-router';
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, Animated, Linking, Platform, RefreshControl, ScrollView, StyleSheet, View, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { AccessibilityInfo, Alert, Animated, Linking, Platform, RefreshControl, ScrollView, StyleSheet, View, TouchableOpacity, ActivityIndicator } from 'react-native';
 import Feather from '@expo/vector-icons/Feather';
+
+const { spacing, borderRadius } = tokens;
 
 export default function HomeScreen() {
   const colors = useColors();
@@ -35,6 +38,20 @@ export default function HomeScreen() {
   const { preferences } = useSettings();
   const { t } = useTranslation();
   const use24HourTime = preferences.timeFormat === '24h' || (preferences.timeFormat === 'system' && preferences.locale === 'pt-BR');
+
+  // Check for reduce motion accessibility preference
+  const [reduceMotion, setReduceMotion] = useState(false);
+
+  useEffect(() => {
+    AccessibilityInfo.isReduceMotionEnabled().then(setReduceMotion);
+
+    const subscription = AccessibilityInfo.addEventListener(
+      'reduceMotionChanged',
+      setReduceMotion
+    );
+
+    return () => subscription?.remove();
+  }, []);
 
   // Entrance animations - Snappier timings for better UX
   const weatherCardAnim = createSlideUpComponent(50, 50);
@@ -169,24 +186,38 @@ export default function HomeScreen() {
     await handleRefresh();
   }, [requestLocationWithHandling, handleRefresh]);
 
-  // Trigger entrance animations when data loads
+  // Trigger entrance animations when data loads (respect reduce motion)
   useEffect(() => {
     if (weatherData) {
-      weatherCardAnim.animate();
+      if (reduceMotion) {
+        weatherCardAnim.opacity.setValue(1);
+        weatherCardAnim.translateY.setValue(0);
+      } else {
+        weatherCardAnim.animate();
+      }
     }
-  }, [weatherData]);
+  }, [weatherData, reduceMotion]);
 
   useEffect(() => {
     if (uvIndex) {
-      uvCardAnim.animate();
+      if (reduceMotion) {
+        uvCardAnim.opacity.setValue(1);
+        uvCardAnim.translateY.setValue(0);
+      } else {
+        uvCardAnim.animate();
+      }
     }
-  }, [uvIndex]);
+  }, [uvIndex, reduceMotion]);
 
   useEffect(() => {
     if (weatherData && uvIndex) {
-      actionsAnim.animate();
+      if (reduceMotion) {
+        actionsAnim.opacity.setValue(1);
+      } else {
+        actionsAnim.animate();
+      }
     }
-  }, [weatherData, uvIndex]);
+  }, [weatherData, uvIndex, reduceMotion]);
   
   const isLoading = isLoadingWeather || isLoadingForecast || isLoadingUV;
   const hasError = weatherError || forecastError || uvError;
@@ -451,20 +482,20 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   contentContainer: {
-    padding: 16,        // spacing.md
-    paddingBottom: 32,  // spacing.xl
-    gap: 12,            // spacing.sm
+    padding: spacing.md,
+    paddingBottom: spacing.xl,
+    gap: spacing.sm,
   },
   locationHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    marginBottom: 4,
+    gap: spacing.sm,
+    marginBottom: spacing.xxs,
   },
   refreshIconButton: {
     width: 44,
     height: 44,
-    borderRadius: 22,
+    borderRadius: borderRadius.full,
     justifyContent: 'center',
     alignItems: 'center',
     // backgroundColor set dynamically to colors.surfaceVariant in JSX
@@ -479,29 +510,29 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 24,        // spacing.lg
+    padding: spacing.lg,
   },
   title: {
     textAlign: 'center',
-    marginBottom: 16,   // spacing.md
+    marginBottom: spacing.md,
   },
   subtitle: {
     textAlign: 'center',
-    marginBottom: 20,   // spacing.lg (20 is closer to lg than 24)
+    marginBottom: spacing.lg,
   },
   button: {
     minWidth: 200,
   },
   // Glass card wrapper (iOS 26+)
   glassCard: {
-    borderRadius: 20,   // borderRadius.xl = 16, but using 20 for prominence
-    marginVertical: 8,  // spacing.xs for tighter grouping
+    borderRadius: borderRadius.xl,
+    marginVertical: spacing.xs,
     overflow: 'hidden',
   },
   // Solid card fallback (iOS < 26, Android, accessibility)
   solidCard: {
-    borderRadius: 20,   // borderRadius.xl = 16, but using 20 for prominence
-    marginVertical: 8,  // spacing.xs for tighter grouping
+    borderRadius: borderRadius.xl,
+    marginVertical: spacing.xs,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -510,24 +541,24 @@ const styles = StyleSheet.create({
   },
   actionsContainer: {
     flexDirection: 'row',
-    gap: 12,            // Using spacing.sm
-    marginVertical: 12, // Using spacing.sm
+    gap: spacing.sm,
+    marginVertical: spacing.sm,
   },
   forecastButton: {
-    marginVertical: 4,  // Small spacing
+    marginVertical: spacing.xxs,
   },
   forecastPreviewGlass: {
-    borderRadius: 20,
-    marginVertical: 8,
+    borderRadius: borderRadius.xl,
+    marginVertical: spacing.xs,
     overflow: 'hidden',
   },
   forecastPreviewContent: {
-    padding: 20,
+    padding: spacing.lg,
   },
   forecastPreview: {
-    borderRadius: 20,
-    padding: 20,
-    marginVertical: 8,
+    borderRadius: borderRadius.xl,
+    padding: spacing.lg,
+    marginVertical: spacing.xs,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
@@ -535,12 +566,12 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   forecastTitle: {
-    marginBottom: 12,   // spacing.sm
+    marginBottom: spacing.sm,
   },
   forecastItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 12,
+    paddingVertical: spacing.sm,
     borderBottomWidth: 1,
     // borderBottomColor set dynamically in JSX
   },

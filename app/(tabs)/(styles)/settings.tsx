@@ -14,10 +14,13 @@ import { Divider, Text } from '@/src/components/ui';
 import { SkinTypeSelector } from '@/src/components/weather';
 import { useSettings } from '@/src/context/SettingsContext';
 import { useColors, useGlassAvailability, useTheme } from '@/src/theme';
+import { tokens } from '@/src/theme/tokens';
 import { GlassView } from 'expo-glass-effect';
 import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, ScrollView, StyleSheet, Switch, TouchableOpacity, View } from 'react-native';
+
+const { spacing, borderRadius } = tokens;
 
 export default function SettingsScreen() {
   const colors = useColors();
@@ -341,23 +344,23 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   contentContainer: {
-    padding: 16,
-    paddingBottom: 32,
+    padding: spacing.md,
+    paddingBottom: spacing.xl,
   },
   // Glass section (iOS 26+)
   glassSection: {
-    borderRadius: 20,
-    marginVertical: 8,
+    borderRadius: borderRadius.xl,
+    marginVertical: spacing.xs,
     overflow: 'hidden',
   },
   sectionContent: {
-    padding: 20,
+    padding: spacing.lg,
   },
   // Solid section (Android, iOS < 26, accessibility)
   solidSection: {
-    borderRadius: 20,
-    padding: 20,
-    marginVertical: 8,
+    borderRadius: borderRadius.xl,
+    padding: spacing.lg,
+    marginVertical: spacing.xs,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -365,30 +368,30 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   sectionTitle: {
-    marginBottom: 16,
+    marginBottom: spacing.md,
   },
   settingItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 12,
-    gap: 12,
+    paddingVertical: spacing.sm,
+    gap: spacing.sm,
   },
   settingTextContainer: {
     flex: 1,
-    gap: 4,
+    gap: spacing.xxs,
   },
   chevron: {
     fontSize: 24,
   },
   resetButton: {
-    borderRadius: 12,
-    padding: 16,
+    borderRadius: borderRadius.md,
+    padding: spacing.md,
     alignItems: 'center',
-    marginVertical: 8,
+    marginVertical: spacing.xs,
   },
   aboutSection: {
-    marginTop: 24,
-    gap: 4,
+    marginTop: spacing.lg,
+    gap: spacing.xxs,
   },
 });

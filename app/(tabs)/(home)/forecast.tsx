@@ -15,10 +15,13 @@ import { useSettings } from '@/src/context/SettingsContext';
 import { useForecast } from '@/src/hooks';
 import { useColors } from '@/src/theme/theme';
 import { useGlassAvailability } from '@/src/theme/glassHelpers';
+import { tokens } from '@/src/theme/tokens';
 import { GlassView } from 'expo-glass-effect';
 import { useTranslation } from 'react-i18next';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
+
+const { spacing, borderRadius } = tokens;
 
 export default function ForecastScreen() {
   const colors = useColors();
@@ -118,18 +121,18 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   glassHeader: {
-    paddingVertical: 20,
-    paddingHorizontal: 16,
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.md,
     borderBottomWidth: 1,
     // borderBottomColor set via inline style for theme awareness
   },
   headerContent: {
-    gap: 4,
+    gap: spacing.xxs,
   },
   solidHeader: {
-    paddingVertical: 20,
-    paddingHorizontal: 16,
-    gap: 4,
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.md,
+    gap: spacing.xxs,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
@@ -142,6 +145,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 24,
+    padding: spacing.lg,
   },
 });

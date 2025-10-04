@@ -87,8 +87,12 @@ export function Button({
 
   // Haptic feedback on press
   const handlePress = (event: GestureResponderEvent) => {
-    if (haptic && Platform.OS === 'ios' && !disabled && !loading) {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (haptic && !disabled && !loading) {
+      if (Platform.OS === 'ios') {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      } else if (Platform.OS === 'android') {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      }
     }
     onPress?.(event);
   };
