@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **Documentation Reorganization** - Streamlined docs structure for better navigation
+  - Moved AI SDK documentation to `docs/docs_ai-sdk_dev/`
+  - Moved Apple/iOS documentation to `docs/docs_apple/`
+  - Moved Expo documentation to `docs/docs_expo_dev/`
+  - Removed obsolete implementation tracking files (60+ files)
+  - Removed duplicate and outdated guides
+  - Cleaner root-level docs structure focused on current guides
+
+### Fixed
+- **Jest Version Compatibility** - Downgraded to match jest-expo requirements
+  - Changed jest from `^30.2.0` to `~29.7.0` for compatibility with jest-expo@54.0.12
+  - Resolved dependency conflicts in test infrastructure
+  - All tests continue passing with compatible Jest version
+
 ## [3.1.0] - 2025-10-03
 
 ### Added
