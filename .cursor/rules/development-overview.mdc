@@ -8,6 +8,32 @@ description: Comprehensive development overview and rule index
 ## Project Summary
 This is a React Native Expo weather application with TypeScript, featuring glass morphism UI, comprehensive theming, internationalization, and advanced weather data processing with UV index recommendations.
 
+## Reference Documentation - MANDATORY
+
+**CRITICAL**: Before implementing any feature or answering questions about iOS 26, AI SDK, GPT-5, Gemini, Expo SDK 54, or React Native, **ALWAYS consult the comprehensive reference documentation** in `docs/REF_DOC/` first.
+
+### Documentation Locations
+- **iOS 26 / macOS 26 / Swift 6**: `docs/REF_DOC/docs_apple/` - 350+ files covering Liquid Glass, SwiftUI, HIG
+- **AI SDK (Vercel) / GPT-5 / Gemini**: `docs/REF_DOC/docs_ai-sdk_dev/` - 200+ files with complete API reference
+- **Expo SDK 54**: `docs/REF_DOC/docs_expo_dev/` - 400+ files covering builds, deployment, EAS
+- **React Native**: `docs/REF_DOC/docs_reactnative_getting-started/` - 150+ files on New Architecture, performance
+
+**Total: 1096+ authoritative markdown files**
+
+### Quick Documentation Lookup
+```bash
+# Search for topics
+grep -r "keyword" docs/REF_DOC/docs_apple/
+grep -r "keyword" docs/REF_DOC/docs_ai-sdk_dev/
+grep -r "keyword" docs/REF_DOC/docs_expo_dev/
+
+# Browse categories
+ls docs/REF_DOC/docs_apple/liquid-glass.md
+ls docs/REF_DOC/docs_ai-sdk_dev/cookbook/guides/gpt-5.md
+```
+
+See `docs/REF_DOC/README.md` for complete documentation index.
+
 ## Architecture Highlights
 - **Expo Router**: File-based routing with typed routes
 - **Context State Management**: Weather, Theme, and Settings contexts

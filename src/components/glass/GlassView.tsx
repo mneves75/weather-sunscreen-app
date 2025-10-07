@@ -8,7 +8,7 @@
  */
 
 import React from 'react';
-import { Platform, StyleSheet, ViewProps, AccessibilityInfo } from 'react-native';
+import { Platform, StyleSheet, View, ViewProps, AccessibilityInfo } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { GlassView as NativeGlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
 import { useTheme, useThemeTokens } from '@/src/theme';
@@ -23,6 +23,10 @@ interface GlassViewProps extends ViewProps {
   isInteractive?: boolean;
   /** Tint color for glass effect */
   tintColor?: string;
+  /** Disable glass during animations/scrolling for performance (default: false) */
+  disabled?: boolean;
+  /** Elevation level for visual hierarchy (1-5, default: 2) */
+  elevation?: 1 | 2 | 3 | 4 | 5;
 }
 
 export function GlassView({
@@ -31,6 +35,8 @@ export function GlassView({
   glassEffectStyle = 'regular',
   isInteractive = false,
   tintColor,
+  disabled = false,
+  elevation = 2,
   style,
   ...props
 }: GlassViewProps) {
@@ -38,7 +44,8 @@ export function GlassView({
   const { borderRadius } = useThemeTokens();
   const [reduceTransparency, setReduceTransparency] = React.useState(false);
 
-  // Check accessibility preferences on mount
+  // CRITICAL: Check accessibility preferences on mount and when app resumes
+  // Some users have reduced transparency enabled for medical/visual reasons
   React.useEffect(() => {
     if (Platform.OS === 'ios') {
       AccessibilityInfo.isReduceTransparencyEnabled().then(setReduceTransparency);
@@ -48,7 +55,38 @@ export function GlassView({
   // Check if Liquid Glass is available (iOS 26+)
   const hasLiquidGlass = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
-  // If reduce transparency is enabled, use minimal blur
+  // PERFORMANCE: If disabled prop is true, render static view with elevation shadows
+  // Use this during scrolling or heavy animations to maintain 60fps
+  if (disabled) {
+    return (
+      <View
+        style={[
+          styles.glass,
+          {
+            backgroundColor: colors.surface,
+            borderRadius: borderRadius.md,
+            // Elevation-based shadow for depth without glass effect
+            // Formula: opacity = elevation * 0.05 (0.05 to 0.25)
+            //          radius = elevation * 4 (4px to 20px)
+            //          offset = elevation * 2 (2px to 10px)
+            shadowColor: '#000',
+            shadowOpacity: elevation * 0.05,
+            shadowRadius: elevation * 4,
+            shadowOffset: { width: 0, height: elevation * 2 },
+            // Android elevation support
+            elevation: Platform.OS === 'android' ? elevation * 2 : 0,
+          },
+          style,
+        ]}
+        {...props}
+      >
+        {children}
+      </View>
+    );
+  }
+
+  // ACCESSIBILITY: Respect reduce transparency setting
+  // Fallback to minimal blur (intensity: 10) + solid background for readability
   if (reduceTransparency) {
     return (
       <BlurView

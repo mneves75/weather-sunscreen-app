@@ -6,7 +6,93 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Weather Sunscreen App - A React Native mobile application built with Expo SDK 54 providing real-time weather, UV index monitoring, and personalized sunscreen recommendations. Uses React Native 0.81.4 with New Architecture (Fabric) enabled and Expo Router v6 for file-based navigation.
 
-**Current Version:** 3.0.0 (Expo SDK 54, iOS 26 support, New Architecture enabled)
+**Current Version:** 3.1.0 (Expo SDK 54, iOS 26 support, New Architecture enabled, Jest testing infrastructure)
+
+## Reference Documentation - CRITICAL
+
+**ALWAYS consult the reference documentation in `docs/REF_DOC/` before implementing features or answering questions** about the following technologies. This documentation represents the most recent, authoritative source for:
+
+### iOS 26 / iPadOS 26 / macOS 26 Features
+**Location:** `docs/REF_DOC/docs_apple/`
+
+- **Liquid Glass UI**: `liquid-glass.md`, `adopting-liquid-glass.md` - Complete implementation guide for glass effects, containers, performance optimization
+- **SwiftUI**: `apple_documentation_swiftui/` - Latest SwiftUI APIs, view modifiers, and patterns
+- **Human Interface Guidelines**: `apple_design_human-interface-guidelines/` - Platform-specific design patterns, components, and best practices
+- **Swift 6 & Concurrency**: `swift-concurrency.md`, `modern-swift.md` - Strict concurrency, actor isolation, Sendable conformance
+- **Additional Resources**: `SWIFT-IOS-ADDITIONAL-DOCS.md`, `swift-testing-playbook.md`
+
+**When to consult:**
+- Implementing glass effects or Material Design 3 components
+- Working with native iOS/macOS features (widgets, extensions, toolbars)
+- Bridging React Native to Swift/Objective-C
+- Troubleshooting platform-specific UI issues
+- Ensuring accessibility compliance
+
+### AI SDK (Vercel AI SDK)
+**Location:** `docs/REF_DOC/docs_ai-sdk_dev/`
+
+- **Core Documentation**: `docs/` - Complete AI SDK API reference, streaming, tools, agents
+- **Cookbook**: `cookbook/` - Real-world examples and integration patterns
+- **Model Support**: `gpt-5.md` - Latest GPT-5 capabilities, parameters, best practices
+- **Gemini Integration**: Check `cookbook/guides/` for Gemini-specific examples
+
+**When to consult:**
+- Implementing AI-powered features (recommendations, chatbots, insights)
+- Integrating with Anthropic Claude, OpenAI GPT-5, Google Gemini
+- Working with streaming responses, tool calling, or structured data generation
+- Building conversational interfaces or agent workflows
+- Optimizing AI performance and costs
+
+### Expo SDK 54
+**Location:** `docs/REF_DOC/docs_expo_dev/`
+
+- **Core Concepts**: `core-concepts.md` - Expo fundamentals, module architecture
+- **Build System**: `build/`, `eas/` - EAS Build, local builds, native project management
+- **Deployment**: `deploy/`, `distribution/` - App store submission, OTA updates
+- **Development**: `develop/` - Development builds, debugging, testing
+- **EAS Services**: `eas-update/`, `eas-insights/` - Updates, monitoring, analytics
+
+**When to consult:**
+- Configuring app.json, eas.json, or native projects
+- Troubleshooting build failures or module resolution
+- Implementing OTA updates or EAS Update strategies
+- Setting up CI/CD with EAS Build
+- Managing development vs production builds
+
+### React Native
+**Location:** `docs/REF_DOC/docs_reactnative_getting-started/`
+
+- **Getting Started**: Comprehensive React Native setup and architecture guides
+- **New Architecture**: Fabric renderer, TurboModules, JSI
+- **Platform Integration**: Native modules, bridging, iOS/Android specifics
+- **Performance**: Optimization techniques, profiling, debugging
+
+**When to consult:**
+- Working with native modules or creating custom bridges
+- Implementing platform-specific code (iOS/Android)
+- Debugging performance issues or memory leaks
+- Understanding React Native internals (Metro, Hermes, JSC)
+- Migrating to New Architecture or troubleshooting compatibility
+
+### Documentation Best Practices
+
+1. **Check Before Implementing**: Always search relevant docs before writing code for these technologies
+2. **Verify Current APIs**: SDK 54 and iOS 26 introduced breaking changes - confirm API availability
+3. **Follow Official Patterns**: Use documented patterns rather than improvising solutions
+4. **Platform Parity**: When implementing cross-platform features, consult both iOS and Android sections
+5. **Security & Privacy**: Check Apple docs for privacy manifests, entitlements, and capability requirements
+6. **Performance**: Reference official performance guides before optimizing
+
+### Quick Reference Commands
+```bash
+# Search documentation
+grep -r "keyword" docs/REF_DOC/docs_apple/
+grep -r "keyword" docs/REF_DOC/docs_ai-sdk_dev/
+grep -r "keyword" docs/REF_DOC/docs_expo_dev/
+
+# Count available references
+find docs/REF_DOC -name "*.md" -type f | wc -l  # 1096+ docs available
+```
 
 ## Common Development Commands
 
@@ -51,9 +137,11 @@ bun run sync-versions:dry     # Preview version changes
 ### Testing
 ```bash
 # Jest test runner
-npm test                      # Run all tests
-npm test -- --watch           # Watch mode
+npm test                      # Run all tests (or bun test)
+npm test -- --watch           # Watch mode (or bun test:watch)
+npm test -- --coverage        # Coverage report (or bun test:coverage)
 npm test -- LiquidGlassWrapper  # Run specific suite
+npm test -- WeatherService    # Run specific service tests
 
 # E2E with Maestro
 npx maestro test maestro/flows/ios-launch.yaml
@@ -185,10 +273,9 @@ weather-suncreen-app/
 │   └── utils/                # Utility functions
 ├── assets/                   # Images, fonts, icons
 ├── docs/                     # Technical documentation
-│   ├── MODERNIZATION_PLAN.md
-│   ├── AI_INTEGRATION.md
-│   ├── REACT_19_PATTERNS.md
-│   └── apple/                # iOS-specific docs
+│   ├── docs_ai-sdk_dev/      # Vercel AI SDK documentation
+│   ├── docs_apple/           # Apple/iOS/Swift documentation
+│   └── docs_expo_dev/        # Expo SDK documentation
 ├── .cursor/rules/            # Cursor AI rules (20 total)
 ├── app.json                  # Expo configuration
 ├── package.json              # Dependencies and scripts
@@ -198,27 +285,23 @@ weather-suncreen-app/
 ## Development Best Practices
 
 ### Service Layer Pattern
-All services follow singleton pattern:
+Services use simple module exports (ES module system provides singleton behavior):
 ```typescript
 class WeatherService {
-  private static instance: WeatherService;
-
   private constructor() {
     // Initialize
-  }
-
-  public static getInstance(): WeatherService {
-    if (!WeatherService.instance) {
-      WeatherService.instance = new WeatherService();
-    }
-    return WeatherService.instance;
   }
 
   public async getWeatherData(): Promise<WeatherData> {
     // Implementation with error handling
   }
 }
+
+// Export instance - module system ensures singleton
+export const weatherService = new WeatherService();
 ```
+
+**Note**: This project previously used Java-style `getInstance()` patterns but simplified to direct exports in v3.1.0.
 
 ### Context Pattern
 State management via React Context:
@@ -235,9 +318,12 @@ const { colors, themeMode, toggleTheme } = useTheme();
 - Prefer type inference; add explicit types for public APIs
 
 ### Testing
-- Write tests for all new utilities and components
-- Run relevant test suites after changes (e.g., `npm test -- LiquidGlassWrapper`)
+- Jest + React Native Testing Library configured for Expo SDK 54
+- Custom mocks available for AsyncStorage, expo-router, expo-location, expo-secure-store
+- Run `npm test -- --watch` during development for instant feedback
+- Coverage reports with `npm test -- --coverage`
 - Use Maestro for E2E device flows (simulator/device required)
+- All service tests include cache immutability, API fallback, and error handling validation
 
 ### Commits & Versioning
 - Follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format
@@ -421,10 +507,20 @@ This project integrates with the **Vercel AI SDK** for intelligent features:
 npx expo install ai @ai-sdk/anthropic
 ```
 
-See `docs/AI_INTEGRATION.md` for implementation guide.
+See `docs/REF_DOC/docs_ai-sdk_dev/` for comprehensive AI SDK documentation including GPT-5 and Gemini integration guides.
 
-## External Documentation
+## Documentation Priority
 
+**ALWAYS prioritize local documentation** in `docs/REF_DOC/` over external links. The local docs are comprehensive, version-specific (SDK 54, iOS 26), and guaranteed to be authoritative.
+
+### Local Documentation (Primary Source)
+- **Apple/iOS 26/macOS 26**: `docs/REF_DOC/docs_apple/` - 1096+ markdown files
+- **AI SDK (Vercel)**: `docs/REF_DOC/docs_ai-sdk_dev/` - Complete API reference + GPT-5/Gemini guides
+- **Expo SDK 54**: `docs/REF_DOC/docs_expo_dev/` - Build, deploy, EAS services
+- **React Native**: `docs/REF_DOC/docs_reactnative_getting-started/` - New Architecture, performance
+
+### External Documentation (Secondary Reference)
+Use these only when local docs don't cover a specific topic:
 - **Expo SDK 54**: https://docs.expo.dev/versions/v54.0.0/
 - **Expo Router v6**: https://docs.expo.dev/router/introduction/
 - **Expo Router Native Tabs**: https://docs.expo.dev/router/advanced/native-tabs/
@@ -439,24 +535,16 @@ See `docs/AI_INTEGRATION.md` for implementation guide.
 
 See `AGENTS.md` for project layout, workflow commands, and PR review expectations before contributing.
 
-## Cursor Rules
+## Important Notes
 
-This project has 20 comprehensive Cursor Rules in `.cursor/rules/` covering:
-- Core Development (4): project-structure, development-overview, typescript-standards, expo-sdk-54-patterns
-- UI & Styling (4): component-patterns, theme-styling, glass-morphism-patterns, accessibility-patterns
-- Navigation & Routing (1): routing-navigation
-- State & Data (5): context-state-management, service-layer, data-persistence-patterns, messages-notifications, internationalization
-- Quality & Performance (4): testing-patterns, performance-optimization, error-handling-patterns, security-patterns
-- Platform-Specific (2): react-native-expo, native-modules
+### Documentation Structure (Updated 2025-10-04)
+Reference documentation is consolidated in `docs/REF_DOC/` with 1096+ markdown files:
+- **Apple/iOS 26**: `docs/REF_DOC/docs_apple/` - Swift, SwiftUI, Liquid Glass, HIG
+- **AI SDK**: `docs/REF_DOC/docs_ai-sdk_dev/` - Vercel AI SDK, GPT-5, Gemini
+- **Expo SDK 54**: `docs/REF_DOC/docs_expo_dev/` - Complete Expo guides and API references
+- **React Native**: `docs/REF_DOC/docs_reactnative_getting-started/` - New Architecture, platform integration
 
-See `docs/CURSOR_RULES_SUMMARY.md` for detailed index and usage guidelines.
+**CRITICAL**: Always consult `docs/REF_DOC/` BEFORE implementing features or answering questions about these technologies. See "Reference Documentation - CRITICAL" section above for detailed usage guidelines.
 
-## Modernization
-
-See `docs/MODERNIZATION_PLAN.md` for comprehensive modernization roadmap including:
-- Critical bug fixes
-- SDK 54 feature adoption
-- iOS 26 native capabilities
-- React 19.1 patterns
-- AI integration
-- Performance optimizations
+### Jest Version Constraint
+Jest is pinned to `~29.7.0` (not `^30.x`) for compatibility with `jest-expo@54.0.12`. Do not upgrade Jest independently.

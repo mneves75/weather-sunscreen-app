@@ -1,11 +1,26 @@
 /**
  * Glass Container Component
- * Combines multiple glass views for iOS 26 Liquid Glass combined effects
+ * Combines multiple glass views for iOS 26 Liquid Glass merged effects
  *
- * On iOS 26+: Uses native GlassContainer for merged glass effects
- * On iOS < 26 / Android / Web: Falls back to flexbox layout with BlurView
+ * PERFORMANCE OPTIMIZATION:
+ * On iOS 26+, wrapping multiple GlassView components in a GlassContainer
+ * tells the system to merge adjacent glass effects into a single render pass.
+ * This significantly improves performance when displaying multiple glass elements.
+ *
+ * Without Container (3 separate render passes):
+ * ┌─────────┐  ┌─────────┐  ┌─────────┐
+ * │ Glass 1 │  │ Glass 2 │  │ Glass 3 │
+ * └─────────┘  └─────────┘  └─────────┘
+ *
+ * With Container (1 merged render pass):
+ * ┌───────────────────────────────────┐
+ * │  Glass 1  │  Glass 2  │  Glass 3  │
+ * └───────────────────────────────────┘
+ *
+ * On iOS < 26 / Android / Web: Falls back to flexbox layout
  *
  * @see https://docs.expo.dev/versions/v54.0.0/sdk/glass-effect/
+ * @see docs/REF_DOC/liquid-glass-app-with-expo-ui-and-swiftui.md
  */
 
 import React from 'react';
@@ -30,10 +45,13 @@ export function GlassContainer({
 }: GlassContainerProps) {
   const { spacing: themeSpacing } = useThemeTokens();
 
-  // Check if Liquid Glass is available (iOS 26+)
+  // PLATFORM CHECK: Determine if native Liquid Glass is available
+  // iOS 26+ supports merged glass rendering for performance
   const hasLiquidGlass = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
-  // iOS 26+ with Liquid Glass support
+  // iOS 26+ with Native Liquid Glass support
+  // Multiple adjacent GlassView children are automatically merged
+  // into a single render pass, improving performance
   if (hasLiquidGlass) {
     return (
       <NativeGlassContainer
@@ -50,7 +68,8 @@ export function GlassContainer({
     );
   }
 
-  // Fallback: Regular View with gap for iOS < 26, Android, Web
+  // FALLBACK: Regular View with gap for iOS < 26, Android, Web
+  // No performance optimization, but maintains visual consistency
   return (
     <View
       style={[

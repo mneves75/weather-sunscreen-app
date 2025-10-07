@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Comprehensive Liquid Glass Documentation** - Complete guide bridging SwiftUI and React Native implementations
+  - Created `docs/REF_DOC/liquid-glass-app-with-expo-ui-and-swiftui.md` (100+ KB reference guide)
+  - SwiftUI → React Native pattern translation table with code examples
+  - iOS 26+ native implementation vs cross-platform fallback strategies
+  - Performance optimization patterns (scroll disabling, merged effects, elevation control)
+  - Platform-specific patterns for iOS, Android Material Design 3, and Web
+  - Accessibility compliance guide (reduce transparency, high contrast, VoiceOver)
+  - Comprehensive troubleshooting section with common issues and solutions
+  - Performance benchmarks and testing strategies across all platforms
+- **GlassEffectProvider Context** - Centralized app-wide glass effect control system
+  - Context provider for performance optimization and accessibility management
+  - Automatic reduce transparency detection with real-time accessibility updates
+  - Performance mode to auto-disable glass effects when app is backgrounded
+  - Manual force disable/enable for performance-critical operations (video, heavy animations)
+  - App state monitoring to conserve resources when inactive
+  - `useGlassEffect()` hook for accessing glass state in any component
+- **Glass Gallery Demo Screen** - Interactive testing and documentation interface
+  - Created `app/(dev)/glass-gallery.tsx` with live component examples
+  - Platform detection display (iOS 26+, iOS < 26, Android, Web)
+  - Real-time glass state indicators (enabled, reduce transparency, scroll state)
+  - Elevation levels demo (1-5 with visual comparison)
+  - GlassContainer merged effects visualization
+  - Performance stress test with configurable glass element count (1-20)
+  - Live scroll performance optimization demo
+  - Accessibility testing instructions with Settings paths
+  - Code examples for common usage patterns
+
 ### Changed
 - **Documentation Reorganization** - Streamlined docs structure for better navigation
   - Moved AI SDK documentation to `docs/docs_ai-sdk_dev/`
@@ -15,6 +43,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Removed obsolete implementation tracking files (60+ files)
   - Removed duplicate and outdated guides
   - Cleaner root-level docs structure focused on current guides
+
+### Enhanced
+- **GlassView Component** - Added performance and visual hierarchy features
+  - New `disabled` prop for dynamic glass control during scrolling/animations
+  - New `elevation` prop (1-5) for shadow-based visual hierarchy
+  - Elevation formula: opacity = elevation * 0.05, radius = elevation * 4, offset = elevation * 2
+  - Android elevation support via platform-specific `elevation` style property
+  - Enhanced accessibility comments explaining reduce transparency handling
+  - Performance-optimized disabled state renders static View with elevation shadows
+- **GlassCard Component** - Extended with elevation and performance props
+  - Added `elevation` prop support (passes through to GlassView)
+  - Added `disabled` prop for scroll performance optimization
+  - Improved JSDoc comments with usage examples
+- **GlassContainer Component** - Enhanced performance documentation
+  - Added ASCII art diagram showing merged vs separate render passes
+  - Detailed comments explaining iOS 26+ performance optimization benefits
+  - Clarified fallback behavior for iOS < 26, Android, and Web
+  - Link to comprehensive documentation in JSDoc
+- **Glass Components Barrel Export** - Comprehensive module documentation
+  - Added detailed JSDoc with component descriptions and use cases
+  - Usage examples for basic and advanced patterns
+  - Type exports for `GlassEffectContextType` and `GlassEffectProviderProps`
+  - Clear import examples for all exported components and hooks
 
 ### Fixed
 - **Jest Version Compatibility** - Downgraded to match jest-expo requirements

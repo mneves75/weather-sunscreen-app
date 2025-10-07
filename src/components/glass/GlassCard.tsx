@@ -9,14 +9,22 @@ import { useThemeTokens, useColors } from '@/src/theme';
 
 interface GlassCardProps extends ViewProps {
   children: React.ReactNode;
+  /** Blur intensity for fallback (1-100, default: 30) */
   intensity?: number;
+  /** Show border around card (default: true) */
   border?: boolean;
+  /** Elevation level for visual hierarchy (1-5, default: 2) */
+  elevation?: 1 | 2 | 3 | 4 | 5;
+  /** Disable glass during animations/scrolling for performance (default: false) */
+  disabled?: boolean;
 }
 
 export function GlassCard({
   children,
   intensity = 30,
   border = true,
+  elevation = 2,
+  disabled = false,
   style,
   ...props
 }: GlassCardProps) {
@@ -26,6 +34,8 @@ export function GlassCard({
   return (
     <GlassView
       intensity={intensity}
+      elevation={elevation}
+      disabled={disabled}
       style={[
         styles.card,
         {
