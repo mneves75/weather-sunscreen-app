@@ -43,6 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Common commands reference and troubleshooting tips
   - Roadmap for v1.1.0+ features (Apple Watch, Widgets, Social sharing)
 
+
 - **Design Modernization Plan** - Comprehensive 4-phase roadmap for iOS 26 + Material Design 3 excellence
   - Created `docs/DESIGN_MODERNIZATION_PLAN.md` (500+ lines, 11 major sections)
   - Screen-by-screen modernization strategy (Home, Forecast, UV, Weather Detail, Settings)
@@ -296,7 +297,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Resolved dependency conflicts in test infrastructure
   - All tests continue passing with compatible Jest version
 
-## [0.5.4] - 2025-10-03
+## [3.1.0] - 2025-10-03
 
 ### Added
 - **Comprehensive Test Infrastructure** - Professional testing setup with Jest and React Native Testing Library
@@ -355,7 +356,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Zero functional changes - module system already provides singleton behavior
   - Improved code readability and maintainability
 
-## [0.5.3] - 2025-10-03
+## [3.0.3] - 2025-10-03
 
 ### Fixed
 - **SunscreenTracker Text Visibility** - Fixed invisible time text when applying sunscreen
@@ -381,7 +382,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added padding and border radius to all info containers for cleaner appearance
   - Increased icon sizes across component (time: 16px, UV: 18px, swimming: 16px)
 
-## [0.5.2] - 2025-10-03
+## [3.0.2] - 2025-10-03
 
 ### Fixed
 - **Critical Cache Mutations** - Fixed mutable cache data in WeatherService that could cause stale UI and data corruption
@@ -410,7 +411,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - 12 WeatherService tests covering cache mutations, API fallbacks, error handling
   - Test scripts: `bun test`, `bun test:watch`, `bun test:coverage`
 
-## [0.5.0] - 2025-10-03
+## [3.0.1] - 2025-10-03
 
 ### Fixed
 - **Color Contrast Issues** - Improved readability across all themes
@@ -425,7 +426,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added `assets/icon.png` (Metro expected it at root, but only existed at `assets/images/icon.png`)
   - App now builds successfully without asset resolution errors
 
-## [0.4.0] - 2025-XX-XX
+## [3.0.0] - 2025-XX-XX
 
 ### Added
 - Home screen refresh control: native icon button triggers GPS update and weather/UV/forecast refresh
@@ -613,7 +614,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.3.0] - 2025-XX-XX (Previous Version)
+## [2.0.0] - 2025-XX-XX (Previous Version)
 
 ### Added
 - Expo SDK 54 support with React Native 0.81.4
