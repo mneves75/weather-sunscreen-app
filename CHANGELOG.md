@@ -8,11 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- **Store Screenshot Automation** - Fastlane-based pipeline for capturing localized iOS and Android store imagery
-  - Added `fastlane` lanes for `snapshot`, `screengrab`, and combined execution
-  - Introduced Xcode UI test target `WeatherSunscreenAppUITests` with reusable navigation helpers
-  - Added Android instrumentation tests leveraging Screengrab and UiAutomator for deterministic captures
-  - Centralized configuration files (`Snapfile`, `Screengrabfile`, `Gemfile`) and output directories
+- **Liquid Glass Icon Integration** - Updated app to use custom liquid glass icon across all platforms
+  - Converted SVG icon to PNG format for iOS compatibility
+  - Updated app.json to use liquid glass icon for main app icon, Android adaptive icon, and push notifications
+  - Fixed splash image configuration to use existing assets
+
+### Fixed
+- **CocoaPods Sync Issue** - Resolved iOS build dependency synchronization
+  - Regenerated iOS native project with `expo prebuild` 
+  - Fixed missing asset file paths causing prebuild failures
+  - Successfully installed 111 CocoaPods dependencies and synced workspace
 
 ## [1.0.0] - 2025-10-08
 
