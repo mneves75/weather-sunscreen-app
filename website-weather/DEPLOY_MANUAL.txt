@@ -1,0 +1,80 @@
+═══════════════════════════════════════════════════════════════
+  QUICK DEPLOY COMMANDS - Copy/Paste into Terminal
+═══════════════════════════════════════════════════════════════
+
+VPS: claude@212.85.2.24
+Target: https://conhecendotudo.online/cigarinfoai
+
+═══════════════════════════════════════════════════════════════
+  METHOD 1: RUN THE SCRIPT (EASIEST)
+═══════════════════════════════════════════════════════════════
+
+cd /Users/mvneves/dev/MOBILE/new-cigar-info-app/cigar-website
+./DEPLOY_NOW.sh
+
+(You'll be prompted for SSH password twice)
+
+═══════════════════════════════════════════════════════════════
+  METHOD 2: MANUAL COMMANDS (Copy/Paste Each)
+═══════════════════════════════════════════════════════════════
+
+# Step 1: Navigate to project
+cd /Users/mvneves/dev/MOBILE/new-cigar-info-app/cigar-website
+
+# Step 2: Create archive
+tar -czf /tmp/cigar.tar.gz index.html .htaccess assets/
+
+# Step 3: Upload to VPS (enter password when prompted)
+scp /tmp/cigar.tar.gz claude@212.85.2.24:/tmp/
+
+# Step 4: SSH into VPS (enter password when prompted)
+ssh claude@212.85.2.24
+
+# Step 5: Once connected to VPS, run these commands:
+mkdir -p ~/public_html/cigarinfoai
+cd ~/public_html/cigarinfoai
+tar -xzf /tmp/cigar.tar.gz
+rm /tmp/cigar.tar.gz
+chmod 644 index.html .htaccess
+chmod 755 assets assets/images
+chmod 644 assets/images/*
+exit
+
+# Step 6: Test deployment
+curl https://conhecendotudo.online/cigarinfoai/
+
+═══════════════════════════════════════════════════════════════
+  VERIFY DEPLOYMENT
+═══════════════════════════════════════════════════════════════
+
+Visit in browser:
+https://conhecendotudo.online/cigarinfoai
+
+Check:
+✓ Page loads correctly
+✓ All images appear
+✓ Mobile responsive works
+✓ HTTPS is enabled (green padlock)
+
+═══════════════════════════════════════════════════════════════
+  TROUBLESHOOTING
+═══════════════════════════════════════════════════════════════
+
+If 404 error:
+- Verify web root path with hosting provider
+- Common paths:
+  * /home/claude/public_html/
+  * /var/www/html/
+  * /usr/share/nginx/html/
+
+If images don't load:
+ssh claude@212.85.2.24
+cd ~/public_html/cigarinfoai
+chmod 644 assets/images/*
+
+If .htaccess not working:
+ssh claude@212.85.2.24
+sudo a2enmod rewrite
+sudo systemctl restart apache2
+
+═══════════════════════════════════════════════════════════════

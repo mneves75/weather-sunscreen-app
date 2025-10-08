@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none">
+  <!-- Background Circle -->
+  <circle cx="32" cy="32" r="32" fill="#2C2416"/>
+
+  <!-- Scanner Frame Icon -->
+  <g stroke="#D97941" stroke-width="3" stroke-linecap="round" fill="none">
+    <!-- Top Left Corner -->
+    <path d="M 18 24 L 18 18 L 24 18"/>
+
+    <!-- Top Right Corner -->
+    <path d="M 40 18 L 46 18 L 46 24"/>
+
+    <!-- Bottom Left Corner -->
+    <path d="M 18 40 L 18 46 L 24 46"/>
+
+    <!-- Bottom Right Corner -->
+    <path d="M 46 40 L 46 46 L 40 46"/>
+
+    <!-- Scan Line -->
+    <path d="M 20 32 L 44 32" stroke-width="2" opacity="0.8">
+      <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite"/>
+    </path>
+  </g>
+</svg>
