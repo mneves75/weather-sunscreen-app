@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Sunscreen - Smart UV Protection & Personalized Sunscreen Recommendations</title>
+    <meta name="description" content="Get real-time UV index monitoring and AI-powered sunscreen recommendations. Protect your skin with personalized sun safety guidance based on weather conditions, location, and skin type.">
+
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Weather Sunscreen - Never Get Sunburned Again">
+    <meta property="og:description" content="Smart UV monitoring and personalized sunscreen recommendations powered by AI. Stay protected with real-time sun safety alerts.">
+    <meta property="og:image" content="/assets/og-image.jpg">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+
+    <!-- Preload critical assets -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        /* ========================================
+           CRITICAL CSS - Inline for LCP optimization
+           ======================================== */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Color System - Fresh, health-focused palette */
+            --primary: #FF6B35;        /* Coral/sunset orange */
+            --primary-dark: #E84A25;   /* Deeper coral */
+            --primary-light: #FF8A5B;  /* Light coral */
+
+            --secondary: #0D3B66;      /* Deep ocean blue */
+            --secondary-light: #1A5490; /* Medium ocean blue */
+
+            --accent: #F4D35E;         /* Sunny yellow */
+            --accent-dark: #E8B84E;    /* Golden yellow */
+
+            --success: #2A9D8F;        /* Teal/turquoise */
+            --warning: #F77F00;        /* Bright orange */
+            --error: #D62828;          /* Alert red */
+
+            --text-primary: #0A0A0A;   /* Almost black */
+            --text-secondary: #4A5568; /* Neutral gray */
+            --text-light: #718096;     /* Light gray */
+
+            --bg-primary: #FFFFFF;     /* Pure white */
+            --bg-secondary: #F7FAFC;   /* Soft gray-blue */
+            --bg-gradient-start: #FFE5D9; /* Soft peach */
+            --bg-gradient-end: #FFF4E6;   /* Cream */
+
+            /* Spacing System - 8pt grid */
+            --space-xs: 0.25rem;  /* 4px */
+            --space-sm: 0.5rem;   /* 8px */
+            --space-md: 1rem;     /* 16px */
+            --space-lg: 1.5rem;   /* 24px */
+            --space-xl: 2rem;     /* 32px */
+            --space-2xl: 3rem;    /* 48px */
+            --space-3xl: 4rem;    /* 64px */
+            --space-4xl: 6rem;    /* 96px */
+
+            /* Typography */
+            --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --letter-spacing-tight: -0.04em;
+            --letter-spacing-normal: -0.02em;
+
+            /* Shadows */
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1), 0 10px 10px rgba(0, 0, 0, 0.04);
+
+            /* Border Radius */
+            --radius-sm: 0.375rem;  /* 6px */
+            --radius-md: 0.5rem;    /* 8px */
+            --radius-lg: 0.75rem;   /* 12px */
+            --radius-xl: 1rem;      /* 16px */
+            --radius-2xl: 1.5rem;   /* 24px */
+            --radius-full: 9999px;
+
+            /* Transitions - Material Design 3 emphasized easing */
+            --transition-fast: 120ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-base: 220ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: var(--font-primary);
+            color: var(--text-primary);
+            background-color: var(--bg-primary);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
+        }
+
+        /* ========================================
+           TYPOGRAPHY
+           ======================================== */
+
+        h1, h2, h3, h4, h5, h6 {
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--text-primary);
+            letter-spacing: var(--letter-spacing-tight);
+        }
+
+        h1 {
+            font-size: clamp(2.25rem, 6vw, 4rem);
+            font-weight: 800;
+        }
+
+        h2 {
+            font-size: clamp(1.875rem, 4.5vw, 2.75rem);
+            font-weight: 700;
+        }
+
+        h3 {
+            font-size: clamp(1.375rem, 3vw, 1.875rem);
+            font-weight: 600;
+        }
+
+        p {
+            font-size: clamp(1rem, 2vw, 1.125rem);
+            line-height: 1.7;
+            color: var(--text-secondary);
+        }
+
+        .text-accent {
+            color: var(--primary);
+        }
+
+        .text-gradient {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--warning) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* ========================================
+           BUTTONS & CTAs
+           ======================================== */
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-sm);
+            padding: var(--space-md) var(--space-xl);
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            border-radius: var(--radius-xl);
+            border: none;
+            cursor: pointer;
+            transition: all var(--transition-base);
+            white-space: nowrap;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            opacity: 0;
+            transition: opacity var(--transition-fast);
+        }
+
+        .btn:hover::before {
+            opacity: 1;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--warning) 100%);
+            color: white;
+            box-shadow: 0 4px 14px rgba(255, 107, 53, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 107, 53, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-secondary);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-large {
+            padding: var(--space-lg) var(--space-2xl);
+            font-size: 1.125rem;
+            border-radius: var(--radius-2xl);
+        }
+
+        /* ========================================
+           CONTAINER & LAYOUT
+           ======================================== */
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 var(--space-lg);
+        }
+
+        .section {
+            padding: var(--space-4xl) 0;
+        }
+
+        @media (max-width: 768px) {
+            .section {
+                padding: var(--space-3xl) 0;
+            }
+        }
+
+        /* ========================================
+           HEADER
+           ======================================== */
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+            z-index: 1000;
+            transition: all var(--transition-base);
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--space-md) 0;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            letter-spacing: var(--letter-spacing-tight);
+        }
+
+        /* ========================================
+           HERO SECTION
+           ======================================== */
+
+        .hero {
+            padding-top: calc(var(--space-4xl) + 60px);
+            padding-bottom: var(--space-4xl);
+            background: linear-gradient(180deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(255, 107, 53, 0.08) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .hero-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-3xl);
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-text h1 {
+            margin-bottom: var(--space-lg);
+            line-height: 1.1;
+        }
+
+        .hero-text .subtitle {
+            font-size: clamp(1.125rem, 2.5vw, 1.375rem);
+            color: var(--text-secondary);
+            margin-bottom: var(--space-xl);
+            line-height: 1.6;
+        }
+
+        .cta-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-md);
+            margin-bottom: var(--space-xl);
+        }
+
+        .trust-indicators {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-lg);
+            align-items: center;
+            padding-top: var(--space-lg);
+        }
+
+        .trust-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .trust-item i {
+            color: var(--success);
+        }
+
+        .hero-image {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .phone-mockup {
+            width: 100%;
+            max-width: 380px;
+            aspect-ratio: 9 / 19.5;
+            background: linear-gradient(145deg, #1A1A1A 0%, #0A0A0A 100%);
+            border-radius: 3rem;
+            padding: 0.875rem;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.25);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background: var(--bg-primary);
+            border-radius: 2.25rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-lg);
+            overflow: hidden;
+        }
+
+        .phone-screenshot {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 2rem;
+        }
+
+        .feature-screenshot {
+            width: 100%;
+            max-width: 350px;
+            height: auto;
+            border-radius: var(--radius-2xl);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .app-preview-placeholder {
+            text-align: center;
+            color: var(--primary);
+        }
+
+        .app-preview-placeholder i {
+            font-size: 5rem;
+            margin-bottom: var(--space-md);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-content {
+                grid-template-columns: 1fr;
+                gap: var(--space-2xl);
+            }
+
+            .hero-image {
+                order: -1;
+            }
+
+            .phone-mockup {
+                max-width: 280px;
+            }
+        }
+
+        /* ========================================
+           BENEFITS SECTION
+           ======================================== */
+
+        .benefits {
+            background: white;
+        }
+
+        .section-header {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto var(--space-3xl);
+        }
+
+        .section-header h2 {
+            margin-bottom: var(--space-md);
+        }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--space-xl);
+        }
+
+        .benefit-card {
+            background: var(--bg-secondary);
+            padding: var(--space-2xl);
+            border-radius: var(--radius-2xl);
+            transition: all var(--transition-base);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .benefit-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--warning) 100%);
+            transform: scaleX(0);
+            transition: transform var(--transition-base);
+            transform-origin: left;
+        }
+
+        .benefit-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .benefit-card:hover {
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .benefit-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--warning) 100%);
+            border-radius: var(--radius-xl);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: var(--space-lg);
+            color: white;
+        }
+
+        .benefit-card h3 {
+            margin-bottom: var(--space-sm);
+            color: var(--text-primary);
+        }
+
+        .benefit-card p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            line-height: 1.7;
+        }
+
+        /* ========================================
+           STATS SECTION
+           ======================================== */
+
+        .stats {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-2xl);
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: var(--space-lg);
+        }
+
+        .stat-number {
+            font-size: clamp(2.5rem, 5vw, 3.5rem);
+            font-weight: 800;
+            color: var(--accent);
+            display: block;
+            margin-bottom: var(--space-sm);
+            letter-spacing: var(--letter-spacing-tight);
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 500;
+        }
+
+        /* ========================================
+           FEATURES SECTION
+           ======================================== */
+
+        .features {
+            background: white;
+        }
+
+        .feature-showcase {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-3xl);
+            align-items: center;
+            margin-bottom: var(--space-3xl);
+        }
+
+        .feature-showcase:nth-child(even) {
+            direction: rtl;
+        }
+
+        .feature-showcase:nth-child(even) > * {
+            direction: ltr;
+        }
+
+        .feature-content h3 {
+            margin-bottom: var(--space-md);
+        }
+
+        .feature-list {
+            list-style: none;
+            margin-top: var(--space-lg);
+        }
+
+        .feature-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--space-md);
+            margin-bottom: var(--space-md);
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .feature-list li i {
+            color: var(--success);
+            margin-top: 4px;
+            flex-shrink: 0;
+        }
+
+        .feature-visual {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-2xl);
+            padding: var(--space-2xl);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 320px;
+            box-shadow: var(--shadow-md);
+        }
+
+        @media (max-width: 768px) {
+            .feature-showcase {
+                grid-template-columns: 1fr;
+            }
+
+            .feature-showcase:nth-child(even) {
+                direction: ltr;
+            }
+        }
+
+        /* ========================================
+           PROCESS SECTION
+           ======================================== */
+
+        .process {
+            background: linear-gradient(180deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+        }
+
+        .process-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--space-2xl);
+        }
+
+        .process-step {
+            text-align: center;
+            position: relative;
+            padding: var(--space-xl);
+            background: white;
+            border-radius: var(--radius-2xl);
+            box-shadow: var(--shadow-sm);
+            transition: all var(--transition-base);
+        }
+
+        .process-step:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .step-number {
+            width: 72px;
+            height: 72px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--warning) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto var(--space-lg);
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: white;
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+        }
+
+        .process-step h3 {
+            margin-bottom: var(--space-sm);
+        }
+
+        .process-step p {
+            font-size: 0.95rem;
+        }
+
+        /* ========================================
+           FINAL CTA SECTION
+           ======================================== */
+
+        .final-cta {
+            background: var(--secondary);
+            color: white;
+            text-align: center;
+        }
+
+        .final-cta h2 {
+            color: white;
+            margin-bottom: var(--space-md);
+        }
+
+        .final-cta p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.25rem;
+            max-width: 700px;
+            margin: 0 auto var(--space-2xl);
+        }
+
+        .cta-options {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--space-xl);
+            margin-top: var(--space-2xl);
+        }
+
+        .app-store-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-md);
+            justify-content: center;
+        }
+
+        .app-store-badge {
+            height: 56px;
+            transition: all var(--transition-base);
+        }
+
+        .app-store-badge:hover {
+            transform: scale(1.05);
+        }
+
+        /* ========================================
+           FOOTER
+           ======================================== */
+
+        .footer {
+            background: #0A0A0A;
+            color: rgba(255, 255, 255, 0.7);
+            padding: var(--space-2xl) 0 var(--space-lg);
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-2xl);
+            margin-bottom: var(--space-xl);
+        }
+
+        .footer-section h4 {
+            color: white;
+            margin-bottom: var(--space-md);
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: var(--space-sm);
+        }
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            transition: color var(--transition-base);
+            font-size: 0.9rem;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary-light);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: var(--space-lg);
+            text-align: center;
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* ========================================
+           UTILITIES
+           ======================================== */
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+                        transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ========================================
+           RESPONSIVE
+           ======================================== */
+
+        @media (max-width: 640px) {
+            .cta-group {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .trust-indicators {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: var(--space-md);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========================================
+         HEADER
+         ======================================== -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="#" class="logo">
+                    <i data-lucide="sun"></i>
+                    <span>Weather Sunscreen</span>
+                </a>
+                <a href="#download" class="btn btn-primary">Download Free</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- ========================================
+         HERO SECTION
+         ======================================== -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1>Get <span class="text-gradient">Personalized Sun Protection</span> Without Constant Worry</h1>
+                    <p class="subtitle">
+                        Stop guessing your UV exposure. Get real-time sunscreen recommendations based on your location, weather conditions, and skin type—powered by AI that actually understands sun safety.
+                    </p>
+
+                    <div class="cta-group">
+                        <a href="#download" class="btn btn-primary btn-large">
+                            <i data-lucide="download"></i>
+                            Download Free
+                        </a>
+                        <a href="#features" class="btn btn-secondary btn-large">
+                            <i data-lucide="sparkles"></i>
+                            See Features
+                        </a>
+                    </div>
+
+                    <div class="trust-indicators">
+                        <div class="trust-item">
+                            <i data-lucide="zap"></i>
+                            <span>Real-Time UV Monitoring</span>
+                        </div>
+                        <div class="trust-item">
+                            <i data-lucide="shield-check"></i>
+                            <span>AI-Powered Recommendations</span>
+                        </div>
+                        <div class="trust-item">
+                            <i data-lucide="smartphone"></i>
+                            <span>iOS 26 Liquid Glass UI</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hero-image">
+                    <div class="phone-mockup">
+                        <div class="phone-screen">
+                            <div class="app-preview-placeholder">
+                                <i data-lucide="sun"></i>
+                                <h3>UV Index Monitor</h3>
+                                <p style="color: var(--text-secondary);">Smart protection for your skin</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         BENEFITS SECTION
+         ======================================== -->
+    <section class="benefits section">
+        <div class="container">
+            <div class="section-header">
+                <h2>The Only Weather App That <span class="text-accent">Actually Protects Your Skin</span></h2>
+                <p>While other weather apps just show the temperature, Weather Sunscreen uses real-time UV data and AI to give you personalized sun safety guidance—preventing burns, premature aging, and long-term damage.</p>
+            </div>
+
+            <div class="benefits-grid">
+                <div class="benefit-card fade-in">
+                    <div class="benefit-icon">
+                        <i data-lucide="gauge"></i>
+                    </div>
+                    <h3>Real-Time UV Index</h3>
+                    <p>Get precise UV exposure levels for your exact location. No more generic forecasts—know exactly when it's safe to be outdoors and when you need extra protection.</p>
+                </div>
+
+                <div class="benefit-card fade-in">
+                    <div class="benefit-icon">
+                        <i data-lucide="sparkles"></i>
+                    </div>
+                    <h3>AI-Powered SPF Recommendations</h3>
+                    <p>Receive personalized sunscreen strength suggestions based on your skin type, current weather, UV index, and planned outdoor duration. Stop guessing which SPF to use.</p>
+                </div>
+
+                <div class="benefit-card fade-in">
+                    <div class="benefit-icon">
+                        <i data-lucide="bell"></i>
+                    </div>
+                    <h3>Smart Reapplication Alerts</h3>
+                    <p>Never forget to reapply sunscreen. Get intelligent notifications based on your activity, time outdoors, and sun exposure—keeping you protected all day long.</p>
+                </div>
+
+                <div class="benefit-card fade-in">
+                    <div class="benefit-icon">
+                        <i data-lucide="map-pin"></i>
+                    </div>
+                    <h3>Location-Based Tracking</h3>
+                    <p>Automatic weather updates as you move. Whether you're hiking, at the beach, or traveling, get accurate sun safety guidance wherever you go.</p>
+                </div>
+
+                <div class="benefit-card fade-in">
+                    <div class="benefit-icon">
+                        <i data-lucide="calendar-clock"></i>
+                    </div>
+                    <h3>Daily Forecast & Planning</h3>
+                    <p>Plan outdoor activities with confidence. 7-day UV forecasts help you schedule runs, beach days, and outdoor events when sun exposure is safest.</p>
+                </div>
+
+                <div class="benefit-card fade-in">
+                    <div class="benefit-icon">
+                        <i data-lucide="smartphone"></i>
+                    </div>
+                    <h3>Beautiful Liquid Glass Design</h3>
+                    <p>Experience iOS 26's stunning Liquid Glass interface with Material Design 3 on Android. Premium aesthetics meet professional functionality.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         STATS SECTION
+         ======================================== -->
+    <section class="stats section">
+        <div class="container">
+            <div class="section-header">
+                <h2 style="color: white;">Trusted by Health-Conscious Individuals Worldwide</h2>
+                <p style="color: rgba(255,255,255,0.9);">Join thousands who've transformed their sun protection habits with intelligent weather monitoring.</p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card fade-in">
+                    <span class="stat-number">Real-Time</span>
+                    <span class="stat-label">UV Monitoring</span>
+                </div>
+                <div class="stat-card fade-in">
+                    <span class="stat-number">AI-Powered</span>
+                    <span class="stat-label">Recommendations</span>
+                </div>
+                <div class="stat-card fade-in">
+                    <span class="stat-number">7-Day</span>
+                    <span class="stat-label">UV Forecasts</span>
+                </div>
+                <div class="stat-card fade-in">
+                    <span class="stat-number">100%</span>
+                    <span class="stat-label">Free to Use</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         FEATURES SECTION
+         ======================================== -->
+    <section class="features section" id="features">
+        <div class="container">
+            <div class="section-header">
+                <h2>Everything You Need to Stay Sun-Safe</h2>
+                <p>From UV monitoring and weather tracking to AI-powered recommendations—all in one beautifully designed app.</p>
+            </div>
+
+            <div class="feature-showcase fade-in">
+                <div class="feature-content">
+                    <h3>Personalized Skin Protection</h3>
+                    <p>Select your skin type (Type I-VI) and get customized SPF recommendations. The app learns your outdoor patterns and adjusts alerts based on your specific needs.</p>
+                    <ul class="feature-list">
+                        <li>
+                            <i data-lucide="check"></i>
+                            <span>Fitzpatrick skin type classification (I-VI)</span>
+                        </li>
+                        <li>
+                            <i data-lucide="check"></i>
+                            <span>Customized SPF strength recommendations</span>
+                        </li>
+                        <li>
+                            <i data-lucide="check"></i>
+                            <span>Activity-based reapplication timers</span>
+                        </li>
+                        <li>
+                            <i data-lucide="check"></i>
+                            <span>Water resistance tracking for swimmers</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="feature-visual">
+                    <div style="text-align: center; color: var(--primary);">
+                        <i data-lucide="user-check" style="font-size: 4rem; margin-bottom: 1rem;"></i>
+                        <h4 style="color: var(--text-primary);">Skin Type Selection</h4>
+                        <p style="color: var(--text-secondary);">Personalized for you</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="feature-showcase fade-in">
+                <div class="feature-content">
+                    <h3>Comprehensive Weather Data</h3>
+                    <p>Access accurate weather information beyond just temperature. Track humidity, wind speed, "feels like" temperature, and cloud cover—all factors that affect sun exposure.</p>
+                    <ul class="feature-list">
+                        <li>
+                            <i data-lucide="check"></i>
+                            <span>Hourly and daily weather forecasts</span>
+                        </li>
+                        <li>
+                            <i data-lucide="check"></i>
+                            <span>UV index with color-coded risk levels</span>
+                        </li>
+                        <li>
+                            <i data-lucide="check"></i>
+                            <span>"Feels like" temperature for outdoor comfort</span>
+                        </li>
+                        <li>
+                            <i data-lucide="check"></i>
+                            <span>Cloud cover and precipitation tracking</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="feature-visual">
+                    <div style="text-align: center; color: var(--primary);">
+                        <i data-lucide="cloud-sun" style="font-size: 4rem; margin-bottom: 1rem;"></i>
+                        <h4 style="color: var(--text-primary);">Weather Details</h4>
+                        <p style="color: var(--text-secondary);">Complete forecast data</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="feature-showcase fade-in">
+                <div class="feature-content">
+                    <h3>Intelligent Notifications</h3>
+                    <p>Stay protected without constant phone checking. Smart alerts notify you when UV levels spike, when to reapply sunscreen, and when outdoor conditions change.</p>
+                    <ul class="feature-list">
+                        <li>
+                            <i data-lucide="check"></i>
+                            <span>High UV index warnings</span>
+                        </li>
+                        <li>
+                            <i data-lucide="check"></i>
+                            <span>Sunscreen reapplication reminders</span>
+                        </li>
+                        <li>
+                            <i data-lucide="check"></i>
+                            <span>Weather change alerts</span>
+                        </li>
+                        <li>
+                            <i data-lucide="check"></i>
+                            <span>Customizable quiet hours</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="feature-visual">
+                    <div style="text-align: center; color: var(--primary);">
+                        <i data-lucide="bell-ring" style="font-size: 4rem; margin-bottom: 1rem;"></i>
+                        <h4 style="color: var(--text-primary);">Smart Alerts</h4>
+                        <p style="color: var(--text-secondary);">Never miss protection</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         PROCESS SECTION
+         ======================================== -->
+    <section class="process section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Get Protected in 3 Simple Steps</h2>
+                <p>From download to personalized sun protection in under 2 minutes. No complex setup, no confusion.</p>
+            </div>
+
+            <div class="process-steps">
+                <div class="process-step fade-in">
+                    <div class="step-number">1</div>
+                    <h3>Download & Install</h3>
+                    <p>Get Weather Sunscreen free from the App Store (iOS 16+) or Google Play Store. Available with full iOS 26 and Material Design 3 support.</p>
+                </div>
+
+                <div class="process-step fade-in">
+                    <div class="step-number">2</div>
+                    <h3>Set Your Skin Type</h3>
+                    <p>Quick 30-second setup. Select your Fitzpatrick skin type (I-VI) and preferred units. Enable location access for accurate local weather.</p>
+                </div>
+
+                <div class="process-step fade-in">
+                    <div class="step-number">3</div>
+                    <h3>Get Protected</h3>
+                    <p>Receive instant UV readings and personalized SPF recommendations. Enable notifications to stay protected all day with smart reapplication alerts.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         FINAL CTA SECTION
+         ======================================== -->
+    <section class="final-cta section" id="download">
+        <div class="container">
+            <h2>Ready to Take Control of Your Sun Protection?</h2>
+            <p>
+                Join thousands who've transformed their skin health with intelligent UV monitoring and AI-powered recommendations. Download Weather Sunscreen now—it's completely free.
+            </p>
+
+            <div class="cta-options">
+                <div class="app-store-badges">
+                    <!-- Apple App Store Badge -->
+                    <a href="https://apps.apple.com" target="_blank" rel="noopener">
+                        <img src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=250x83"
+                             alt="Download on the App Store"
+                             class="app-store-badge" />
+                    </a>
+
+                    <!-- Google Play Badge -->
+                    <a href="https://play.google.com" target="_blank" rel="noopener">
+                        <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png"
+                             alt="Get it on Google Play"
+                             style="height: 84px;"
+                             class="app-store-badge" />
+                    </a>
+                </div>
+
+                <div class="trust-indicators">
+                    <div class="trust-item" style="color: rgba(255, 255, 255, 0.9);">
+                        <i data-lucide="check-circle"></i>
+                        <span>100% Free</span>
+                    </div>
+                    <div class="trust-item" style="color: rgba(255, 255, 255, 0.9);">
+                        <i data-lucide="zap"></i>
+                        <span>2-Minute Setup</span>
+                    </div>
+                    <div class="trust-item" style="color: rgba(255, 255, 255, 0.9);">
+                        <i data-lucide="shield-check"></i>
+                        <span>Privacy-First</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         FOOTER
+         ======================================== -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Product</h4>
+                    <ul class="footer-links">
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#download">Download App</a></li>
+                        <li><a href="mailto:support@weathersunscreen.app">Support</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Legal</h4>
+                    <ul class="footer-links">
+                        <li><a href="privacy.html">Privacy Policy</a></li>
+                        <li><a href="terms.html">Terms of Service</a></li>
+                        <li><a href="gdpr.html">GDPR Compliance</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Contact</h4>
+                    <ul class="footer-links">
+                        <li><a href="mailto:support@weathersunscreen.app">General Support</a></li>
+                        <li><a href="mailto:privacy@weathersunscreen.app">Privacy Inquiries</a></li>
+                        <li><a href="mailto:press@weathersunscreen.app">Press</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Follow Us</h4>
+                    <ul class="footer-links">
+                        <li><a href="https://twitter.com/weathersunscreen" target="_blank" rel="noopener">Twitter / X</a></li>
+                        <li><a href="https://instagram.com/weathersunscreen" target="_blank" rel="noopener">Instagram</a></li>
+                        <li><a href="https://github.com/weathersunscreen" target="_blank" rel="noopener">GitHub</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2025 Weather Sunscreen. All rights reserved.</p>
+                <p style="font-size: 0.85rem; margin-top: 8px; opacity: 0.8;">
+                    Built with React Native, Expo SDK 54, iOS 26 Liquid Glass, and Material Design 3
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ========================================
+         JAVASCRIPT
+         ======================================== -->
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Intersection Observer for fade-in animations
+        const observerOptions = {
+            threshold: 0.15,
+            rootMargin: '0px 0px -80px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        // Observe all fade-in elements
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Header scroll effect
+        const header = document.querySelector('.header');
+        let lastScroll = 0;
+
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.pageYOffset;
+
+            if (currentScroll > 100) {
+                header.style.boxShadow = 'var(--shadow-md)';
+            } else {
+                header.style.boxShadow = 'none';
+            }
+
+            lastScroll = currentScroll;
+        }, { passive: true });
+
+        // Performance: Mark page as interactive
+        window.addEventListener('load', () => {
+            document.body.classList.add('loaded');
+        });
+    </script>
+</body>
+</html>

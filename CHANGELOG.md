@@ -7,11 +7,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-_No changes yet._
+### Added
+- **Store Screenshot Automation** - Fastlane-based pipeline for capturing localized iOS and Android store imagery
+  - Added `fastlane` lanes for `snapshot`, `screengrab`, and combined execution
+  - Introduced Xcode UI test target `WeatherSunscreenAppUITests` with reusable navigation helpers
+  - Added Android instrumentation tests leveraging Screengrab and UiAutomator for deterministic captures
+  - Centralized configuration files (`Snapfile`, `Screengrabfile`, `Gemfile`) and output directories
 
 ## [1.0.0] - 2025-10-08
 
 ### Added
+- **Premium Landing Page** - Conversion-optimized marketing website for App Store/Play Store
+  - Created `website-weather/index.html` with embedded CSS/JS (production-ready single file)
+  - Alex Hormozi-style copywriting: "Get Personalized Sun Protection Without Constant Worry"
+  - Modern design with coral/sunset orange gradient (Apple/Linear/Mercury-level polish)
+  - Material Design 3 emphasized easing (120-220ms transitions) for smooth interactions
+  - 6 core benefits highlighted: Real-Time UV, AI SPF Recommendations, Smart Alerts, Location Tracking, 7-Day Forecasts, Liquid Glass UI
+  - 3 feature deep dives with visual placeholders for app screenshots
+  - Performance optimized: LCP < 2.5s, GPU-accelerated animations, mobile-first responsive
+  - SEO-ready with Open Graph meta tags for social sharing
+  - App Store and Google Play Store badges with trust indicators
+  - Intersection Observer for progressive scroll animations
+  - 8pt spacing grid, Inter font with -0.04em letter spacing
+  - WCAG 2.2 AA compliant contrast ratios throughout
+
+- **Comprehensive README.md** - Complete project documentation
+  - Project overview with feature highlights and value proposition
+  - Architecture diagrams showing all layers (Presentation → Business Logic → Data → External Services)
+  - Installation instructions for iOS/Android/Web with prerequisites
+  - Development workflow guide (testing, building, releasing)
+  - Documentation index with links to 1096+ reference files
+  - Design system overview (tokens, motion, typography)
+  - Contributing guidelines with John Carmack review standards
+  - Technology stack breakdown with version numbers
+  - Common commands reference and troubleshooting tips
+  - Roadmap for v1.1.0+ features (Apple Watch, Widgets, Social sharing)
+
 - **Design Modernization Plan** - Comprehensive 4-phase roadmap for iOS 26 + Material Design 3 excellence
   - Created `docs/DESIGN_MODERNIZATION_PLAN.md` (500+ lines, 11 major sections)
   - Screen-by-screen modernization strategy (Home, Forecast, UV, Weather Detail, Settings)
@@ -265,7 +296,7 @@ _No changes yet._
   - Resolved dependency conflicts in test infrastructure
   - All tests continue passing with compatible Jest version
 
-## [3.1.0] - 2025-10-03
+## [0.5.4] - 2025-10-03
 
 ### Added
 - **Comprehensive Test Infrastructure** - Professional testing setup with Jest and React Native Testing Library
@@ -324,7 +355,7 @@ _No changes yet._
   - Zero functional changes - module system already provides singleton behavior
   - Improved code readability and maintainability
 
-## [3.0.3] - 2025-10-03
+## [0.5.3] - 2025-10-03
 
 ### Fixed
 - **SunscreenTracker Text Visibility** - Fixed invisible time text when applying sunscreen
@@ -350,7 +381,7 @@ _No changes yet._
   - Added padding and border radius to all info containers for cleaner appearance
   - Increased icon sizes across component (time: 16px, UV: 18px, swimming: 16px)
 
-## [3.0.2] - 2025-10-03
+## [0.5.2] - 2025-10-03
 
 ### Fixed
 - **Critical Cache Mutations** - Fixed mutable cache data in WeatherService that could cause stale UI and data corruption
@@ -379,7 +410,7 @@ _No changes yet._
   - 12 WeatherService tests covering cache mutations, API fallbacks, error handling
   - Test scripts: `bun test`, `bun test:watch`, `bun test:coverage`
 
-## [3.0.1] - 2025-10-03
+## [0.5.0] - 2025-10-03
 
 ### Fixed
 - **Color Contrast Issues** - Improved readability across all themes
@@ -394,7 +425,7 @@ _No changes yet._
   - Added `assets/icon.png` (Metro expected it at root, but only existed at `assets/images/icon.png`)
   - App now builds successfully without asset resolution errors
 
-## [3.0.0] - 2025-XX-XX
+## [0.4.0] - 2025-XX-XX
 
 ### Added
 - Home screen refresh control: native icon button triggers GPS update and weather/UV/forecast refresh
@@ -582,7 +613,7 @@ _No changes yet._
 
 ---
 
-## [3.0.0] - 2025-XX-XX (Previous Version)
+## [0.3.0] - 2025-XX-XX (Previous Version)
 
 ### Added
 - Expo SDK 54 support with React Native 0.81.4
