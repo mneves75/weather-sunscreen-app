@@ -1,0 +1,384 @@
+---
+globs: *.ts,*.tsx
+description: Comprehensive error handling patterns and best practices
+---
+
+# Error Handling Patterns
+
+## Error Hierarchy
+- Define custom error types for different domains
+- Use error codes for programmatic handling
+- Include context and metadata in errors
+- Implement proper error inheritance
+- Provide user-friendly error messages
+
+## Custom Error Types
+```typescript
+// Base error class
+export abstract class AppError extends Error {
+  abstract readonly code: string;
+  abstract readonly category: string;
+  readonly timestamp: number;
+  readonly context?: Record<string, unknown>;
+
+  constructor(
+    message: string,
+    context?: Record<string, unknown>
+  ) {
+    super(message);
+    this.name = this.constructor.name;
+    this.timestamp = Date.now();
+    this.context = context;
+  }
+}
+
+// Weather service errors
+export class WeatherServiceError extends AppError {
+  readonly code = 'WEATHER_SERVICE_ERROR';
+  readonly category = 'WEATHER';
+
+  constructor(message: string, context?: Record<string, unknown>) {
+    super(message, context);
+  }
+}
+
+// Network errors
+export class NetworkError extends AppError {
+  readonly code = 'NETWORK_ERROR';
+  readonly category = 'NETWORK';
+
+  constructor(message: string, context?: Record<string, unknown>) {
+    super(message, context);
+  }
+}
+
+// Validation errors
+export class ValidationError extends AppError {
+  readonly code = 'VALIDATION_ERROR';
+  readonly category = 'VALIDATION';
+
+  constructor(message: string, context?: Record<string, unknown>) {
+    super(message, context);
+  }
+}
+```
+
+## Error Boundary Implementation
+```typescript
+// Error boundary for React components
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error?: Error;
+  errorInfo?: ErrorInfo;
+}
+
+export class ErrorBoundary extends Component<PropsWithChildren, ErrorBoundaryState> {
+  constructor(props: PropsWithChildren) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    this.setState({ error, errorInfo });
+    logger.error('Error boundary caught error', error, 'ERROR_BOUNDARY', {
+      errorInfo,
+      componentStack: errorInfo.componentStack,
+    });
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <ErrorFallback error={this.state.error} />;
+    }
+
+    return this.props.children;
+  }
+}
+
+// Error fallback component
+function ErrorFallback({ error }: { error?: Error }) {
+  const { colors } = useColors();
+  
+  return (
+    <View style={[styles.container, { backgroundColor: colors.surface }]}>
+      <Text style={[styles.title, { color: colors.onSurface }]}>
+        Something went wrong
+      </Text>
+      <Text style={[styles.message, { color: colors.onSurface }]}>
+        We're sorry, but something unexpected happened.
+      </Text>
+      <Button
+        title="Try Again"
+        onPress={() => window.location.reload()}
+        style={styles.button}
+      />
+    </View>
+  );
+}
+```
+
+## Service Error Handling
+```typescript
+// Service with comprehensive error handling
+export class WeatherService {
+  async getWeatherData(coordinates: Coordinates): Promise<WeatherData> {
+    try {
+      // Validate input
+      this.validateCoordinates(coordinates);
+      
+      // Make API call
+      const response = await this.makeApiCall('/weather', { coordinates });
+      
+      // Validate response
+      return this.validateWeatherData(response);
+      
+    } catch (error) {
+      // Handle different error types
+      if (error instanceof ValidationError) {
+        throw error; // Re-throw validation errors
+      }
+      
+      if (error instanceof NetworkError) {
+        throw new WeatherServiceError(
+          'Unable to fetch weather data. Please check your connection.',
+          { coordinates, originalError: error }
+        );
+      }
+      
+      // Log unexpected errors
+      logger.error('Unexpected error in getWeatherData', error as Error, 'WEATHER');
+      
+      throw new WeatherServiceError(
+        'Failed to load weather data. Please try again.',
+        { coordinates, originalError: error }
+      );
+    }
+  }
+
+  private validateCoordinates(coords: Coordinates): void {
+    if (!coords || typeof coords.latitude !== 'number' || typeof coords.longitude !== 'number') {
+      throw new ValidationError('Invalid coordinates provided');
+    }
+    
+    if (coords.latitude < -90 || coords.latitude > 90) {
+      throw new ValidationError('Latitude must be between -90 and 90');
+    }
+    
+    if (coords.longitude < -180 || coords.longitude > 180) {
+      throw new ValidationError('Longitude must be between -180 and 180');
+    }
+  }
+}
+```
+
+## Context Error Handling
+```typescript
+// Context with error state management
+export function WeatherProvider({ children }: WeatherProviderProps) {
+  const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
+  const [error, setError] = useState<AppError | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const refreshWeather = useCallback(async () => {
+    if (!currentLocation) return;
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const data = await weatherService.getWeatherData(currentLocation);
+      setWeatherData(data);
+    } catch (err) {
+      const error = err instanceof AppError ? err : new WeatherServiceError(
+        'Failed to load weather data',
+        { originalError: err }
+      );
+      
+      setError(error);
+      logger.error('Weather refresh failed', error, 'WEATHER');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [currentLocation]);
+
+  const clearError = useCallback(() => {
+    setError(null);
+  }, []);
+
+  const value = useMemo(() => ({
+    weatherData,
+    error,
+    isLoading,
+    refreshWeather,
+    clearError,
+  }), [weatherData, error, isLoading, refreshWeather, clearError]);
+
+  return (
+    <WeatherContext.Provider value={value}>
+      {children}
+    </WeatherContext.Provider>
+  );
+}
+```
+
+## User-Friendly Error Messages
+```typescript
+// Error message mapping
+export function getErrorMessage(error: AppError): string {
+  switch (error.code) {
+    case 'NETWORK_ERROR':
+      return 'Please check your internet connection and try again.';
+    
+    case 'VALIDATION_ERROR':
+      return 'Please check your input and try again.';
+    
+    case 'WEATHER_SERVICE_ERROR':
+      return 'Unable to load weather data. Please try again later.';
+    
+    case 'LOCATION_ERROR':
+      return 'Unable to access your location. Please check permissions.';
+    
+    default:
+      return 'Something went wrong. Please try again.';
+  }
+}
+
+// Error display component
+export function ErrorDisplay({ error, onRetry }: ErrorDisplayProps) {
+  const { colors } = useColors();
+  const message = getErrorMessage(error);
+  
+  return (
+    <View style={[styles.container, { backgroundColor: colors.errorContainer }]}>
+      <Text style={[styles.message, { color: colors.onErrorContainer }]}>
+        {message}
+      </Text>
+      {onRetry && (
+        <Button
+          title="Try Again"
+          onPress={onRetry}
+          variant="outline"
+        />
+      )}
+    </View>
+  );
+}
+```
+
+## Async Error Handling
+```typescript
+// Safe async wrapper
+export async function safeAsync<T>(
+  operation: () => Promise<T>,
+  fallback: T,
+  context: string
+): Promise<T> {
+  try {
+    return await operation();
+  } catch (error) {
+    logger.error(`Async operation failed in ${context}`, error as Error, context);
+    return fallback;
+  }
+}
+
+// Retry with exponential backoff
+export async function retryWithBackoff<T>(
+  operation: () => Promise<T>,
+  maxRetries: number = 3,
+  baseDelay: number = 1000
+): Promise<T> {
+  let lastError: Error;
+  
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      return await operation();
+    } catch (error) {
+      lastError = error as Error;
+      
+      if (attempt === maxRetries) {
+        throw lastError;
+      }
+      
+      const delay = baseDelay * Math.pow(2, attempt);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+  
+  throw lastError!;
+}
+```
+
+## Error Logging
+```typescript
+// Structured error logging
+export class ErrorLogger {
+  static logError(
+    message: string,
+    error: Error,
+    category: string,
+    context?: Record<string, unknown>
+  ): void {
+    const logEntry = {
+      message,
+      error: {
+        name: error.name,
+        message: error.message,
+        stack: error.stack,
+      },
+      category,
+      context,
+      timestamp: new Date().toISOString(),
+      userId: getCurrentUserId(),
+      deviceInfo: getDeviceInfo(),
+    };
+    
+    // Send to logging service
+    logger.error(message, error, category, context);
+    
+    // Send to crash reporting service
+    crashlytics().recordError(error);
+  }
+}
+```
+
+## Testing Error Scenarios
+```typescript
+// Error handling tests
+describe('Error Handling', () => {
+  it('handles network errors gracefully', async () => {
+    jest.spyOn(weatherService, 'getWeatherData').mockRejectedValue(
+      new NetworkError('Network request failed')
+    );
+    
+    const { result } = renderHook(() => useWeather(), { wrapper });
+    
+    await act(async () => {
+      await result.current.refreshWeather();
+    });
+    
+    expect(result.current.error).toBeInstanceOf(WeatherServiceError);
+    expect(result.current.error?.message).toContain('Unable to fetch weather data');
+  });
+
+  it('displays user-friendly error messages', () => {
+    const error = new NetworkError('Network request failed');
+    const { getByText } = render(<ErrorDisplay error={error} />);
+    
+    expect(getByText('Please check your internet connection and try again.')).toBeTruthy();
+  });
+});
+```
+
+## Best Practices
+- Always handle errors at the appropriate level
+- Provide meaningful error messages to users
+- Log errors with sufficient context
+- Implement proper error recovery mechanisms
+- Test error scenarios thoroughly
+- Use error boundaries for component errors
+- Implement retry logic for transient errors
+- Provide fallback UI for error states

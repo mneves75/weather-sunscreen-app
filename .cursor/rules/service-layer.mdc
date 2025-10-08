@@ -1,0 +1,92 @@
+---
+globs: src/services/*.ts
+description: Service layer patterns and API integration
+---
+
+# Service Layer Patterns
+
+## Architecture
+- Singleton pattern for service instances
+- Centralized error handling and logging
+- Configurable timeouts and retry logic
+- Mock data fallbacks for development
+
+## Service Structure
+- Each service is a class with static getInstance() method
+- Private constructor to enforce singleton
+- Public methods for business operations
+- Private helper methods for internal logic
+
+## Error Handling
+- Custom error types with codes and messages
+- Proper error logging with context
+- Graceful degradation with fallback data
+- User-friendly error messages
+
+## API Integration
+- Centralized configuration for endpoints
+- Request/response type safety
+- Proper timeout handling
+- Retry logic for failed requests
+
+## Example Patterns
+```typescript
+// Service class structure
+class WeatherService {
+  private static instance: WeatherService;
+  private config: WeatherServiceConfig;
+
+  private constructor() {
+    this.config = {
+      timeout: 10000,
+      retryAttempts: 3,
+      cacheTimeout: 300000,
+    };
+  }
+
+  public static getInstance(): WeatherService {
+    if (!WeatherService.instance) {
+      WeatherService.instance = new WeatherService();
+    }
+    return WeatherService.instance;
+  }
+
+  public async getWeatherData(coordinates: Coordinates): Promise<WeatherData> {
+    try {
+      logger.weather('Fetching weather data', { coordinates });
+      // API implementation
+      return data;
+    } catch (error) {
+      logger.error('Failed to fetch weather data', error as Error, 'WEATHER');
+      throw this.createError('FETCH_FAILED', 'Failed to fetch weather data', error as Error);
+    }
+  }
+
+  private createError(code: string, message: string, originalError?: Error): WeatherServiceError {
+    return {
+      code,
+      message,
+      originalError,
+      timestamp: Date.now(),
+    };
+  }
+}
+```
+
+## Logging
+- Use structured logging with categories
+- Include relevant context in log messages
+- Different log levels (info, warn, error)
+- Consistent logging format across services
+
+## Caching
+- Implement appropriate cache timeouts
+- Cache weather data for performance
+- Invalidate cache on location changes
+- Handle cache misses gracefully
+
+## Testing
+- Mock services for unit tests
+- Test error scenarios
+- Verify retry logic
+- Test timeout handling

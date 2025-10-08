@@ -1,0 +1,566 @@
+---
+description: Expo Router v6 routing and navigation patterns
+---
+
+# Routing & Navigation Patterns
+
+## Overview
+This app uses Expo Router v6 for file-based routing with typed routes, native tabs support, and deep linking. Navigation is handled through the router API with full TypeScript safety.
+
+## File Structure
+```
+app/
+├── _layout.tsx           # Root layout
+├── (tabs)/              # Tab navigator group
+│   ├── _layout.tsx      # Tabs layout
+│   ├── (home)/          # Home tab stack
+│   │   ├── index.tsx    # Home screen
+│   │   └── details.tsx  # Detail screen
+│   ├── (messages)/      # Messages tab stack
+│   │   ├── index.tsx    # Messages list
+│   │   └── [id].tsx     # Message detail
+│   └── (styles)/        # Styles tab stack
+│       ├── index.tsx    # Styles screen
+│       └── theme.tsx    # Theme screen
+├── (dev)/               # Development screens
+│   └── _layout.tsx
+├── modal.tsx            # Modal screen
+└── +not-found.tsx       # 404 screen
+```
+
+## Route Configuration
+
+### Root Layout
+```typescript
+// app/_layout.tsx
+import { Stack } from 'expo-router';
+import { ErrorBoundary } from '@/src/components/ErrorBoundary';
+import { AppProviders } from '@/src/theme/AppProviders';
+
+export default function RootLayout() {
+  return (
+    <ErrorBoundary>
+      <AppProviders>
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="(dev)" />
+          <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+        </Stack>
+      </AppProviders>
+    </ErrorBoundary>
+  );
+}
+```
+
+### Tab Layout
+```typescript
+// app/(tabs)/_layout.tsx
+import { Tabs } from 'expo-router';
+import { useColors } from '@/src/theme/theme';
+
+export default function TabLayout() {
+  const { colors } = useColors();
+
+  return (
+    <Tabs
+      screenOptions={{
+        headerShown: false,
+        tabBarStyle: {
+          backgroundColor: colors.surface,
+        },
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.onSurfaceVariant,
+      }}
+    >
+      <Tabs.Screen
+        name="(home)"
+        options={{
+          title: 'Weather',
+          tabBarIcon: ({ color, size }) => (
+            <Icon name="cloud" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="(messages)"
+        options={{
+          title: 'Messages',
+          tabBarIcon: ({ color, size }) => (
+            <Icon name="message" size={size} color={color} />
+          ),
+          tabBarBadge: unreadCount > 0 ? unreadCount : undefined,
+        }}
+      />
+    </Tabs>
+  );
+}
+```
+
+## Navigation
+
+### Basic Navigation
+```typescript
+import { router } from 'expo-router';
+
+// Navigate to route
+router.push('/weather/details');
+
+// Navigate with parameters
+router.push({
+  pathname: '/messages/[id]',
+  params: { id: '123' },
+});
+
+// Navigate back
+router.back();
+
+// Replace current route
+router.replace('/home');
+
+// Dismiss modals
+router.dismiss();
+```
+
+### Typed Navigation
+With `experiments.typedRoutes` enabled in `app.json`:
+
+```typescript
+import { router } from 'expo-router';
+
+// ✅ Type-safe - TypeScript knows these routes exist
+router.push('/weather/details');
+router.push('/(tabs)/(messages)/[id]');
+
+// ❌ TypeScript error - route doesn't exist
+router.push('/invalid-route');
+
+// Type-safe parameters
+router.push({
+  pathname: '/messages/[id]',
+  params: { id: messageId }, // Typed params
+});
+```
+
+### Navigation Hooks
+```typescript
+import { useRouter, useLocalSearchParams, usePathname } from 'expo-router';
+
+export function MessageDetail() {
+  const router = useRouter();
+  const params = useLocalSearchParams<{ id: string }>();
+  const pathname = usePathname();
+
+  const handleBack = () => {
+    router.back();
+  };
+
+  const handleShare = () => {
+    router.push({
+      pathname: '/share',
+      params: { messageId: params.id },
+    });
+  };
+
+  return (
+    <View>
+      <Text>Message ID: {params.id}</Text>
+      <Text>Current Path: {pathname}</Text>
+      <Button onPress={handleBack} title="Back" />
+    </View>
+  );
+}
+```
+
+## Native Tabs (Unstable)
+
+### Setup
+```typescript
+// app/(tabs)/_layout.tsx
+import { NativeTabs } from 'expo-router/unstable-native-tabs';
+import { Icon, Label, Badge } from 'expo-router/unstable-native-tabs';
+import { DynamicColorIOS } from 'react-native';
+
+export default function NativeTabLayout() {
+  const { unreadCount } = useMessages();
+
+  return (
+    <NativeTabs
+      minimizeBehavior="onScrollDown" // iOS 26+ collapsing
+      disableTransparentOnScrollEdge={false}
+    >
+      <NativeTabs.Trigger name="(home)">
+        <Icon sf="house.fill" />
+        <Label>Home</Label>
+      </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="(messages)">
+        <Icon sf="message.fill" />
+        <Label>Messages</Label>
+        {unreadCount > 0 && <Badge value={unreadCount} />}
+      </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="(styles)">
+        <Icon sf="paintbrush.fill" />
+        <Label>Styles</Label>
+      </NativeTabs.Trigger>
+    </NativeTabs>
+  );
+}
+```
+
+### Platform Considerations
+- **iOS**: Full support with SF Symbols and dynamic colors
+- **Android**: Max 5 tabs, drawable-only icons (no SF Symbols)
+- **No nested native tabs**: Use Stack for nested navigation
+
+### Dynamic Colors for Glass
+```typescript
+import { DynamicColorIOS } from 'react-native';
+
+const iconColor = DynamicColorIOS({
+  light: 'rgba(0, 0, 0, 0.85)',
+  dark: 'rgba(255, 255, 255, 0.95)',
+});
+
+<Icon sf="house.fill" color={iconColor} />
+```
+
+## Deep Linking
+
+### URL Scheme Configuration
+```json
+// app.json
+{
+  "expo": {
+    "scheme": "weathersuncreenapp",
+    "web": {
+      "bundler": "metro"
+    }
+  }
+}
+```
+
+### Handle Deep Links
+```typescript
+// app/_layout.tsx
+import { useEffect } from 'react';
+import { Linking } from 'react-native';
+import { router } from 'expo-router';
+
+export default function RootLayout() {
+  useEffect(() => {
+    const handleDeepLink = (event: { url: string }) => {
+      const url = event.url;
+      
+      // weathersuncreenapp://messages/123
+      if (url.includes('/messages/')) {
+        const messageId = url.split('/messages/')[1];
+        router.push({
+          pathname: '/messages/[id]',
+          params: { id: messageId },
+        });
+      }
+    };
+
+    const subscription = Linking.addEventListener('url', handleDeepLink);
+    
+    // Handle initial URL
+    Linking.getInitialURL().then((url) => {
+      if (url) handleDeepLink({ url });
+    });
+
+    return () => subscription.remove();
+  }, []);
+
+  return <RootLayoutNav />;
+}
+```
+
+## Modal Navigation
+
+### Modal Routes
+```typescript
+// app/modal.tsx
+import { router } from 'expo-router';
+import { View, Button } from 'react-native';
+
+export default function Modal() {
+  return (
+    <View>
+      <Button title="Close" onPress={() => router.dismiss()} />
+    </View>
+  );
+}
+
+// Present modal from any screen
+router.push('/modal');
+```
+
+### Full-Screen Modal
+```typescript
+// app/_layout.tsx
+<Stack>
+  <Stack.Screen
+    name="modal"
+    options={{
+      presentation: 'modal',
+      headerShown: true,
+      title: 'Modal Title',
+    }}
+  />
+</Stack>
+```
+
+## Dynamic Routes
+
+### Parameter Routes
+```typescript
+// app/weather/[location].tsx
+import { useLocalSearchParams } from 'expo-router';
+
+export default function WeatherLocation() {
+  const { location } = useLocalSearchParams<{ location: string }>();
+
+  return <Text>Weather for {location}</Text>;
+}
+
+// Navigate
+router.push('/weather/san-francisco');
+```
+
+### Multiple Parameters
+```typescript
+// app/weather/[location]/[date].tsx
+import { useLocalSearchParams } from 'expo-router';
+
+export default function WeatherDetail() {
+  const { location, date } = useLocalSearchParams<{
+    location: string;
+    date: string;
+  }>();
+
+  return <Text>Weather for {location} on {date}</Text>;
+}
+
+// Navigate
+router.push('/weather/san-francisco/2024-01-15');
+```
+
+## Navigation Guards
+
+### Authentication Guard
+```typescript
+// app/_layout.tsx
+import { useEffect } from 'react';
+import { router } from 'expo-router';
+
+export default function RootLayout() {
+  const { isAuthenticated } = useAuth();
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.replace('/login');
+    }
+  }, [isAuthenticated]);
+
+  return <RootLayoutNav />;
+}
+```
+
+### Protected Routes
+```typescript
+// app/(protected)/_layout.tsx
+import { Redirect } from 'expo-router';
+import { useAuth } from '@/src/context/AuthContext';
+
+export default function ProtectedLayout() {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
+
+  if (!isAuthenticated) {
+    return <Redirect href="/login" />;
+  }
+
+  return <Stack />;
+}
+```
+
+## Navigation State
+
+### Tracking Navigation
+```typescript
+import { usePathname, useSegments } from 'expo-router';
+import { useEffect } from 'react';
+
+export function NavigationTracker() {
+  const pathname = usePathname();
+  const segments = useSegments();
+
+  useEffect(() => {
+    // Log navigation for analytics
+    logger.info('Navigation', 'NAVIGATION', {
+      pathname,
+      segments,
+    });
+  }, [pathname, segments]);
+
+  return null;
+}
+```
+
+### Navigation History
+```typescript
+import { useRouter } from 'expo-router';
+
+export function useNavigationHistory() {
+  const [history, setHistory] = useState<string[]>([]);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    setHistory((prev) => [...prev, pathname]);
+  }, [pathname]);
+
+  const canGoBack = history.length > 1;
+
+  return { history, canGoBack };
+}
+```
+
+## Screen Options
+
+### Dynamic Headers
+```typescript
+// app/weather/_layout.tsx
+import { Stack } from 'expo-router';
+import { useColors } from '@/src/theme/theme';
+
+export default function WeatherLayout() {
+  const { colors } = useColors();
+
+  return (
+    <Stack
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: colors.surface,
+        },
+        headerTintColor: colors.onSurface,
+        headerBackTitle: 'Back',
+      }}
+    >
+      <Stack.Screen
+        name="index"
+        options={{ title: 'Weather' }}
+      />
+      <Stack.Screen
+        name="details"
+        options={{
+          title: 'Weather Details',
+          headerRight: () => <ShareButton />,
+        }}
+      />
+    </Stack>
+  );
+}
+```
+
+### Conditional Screen Options
+```typescript
+// app/messages/[id].tsx
+import { Stack } from 'expo-router';
+
+export default function MessageDetail() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const { message } = useMessage(id);
+
+  return (
+    <>
+      <Stack.Screen
+        options={{
+          title: message?.title || 'Message',
+          headerBackTitle: 'Messages',
+        }}
+      />
+      <MessageContent message={message} />
+    </>
+  );
+}
+```
+
+## Best Practices
+
+### DO
+✅ Use typed routes for type safety
+✅ Group related routes with route groups `(name)`
+✅ Use dynamic routes `[param]` for parameterized pages
+✅ Implement proper error boundaries
+✅ Handle deep links appropriately
+✅ Use navigation guards for protected routes
+✅ Provide loading states during navigation
+✅ Use native tabs for bottom navigation (iOS)
+✅ Handle back navigation properly
+✅ Test navigation flows thoroughly
+
+### DON'T
+❌ Don't navigate during render
+❌ Don't use navigation outside components
+❌ Don't forget to handle navigation errors
+❌ Don't bypass authentication checks
+❌ Don't create circular navigation flows
+❌ Don't forget to dismiss modals
+❌ Don't use more than 5 tabs on Android
+❌ Don't nest native tabs
+❌ Don't hardcode routes (use typed routes)
+❌ Don't forget to clean up navigation listeners
+
+## Testing
+
+### Navigation Tests
+```typescript
+import { router } from 'expo-router';
+
+describe('Navigation', () => {
+  it('navigates to detail screen', () => {
+    router.push('/weather/details');
+    expect(router.pathname).toBe('/weather/details');
+  });
+
+  it('navigates with parameters', () => {
+    router.push({
+      pathname: '/messages/[id]',
+      params: { id: '123' },
+    });
+    expect(router.pathname).toContain('/messages/123');
+  });
+
+  it('handles back navigation', () => {
+    router.push('/screen1');
+    router.push('/screen2');
+    router.back();
+    expect(router.pathname).toBe('/screen1');
+  });
+});
+```
+
+### Deep Link Tests
+```typescript
+import { Linking } from 'react-native';
+
+describe('Deep Links', () => {
+  it('handles deep link navigation', async () => {
+    await Linking.openURL('weathersuncreenapp://messages/123');
+    
+    await waitFor(() => {
+      expect(router.pathname).toContain('/messages/123');
+    });
+  });
+});
+```
+
+## Related Documentation
+- [Expo Router Documentation](mdc:docs/EXPO_REACT_NATIVE_DOCS/expo-native-tabs.md)
+- [app/_layout.tsx](mdc:app/_layout.tsx) - Root layout implementation
+- [react-native-expo.mdc](mdc:.cursor/rules/react-native-expo.mdc) - React Native patterns
+- [expo-sdk-54-patterns.mdc](mdc:.cursor/rules/expo-sdk-54-patterns.mdc) - SDK-specific features

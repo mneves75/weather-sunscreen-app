@@ -1,0 +1,90 @@
+---
+globs: src/i18n/**/*.ts,src/i18n/**/*.json
+description: Internationalization (i18n) patterns and best practices
+---
+
+# Internationalization (i18n) Patterns
+
+## i18n Architecture
+- JSON-based translation files in [src/i18n/](mdc:src/i18n/)
+- i18next library for translation management
+- Namespaced translations for better organization
+- Type-safe translation keys
+
+## Translation File Structure
+```json
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "retry": "Retry"
+  },
+  "weather": {
+    "title": "Weather",
+    "temperature": "Temperature",
+    "humidity": "Humidity"
+  },
+  "uv": {
+    "title": "UV Index",
+    "levels": {
+      "low": "Low",
+      "moderate": "Moderate",
+      "high": "High"
+    }
+  }
+}
+```
+
+## Translation Usage
+- Use `useTranslation` hook in components
+- Access translations with dot notation
+- Support interpolation for dynamic values
+- Handle pluralization when needed
+
+## Example Usage
+```typescript
+import { useTranslation } from 'react-i18next';
+
+export function WeatherCard({ data }: WeatherCardProps) {
+  const { t } = useTranslation();
+  
+  return (
+    <View>
+      <Text>{t('weather.title')}</Text>
+      <Text>{t('weather.temperature', { value: data.temperature })}</Text>
+      <Text>{t('uv.levels.high')}</Text>
+    </View>
+  );
+}
+```
+
+## Translation Keys
+- Use descriptive, hierarchical keys
+- Group related translations in namespaces
+- Use consistent naming conventions
+- Avoid hardcoded strings in components
+
+## Dynamic Content
+- Support interpolation for dynamic values
+- Handle number formatting for different locales
+- Support date/time formatting
+- Handle currency formatting when needed
+
+## Language Support
+- Support multiple languages (en, pt-BR)
+- Detect system language preference
+- Allow manual language selection
+- Persist language preference
+
+## Accessibility
+- Ensure translations work with screen readers
+- Test with different text lengths
+- Handle right-to-left languages if needed
+- Maintain proper contrast in all languages
+
+## Best Practices
+- Keep translation keys short but descriptive
+- Use consistent terminology across the app
+- Test with different text lengths
+- Review translations for cultural appropriateness
+- Use professional translation services for production

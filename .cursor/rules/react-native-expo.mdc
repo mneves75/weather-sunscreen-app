@@ -1,0 +1,76 @@
+---
+globs: *.tsx,*.ts
+description: React Native and Expo specific patterns and best practices
+---
+
+# React Native & Expo Patterns
+
+## Component Structure
+- Use functional components with hooks
+- Implement proper TypeScript interfaces for props
+- Use React.memo for performance optimization when needed
+- Follow single responsibility principle for components
+
+## State Management
+- Use React Context for global state (Weather, Theme, Settings)
+- Keep local state with useState/useReducer
+- Use custom hooks for complex state logic
+- Implement proper error boundaries
+
+## Navigation
+- Use Expo Router for file-based routing
+- Define screen options in layout files
+- Use Stack and Tab navigators appropriately
+- Implement proper navigation types
+
+## Performance
+- Use React.memo for expensive components
+- Implement proper key props for lists
+- Use useCallback and useMemo for expensive operations
+- Avoid inline object/function creation in render
+
+## Platform Considerations
+- Use Platform.select for platform-specific code
+- Test on both iOS and Android
+- Handle platform-specific UI differences
+- Use appropriate native modules when needed
+
+## Styling
+- Use StyleSheet.create for performance
+- Implement responsive design with Dimensions
+- Use theme system for consistent styling
+- Support both light and dark modes
+
+## Example Patterns
+```typescript
+// Component with proper typing
+interface WeatherCardProps {
+  data: WeatherData;
+  onPress?: () => void;
+}
+
+export function WeatherCard({ data, onPress }: WeatherCardProps) {
+  const { colors } = useColors();
+  
+  return (
+    <TouchableOpacity onPress={onPress} style={styles.container}>
+      {/* Component content */}
+    </TouchableOpacity>
+  );
+}
+
+// Custom hook
+export function useWeather() {
+  const context = useContext(WeatherContext);
+  if (!context) {
+    throw new Error('useWeather must be used within WeatherProvider');
+  }
+  return context;
+}
+```
+
+## Error Handling
+- Use ErrorBoundary for component error catching
+- Implement proper loading and error states
+- Handle network errors gracefully
+- Provide user-friendly error messages

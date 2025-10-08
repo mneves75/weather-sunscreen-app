@@ -1,49 +1,21 @@
 {
   "cli": {
-    "version": ">= 12.4.0"
+    "version": ">= 16.19.3",
+    "appVersionSource": "remote"
   },
   "build": {
     "development": {
-      "channel": "development",
       "developmentClient": true,
-      "distribution": "internal",
-      "image": "macos-sequoia-15.5-xcode-26.0",
-      "ios": {
-        "simulator": true,
-        "resourceClass": "m-medium"
-      },
-      "android": {
-        "buildType": "developmentClient",
-        "resourceClass": "medium"
-      }
+      "distribution": "internal"
     },
     "preview": {
-      "channel": "preview",
-      "distribution": "internal",
-      "image": "macos-sequoia-15.5-xcode-26.0",
-      "ios": {
-        "resourceClass": "m-medium"
-      },
-      "android": {
-        "buildType": "apk",
-        "resourceClass": "medium"
-      }
+      "distribution": "internal"
     },
     "production": {
-      "channel": "production",
-      "image": "macos-sequoia-15.5-xcode-26.0",
-      "ios": {
-        "resourceClass": "m-large"
-      },
-      "android": {
-        "resourceClass": "large"
-      }
+      "autoIncrement": true
     }
   },
   "submit": {
     "production": {}
-  },
-  "updates": {
-    "url": "https://u.expo.dev/[your-project-id]"
   }
 }

@@ -1,0 +1,227 @@
+---
+globs: *.tsx,*.ts
+description: Accessibility patterns and best practices
+---
+
+# Accessibility Patterns
+
+## Core Accessibility Principles
+- Ensure all interactive elements are accessible
+- Provide proper semantic markup
+- Support screen readers and assistive technologies
+- Maintain proper color contrast ratios
+- Implement keyboard navigation support
+
+## Screen Reader Support
+- Use proper accessibility labels
+- Implement accessibility hints
+- Provide meaningful descriptions
+- Use semantic HTML elements
+- Test with VoiceOver (iOS) and TalkBack (Android)
+
+## Accessibility Implementation
+```typescript
+// Accessible button component
+export function AccessibleButton({ 
+  title, 
+  onPress, 
+  accessibilityLabel,
+  accessibilityHint,
+  ...props 
+}: ButtonProps) {
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel || title}
+      accessibilityHint={accessibilityHint}
+      accessibilityState={{ disabled: props.disabled }}
+      {...props}
+    >
+      <Text>{title}</Text>
+    </TouchableOpacity>
+  );
+}
+
+// Accessible weather card
+export function WeatherCard({ data }: WeatherCardProps) {
+  const { colors } = useColors();
+  
+  return (
+    <TouchableOpacity
+      accessibilityRole="button"
+      accessibilityLabel={`Weather for ${data.location.city}. Temperature ${data.current.temperature} degrees. ${data.current.condition.description}`}
+      accessibilityHint="Tap to view detailed weather information"
+    >
+      <Text style={[styles.city, { color: colors.onSurface }]}>
+        {data.location.city}
+      </Text>
+      <Text 
+        style={[styles.temperature, { color: colors.primary }]}
+        accessibilityLabel={`${data.current.temperature} degrees`}
+      >
+        {data.current.temperature}°
+      </Text>
+    </TouchableOpacity>
+  );
+}
+```
+
+## Color and Contrast
+- Ensure minimum contrast ratios (4.5:1 for normal text, 3:1 for large text)
+- Don't rely solely on color to convey information
+- Support high contrast mode
+- Test with color blindness simulators
+- Provide alternative indicators for color-coded information
+
+## Focus Management
+- Implement proper focus order
+- Provide visible focus indicators
+- Handle focus trapping in modals
+- Restore focus after actions
+- Support keyboard navigation
+
+## Text and Typography
+- Use appropriate font sizes
+- Ensure readable line spacing
+- Support dynamic type scaling
+- Use clear, simple language
+- Provide text alternatives for images
+
+## Interactive Elements
+- Make touch targets at least 44x44 points
+- Provide adequate spacing between interactive elements
+- Use clear visual feedback
+- Support multiple input methods
+- Implement proper error states
+
+## Form Accessibility
+```typescript
+// Accessible form input
+export function AccessibleInput({ 
+  label, 
+  value, 
+  onChangeText, 
+  error,
+  ...props 
+}: InputProps) {
+  const inputId = useId();
+  
+  return (
+    <View>
+      <Text 
+        accessibilityLabel={label}
+        accessibilityRole="text"
+      >
+        {label}
+      </Text>
+      <TextInput
+        value={value}
+        onChangeText={onChangeText}
+        accessibilityLabel={label}
+        accessibilityHint={error ? `Error: ${error}` : undefined}
+        accessibilityInvalid={!!error}
+        {...props}
+      />
+      {error && (
+        <Text 
+          style={styles.error}
+          accessibilityRole="alert"
+          accessibilityLiveRegion="polite"
+        >
+          {error}
+        </Text>
+      )}
+    </View>
+  );
+}
+```
+
+## Navigation Accessibility
+- Provide clear navigation structure
+- Use proper heading hierarchy
+- Implement skip links when appropriate
+- Support gesture-based navigation
+- Provide navigation landmarks
+
+## Error Handling
+- Announce errors to screen readers
+- Provide clear error messages
+- Offer recovery suggestions
+- Use appropriate error roles
+- Implement live regions for dynamic content
+
+## Testing Accessibility
+- Test with screen readers
+- Use accessibility testing tools
+- Test with keyboard navigation
+- Verify color contrast ratios
+- Test with different font sizes
+
+## Platform-Specific Considerations
+- iOS: Use VoiceOver testing
+- Android: Use TalkBack testing
+- Follow platform accessibility guidelines
+- Test with different assistive technologies
+- Support platform-specific features
+
+## Dynamic Content
+- Announce important changes
+- Use live regions appropriately
+- Provide loading states
+- Handle content updates gracefully
+- Maintain context during updates
+
+## Example Accessibility Patterns
+```typescript
+// Accessible loading state
+export function LoadingSpinner({ message }: LoadingSpinnerProps) {
+  return (
+    <View 
+      accessibilityRole="progressbar"
+      accessibilityLabel={message || "Loading"}
+      accessibilityLiveRegion="polite"
+    >
+      <ActivityIndicator />
+      {message && <Text>{message}</Text>}
+    </View>
+  );
+}
+
+// Accessible error boundary
+export function AccessibleErrorBoundary({ children }: ErrorBoundaryProps) {
+  const [hasError, setHasError] = useState(false);
+
+  if (hasError) {
+    return (
+      <View 
+        accessibilityRole="alert"
+        accessibilityLiveRegion="assertive"
+      >
+        <Text>Something went wrong. Please try again.</Text>
+        <Button 
+          title="Retry"
+          onPress={() => setHasError(false)}
+          accessibilityLabel="Retry loading the application"
+        />
+      </View>
+    );
+  }
+
+  return children;
+}
+```
+
+## Accessibility Testing Tools
+- Use React Native Accessibility Inspector
+- Test with real assistive technologies
+- Use automated accessibility scanners
+- Perform manual accessibility audits
+- Test with users who rely on assistive technologies
+
+## Documentation
+- Document accessibility features
+- Provide accessibility guidelines for developers
+- Include accessibility in design reviews
+- Train team on accessibility best practices
+- Maintain accessibility testing checklist

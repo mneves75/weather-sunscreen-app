@@ -1,0 +1,139 @@
+---
+alwaysApply: true
+description: Comprehensive development overview and rule index
+---
+
+# Weather Sunscreen App - Development Overview
+
+## Project Summary
+This is a React Native Expo weather application with TypeScript, featuring glass morphism UI, comprehensive theming, internationalization, and advanced weather data processing with UV index recommendations.
+
+## Reference Documentation - MANDATORY
+
+**CRITICAL**: Before implementing any feature or answering questions about iOS 26, AI SDK, GPT-5, Gemini, Expo SDK 54, or React Native, **ALWAYS consult the comprehensive reference documentation** in `docs/REF_DOC/` first.
+
+### Documentation Locations
+- **iOS 26 / macOS 26 / Swift 6**: `docs/REF_DOC/docs_apple/` - 350+ files covering Liquid Glass, SwiftUI, HIG
+- **AI SDK (Vercel) / GPT-5 / Gemini**: `docs/REF_DOC/docs_ai-sdk_dev/` - 200+ files with complete API reference
+- **Expo SDK 54**: `docs/REF_DOC/docs_expo_dev/` - 400+ files covering builds, deployment, EAS
+- **React Native**: `docs/REF_DOC/docs_reactnative_getting-started/` - 150+ files on New Architecture, performance
+
+**Total: 1096+ authoritative markdown files**
+
+### Quick Documentation Lookup
+```bash
+# Search for topics
+grep -r "keyword" docs/REF_DOC/docs_apple/
+grep -r "keyword" docs/REF_DOC/docs_ai-sdk_dev/
+grep -r "keyword" docs/REF_DOC/docs_expo_dev/
+
+# Browse categories
+ls docs/REF_DOC/docs_apple/liquid-glass.md
+ls docs/REF_DOC/docs_ai-sdk_dev/cookbook/guides/gpt-5.md
+```
+
+See `docs/REF_DOC/README.md` for complete documentation index.
+
+## Architecture Highlights
+- **Expo Router**: File-based routing with typed routes
+- **Context State Management**: Weather, Theme, and Settings contexts
+- **Service Layer**: Singleton pattern with error handling and logging
+- **Theme System**: Token-based design with light/dark/high-contrast support
+- **Internationalization**: i18next with JSON translation files
+- **Glass Morphism**: Custom glass components with blur effects
+
+## Available Cursor Rules
+
+### Core Development Rules
+- **[project-structure.mdc](mdc:.cursor/rules/project-structure.mdc)** - Project architecture and file organization
+- **[typescript-standards.mdc](mdc:.cursor/rules/typescript-standards.mdc)** - TypeScript coding standards and patterns
+- **[react-native-expo.mdc](mdc:.cursor/rules/react-native-expo.mdc)** - React Native and Expo specific patterns
+- **[expo-sdk-54-patterns.mdc](mdc:.cursor/rules/expo-sdk-54-patterns.mdc)** - Expo SDK 54 and React Native 0.81 patterns
+
+### UI & Styling Rules
+- **[component-patterns.mdc](mdc:.cursor/rules/component-patterns.mdc)** - Component development patterns and best practices
+- **[theme-styling.mdc](mdc:.cursor/rules/theme-styling.mdc)** - Theme system and styling patterns
+- **[glass-morphism-patterns.mdc](mdc:.cursor/rules/glass-morphism-patterns.mdc)** - Glass morphism UI and liquid glass implementation
+- **[accessibility-patterns.mdc](mdc:.cursor/rules/accessibility-patterns.mdc)** - Accessibility patterns and best practices
+
+### Navigation & Routing Rules
+- **[routing-navigation.mdc](mdc:.cursor/rules/routing-navigation.mdc)** - Expo Router v6 routing and navigation patterns
+
+### State & Data Rules
+- **[context-state-management.mdc](mdc:.cursor/rules/context-state-management.mdc)** - Context and state management patterns
+- **[service-layer.mdc](mdc:.cursor/rules/service-layer.mdc)** - Service layer patterns and API integration
+- **[data-persistence-patterns.mdc](mdc:.cursor/rules/data-persistence-patterns.mdc)** - AsyncStorage and SQLite patterns
+- **[messages-notifications.mdc](mdc:.cursor/rules/messages-notifications.mdc)** - Message and notification system patterns
+- **[internationalization.mdc](mdc:.cursor/rules/internationalization.mdc)** - i18n patterns and best practices
+
+### Quality & Performance Rules
+- **[testing-patterns.mdc](mdc:.cursor/rules/testing-patterns.mdc)** - Testing patterns and best practices
+- **[performance-optimization.mdc](mdc:.cursor/rules/performance-optimization.mdc)** - Performance optimization patterns
+- **[error-handling-patterns.mdc](mdc:.cursor/rules/error-handling-patterns.mdc)** - Comprehensive error handling patterns
+- **[security-patterns.mdc](mdc:.cursor/rules/security-patterns.mdc)** - Security patterns and best practices
+
+### Platform-Specific Rules
+- **[native-modules.mdc](mdc:.cursor/rules/native-modules.mdc)** - Native module development patterns
+
+## Key Technologies
+- **React Native 0.81.4** with Expo SDK 54
+- **TypeScript 5.9.2** with strict configuration
+- **Expo Router 6.0.8** for navigation
+- **i18next 25.5.2** for internationalization
+- **React Native Reanimated 4.1.1** for animations
+- **AsyncStorage** for data persistence
+
+## Development Workflow
+1. **Component Development**: Follow component patterns with proper TypeScript interfaces
+2. **State Management**: Use context providers for global state, local state for component-specific data
+3. **Styling**: Use theme system with tokens, support all theme modes
+4. **Testing**: Write comprehensive tests following testing patterns
+5. **Error Handling**: Implement proper error boundaries and user-friendly error messages
+6. **Performance**: Optimize with React.memo, useCallback, and proper list rendering
+7. **Accessibility**: Ensure all components are accessible with proper labels and navigation
+
+## Code Quality Standards
+- **TypeScript**: Strict mode enabled, explicit interfaces, proper error handling
+- **Testing**: 80%+ coverage, test error scenarios, accessibility testing
+- **Performance**: Optimize renders, implement proper caching, test on real devices
+- **Security**: Validate inputs, secure storage, proper error handling
+- **Accessibility**: Screen reader support, proper contrast, keyboard navigation
+
+## File Structure Quick Reference
+```
+app/                    # Expo Router pages
+src/
+  components/           # Reusable UI components
+    ui/                # Basic UI components
+    glass/             # Glass morphism components
+    icons/             # Icon components
+  context/             # React Context providers
+  services/            # Business logic and API services
+  types/               # TypeScript type definitions
+  theme/               # Theme system and tokens
+  i18n/                # Internationalization files
+  utils/               # Utility functions
+modules/               # Native modules (platform-specific)
+```
+
+## Getting Started
+1. Follow the project structure patterns for new features
+2. Use the theme system for consistent styling
+3. Implement proper error handling and loading states
+4. Write tests for new components and services
+5. Ensure accessibility compliance
+6. Follow TypeScript standards for type safety
+7. Use the service layer for API interactions
+8. Implement proper internationalization support
+
+## Best Practices Summary
+- Always use TypeScript interfaces for props and data structures
+- Implement proper error boundaries and user-friendly error messages
+- Use the theme system for all styling (colors, spacing, typography)
+- Write comprehensive tests including error scenarios
+- Ensure accessibility compliance with screen readers
+- Optimize performance with proper React patterns
+- Follow security best practices for data handling
+- Use the service layer pattern for API interactions
+- Implement proper internationalization support
+- Follow the established component patterns and conventions

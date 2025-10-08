@@ -1,0 +1,127 @@
+---
+globs: src/context/*.tsx
+description: Context and state management patterns
+---
+
+# Context & State Management
+
+## Context Architecture
+- Separate contexts for different domains (Weather, Theme, Settings)
+- Provider components with proper TypeScript interfaces
+- Custom hooks for context consumption
+- Error boundaries for context errors
+
+## Context Pattern
+```typescript
+// Context definition
+interface WeatherContextValue {
+  // State
+  weatherData: WeatherData | null;
+  isLoading: boolean;
+  error: Error | null;
+  
+  // Actions
+  refreshWeather: () => Promise<void>;
+  setLocation: (coords: Coordinates) => void;
+}
+
+const WeatherContext = createContext<WeatherContextValue | undefined>(undefined);
+
+// Provider component
+export function WeatherProvider({ children }: { children: React.ReactNode }) {
+  const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+  
+  // Implementation...
+  
+  return (
+    <WeatherContext.Provider value={value}>
+      {children}
+    </WeatherContext.Provider>
+  );
+}
+
+// Custom hook
+export function useWeather(): WeatherContextValue {
+  const context = useContext(WeatherContext);
+  if (context === undefined) {
+    throw new Error('useWeather must be used within a WeatherProvider');
+  }
+  return context;
+}
+```
+
+## State Management Principles
+- Keep state as local as possible
+- Lift state up when multiple components need it
+- Use useCallback for stable function references
+- Implement proper loading and error states
+
+## Async Operations
+- Use async/await in context methods
+- Implement proper error handling
+- Show loading states during operations
+- Provide retry mechanisms
+
+## Performance Optimization
+- Use useMemo for expensive computations
+- Use useCallback for stable function references
+- Avoid unnecessary re-renders
+- Implement proper dependency arrays
+
+## Error Handling
+- Catch errors in context methods
+- Set error state for UI display
+- Log errors with proper context
+- Provide error recovery mechanisms
+
+## Persistence
+- Use AsyncStorage for persistent state
+- Load state on app initialization
+- Handle storage errors gracefully
+- Provide fallback values
+
+## Example Implementation
+```typescript
+export function WeatherProvider({ children }: WeatherProviderProps) {
+  const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const refreshWeather = useCallback(async () => {
+    if (!currentLocation) return;
+    
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const data = await weatherService.getWeatherData(currentLocation);
+      setWeatherData(data);
+    } catch (err) {
+      setError(err as Error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [currentLocation]);
+
+  const value = useMemo(() => ({
+    weatherData,
+    isLoading,
+    error,
+    refreshWeather,
+  }), [weatherData, isLoading, error, refreshWeather]);
+
+  return (
+    <WeatherContext.Provider value={value}>
+      {children}
+    </WeatherContext.Provider>
+  );
+}
+```
+
+## Testing
+- Test context providers in isolation
+- Mock external dependencies
+- Test error scenarios
+- Verify state updates

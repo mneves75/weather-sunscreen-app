@@ -1,57 +1,124 @@
-# React Component Patterns
+---
+globs: src/components/**/*.tsx
+description: Component development patterns and best practices
+---
+
+# Component Development Patterns
 
 ## Component Structure
-- **Functional Components**: Prefer functional components with hooks over class components
-- **TypeScript**: Use proper typing for props and state
-- **Error Boundaries**: Wrap components with [src/components/ErrorBoundary.tsx](mdc:src/components/ErrorBoundary.tsx) when needed
+- Functional components with TypeScript interfaces
+- Props interface extending base component props when appropriate
+- Proper destructuring of props
+- Clear component responsibility
 
-## State Management
-- **Context Usage**: Use contexts from [src/context/](mdc:src/context/) for global state
-- **Local State**: Use `useState` for component-specific state
-- **Effects**: Use `useEffect` for side effects and lifecycle management
-- **Callbacks**: Use `useCallback` for stable function references
-
-## Props and Interfaces
-- **Props Interface**: Define explicit props interface for each component
-- **Default Props**: Use default parameter values or destructuring with defaults
-- **Prop Validation**: Use TypeScript for runtime type safety
-- **Children**: Handle children prop appropriately for wrapper components
-
-## Styling and UI
-- **Theme Integration**: Use theme colors from React Navigation theme
-- **Responsive Design**: Consider different screen sizes and orientations
-- **Accessibility**: Include proper accessibility props (accessibilityLabel, accessibilityHint)
-- **Platform Specific**: Use Platform.OS for platform-specific styling when needed
+## UI Component Patterns
+- Use theme system for consistent styling
+- Implement proper loading and error states
+- Support accessibility features
+- Follow Material Design principles
 
 ## Component Categories
-### Screen Components
-- **Location**: [src/navigation/screens/](mdc:src/navigation/screens/)
-- **Navigation**: Use navigation props for screen transitions
-- **Header Configuration**: Configure headers in navigation options
+- **UI Components**: Basic building blocks (Button, Text, Card)
+- **Glass Components**: Specialized glass morphism effects
+- **Icon Components**: Weather and UI icons
+- **Screen Components**: Full-screen layouts
 
-### UI Components
-- **Location**: [src/components/](mdc:src/components/)
-- **Reusability**: Design for reuse across different screens
-- **Props Interface**: Keep props interface minimal and focused
+## Props Interface Pattern
+```typescript
+interface ComponentProps extends ViewProps {
+  // Required props
+  data: WeatherData;
+  
+  // Optional props with defaults
+  onPress?: () => void;
+  size?: 'small' | 'medium' | 'large';
+  
+  // Style overrides
+  style?: StyleProp<ViewStyle>;
+}
+```
 
-### Icon Components
-- **Location**: [src/components/icons/](mdc:src/components/icons/)
-- **SVG Based**: Use SVG components for scalable icons
-- **Props**: Accept `size` and `color` props for consistency
-- **Examples**: [src/components/icons/SettingsIcon.tsx](mdc:src/components/icons/SettingsIcon.tsx), [src/components/icons/LogsIcon.tsx](mdc:src/components/icons/LogsIcon.tsx)
+## Styling Patterns
+- Use StyleSheet.create for performance
+- Support style prop overrides
+- Use theme tokens for consistent spacing/colors
+- Implement responsive design
 
-## Best Practices
-- **Single Responsibility**: Each component should have one clear purpose
-- **Composition**: Use composition over inheritance
-- **Performance**: Use React.memo for expensive components
-- **Testing**: Write testable components with clear interfaces
+## Error Handling
+- Use ErrorBoundary for component errors
+- Implement proper fallback UI
+- Show user-friendly error messages
+- Provide retry mechanisms
 
-## Do Not
-- **Mutate props** directly
-- **Use inline styles** for complex styling
-- **Create deeply nested** component hierarchies
-- **Bypass context** for global state management
-description:
-globs:
-alwaysApply: false
----
+## Accessibility
+- Use proper accessibility labels
+- Support screen readers
+- Implement proper focus management
+- Ensure adequate color contrast
+
+## Example Component
+```typescript
+interface WeatherCardProps extends ViewProps {
+  weather: WeatherData;
+  onPress?: () => void;
+  style?: StyleProp<ViewStyle>;
+}
+
+export function WeatherCard({ 
+  weather, 
+  onPress, 
+  style,
+  ...props 
+}: WeatherCardProps) {
+  const { colors, spacing } = useTheme();
+  
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      style={[
+        styles.container,
+        { backgroundColor: colors.surface },
+        style
+      ]}
+      accessibilityRole="button"
+      accessibilityLabel={`Weather for ${weather.location.city}`}
+      {...props}
+    >
+      <Text style={[styles.title, { color: colors.onSurface }]}>
+        {weather.location.city}
+      </Text>
+      <Text style={[styles.temperature, { color: colors.primary }]}>
+        {weather.current.temperature}°
+      </Text>
+    </TouchableOpacity>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    padding: 16,
+    borderRadius: 12,
+    marginVertical: 8,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: '600',
+  },
+  temperature: {
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+});
+```
+
+## Performance
+- Use React.memo for expensive components
+- Implement proper key props for lists
+- Avoid inline object creation in render
+- Use useCallback for event handlers
+
+## Testing
+- Write unit tests for component logic
+- Test accessibility features
+- Test different prop combinations
+- Test error states and edge cases
