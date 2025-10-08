@@ -1,0 +1,34 @@
+default_platform(:ios)
+
+platform :ios do
+  desc "Generate localized App Store screenshots"
+  lane :screenshots do
+    ensure_bundle_exec
+    snapshot(
+      clean: true,
+      reinstall_app: true,
+      erase_simulator: false
+    )
+  end
+end
+
+platform :android do
+  desc "Generate localized Play Store screenshots"
+  lane :screenshots do
+    ensure_bundle_exec
+    screengrab(
+      clear_previous_screenshots: true,
+      app_package_name: "com.mneves.weather_suncreen_app",
+      use_tests_in_packages: ["com.mneves.weather_suncreen_app"],
+      test_instrumentation_runner_argument: {
+        "clearPackageData" => "true"
+      }
+    )
+  end
+end
+
+desc "Generate screenshots for both platforms"
+lane :store_screenshots do
+  ios.screenshots
+  android.screenshots
+end
