@@ -198,10 +198,17 @@
   },
   "accessibility": {
     "weatherCard": {
-      "summary": "Weather for {{city}}. Temperature {{temperature}}. {{description}}"
+      "summary": "Weather for {{city}}. Temperature {{temperature}}. {{description}}",
+      "hint": "Double tap to view detailed weather information",
+      "currentWeather": "Current weather: {{temperature}} degrees, {{condition}}"
     },
     "uvIndicator": {
       "summary": "UV Index {{value}}, Level {{label}}"
+    },
+    "temperatureDisplay": {
+      "label": "Temperature {{temperature}} degrees {{unit}}, {{condition}}",
+      "celsius": "Celsius",
+      "fahrenheit": "Fahrenheit"
     }
   },
   "skinTypes": {
@@ -218,7 +225,8 @@
     "sevenDayForecast": "7-Day Forecast",
     "nextDays": "Next Days",
     "errorLoadingData": "Could not load weather data.",
-    "refreshWeather": "Refresh Weather"
+    "refreshWeather": "Refresh Weather",
+    "recommended": "Recommended"
   },
   "tabs": {
     "home": "Home",

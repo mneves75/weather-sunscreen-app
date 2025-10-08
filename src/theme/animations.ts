@@ -155,6 +155,24 @@ export const createAnimatedValue = (initialValue = 0) => new Animated.Value(init
 
 export const createAnimatedValueXY = (x = 0, y = 0) => new Animated.ValueXY({ x, y });
 
+/**
+ * Calculate stagger delay for sequential animations
+ * Used for entrance animations where items appear one after another
+ *
+ * @param index - The index of the item in the sequence (0-based)
+ * @param baseDelay - The delay increment between items (in milliseconds)
+ * @returns The calculated delay for this item
+ *
+ * @example
+ * // First item appears immediately (0ms), second after 80ms, third after 160ms
+ * getStaggerDelay(0, 80) // 0
+ * getStaggerDelay(1, 80) // 80
+ * getStaggerDelay(2, 80) // 160
+ */
+export const getStaggerDelay = (index: number, baseDelay: number = 80): number => {
+  return index * baseDelay;
+};
+
 // Interpolation helper
 export const interpolate = (
   animValue: Animated.Value,

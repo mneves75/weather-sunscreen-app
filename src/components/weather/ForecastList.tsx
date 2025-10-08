@@ -1,8 +1,9 @@
 /**
  * 7-day forecast list component
- * 
+ *
  * Modernized with:
  * - FlashList for better performance (50-60fps scrolling)
+ * - Staggered entrance animations (50ms delay per item)
  * - Glass effects with platform fallbacks
  * - Optimized item layout estimation
  * - Accessibility-friendly grouping
@@ -24,8 +25,8 @@ interface ForecastListProps {
   formatTemperature?: (value: number) => string;
 }
 
-export const ForecastList = React.memo<ForecastListProps>(({ 
-  days, 
+export const ForecastList = React.memo<ForecastListProps>(({
+  days,
   onDayPress,
   onRefresh,
   refreshing = false,
@@ -33,10 +34,11 @@ export const ForecastList = React.memo<ForecastListProps>(({
   formatTemperature,
 }) => {
   const colors = useColors();
-  
-  const renderItem: ListRenderItem<ForecastDay> = useCallback(({ item }) => (
+
+  const renderItem: ListRenderItem<ForecastDay> = useCallback(({ item, index }) => (
     <ForecastDayCard
       day={item}
+      index={index}
       onPress={onDayPress ? () => onDayPress(item) : undefined}
       locale={locale}
       formatTemperature={formatTemperature}

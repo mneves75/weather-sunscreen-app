@@ -12,3 +12,7 @@ export * from './UVRecommendations';
 export * from './WeatherCard';
 export * from './WeatherDetails';
 
+// Modern weather components (iOS 26 + M3)
+export * from './TemperatureDisplay';
+export * from './WeatherGradient';
+

@@ -58,6 +58,7 @@ const lightColors: ThemeColors = {
   onSuccessContainer: '#0D8A2E',
 
   warning: '#FFD60A',            // Apple Yellow
+  onWarning: '#1C1C1E',          // Dark text on yellow background for contrast
   warningLight: '#FFE566',
   warningDark: '#CC9F00',
   warningContainer: '#FFF9E5',
@@ -160,6 +161,7 @@ const darkColors: ThemeColors = {
   onSuccessContainer: '#AEFFC7',
 
   warning: '#FFD60A',            // Apple Yellow
+  onWarning: '#1C1C1E',          // Dark text on yellow background for contrast
   warningLight: '#FFE566',
   warningDark: '#CC9F00',
   warningContainer: '#8C6600',

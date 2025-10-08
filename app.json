@@ -2,7 +2,7 @@
   "expo": {
     "name": "weather-suncreen-app",
     "slug": "weather-suncreen-app",
-    "version": "3.1.0",
+    "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "weathersuncreenapp",
@@ -66,23 +66,17 @@
           "icon": "./assets/images/icon.png",
           "color": "#2196F3",
           "sounds": [],
-          "mode": "production"
+          "mode": "production",
+          "iosDisplayInForeground": true,
+          "androidMode": "default",
+          "androidCollapsedTitle": "#{unread_messages_count} new interactions"
         }
       ],
       "expo-secure-store"
     ],
-    "notification": {
-      "icon": "./assets/images/icon.png",
-      "color": "#2196F3",
-      "iosDisplayInForeground": true,
-      "androidMode": "default",
-      "androidCollapsedTitle": "#{unread_messages_count} new interactions",
-      "androidChannelId": "default"
-    },
     "buildCacheProvider": "eas",
     "experiments": {
-      "typedRoutes": true,
-      "autolinkingModuleResolution": true
+      "typedRoutes": true
     },
     "extra": {
       "router": {},

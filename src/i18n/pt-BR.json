@@ -198,10 +198,17 @@
   },
   "accessibility": {
     "weatherCard": {
-      "summary": "Clima para {{city}}. Temperatura {{temperature}}. {{description}}"
+      "summary": "Clima para {{city}}. Temperatura {{temperature}}. {{description}}",
+      "hint": "Toque duas vezes para ver informações detalhadas do clima",
+      "currentWeather": "Clima atual: {{temperature}} graus, {{condition}}"
     },
     "uvIndicator": {
       "summary": "Índice UV {{value}}, Nível {{label}}"
+    },
+    "temperatureDisplay": {
+      "label": "Temperatura {{temperature}} graus {{unit}}, {{condition}}",
+      "celsius": "Celsius",
+      "fahrenheit": "Fahrenheit"
     }
   },
   "skinTypes": {
@@ -218,7 +225,8 @@
     "sevenDayForecast": "Previsão 7 Dias",
     "nextDays": "Próximos Dias",
     "errorLoadingData": "Não foi possível carregar os dados meteorológicos.",
-    "refreshWeather": "Atualizar clima"
+    "refreshWeather": "Atualizar clima",
+    "recommended": "Recomendado"
   },
   "tabs": {
     "home": "Início",

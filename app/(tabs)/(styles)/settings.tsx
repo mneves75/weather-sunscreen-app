@@ -1,24 +1,28 @@
 /**
  * Settings Screen
  * User preferences and app configuration
- * 
+ *
  * Modernized with:
+ * - Staggered section entrance animations (80ms delay per section)
+ * - Haptic feedback on all interactions (switches, toggles, resets)
+ * - Spring scale animations for interactive elements
  * - Categorized glass cards for organized settings
- * - Expo UI toggle patterns (Switch components)
- * - Consistent typography with theme tokens
- * - Enhanced accessibility labels and roles
+ * - Material Design 3 transitions and polish
+ * - Enhanced accessibility with reduce motion support
  * - Platform-adaptive Material fallbacks
  */
 
 import { Divider, Text } from '@/src/components/ui';
 import { SkinTypeSelector } from '@/src/components/weather';
 import { useSettings } from '@/src/context/SettingsContext';
+import { useHaptics } from '@/src/hooks/useHaptics';
 import { useColors, useGlassAvailability, useTheme } from '@/src/theme';
+import { getStaggerDelay } from '@/src/theme/animations';
 import { tokens } from '@/src/theme/tokens';
 import { GlassView } from 'expo-glass-effect';
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, ScrollView, StyleSheet, Switch, TouchableOpacity, View } from 'react-native';
+import { AccessibilityInfo, Alert, Animated, Easing, ScrollView, StyleSheet, Switch, TouchableOpacity, View } from 'react-native';
 
 const { spacing, borderRadius } = tokens;
 
@@ -28,8 +32,24 @@ export default function SettingsScreen() {
   const { themeMode, setThemeMode, highContrast, setHighContrast } = useTheme();
   const { preferences, updatePreference, resetPreferences } = useSettings();
   const { t, i18n } = useTranslation();
+  const { trigger: triggerHaptic } = useHaptics();
+
+  // Check for reduce motion accessibility preference
+  const [reduceMotion, setReduceMotion] = useState(false);
+
+  useEffect(() => {
+    AccessibilityInfo.isReduceMotionEnabled().then(setReduceMotion);
+
+    const subscription = AccessibilityInfo.addEventListener(
+      'reduceMotionChanged',
+      setReduceMotion
+    );
+
+    return () => subscription?.remove();
+  }, []);
 
   const handleReset = useCallback(() => {
+    triggerHaptic('warning');
     Alert.alert(
       t('settings.resetConfirmTitle'),
       t('settings.resetConfirmMessage'),
@@ -37,20 +57,25 @@ export default function SettingsScreen() {
         {
           text: t('settings.resetCancel'),
           style: 'cancel',
+          onPress: () => triggerHaptic('light'),
         },
         {
           text: t('settings.resetConfirm'),
           style: 'destructive',
-          onPress: resetPreferences,
+          onPress: () => {
+            triggerHaptic('error');
+            resetPreferences();
+          },
         },
       ]
     );
-  }, [resetPreferences, t]);
-  
+  }, [resetPreferences, t, triggerHaptic]);
+
   const handleLanguageChange = useCallback(async (locale: 'en' | 'pt-BR') => {
+    triggerHaptic('selection');
     await updatePreference('locale', locale);
     i18n.changeLanguage(locale);
-  }, [updatePreference, i18n]);
+  }, [updatePreference, i18n, triggerHaptic]);
 
   const timeFormatLabel = preferences.timeFormat === '24h'
     ? t('settings.timeFormat24')
@@ -93,42 +118,80 @@ export default function SettingsScreen() {
     </TouchableOpacity>
   );
 
-  // Reusable Section wrapper with glass/solid variants
-  const SettingSection = ({ 
-    title, 
+  // Animated Section wrapper with staggered entrance
+  const AnimatedSettingSection = ({
+    title,
     children,
+    index,
     accessibilityLabel,
-  }: { 
-    title: string; 
+  }: {
+    title: string;
     children: React.ReactNode;
+    index: number;
     accessibilityLabel?: string;
-  }) => (
-    canUseGlass ? (
-      <GlassView 
-        style={styles.glassSection}
-        glassEffectStyle="regular"
-        tintColor={colors.surfaceTint}
-        accessibilityLabel={accessibilityLabel || title}
-      >
-        <View style={styles.sectionContent}>
-          <Text variant="h3" style={[styles.sectionTitle, { color: colors.onSurface }]}>
-            {title}
-          </Text>
-          {children}
-        </View>
-      </GlassView>
-    ) : (
-      <View 
-        style={[styles.solidSection, { backgroundColor: colors.surface }]}
-        accessibilityLabel={accessibilityLabel || title}
-      >
-        <Text variant="h3" style={[styles.sectionTitle, { color: colors.onSurface }]}>
-          {title}
-        </Text>
-        {children}
-      </View>
-    )
-  );
+  }) => {
+    const animatedOpacity = useRef(new Animated.Value(0)).current;
+    const animatedTranslateY = useRef(new Animated.Value(20)).current;
+
+    useEffect(() => {
+      if (reduceMotion) {
+        animatedOpacity.setValue(1);
+        animatedTranslateY.setValue(0);
+      } else {
+        Animated.parallel([
+          Animated.timing(animatedOpacity, {
+            toValue: 1,
+            duration: 500,
+            delay: getStaggerDelay(index, 80),
+            easing: Easing.bezier(0.4, 0.0, 0.2, 1.0),
+            useNativeDriver: true,
+          }),
+          Animated.spring(animatedTranslateY, {
+            toValue: 0,
+            delay: getStaggerDelay(index, 80),
+            damping: 15,
+            stiffness: 120,
+            useNativeDriver: true,
+          }),
+        ]).start();
+      }
+    }, [index, reduceMotion]);
+
+    const animatedStyle = {
+      opacity: animatedOpacity,
+      transform: [{ translateY: animatedTranslateY }],
+    };
+
+    return (
+      <Animated.View style={animatedStyle}>
+        {canUseGlass ? (
+          <GlassView
+            style={styles.glassSection}
+            glassEffectStyle="regular"
+            tintColor={colors.surfaceTint}
+            accessibilityLabel={accessibilityLabel || title}
+          >
+            <View style={styles.sectionContent}>
+              <Text variant="h3" style={[styles.sectionTitle, { color: colors.onSurface }]}>
+                {title}
+              </Text>
+              {children}
+            </View>
+          </GlassView>
+        ) : (
+          <View
+            style={[styles.solidSection, { backgroundColor: colors.surface }]}
+            accessibilityLabel={accessibilityLabel || title}
+          >
+            <Text variant="h3" style={[styles.sectionTitle, { color: colors.onSurface }]}>
+              {title}
+            </Text>
+            {children}
+          </View>
+        )}
+      </Animated.View>
+    );
+  };
   
   return (
     <ScrollView
@@ -136,49 +199,58 @@ export default function SettingsScreen() {
       contentContainerStyle={styles.contentContainer}
     >
       {/* Appearance Section */}
-      <SettingSection 
+      <AnimatedSettingSection
+        index={0}
         title={t('settings.appearance')}
         accessibilityLabel={t('settings.appearanceSection')}
       >
-        
+
         <SettingItem
           title={t('settings.theme')}
-          subtitle={themeMode === 'system' 
+          subtitle={themeMode === 'system'
             ? t('settings.themeSystem')
             : themeMode === 'dark'
               ? t('settings.themeDark')
               : t('settings.themeLight')
           }
           onPress={() => {
+            triggerHaptic('light');
             const modes = ['light', 'dark', 'system'] as const;
             const currentIndex = modes.indexOf(themeMode);
             const nextMode = modes[(currentIndex + 1) % modes.length];
             setThemeMode(nextMode);
+            if (nextMode === 'dark') {
+              triggerHaptic('success');
+            }
           }}
           rightElement={<Text style={[styles.chevron, { color: colors.onSurfaceVariant }]}>›</Text>}
         />
-        
+
         <Divider />
-        
+
         <SettingItem
           title={t('settings.highContrast')}
           rightElement={
             <Switch
               value={highContrast}
-              onValueChange={setHighContrast}
+              onValueChange={(value) => {
+                triggerHaptic('medium');
+                setHighContrast(value);
+              }}
               trackColor={{ false: colors.surfaceVariant, true: colors.primary }}
               thumbColor={highContrast ? colors.onPrimary : colors.onSurfaceVariant}
             />
           }
         />
-      </SettingSection>
+      </AnimatedSettingSection>
       
       {/* Language Section */}
-      <SettingSection 
+      <AnimatedSettingSection
+        index={1}
         title={t('settings.language')}
         accessibilityLabel={t('settings.languageSection')}
       >
-        
+
         <SettingItem
           title={t('settings.languageEnglish')}
           onPress={() => handleLanguageChange('en')}
@@ -188,9 +260,9 @@ export default function SettingsScreen() {
             )
           }
         />
-        
+
         <Divider />
-        
+
         <SettingItem
           title={t('settings.languagePortuguese')}
           onPress={() => handleLanguageChange('pt-BR')}
@@ -200,26 +272,30 @@ export default function SettingsScreen() {
             )
           }
         />
-      </SettingSection>
-      
+      </AnimatedSettingSection>
+
       {/* Units Section */}
-      <SettingSection 
+      <AnimatedSettingSection
+        index={2}
         title={t('settings.units')}
         accessibilityLabel={t('settings.unitsSection')}
       >
-        
+
         <SettingItem
           title={t('settings.temperature')}
           subtitle={preferences.temperatureUnit === 'celsius' ? '°C (Celsius)' : '°F (Fahrenheit)'}
-          onPress={() => updatePreference(
-            'temperatureUnit', 
-            preferences.temperatureUnit === 'celsius' ? 'fahrenheit' : 'celsius'
-          )}
+          onPress={() => {
+            triggerHaptic('light');
+            updatePreference(
+              'temperatureUnit',
+              preferences.temperatureUnit === 'celsius' ? 'fahrenheit' : 'celsius'
+            );
+          }}
           rightElement={<Text style={[styles.chevron, { color: colors.onSurfaceVariant }]}>›</Text>}
         />
-        
+
         <Divider />
-        
+
         <SettingItem
           title={t('settings.windSpeed')}
           subtitle={
@@ -227,6 +303,7 @@ export default function SettingsScreen() {
             preferences.speedUnit === 'mph' ? 'mph' : 'm/s'
           }
           onPress={() => {
+            triggerHaptic('light');
             const units = ['kmh', 'mph', 'ms'] as const;
             const currentIndex = units.indexOf(preferences.speedUnit);
             const nextUnit = units[(currentIndex + 1) % units.length];
@@ -234,9 +311,9 @@ export default function SettingsScreen() {
           }}
           rightElement={<Text style={[styles.chevron, { color: colors.onSurfaceVariant }]}>›</Text>}
         />
-        
+
         <Divider />
-        
+
         <SettingItem
           title={t('settings.pressure')}
           subtitle={
@@ -244,6 +321,7 @@ export default function SettingsScreen() {
             preferences.pressureUnit === 'inHg' ? 'inHg' : 'mmHg'
           }
           onPress={() => {
+            triggerHaptic('light');
             const units = ['hPa', 'inHg', 'mmHg'] as const;
             const currentIndex = units.indexOf(preferences.pressureUnit);
             const nextUnit = units[(currentIndex + 1) % units.length];
@@ -258,6 +336,7 @@ export default function SettingsScreen() {
           title={t('settings.timeFormat')}
           subtitle={timeFormatLabel}
           onPress={() => {
+            triggerHaptic('light');
             const formats = ['system', '12h', '24h'] as const;
             const currentIndex = formats.indexOf(preferences.timeFormat ?? 'system');
             const nextFormat = formats[(currentIndex + 1) % formats.length];
@@ -265,56 +344,67 @@ export default function SettingsScreen() {
           }}
           rightElement={<Text style={[styles.chevron, { color: colors.onSurfaceVariant }]}>›</Text>}
         />
-      </SettingSection>
+      </AnimatedSettingSection>
       
       {/* Skin Type Section */}
-      <SettingSection 
+      <AnimatedSettingSection
+        index={3}
         title={t('settings.uvRecommendations')}
         accessibilityLabel={t('settings.skinTypeSection')}
       >
         <SkinTypeSelector
           value={preferences.skinType}
-          onChange={(type) => updatePreference('skinType', type)}
+          onChange={(type) => {
+            triggerHaptic('selection');
+            updatePreference('skinType', type);
+          }}
           locale={preferences.locale}
         />
-      </SettingSection>
-      
+      </AnimatedSettingSection>
+
       {/* Notifications Section */}
-      <SettingSection 
+      <AnimatedSettingSection
+        index={4}
         title={t('settings.notifications')}
         accessibilityLabel={t('settings.notificationsSection')}
       >
-        
+
         <SettingItem
           title={t('settings.notificationsToggle')}
           subtitle={t('settings.comingSoon')}
           rightElement={
             <Switch
               value={preferences.notificationsEnabled}
-              onValueChange={(value) => updatePreference('notificationsEnabled', value)}
+              onValueChange={(value) => {
+                triggerHaptic('medium');
+                updatePreference('notificationsEnabled', value);
+              }}
               trackColor={{ false: colors.surfaceVariant, true: colors.primary }}
               thumbColor={preferences.notificationsEnabled ? colors.onPrimary : colors.onSurfaceVariant}
               disabled
             />
           }
         />
-        
+
         <Divider />
-        
+
         <SettingItem
           title={t('settings.uvAlerts')}
           subtitle={t('settings.comingSoon')}
           rightElement={
             <Switch
               value={preferences.uvAlerts}
-              onValueChange={(value) => updatePreference('uvAlerts', value)}
+              onValueChange={(value) => {
+                triggerHaptic('medium');
+                updatePreference('uvAlerts', value);
+              }}
               trackColor={{ false: colors.surfaceVariant, true: colors.primary }}
               thumbColor={preferences.uvAlerts ? colors.onPrimary : colors.onSurfaceVariant}
               disabled
             />
           }
         />
-      </SettingSection>
+      </AnimatedSettingSection>
       
       {/* Reset Section */}
       <TouchableOpacity

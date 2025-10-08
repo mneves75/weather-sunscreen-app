@@ -159,8 +159,8 @@ export const SunscreenTracker: React.FC = () => {
           {t('sunscreen.appliedAt')}
         </Text>
         <View style={[styles.timeChip, { backgroundColor: colors.primaryContainer }]}>
-          <Ionicons name="time-outline" size={16} color={colors.primary} />
-          <Text style={[styles.infoValue, { color: colors.primary, fontWeight: '700' }]}>
+          <Ionicons name="time-outline" size={16} color={colors.onPrimaryContainer} />
+          <Text style={[styles.infoValue, { color: colors.onPrimaryContainer, fontWeight: '700' }]}>
             {appliedTime}
           </Text>
         </View>
@@ -181,14 +181,14 @@ export const SunscreenTracker: React.FC = () => {
           style={[
             styles.timerText,
             {
-              color: isExpired ? colors.warning : colors.primary,
+              color: isExpired ? colors.onWarningContainer : colors.onPrimaryContainer,
             },
           ]}
         >
           {isExpired ? t('sunscreen.expired') : timeRemainingFormatted}
         </Text>
         {!isExpired && (
-          <Text style={[styles.timerLabel, { color: colors.primary }]}>
+          <Text style={[styles.timerLabel, { color: colors.onPrimaryContainer }]}>
             {t('sunscreen.remaining')}
           </Text>
         )}
@@ -197,7 +197,7 @@ export const SunscreenTracker: React.FC = () => {
       {/* UV Index info */}
       <View style={[styles.uvContainer, { backgroundColor: colors.surfaceVariant }]}>
         <Ionicons name="sunny" size={18} color={colors.warning} />
-        <Text style={[styles.uvText, { color: colors.onSurface, fontWeight: '600' }]}>
+        <Text style={[styles.uvText, { color: colors.onSurfaceVariant, fontWeight: '600' }]}>
           UV {currentApplication.uvIndex.toFixed(1)} • {currentApplication.reapplicationMinutes}min {t('sunscreen.interval')}
         </Text>
       </View>
@@ -246,11 +246,11 @@ export const SunscreenTracker: React.FC = () => {
           accessibilityLabel={t('sunscreen.reapply')}
         >
           {isApplying ? (
-            <ActivityIndicator size="small" color={colors.onPrimary} />
+            <ActivityIndicator size="small" color={isExpired ? colors.onWarning : colors.onPrimary} />
           ) : (
             <>
-              <Ionicons name="refresh" size={20} color={colors.onPrimary} />
-              <Text style={[styles.buttonText, { color: colors.onPrimary }]}>
+              <Ionicons name="refresh" size={20} color={isExpired ? colors.onWarning : colors.onPrimary} />
+              <Text style={[styles.buttonText, { color: isExpired ? colors.onWarning : colors.onPrimary }]}>
                 {t('sunscreen.reapply')}
               </Text>
             </>

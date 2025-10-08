@@ -1,7 +1,7 @@
 {
   "name": "weather-suncreen-app",
   "main": "expo-router/entry",
-  "version": "3.1.0",
+  "version": "1.0.0",
   "scripts": {
     "start": "expo start",
     "android": "expo run:android",
@@ -9,7 +9,8 @@
     "web": "expo start --web",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "generate-icons": "bash scripts/generate-icons.sh"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^2.0.23",
@@ -54,6 +55,7 @@
     "react-native-reanimated": "^4.1.2",
     "react-native-safe-area-context": "~5.6.0",
     "react-native-screens": "~4.16.0",
+    "react-native-svg": "15.12.1",
     "react-native-web": "~0.21.0",
     "react-native-worklets": "^0.5.1",
     "zod": "^3.25.76"

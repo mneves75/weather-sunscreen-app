@@ -35,3 +35,11 @@ export { GlassSection } from './GlassSection';
 export type { GlassSectionProps } from './GlassSection';
 export { MetricChip } from './MetricChip';
 
+// Modern UI Components (Material Design 3 + iOS 26)
+export { CircularProgress } from './CircularProgress';
+export { Chip } from './Chip';
+export type { ChipProps } from './Chip';
+export { Skeleton } from './Skeleton';
+export { FAB } from './FAB';
+export type { FABProps } from './FAB';
+

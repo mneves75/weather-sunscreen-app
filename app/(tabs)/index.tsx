@@ -9,19 +9,24 @@
  * - Platform-adaptive design (iOS Glass + Android Material)
  */
 
-import { Button, Container, ErrorView, LoadingSpinner, Text } from '@/src/components/ui';
+import { Button, Container, ErrorView, LoadingSpinner, Text, CircularProgress } from '@/src/components/ui';
 import {
     LocationDisplay,
     SunscreenTracker,
     UVIndicator,
     UVRecommendations,
     WeatherCard,
+    TemperatureDisplay,
+    WeatherGradient,
+    type WeatherType,
 } from '@/src/components/weather';
 import { useSettings } from '@/src/context/SettingsContext';
 import { LocationError, useForecast, useLocation, useUVIndex, useWeatherData } from '@/src/hooks';
+import { useHaptics } from '@/src/hooks/useHaptics';
 import { useColors, useGlassAvailability } from '@/src/theme';
 import { tokens } from '@/src/theme/tokens';
 import { createFadeInComponent, createSlideUpComponent } from '@/src/theme/animations';
+import { getStaggerDelay } from '@/src/theme/animations';
 import { GlassView } from 'expo-glass-effect';
 import { useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -37,6 +42,7 @@ export default function HomeScreen() {
   const router = useRouter();
   const { preferences } = useSettings();
   const { t } = useTranslation();
+  const { trigger: triggerHaptic } = useHaptics();
   const use24HourTime = preferences.timeFormat === '24h' || (preferences.timeFormat === 'system' && preferences.locale === 'pt-BR');
 
   // Check for reduce motion accessibility preference
@@ -81,6 +87,7 @@ export default function HomeScreen() {
   // Get UV index data
   const {
     uvIndex,
+    uvLevelLabel,
     spfRecommendation,
     recommendations,
     isLoading: isLoadingUV,
@@ -221,6 +228,16 @@ export default function HomeScreen() {
   
   const isLoading = isLoadingWeather || isLoadingForecast || isLoadingUV;
   const hasError = weatherError || forecastError || uvError;
+
+  // Helper: Determine weather type for gradient/tinting
+  const getWeatherType = (condition: string): WeatherType => {
+    const lowerCondition = condition.toLowerCase();
+    if (lowerCondition.includes('sun') || lowerCondition.includes('clear')) return 'sunny';
+    if (lowerCondition.includes('rain') || lowerCondition.includes('storm')) return 'rainy';
+    if (lowerCondition.includes('cloud') || lowerCondition.includes('overcast')) return 'cloudy';
+    if (lowerCondition.includes('snow') || lowerCondition.includes('ice')) return 'snowy';
+    return 'default';
+  };
   
   // Show loading on first load
   if (isLoading && !weatherData && !uvIndex) {
@@ -305,7 +322,7 @@ export default function HomeScreen() {
         </View>
       )}
       
-      {/* Weather Card with Glass Effect and Animation */}
+      {/* Hero Temperature Display with Weather Gradient */}
       {weatherData && (
         <Animated.View
           style={{
@@ -313,51 +330,32 @@ export default function HomeScreen() {
             transform: [{ translateY: weatherCardAnim.translateY }],
           }}
         >
-          {canUseGlass ? (
-            <GlassView
-              style={styles.glassCard}
-              glassEffectStyle="regular"
-              tintColor={colors.surfaceTint}
-              accessibilityRole="button"
-              accessibilityLabel={`Current weather: ${weatherData.current.temperature} degrees, ${weatherData.current.condition.description}`}
-              accessibilityHint={t('accessibility.weatherCard.hint', 'Double tap to view detailed weather information')}
-            >
-              <WeatherCard
-                data={weatherData}
-                onPress={() => router.push('/(tabs)/(home)/weather')}
-                temperatureText={getTemperatureWithUnit(weatherData.current.temperature)}
-                feelsLikeText={getTemperatureWithUnit(weatherData.current.feelsLike)}
-                windText={formatWindSpeed(weatherData.current.windSpeed)}
-                pressureText={formatPressure(weatherData.current.pressure)}
-                humidityText={`${weatherData.current.humidity}%`}
-                locale={preferences.locale}
-                use24HourTime={use24HourTime}
+          <TouchableOpacity
+            onPress={() => {
+              triggerHaptic('light');
+              router.push('/(tabs)/(home)/weather');
+            }}
+            activeOpacity={0.9}
+            accessibilityRole="button"
+            accessibilityLabel={t('accessibility.weatherCard.currentWeather', {
+              temperature: weatherData.current.temperature,
+              condition: weatherData.current.condition.description,
+            })}
+            accessibilityHint={t('accessibility.weatherCard.hint')}
+          >
+            <WeatherGradient weatherType={getWeatherType(weatherData.current.condition.description)}>
+              <TemperatureDisplay
+                temperature={weatherData.current.temperature}
+                unit={preferences.temperatureUnit === 'celsius' ? 'C' : 'F'}
+                condition={weatherData.current.condition.description}
+                weatherType={getWeatherType(weatherData.current.condition.description)}
               />
-            </GlassView>
-          ) : (
-            <View
-              style={[styles.solidCard, { backgroundColor: colors.surface }]}
-              accessibilityRole="button"
-              accessibilityLabel={`Current weather: ${weatherData.current.temperature} degrees, ${weatherData.current.condition.description}`}
-              accessibilityHint={t('accessibility.weatherCard.hint', 'Double tap to view detailed weather information')}
-            >
-              <WeatherCard
-                data={weatherData}
-                onPress={() => router.push('/(tabs)/(home)/weather')}
-                temperatureText={getTemperatureWithUnit(weatherData.current.temperature)}
-                feelsLikeText={getTemperatureWithUnit(weatherData.current.feelsLike)}
-                windText={formatWindSpeed(weatherData.current.windSpeed)}
-                pressureText={formatPressure(weatherData.current.pressure)}
-                humidityText={`${weatherData.current.humidity}%`}
-                locale={preferences.locale}
-                use24HourTime={use24HourTime}
-              />
-            </View>
-          )}
+            </WeatherGradient>
+          </TouchableOpacity>
         </Animated.View>
       )}
       
-      {/* UV Index with Glass Effect and Animation */}
+      {/* UV Index with Animated Circular Progress */}
       {uvIndex && (
         <Animated.View
           style={{
@@ -365,33 +363,71 @@ export default function HomeScreen() {
             transform: [{ translateY: uvCardAnim.translateY }],
           }}
         >
-          {canUseGlass ? (
-            <GlassView
-              style={styles.glassCard}
-              glassEffectStyle="regular"
-              tintColor={colors.surfaceTint}
-              accessibilityRole="alert"
-              accessibilityLabel={`UV Index: ${uvIndex.value}, ${uvIndex.level}`}
-            >
-              <UVIndicator
-                uvIndex={uvIndex}
-                locale={preferences.locale}
-                size="small"
-              />
-            </GlassView>
-          ) : (
-            <View
-              style={[styles.solidCard, { backgroundColor: colors.surface }]}
-              accessibilityRole="alert"
-              accessibilityLabel={`UV Index: ${uvIndex.value}, ${uvIndex.level}`}
-            >
-              <UVIndicator
-                uvIndex={uvIndex}
-                locale={preferences.locale}
-                size="small"
-              />
-            </View>
-          )}
+          <TouchableOpacity
+            onPress={() => {
+              triggerHaptic('light');
+              router.push('/(tabs)/(home)/uv');
+            }}
+            activeOpacity={0.9}
+            accessibilityRole="button"
+            accessibilityLabel={`UV Index: ${uvIndex.value}, ${uvIndex.level}`}
+            accessibilityHint="Double tap to view UV details and recommendations"
+            style={styles.uvCardContainer}
+          >
+            {canUseGlass ? (
+              <GlassView
+                style={styles.glassCard}
+                glassEffectStyle="regular"
+                tintColor={colors.surfaceTint}
+              >
+                <View style={styles.uvCardContent}>
+                  <CircularProgress
+                    value={uvIndex.value}
+                    max={11}
+                    size={160}
+                    trackWidth={12}
+                    gradient={['#30D158', '#FFD60A', '#FF9F0A', '#FF453A', '#BF5AF2']}
+                  >
+                    <View style={styles.uvProgressCenter}>
+                      <Text variant="h1" style={{ color: colors.onSurface, fontSize: 56, fontWeight: '300' }}>
+                        {uvIndex.value}
+                      </Text>
+                      <Text variant="body2" style={{ color: colors.onSurfaceVariant, marginTop: spacing.xxs }}>
+                        {uvLevelLabel}
+                      </Text>
+                    </View>
+                  </CircularProgress>
+                  <Text variant="body1" style={{ color: colors.onSurface, marginTop: spacing.md }}>
+                    SPF {spfRecommendation?.minimumSpf || 30}+ {t('home.recommended')}
+                  </Text>
+                </View>
+              </GlassView>
+            ) : (
+              <View style={[styles.solidCard, { backgroundColor: colors.surface }]}>
+                <View style={styles.uvCardContent}>
+                  <CircularProgress
+                    value={uvIndex.value}
+                    max={11}
+                    size={160}
+                    trackWidth={12}
+                    gradient={['#30D158', '#FFD60A', '#FF9F0A', '#FF453A', '#BF5AF2']}
+                  >
+                    <View style={styles.uvProgressCenter}>
+                      <Text variant="h1" style={{ color: colors.onSurface, fontSize: 56, fontWeight: '300' }}>
+                        {uvIndex.value}
+                      </Text>
+                      <Text variant="body2" style={{ color: colors.onSurfaceVariant, marginTop: spacing.xxs }}>
+                        {uvLevelLabel}
+                      </Text>
+                    </View>
+                  </CircularProgress>
+                  <Text variant="body1" style={{ color: colors.onSurface, marginTop: spacing.md }}>
+                    SPF {spfRecommendation?.minimumSpf || 30}+ {t('home.recommended')}
+                  </Text>
+                </View>
+              </View>
+            )}
+          </TouchableOpacity>
         </Animated.View>
       )}
       
@@ -402,13 +438,19 @@ export default function HomeScreen() {
       <Animated.View style={[styles.actionsContainer, { opacity: actionsAnim.opacity }]}>
         <Button
           title={t('home.viewDetails')}
-          onPress={() => router.push('/(tabs)/(home)/weather')}
+          onPress={() => {
+            triggerHaptic('light');
+            router.push('/(tabs)/(home)/weather');
+          }}
           variant="tonal"
           size="medium"
         />
         <Button
           title={t('home.uvAndSpf')}
-          onPress={() => router.push('/(tabs)/(home)/uv')}
+          onPress={() => {
+            triggerHaptic('light');
+            router.push('/(tabs)/(home)/uv');
+          }}
           variant="tonal"
           size="medium"
         />
@@ -416,7 +458,10 @@ export default function HomeScreen() {
       <Animated.View style={[styles.forecastButton, { opacity: actionsAnim.opacity }]}>
         <Button
           title={t('home.sevenDayForecast')}
-          onPress={() => router.push('/(tabs)/(home)/forecast')}
+          onPress={() => {
+            triggerHaptic('light');
+            router.push('/(tabs)/(home)/forecast');
+          }}
           variant="outlined"
           size="medium"
           fullWidth
@@ -538,6 +583,18 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+  },
+  uvCardContainer: {
+    marginVertical: spacing.xs,
+  },
+  uvCardContent: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: spacing.lg,
+  },
+  uvProgressCenter: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   actionsContainer: {
     flexDirection: 'row',

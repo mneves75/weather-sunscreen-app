@@ -1,31 +1,37 @@
 /**
  * Single forecast day card component
- * 
+ *
  * Modernized with:
+ * - Staggered entrance animations (50ms delay per item)
  * - Liquid Glass effects (iOS 26+) with accessibility fallbacks
  * - Material Design elevation for Android/iOS < 26
  * - Optimized for FlashList (consistent height ~104px)
  * - Accessibility-friendly labels and roles
+ * - Haptic feedback on press
  */
 
 import { Text } from '@/src/components/ui';
+import { useHaptics } from '@/src/hooks/useHaptics';
 import { useColors, useGlassAvailability } from '@/src/theme';
+import { getStaggerDelay } from '@/src/theme/animations';
 import { ForecastDay } from '@/src/types';
 import { formatShortDate, getRelativeDayLabel, getWeatherEmoji } from '@/src/utils';
 import { GlassView } from 'expo-glass-effect';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { AccessibilityInfo, Animated, Easing, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 interface ForecastDayCardProps {
   day: ForecastDay;
+  index: number;
   onPress?: () => void;
   locale?: string;
   formatTemperature?: (value: number) => string;
 }
 
-export const ForecastDayCard = React.memo<ForecastDayCardProps>(({ 
-  day, 
+export const ForecastDayCard = React.memo<ForecastDayCardProps>(({
+  day,
+  index,
   onPress,
   locale = 'en',
   formatTemperature,
@@ -33,6 +39,56 @@ export const ForecastDayCard = React.memo<ForecastDayCardProps>(({
   const colors = useColors();
   const { canUseGlass } = useGlassAvailability();
   const { t } = useTranslation();
+  const { trigger: triggerHaptic } = useHaptics();
+
+  // Check for reduce motion accessibility preference
+  const [reduceMotion, setReduceMotion] = useState(false);
+
+  useEffect(() => {
+    AccessibilityInfo.isReduceMotionEnabled().then(setReduceMotion);
+
+    const subscription = AccessibilityInfo.addEventListener(
+      'reduceMotionChanged',
+      setReduceMotion
+    );
+
+    return () => subscription?.remove();
+  }, []);
+
+  // Staggered entrance animation (50ms delay per item)
+  const animatedOpacity = React.useRef(new Animated.Value(0)).current;
+  const animatedTranslateY = React.useRef(new Animated.Value(20)).current;
+
+  useEffect(() => {
+    if (reduceMotion) {
+      animatedOpacity.setValue(1);
+      animatedTranslateY.setValue(0);
+    } else {
+      Animated.parallel([
+        Animated.timing(animatedOpacity, {
+          toValue: 1,
+          duration: 400,
+          delay: getStaggerDelay(index, 50),
+          easing: Easing.bezier(0.4, 0.0, 0.2, 1.0), // Material emphasized
+          useNativeDriver: true,
+        }),
+        Animated.timing(animatedTranslateY, {
+          toValue: 0,
+          duration: 400,
+          delay: getStaggerDelay(index, 50),
+          easing: Easing.bezier(0.4, 0.0, 0.2, 1.0),
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [index, reduceMotion]);
+
+  const handlePress = () => {
+    if (onPress) {
+      triggerHaptic('light');
+      onPress();
+    }
+  };
   
   const dayLabel = getRelativeDayLabel(day.date, locale);
   const dateLabel = formatShortDate(day.date, locale);
@@ -98,38 +154,47 @@ export const ForecastDayCard = React.memo<ForecastDayCardProps>(({
     </>
   );
 
+  const animatedStyle = {
+    opacity: animatedOpacity,
+    transform: [{ translateY: animatedTranslateY }],
+  };
+
   // Glass effect variant (iOS 26+)
   if (canUseGlass) {
     const GlassContainer = onPress ? TouchableOpacity : View;
     return (
-      <GlassContainer
-        style={styles.glassWrapper}
-        onPress={onPress}
-        accessibilityRole={onPress ? "button" : undefined}
-        accessibilityLabel={accessibilityLabel}
-      >
-        <GlassView
-          style={styles.glassCard}
-          glassEffectStyle="regular"
-          tintColor={colors.surfaceTint}
+      <Animated.View style={animatedStyle}>
+        <GlassContainer
+          style={styles.glassWrapper}
+          onPress={handlePress}
+          accessibilityRole={onPress ? "button" : undefined}
+          accessibilityLabel={accessibilityLabel}
         >
-          {cardContent}
-        </GlassView>
-      </GlassContainer>
+          <GlassView
+            style={styles.glassCard}
+            glassEffectStyle="regular"
+            tintColor={colors.surfaceTint}
+          >
+            {cardContent}
+          </GlassView>
+        </GlassContainer>
+      </Animated.View>
     );
   }
 
   // Solid Material Design variant (Android, iOS < 26, accessibility)
   const SolidContainer = onPress ? TouchableOpacity : View;
   return (
-    <SolidContainer
-      style={[styles.solidCard, { backgroundColor: colors.surface }]}
-      onPress={onPress}
-      accessibilityRole={onPress ? "button" : undefined}
-      accessibilityLabel={accessibilityLabel}
-    >
-      {cardContent}
-    </SolidContainer>
+    <Animated.View style={animatedStyle}>
+      <SolidContainer
+        style={[styles.solidCard, { backgroundColor: colors.surface }]}
+        onPress={handlePress}
+        accessibilityRole={onPress ? "button" : undefined}
+        accessibilityLabel={accessibilityLabel}
+      >
+        {cardContent}
+      </SolidContainer>
+    </Animated.View>
   );
 });
 
