@@ -1,7 +1,7 @@
 devices([
   "iPhone 16 Pro Max",
-  "iPhone 16",
-  "iPad Pro (12.9-inch) (6th generation)"
+  "iPhone Air",
+  "iPad Pro 13-inch (M4)"
 ])
 
 languages([
@@ -9,10 +9,9 @@ languages([
   "pt-BR"
 ])
 
+workspace("./ios/weathersuncreenapp.xcworkspace")
 scheme("WeatherSunscreenAppScreenshots")
 output_directory("./fastlane/screenshots/ios")
-resolution("all")
 clear_previous_screenshots(true)
 stop_after_first_error(true)
 number_of_retries(1)
-test_without_building(true)
