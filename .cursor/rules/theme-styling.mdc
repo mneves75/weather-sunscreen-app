@@ -1,0 +1,81 @@
+---
+globs: *.tsx,*.ts
+description: Theme system and styling patterns
+---
+
+# Theme & Styling Patterns
+
+## Theme System Architecture
+- Centralized theme management through [src/theme/theme.tsx](mdc:src/theme/theme.tsx)
+- Token-based design system in [src/theme/tokens.ts](mdc:src/theme/tokens.ts)
+- Context provider for theme state management
+- AsyncStorage persistence for user preferences
+
+## Color System
+- Use `useColors()` hook to access current theme colors
+- Support light/dark mode with system preference detection
+- High contrast mode for accessibility
+- Semantic color naming (primary, secondary, background, etc.)
+
+## Typography
+- Consistent text styles across the app
+- Responsive font sizing
+- Proper contrast ratios for accessibility
+- Use theme tokens for font sizes and weights
+
+## Spacing & Layout
+- Use consistent spacing tokens (4px base unit)
+- Implement responsive design patterns
+- Use Flexbox for layouts
+- Follow Material Design spacing guidelines
+
+## Component Styling
+- Use StyleSheet.create for performance
+- Extend theme props in component interfaces
+- Support style overrides through props
+- Use theme tokens instead of hardcoded values
+
+## Example Patterns
+```typescript
+// Using theme in components
+export function WeatherCard({ data }: WeatherCardProps) {
+  const { colors, spacing } = useTheme();
+  
+  return (
+    <View style={[
+      styles.container,
+      { backgroundColor: colors.surface }
+    ]}>
+      <Text style={[styles.title, { color: colors.onSurface }]}>
+        {data.location.city}
+      </Text>
+    </View>
+  );
+}
+
+// StyleSheet with theme integration
+const styles = StyleSheet.create({
+  container: {
+    padding: spacing.md,
+    borderRadius: 12,
+    marginVertical: spacing.sm,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: '600',
+  },
+});
+```
+
+## Accessibility
+- Ensure proper contrast ratios
+- Support high contrast mode
+- Use semantic color names
+- Test with screen readers
+- Implement proper focus management
+
+## Dark Mode Support
+- All components must support both light and dark themes
+- Use theme-aware colors for all UI elements
+- Test theme switching functionality
+- Maintain visual hierarchy in both modes

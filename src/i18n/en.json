@@ -1,0 +1,251 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "save": "Save",
+    "close": "Close",
+    "settings": "Settings",
+    "back": "Back"
+  },
+  "weather": {
+    "title": "Weather",
+    "currentConditions": "Current Conditions",
+    "temperature": "Temperature",
+    "feelsLike": "Feels like",
+    "humidity": "Humidity",
+    "pressure": "Pressure",
+    "windSpeed": "Wind Speed",
+    "visibility": "Visibility",
+    "cloudCover": "Cloud Cover",
+    "lastUpdated": "Last updated",
+    "refreshing": "Refreshing...",
+    "pullToRefresh": "Pull to refresh"
+  },
+  "uv": {
+    "title": "UV Index",
+    "index": "UV Index",
+    "level": "Level",
+    "peakTime": "Peak Time",
+    "recommendations": "Recommendations",
+    "protection": "Sun Protection",
+    "skinTypePrompt": "Select your skin type for personalized SPF recommendations",
+    "aboutTitle": "About UV Index",
+    "aboutDescription": "The UV index measures the strength of ultraviolet radiation from the sun. Higher values indicate greater risk of harm to skin and eyes.",
+    "spfBanner": "SPF {{value}}+",
+    "peakLabel": "Peak: {{time}}",
+    "levels": {
+      "low": "Low",
+      "moderate": "Moderate",
+      "high": "High",
+      "veryHigh": "Very High",
+      "extreme": "Extreme"
+    }
+  },
+  "forecast": {
+    "title": "Forecast",
+    "sevenDay": "7-Day Forecast",
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "noData": "No forecast available",
+    "uvLabel": "UV",
+    "daySummary": "{{day}}. {{condition}}. High {{high}}, Low {{low}}. UV Index {{uv}}",
+    "precipitation": "Precipitation",
+    "precipitationChance": "Chance of rain",
+    "high": "High",
+    "low": "Low",
+    "morning": "Morning",
+    "afternoon": "Afternoon",
+    "evening": "Evening",
+    "night": "Night"
+  },
+  "messages": {
+    "title": "Messages",
+    "detail": {
+      "title": "Message",
+      "notFound": "Message Not Found",
+      "notFoundDescription": "The requested message could not be found."
+    },
+    "empty": "No messages yet",
+    "emptyDescription": "You'll receive weather and UV alerts here",
+    "filters": "Filters",
+    "markAllRead": "Mark All Read",
+    "deleteAll": "Delete All",
+    "selected": "{{count}} selected",
+    "categories": {
+      "all": "All",
+      "weather": "Weather",
+      "uv": "UV Alerts",
+      "system": "System",
+      "info": "Info"
+    },
+    "severity": {
+      "info": "Info",
+      "warning": "Warning",
+      "critical": "Critical"
+    },
+    "filter": {
+      "read": "Read",
+      "unread": "Unread",
+      "all": "All"
+    },
+    "actions": {
+      "markRead": "Mark as Read",
+      "markUnread": "Mark as Unread",
+      "delete": "Delete",
+      "share": "Share",
+      "deleteConfirm": "Are you sure you want to delete this message?",
+      "deleteAllConfirm": "Are you sure you want to delete all messages?"
+    },
+    "notifications": {
+      "permissionTitle": "Enable Notifications",
+      "permissionMessage": "Stay informed about weather conditions and UV levels",
+      "permissionDenied": "Notification permission denied",
+      "permissionDeniedMessage": "Please enable notifications in your device settings to receive alerts",
+      "enableAlerts": "Enable Alerts"
+    },
+    "comingSoon": "Coming Soon",
+    "description": "Notification and messaging features are being developed",
+    "targetDate": "Target release: September 26, 2025"
+  },
+  "settings": {
+    "title": "Settings",
+    "appearance": "Appearance",
+    "appearanceSection": "Appearance settings",
+    "theme": "Theme",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "themeSystem": "System",
+    "highContrast": "High Contrast",
+    "language": "Language",
+    "languageSection": "Language settings",
+    "languageEnglish": "English",
+    "languagePortuguese": "Portuguese (Brazil)",
+    "units": "Units",
+    "unitsSection": "Units settings",
+    "temperature": "Temperature",
+    "speed": "Speed",
+    "windSpeed": "Wind Speed",
+    "pressure": "Pressure",
+    "preferences": "Preferences",
+    "skinType": "Skin Type",
+    "uvRecommendations": "UV Recommendations",
+    "skinTypeSection": "UV recommendations and skin type",
+    "notifications": "Notifications",
+    "notificationsSection": "Notification settings",
+    "notificationsToggle": "Notifications",
+    "comingSoon": "Coming soon",
+    "uvAlerts": "UV Alerts",
+    "about": "About",
+    "version": "Version",
+    "developer": "Developer Options",
+    "performanceOverlay": "Performance Overlay",
+    "material3": "Material 3 (Experimental)",
+    "timeFormat": "Time Format",
+    "timeFormatSystem": "Use device setting",
+    "timeFormat12": "12-hour clock",
+    "timeFormat24": "24-hour clock",
+    "reset": "Reset Settings",
+    "resetConfirmTitle": "Reset Settings",
+    "resetConfirmMessage": "Are you sure you want to reset all settings to defaults?",
+    "resetConfirm": "Reset",
+    "resetCancel": "Cancel",
+    "appName": "Weather Sunscreen App",
+    "versionLabel": "Version {{version}}"
+  },
+  "location": {
+    "permissionDenied": "Permission Denied",
+    "permissionDeniedMessage": "Please enable location permission in device settings.",
+    "error": "Error",
+    "errorMessage": "Could not get your location.",
+    "servicesDisabled": "Location Services Off",
+    "servicesDisabledMessage": "Please enable location services (GPS) on your device to get weather and UV information.",
+    "openSettings": "Open Settings",
+    "welcome": "☀️ Welcome!",
+    "welcomeMessage": "We need your location to provide weather information and UV recommendations.",
+    "allowLocation": "Allow Location"
+  },
+  "errors": {
+    "network": "Network error occurred",
+    "location": "Unable to get location",
+    "locationPermission": "Location permission denied",
+    "weatherData": "Failed to load weather data",
+    "uvData": "Failed to load UV index",
+    "forecastData": "Failed to load forecast",
+    "unknown": "An unknown error occurred",
+    "tryAgain": "Please try again",
+    "offline": "You are offline"
+  },
+  "weatherCard": {
+    "feelsLike": "Feels like {{value}}",
+    "humidity": "Humidity",
+    "wind": "Wind",
+    "pressure": "Pressure",
+    "updated": "Updated {{time}}"
+  },
+  "weatherDetails": {
+    "title": "Details",
+    "humidity": "Humidity",
+    "wind": "Wind",
+    "pressure": "Pressure",
+    "visibility": "Visibility",
+    "cloudCover": "Cloud Cover",
+    "feelsLike": "Feels Like"
+  },
+  "skinTypeSelector": {
+    "label": "Skin Type"
+  },
+  "accessibility": {
+    "weatherCard": {
+      "summary": "Weather for {{city}}. Temperature {{temperature}}. {{description}}",
+      "hint": "Double tap to view detailed weather information",
+      "currentWeather": "Current weather: {{temperature}} degrees, {{condition}}"
+    },
+    "uvIndicator": {
+      "summary": "UV Index {{value}}, Level {{label}}"
+    },
+    "temperatureDisplay": {
+      "label": "Temperature {{temperature}} degrees {{unit}}, {{condition}}",
+      "celsius": "Celsius",
+      "fahrenheit": "Fahrenheit"
+    }
+  },
+  "skinTypes": {
+    "veryFair": "Very Fair",
+    "fair": "Fair",
+    "medium": "Medium",
+    "olive": "Olive",
+    "brown": "Brown",
+    "black": "Black"
+  },
+  "home": {
+    "viewDetails": "View Details",
+    "uvAndSpf": "UV & SPF",
+    "sevenDayForecast": "7-Day Forecast",
+    "nextDays": "Next Days",
+    "errorLoadingData": "Could not load weather data.",
+    "refreshWeather": "Refresh Weather",
+    "recommended": "Recommended"
+  },
+  "tabs": {
+    "home": "Home",
+    "messages": "Messages",
+    "settings": "Settings"
+  },
+  "sunscreen": {
+    "title": "Sunscreen Protection",
+    "description": "Track when you apply sunscreen and get notified when it's time to reapply based on current weather conditions.",
+    "apply": "Apply Sunscreen",
+    "reapply": "Reapply Now",
+    "clear": "Clear",
+    "protected": "Protected",
+    "reapplyNeeded": "Reapply Needed!",
+    "appliedAt": "Applied at",
+    "remaining": "remaining",
+    "expired": "TIME'S UP",
+    "interval": "interval",
+    "swimmingMode": "Swimming/Water Activities",
+    "swimmingActive": "Swimming Mode Active"
+  }
+}

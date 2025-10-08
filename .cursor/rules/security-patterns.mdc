@@ -1,0 +1,200 @@
+---
+globs: *.ts,*.tsx
+description: Security patterns and best practices
+---
+
+# Security Patterns
+
+## Data Protection
+- Never store sensitive data in plain text
+- Use secure storage for API keys and tokens
+- Implement proper data encryption
+- Sanitize user inputs
+- Validate all external data
+
+## API Security
+- Use HTTPS for all API calls
+- Implement proper authentication
+- Validate API responses
+- Handle API errors securely
+- Use request signing when required
+
+## Storage Security
+```typescript
+// Secure storage example
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { encrypt, decrypt } from './crypto';
+
+export class SecureStorage {
+  static async setSecureItem(key: string, value: string): Promise<void> {
+    try {
+      const encrypted = await encrypt(value);
+      await AsyncStorage.setItem(key, encrypted);
+    } catch (error) {
+      throw new Error('Failed to store secure data');
+    }
+  }
+
+  static async getSecureItem(key: string): Promise<string | null> {
+    try {
+      const encrypted = await AsyncStorage.getItem(key);
+      if (!encrypted) return null;
+      return await decrypt(encrypted);
+    } catch (error) {
+      throw new Error('Failed to retrieve secure data');
+    }
+  }
+}
+```
+
+## Input Validation
+- Validate all user inputs
+- Sanitize data before processing
+- Use proper type checking
+- Implement length limits
+- Handle special characters safely
+
+## Error Handling Security
+- Don't expose sensitive information in errors
+- Log errors securely
+- Use generic error messages for users
+- Implement proper error boundaries
+- Avoid information leakage
+
+## Network Security
+- Validate SSL certificates
+- Use certificate pinning when appropriate
+- Implement proper timeout handling
+- Handle network errors securely
+- Use secure communication protocols
+
+## Authentication & Authorization
+- Implement proper session management
+- Use secure token storage
+- Implement token refresh logic
+- Handle authentication errors
+- Implement proper logout functionality
+
+## Code Security
+- Avoid eval() and similar functions
+- Use strict TypeScript configuration
+- Implement proper access controls
+- Avoid hardcoded secrets
+- Use environment variables for configuration
+
+## Example Security Patterns
+```typescript
+// Input validation
+export function validateCoordinates(coords: unknown): Coordinates {
+  if (!coords || typeof coords !== 'object') {
+    throw new Error('Invalid coordinates');
+  }
+
+  const { latitude, longitude } = coords as any;
+  
+  if (typeof latitude !== 'number' || typeof longitude !== 'number') {
+    throw new Error('Coordinates must be numbers');
+  }
+
+  if (latitude < -90 || latitude > 90) {
+    throw new Error('Invalid latitude');
+  }
+
+  if (longitude < -180 || longitude > 180) {
+    throw new Error('Invalid longitude');
+  }
+
+  return { latitude, longitude };
+}
+
+// Secure API call
+export async function secureApiCall<T>(
+  url: string,
+  options: RequestInit = {}
+): Promise<T> {
+  try {
+    const response = await fetch(url, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`API call failed: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return validateApiResponse<T>(data);
+  } catch (error) {
+    // Log error securely without exposing sensitive data
+    logger.error('API call failed', error as Error, 'API');
+    throw new Error('Failed to fetch data');
+  }
+}
+```
+
+## Data Sanitization
+- Sanitize HTML content
+- Escape special characters
+- Validate file uploads
+- Check data formats
+- Implement proper encoding
+
+## Privacy Protection
+- Minimize data collection
+- Implement data retention policies
+- Provide data deletion options
+- Use anonymization when possible
+- Follow privacy regulations
+
+## Secure Development
+- Use secure coding practices
+- Implement proper logging
+- Regular security audits
+- Keep dependencies updated
+- Use security scanning tools
+
+## Error Message Security
+```typescript
+// Secure error handling
+export function handleError(error: unknown, context: string): never {
+  // Log full error for debugging
+  logger.error(`Error in ${context}`, error as Error, context);
+  
+  // Return generic error to user
+  throw new Error('An unexpected error occurred');
+}
+
+// Safe error display
+export function ErrorMessage({ error }: { error: Error }) {
+  // Don't expose internal error details
+  const message = error.message.includes('API') 
+    ? 'Unable to load data. Please try again.'
+    : 'Something went wrong. Please try again.';
+
+  return <Text>{message}</Text>;
+}
+```
+
+## Configuration Security
+- Use environment variables for secrets
+- Implement proper configuration validation
+- Use secure defaults
+- Avoid hardcoded credentials
+- Implement configuration encryption
+
+## Testing Security
+- Test input validation
+- Test error handling
+- Test authentication flows
+- Test data encryption
+- Test secure storage
+
+## Compliance
+- Follow OWASP guidelines
+- Implement proper data protection
+- Use secure coding standards
+- Regular security reviews
+- Document security measures

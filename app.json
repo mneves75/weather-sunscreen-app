@@ -1,66 +1,88 @@
 {
   "expo": {
-    "name": "Weather Sunscreen",
-    "slug": "weather-sunscreen-app",
-    "description": "Your comprehensive weather companion with UV index monitoring and sunscreen recommendations",
-    "version": "2.0.0",
-    "orientation": "default",
-    "icon": "./assets/icon.png",
+    "name": "weather-suncreen-app",
+    "slug": "weather-suncreen-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "weathersuncreenapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
-    "scheme": "weather-sunscreen",
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/images/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#4A90E2"
+      "backgroundColor": "#ffffff"
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.weathersunscreen.app",
+      "bundleIdentifier": "com.mneves.weather-suncreen-app",
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "This app needs access to your location to provide accurate weather information for your area.",
-        "NSLocationAlwaysAndWhenInUseUsageDescription": "This app needs access to your location to provide accurate weather information and UV index alerts."
+        "UIBackgroundModes": [
+          "fetch",
+          "remote-notification",
+          "fetch",
+          "remote-notification"
+        ],
+        "NSLocationWhenInUseUsageDescription": "This app uses location to provide weather and UV index information.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "This app uses location to provide weather and UV index information.",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
-      "package": "com.weathersunscreen.app",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#4A90E2"
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
       },
-      "permissions": ["ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION", "POST_NOTIFICATIONS"]
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.RECEIVE_BOOT_COMPLETED",
+        "android.permission.WAKE_LOCK",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.FOREGROUND_SERVICE"
+      ],
+      "package": "com.mneves.weather_suncreen_app"
     },
     "web": {
-      "favicon": "./assets/favicon.png",
-      "bundler": "metro"
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      "expo-asset",
-      "expo-splash-screen",
-      "react-native-edge-to-edge",
-      "expo-location",
+      "expo-router",
       [
-        "expo-build-properties",
+        "expo-location",
         {
-          "ios": {
-            "deploymentTarget": "26.0",
-            "newArchEnabled": true,
-            "useFrameworks": "static",
-            "buildReactNativeFromSource": true
-          },
-          "android": {
-            "newArchEnabled": true,
-            "compileSdkVersion": 34,
-            "targetSdkVersion": 34
-          }
+          "locationAlwaysAndWhenInUsePermission": "This app uses location to provide weather and UV index information.",
+          "locationAlwaysPermission": "This app uses location to provide weather and UV index information.",
+          "locationWhenInUsePermission": "This app uses location to provide weather and UV index information.",
+          "isIosBackgroundLocationEnabled": false
         }
       ],
-      "expo-localization"
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/icon.png",
+          "color": "#2196F3",
+          "sounds": [],
+          "mode": "production",
+          "iosDisplayInForeground": true,
+          "androidMode": "default",
+          "androidCollapsedTitle": "#{unread_messages_count} new interactions"
+        }
+      ],
+      "expo-secure-store"
     ],
+    "buildCacheProvider": "eas",
+    "experiments": {
+      "typedRoutes": true
+    },
     "extra": {
-      "weatherApiUrl": "https://api.openweathermap.org/data/2.5",
-      "uvIndexApiUrl": "https://api.openuv.io/api/v1",
-      "openMeteoApiUrl": "https://api.open-meteo.com/v1"
+      "router": {},
+      "eas": {
+        "projectId": "d39fae61-ef6e-4783-99ef-6773d0503277"
+      }
     }
   }
 }

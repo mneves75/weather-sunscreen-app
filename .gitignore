@@ -36,7 +36,6 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
-# Expo
-.expo
-dist/
-web-build/bun.lock
+# generated native folders
+/ios
+/android

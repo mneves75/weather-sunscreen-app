@@ -1,145 +1,84 @@
-import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
-import { logger } from '../services/loggerService';
-
-// Safe import of expo-localization with fallback
-let Localization: any = null;
-try {
-  Localization = require('expo-localization');
-  logger.info('✅ ExpoLocalization native module loaded successfully');
-} catch (error) {
-  logger.warn('⚠️ ExpoLocalization native module not available:', {
-    error: error instanceof Error ? error.message : 'Unknown error',
-  });
-  logger.info('🌐 Using fallback localization for development');
-  // Fallback localization object
-  Localization = {
-    locale: 'en-US',
-    locales: ['en-US'],
-    timezone: 'America/New_York',
-    isRTL: false,
-    region: 'US',
-  };
-}
-
-// Import translation files
-import en from './locales/en.json';
-import ptBR from './locales/pt-BR.json';
-
 /**
- * Internationalization configuration for Weather Sunscreen App
- * Supports English and Brazilian Portuguese based on device locale
+ * i18n configuration with AsyncStorage persistence
  */
 
-// Get device locale and map to supported languages
-const getDeviceLocale = (): string => {
-  let locale = 'en-US';
+import i18n from 'i18next';
+import { initReactI18next } from 'react-i18next';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Locale } from '@/src/types/i18n';
+import { logger } from '@/src/services/LoggerService';
 
-  try {
-    if (Localization && Localization.locale) {
-      locale = Localization.locale;
-      logger.info('📱 Device locale detected:', { locale });
-    } else {
-      logger.info('📱 Using fallback locale: en-US');
+import en from './en.json';
+import ptBR from './pt-BR.json';
+
+const LANGUAGE_STORAGE_KEY = '@WeatherSunscreen:language';
+
+// Language detector for AsyncStorage
+const languageDetector = {
+  type: 'languageDetector' as const,
+  async: true,
+  detect: async (callback: (lang: string) => void) => {
+    try {
+      const savedLanguage = await AsyncStorage.getItem(LANGUAGE_STORAGE_KEY);
+      if (savedLanguage) {
+        callback(savedLanguage);
+        return;
+      }
+    } catch (error) {
+      logger.error('Failed to load saved language', error as Error, 'I18N');
     }
-  } catch (error) {
-    logger.warn('Failed to get device locale');
-    logger.info('📱 Using fallback locale: en-US');
-  }
 
-  // Map device locales to our supported languages
-  if (locale.startsWith('pt')) {
-    // Portuguese variants (pt-BR, pt-PT, etc.) -> Brazilian Portuguese
-    return 'pt-BR';
-  }
-
-  // Default to English for all other locales
-  return 'en';
-};
-
-// Initialize i18next
-i18n.use(initReactI18next).init({
-  // Automatically detect and set language based on device
-  lng: getDeviceLocale(),
-
-  // Fallback language if translation is missing
-  fallbackLng: 'en',
-
-  // Available languages
-  supportedLngs: ['en', 'pt-BR'],
-
-  // Translation resources
-  resources: {
-    en: {
-      translation: en,
-    },
-    'pt-BR': {
-      translation: ptBR,
-    },
+    // Fallback to English
+    callback('en');
   },
-
-  // i18next configuration
-  interpolation: {
-    escapeValue: false, // React already handles XSS protection
-  },
-
-  // Development options
-  debug: __DEV__, // Only log in development
-
-  // Key separator and namespace separator
-  keySeparator: '.',
-  nsSeparator: ':',
-
-  // Return empty string for missing keys in production
-  saveMissing: __DEV__,
-  missingKeyHandler: (lng, ns, key) => {
-    if (__DEV__) {
-      logger.warn('Missing translation key', { key, language: lng });
+  init: () => {},
+  cacheUserLanguage: async (language: string) => {
+    try {
+      await AsyncStorage.setItem(LANGUAGE_STORAGE_KEY, language);
+    } catch (error) {
+      logger.error('Failed to save language', error as Error, 'I18N');
     }
   },
-});
-
-// Export language utilities
-export const getCurrentLanguage = (): string => i18n.language;
-export const isPortuguese = (): boolean => i18n.language === 'pt-BR';
-export const isEnglish = (): boolean => i18n.language === 'en';
-
-// Function to manually change language (useful for settings)
-export const changeLanguage = async (languageCode: string): Promise<void> => {
-  logger.info('🌐 Changing language', { languageCode });
-  await i18n.changeLanguage(languageCode);
 };
 
-// Get device region information
-export const getLocalizationInfo = () => {
-  if (!Localization) {
-    return {
-      locale: 'en-US',
-      locales: ['en-US'],
-      timezone: 'America/New_York',
-      isRTL: false,
-      region: 'US',
-    };
-  }
+// Initialize i18n
+i18n
+  .use(languageDetector)
+  .use(initReactI18next)
+  .init({
+    compatibilityJSON: 'v4', // Required for i18next v23+
+    resources: {
+      en: { translation: en },
+      'pt-BR': { translation: ptBR },
+    },
+    fallbackLng: 'en',
+    interpolation: {
+      escapeValue: false, // React already escapes
+    },
+    react: {
+      useSuspense: false, // Important for React Native
+    },
+  });
 
-  try {
-    return {
-      locale: Localization.locale || 'en-US',
-      locales: Localization.locales || ['en-US'],
-      timezone: Localization.timezone || 'America/New_York',
-      isRTL: Localization.isRTL || false,
-      region: Localization.region || 'US',
-    };
-  } catch (error) {
-    logger.warn('Failed to get localization info');
-    return {
-      locale: 'en-US',
-      locales: ['en-US'],
-      timezone: 'America/New_York',
-      isRTL: false,
-      region: 'US',
-    };
-  }
-};
+/**
+ * Change app language
+ */
+export async function changeLanguage(locale: Locale): Promise<void> {
+  await i18n.changeLanguage(locale);
+}
+
+/**
+ * Get current language
+ */
+export function getCurrentLanguage(): Locale {
+  return i18n.language as Locale;
+}
+
+/**
+ * Get available languages
+ */
+export function getAvailableLanguages(): Locale[] {
+  return ['en', 'pt-BR'];
+}
 
 export default i18n;

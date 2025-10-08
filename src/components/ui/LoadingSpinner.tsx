@@ -1,21 +1,33 @@
-import React from 'react';
-import { View, ActivityIndicator, Text, StyleSheet } from 'react-native';
+/**
+ * Loading spinner component
+ */
 
-interface LoadingSpinnerProps {
-  size?: 'small' | 'large';
-  color?: string;
+import React from 'react';
+import { View, ActivityIndicator, StyleSheet, ViewProps } from 'react-native';
+import { useColors } from '@/src/theme';
+import { Text } from './Text';
+
+interface LoadingSpinnerProps extends ViewProps {
   message?: string;
+  size?: 'small' | 'large';
 }
 
-export function LoadingSpinner({ 
-  size = 'large', 
-  color = '#4A90E2', 
-  message = 'Loading...' 
+export function LoadingSpinner({
+  message,
+  size = 'large',
+  style,
+  ...props
 }: LoadingSpinnerProps) {
+  const colors = useColors();
+
   return (
-    <View style={styles.container}>
-      <ActivityIndicator size={size} color={color} />
-      {message && <Text style={styles.message}>{message}</Text>}
+    <View style={[styles.container, style]} {...props}>
+      <ActivityIndicator size={size} color={colors.primary} />
+      {message && (
+        <Text variant="body" color="secondary" style={styles.message}>
+          {message}
+        </Text>
+      )}
     </View>
   );
 }
@@ -23,14 +35,10 @@ export function LoadingSpinner({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
+    justifyContent: 'center',
   },
   message: {
-    marginTop: 12,
-    fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
+    marginTop: 16,
   },
 });

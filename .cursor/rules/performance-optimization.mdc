@@ -1,0 +1,176 @@
+---
+globs: *.tsx,*.ts
+description: Performance optimization patterns and best practices
+---
+
+# Performance Optimization Patterns
+
+## React Performance
+- Use React.memo for expensive components that receive stable props
+- Implement proper key props for list items
+- Use useCallback for stable function references
+- Use useMemo for expensive calculations
+- Avoid inline object/function creation in render
+
+## Component Optimization
+```typescript
+// Memoized component
+export const WeatherCard = React.memo<WeatherCardProps>(({ data, onPress }) => {
+  const { colors } = useColors();
+  
+  return (
+    <TouchableOpacity onPress={onPress} style={styles.container}>
+      <Text style={[styles.title, { color: colors.onSurface }]}>
+        {data.location.city}
+      </Text>
+    </TouchableOpacity>
+  );
+});
+
+// Stable callback
+export function WeatherList({ data }: WeatherListProps) {
+  const handlePress = useCallback((id: string) => {
+    // Handle press
+  }, []);
+
+  return (
+    <FlatList
+      data={data}
+      keyExtractor={(item) => item.id}
+      renderItem={({ item }) => (
+        <WeatherCard data={item} onPress={() => handlePress(item.id)} />
+      )}
+    />
+  );
+}
+```
+
+## List Performance
+- Use FlatList for large datasets
+- Implement proper keyExtractor functions
+- Use getItemLayout for known item sizes
+- Implement windowing for very large lists
+- Use removeClippedSubviews for better memory usage
+
+## Image Optimization
+- Use appropriate image formats (WebP when possible)
+- Implement lazy loading for images
+- Use proper image sizing and compression
+- Cache images appropriately
+- Use placeholder images during loading
+
+## Memory Management
+- Clean up subscriptions and timers
+- Avoid memory leaks in useEffect
+- Use proper dependency arrays
+- Dispose of resources in cleanup functions
+- Monitor memory usage in development
+
+## Bundle Optimization
+- Use dynamic imports for code splitting
+- Lazy load screens and features
+- Remove unused dependencies
+- Optimize bundle size with Metro
+- Use tree shaking effectively
+
+## Network Performance
+- Implement proper caching strategies
+- Use request deduplication
+- Implement retry logic with exponential backoff
+- Handle offline scenarios gracefully
+- Optimize API payload sizes
+
+## Animation Performance
+- Use native driver when possible
+- Avoid animating layout properties
+- Use transform and opacity for smooth animations
+- Implement proper animation cleanup
+- Test on lower-end devices
+
+## State Management Performance
+- Minimize context re-renders
+- Split contexts by domain
+- Use useMemo for context values
+- Implement proper state normalization
+- Avoid unnecessary state updates
+
+## Example Optimizations
+```typescript
+// Optimized context value
+export function WeatherProvider({ children }: WeatherProviderProps) {
+  const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const refreshWeather = useCallback(async () => {
+    // Implementation
+  }, []);
+
+  // Memoize context value to prevent unnecessary re-renders
+  const value = useMemo(() => ({
+    weatherData,
+    isLoading,
+    refreshWeather,
+  }), [weatherData, isLoading, refreshWeather]);
+
+  return (
+    <WeatherContext.Provider value={value}>
+      {children}
+    </WeatherContext.Provider>
+  );
+}
+
+// Optimized list rendering
+export function WeatherForecast({ forecast }: WeatherForecastProps) {
+  const renderItem = useCallback(({ item }: { item: ForecastDay }) => (
+    <ForecastDayCard day={item} />
+  ), []);
+
+  const keyExtractor = useCallback((item: ForecastDay) => item.date, []);
+
+  return (
+    <FlatList
+      data={forecast.days}
+      renderItem={renderItem}
+      keyExtractor={keyExtractor}
+      removeClippedSubviews
+      maxToRenderPerBatch={10}
+      windowSize={10}
+    />
+  );
+}
+```
+
+## Development Tools
+- Use React DevTools Profiler
+- Monitor bundle size with Metro
+- Use Flipper for debugging
+- Profile on real devices
+- Use performance monitoring tools
+
+## Platform-Specific Optimizations
+- iOS: Use proper view recycling
+- Android: Optimize for different screen densities
+- Handle platform-specific performance quirks
+- Test on various device specifications
+- Optimize for battery usage
+
+## Caching Strategies
+- Implement intelligent data caching
+- Use appropriate cache expiration times
+- Cache expensive computations
+- Implement cache invalidation
+- Use memory and disk caching appropriately
+
+## Error Handling Performance
+- Fail fast for non-critical errors
+- Implement graceful degradation
+- Use error boundaries effectively
+- Avoid expensive error recovery
+- Log errors without impacting performance
+
+## Testing Performance
+- Write performance tests
+- Test on various devices
+- Monitor performance regressions
+- Use performance budgets
+- Test memory usage patterns

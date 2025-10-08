@@ -1,0 +1,443 @@
+---
+description: Message and notification system patterns
+---
+
+# Messages & Notifications System
+
+## Overview
+The app implements a comprehensive messaging system for weather alerts, UV warnings, and system notifications with persistence, filtering, and batch operations.
+
+## Architecture
+
+### Service Layer
+- [src/services/messageService.ts](mdc:src/services/messageService.ts) - Message CRUD operations and persistence
+- Singleton pattern with AsyncStorage backing
+- Automatic cleanup and retention policies
+- Batch operations support
+
+### Context Layer
+- [src/context/MessagesContext.tsx](mdc:src/context/MessagesContext.tsx) - React context for messages
+- Global state management for message data
+- Real-time unread count updates
+- Filter and sort state management
+
+### UI Components
+- [src/components/messages/MessageList.tsx](mdc:src/components/messages/MessageList.tsx) - Main message list
+- [src/components/messages/MessageCard.tsx](mdc:src/components/messages/MessageCard.tsx) - Individual message display
+- [src/components/messages/MessageDetail.tsx](mdc:src/components/messages/MessageDetail.tsx) - Full message view
+- [src/components/messages/MessageFilters.tsx](mdc:src/components/messages/MessageFilters.tsx) - Filter UI
+- [src/components/messages/NotificationBadge.tsx](mdc:src/components/messages/NotificationBadge.tsx) - Unread badge
+
+## Message Types
+
+### Message Interface
+```typescript
+interface Message {
+  id: string;
+  title: string;
+  body: string;
+  category: MessageCategory;
+  severity: MessageSeverity;
+  timestamp: number;
+  isRead: boolean;
+  expiresAt?: number;
+  actionUrl?: string;
+  metadata?: Record<string, unknown>;
+}
+
+type MessageCategory = 'weather-alert' | 'uv-alert' | 'system' | 'info';
+type MessageSeverity = 'info' | 'warning' | 'critical';
+```
+
+## Service Usage
+
+### Creating Messages
+```typescript
+import { messageService } from '@/src/services/messageService';
+
+// Create a weather alert
+const message = await messageService.createMessage({
+  title: 'High UV Index Alert',
+  body: 'UV index is 9 (Very High). Apply SPF 50+ sunscreen.',
+  category: 'uv-alert',
+  severity: 'warning',
+  expiresAt: Date.now() + (24 * 60 * 60 * 1000), // 24 hours
+  metadata: {
+    uvIndex: 9,
+    location: 'San Francisco',
+  },
+});
+```
+
+### Retrieving Messages
+```typescript
+// Get all messages
+const messages = await messageService.getMessages();
+
+// Get with filters
+const unreadAlerts = await messageService.getMessages({
+  isRead: false,
+  categories: ['weather-alert', 'uv-alert'],
+  severity: ['warning', 'critical'],
+});
+
+// Get with sorting
+const recentMessages = await messageService.getMessages(
+  undefined,
+  { field: 'timestamp', direction: 'desc' }
+);
+
+// Get by ID
+const message = await messageService.getMessageById('msg_123');
+```
+
+### Updating Messages
+```typescript
+// Mark single message as read
+await messageService.updateMessage('msg_123', { isRead: true });
+
+// Mark multiple as read
+const result = await messageService.markAsRead(['msg_1', 'msg_2', 'msg_3']);
+console.log(`Marked ${result.success} messages as read`);
+
+// Mark all as read
+const count = await messageService.markAllAsRead();
+
+// Mark by category
+const categoryCount = await messageService.markAllAsRead('uv-alert');
+```
+
+### Deleting Messages
+```typescript
+// Delete single message
+await messageService.deleteMessage('msg_123');
+
+// Delete multiple
+const result = await messageService.deleteMessages(['msg_1', 'msg_2']);
+
+// Delete all
+const count = await messageService.deleteAllMessages();
+
+// Delete by category
+const categoryCount = await messageService.deleteAllMessages('system');
+```
+
+### Statistics and Cleanup
+```typescript
+// Get message statistics
+const stats = await messageService.getStats();
+console.log(`Total: ${stats.total}, Unread: ${stats.unread}`);
+console.log(`By category:`, stats.byCategory);
+console.log(`By severity:`, stats.bySeverity);
+
+// Get unread count
+const unreadCount = await messageService.getUnreadCount();
+
+// Manual cleanup
+const expiredCount = await messageService.cleanupExpiredMessages();
+const oldCount = await messageService.cleanupOldMessages(30); // 30 days
+```
+
+## Context Usage
+
+### Using Messages Context
+```typescript
+import { useMessages } from '@/src/context/MessagesContext';
+
+export function MessageScreen() {
+  const {
+    messages,
+    isLoading,
+    error,
+    unreadCount,
+    stats,
+    filters,
+    sort,
+    refresh,
+    createMessage,
+    markAsRead,
+    deleteMessage,
+    setFilters,
+    setSort,
+  } = useMessages();
+
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
+
+  if (isLoading) return <LoadingSpinner />;
+  if (error) return <ErrorView error={error} />;
+
+  return (
+    <View>
+      <Text>Unread: {unreadCount}</Text>
+      <MessageList messages={messages} onRead={markAsRead} />
+    </View>
+  );
+}
+```
+
+### Creating Messages from Context
+```typescript
+export function WeatherAlert({ uvIndex }: { uvIndex: number }) {
+  const { createMessage } = useMessages();
+
+  const showAlert = useCallback(async () => {
+    try {
+      await createMessage({
+        title: 'UV Alert',
+        body: `UV index is ${uvIndex}. Protection recommended.`,
+        category: 'uv-alert',
+        severity: uvIndex >= 8 ? 'warning' : 'info',
+      });
+    } catch (error) {
+      console.error('Failed to create alert:', error);
+    }
+  }, [createMessage, uvIndex]);
+
+  return <Button onPress={showAlert}>Create Alert</Button>;
+}
+```
+
+## Filtering and Sorting
+
+### Filter Patterns
+```typescript
+// Filter by read status
+setFilters({ isRead: false });
+
+// Filter by category
+setFilters({ categories: ['weather-alert', 'uv-alert'] });
+
+// Filter by severity
+setFilters({ severity: ['critical', 'warning'] });
+
+// Filter by date range
+setFilters({
+  dateRange: {
+    start: Date.now() - (7 * 24 * 60 * 60 * 1000), // Last 7 days
+    end: Date.now(),
+  },
+});
+
+// Filter by search term
+setFilters({ searchTerm: 'high uv' });
+
+// Combine filters
+setFilters({
+  isRead: false,
+  categories: ['uv-alert'],
+  severity: ['warning', 'critical'],
+  searchTerm: 'sunscreen',
+});
+```
+
+### Sort Patterns
+```typescript
+// Sort by timestamp (newest first)
+setSort({ field: 'timestamp', direction: 'desc' });
+
+// Sort by severity (critical first)
+setSort({ field: 'severity', direction: 'desc' });
+
+// Sort by category
+setSort({ field: 'category', direction: 'asc' });
+```
+
+## UI Components
+
+### Message List
+```typescript
+import { MessageList } from '@/src/components/messages';
+
+export function MessagesScreen() {
+  const { messages, markAsRead, deleteMessage } = useMessages();
+
+  return (
+    <MessageList
+      messages={messages}
+      onMessagePress={(message) => {
+        markAsRead([message.id]);
+        // Navigate to detail
+      }}
+      onDelete={deleteMessage}
+    />
+  );
+}
+```
+
+### Message Card
+```typescript
+import { MessageCard } from '@/src/components/messages';
+
+export function MessageItem({ message }: { message: Message }) {
+  return (
+    <MessageCard
+      message={message}
+      onPress={() => console.log('Pressed')}
+      onDelete={() => console.log('Delete')}
+    />
+  );
+}
+```
+
+### Notification Badge
+```typescript
+import { NotificationBadge } from '@/src/components/messages';
+
+export function TabIcon() {
+  const { unreadCount } = useMessages();
+
+  return (
+    <View>
+      <Icon name="message" />
+      {unreadCount > 0 && <NotificationBadge count={unreadCount} />}
+    </View>
+  );
+}
+```
+
+## Configuration
+
+### Service Configuration
+```typescript
+// Update configuration
+await messageService.updateConfig({
+  maxMessages: 1000,
+  retentionDays: 60,
+  autoDeleteRead: true,
+  batchSize: 100,
+  autoCleanup: true,
+});
+
+// Get current config
+const config = messageService.getConfig();
+```
+
+## Best Practices
+
+### DO
+✅ Initialize service before first use
+✅ Use context for global message state
+✅ Implement proper error handling
+✅ Show loading states during operations
+✅ Display unread counts in badges
+✅ Filter and sort for better UX
+✅ Clean up expired messages regularly
+✅ Use appropriate severity levels
+✅ Provide meaningful message titles and bodies
+✅ Add expiration times for time-sensitive alerts
+
+### DON'T
+❌ Don't bypass service layer for storage
+❌ Don't forget to mark messages as read
+❌ Don't create messages without categories
+❌ Don't ignore service initialization
+❌ Don't store sensitive data in messages
+❌ Don't create duplicate messages
+❌ Don't forget to handle batch operation failures
+❌ Don't skip error handling
+
+## Error Handling
+
+### Service Errors
+```typescript
+try {
+  await messageService.createMessage(input);
+} catch (error) {
+  if (error.message.includes('initialization')) {
+    // Service not initialized
+    await messageService.initialize();
+    // Retry
+  } else {
+    // Handle other errors
+    console.error('Failed to create message:', error);
+  }
+}
+```
+
+### Context Errors
+```typescript
+const { error, refresh } = useMessages();
+
+if (error) {
+  return (
+    <ErrorView
+      error={error}
+      onRetry={refresh}
+      message="Failed to load messages"
+    />
+  );
+}
+```
+
+## Testing
+
+### Service Tests
+```typescript
+describe('MessageService', () => {
+  beforeEach(async () => {
+    await messageService.reset();
+    await messageService.initialize();
+  });
+
+  it('creates message successfully', async () => {
+    const message = await messageService.createMessage({
+      title: 'Test',
+      body: 'Test message',
+      category: 'info',
+      severity: 'info',
+    });
+
+    expect(message.id).toBeDefined();
+    expect(message.isRead).toBe(false);
+  });
+
+  it('filters messages correctly', async () => {
+    await messageService.createMessage({
+      title: 'Alert 1',
+      body: 'Body',
+      category: 'uv-alert',
+      severity: 'warning',
+    });
+
+    const filtered = await messageService.getMessages({
+      categories: ['uv-alert'],
+    });
+
+    expect(filtered).toHaveLength(1);
+  });
+});
+```
+
+### Context Tests
+```typescript
+describe('MessagesContext', () => {
+  it('provides message data', () => {
+    const { result } = renderHook(() => useMessages(), { wrapper });
+
+    expect(result.current.messages).toBeDefined();
+    expect(result.current.unreadCount).toBeDefined();
+  });
+
+  it('creates message through context', async () => {
+    const { result } = renderHook(() => useMessages(), { wrapper });
+
+    await act(async () => {
+      await result.current.createMessage({
+        title: 'Test',
+        body: 'Test',
+        category: 'info',
+        severity: 'info',
+      });
+    });
+
+    expect(result.current.messages).toHaveLength(1);
+  });
+});
+```
+
+## Related Documentation
+- See [service-layer.mdc](mdc:.cursor/rules/service-layer.mdc) for service patterns
+- See [context-state-management.mdc](mdc:.cursor/rules/context-state-management.mdc) for context patterns
+- See [error-handling-patterns.mdc](mdc:.cursor/rules/error-handling-patterns.mdc) for error handling

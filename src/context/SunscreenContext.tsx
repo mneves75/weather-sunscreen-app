@@ -1,278 +1,277 @@
-import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
-import { 
-  SunscreenApplication, 
-  UserSunscreenProfile, 
-  SkinType, 
-  SKIN_TYPES 
-} from '../types/sunscreen';
-import { SunscreenService } from '../services/sunscreenService';
-import { logger } from '../services/loggerService';
+/**
+ * Sunscreen Context
+ * Manages sunscreen application state, persistence, and notifications
+ */
 
-interface SunscreenState {
-  applications: SunscreenApplication[];
-  userProfile: UserSunscreenProfile | null;
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Notifications from 'expo-notifications';
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { logger } from '../services/LoggerService';
+import { SunscreenTrackerService } from '../services/SunscreenTrackerService';
+import { SunscreenApplication, SunscreenState } from '../types/sunscreen';
+import { useWeather } from './WeatherContext';
+
+const STORAGE_KEY = '@sunscreen_application';
+
+interface SunscreenContextValue extends SunscreenState {
+  applySunscreen: (isSwimming?: boolean) => Promise<void>;
+  clearApplication: () => Promise<void>;
+  toggleSwimmingMode: () => void;
+  timeRemaining: number;
+  timeRemainingFormatted: string;
   isLoading: boolean;
-  error: string | null;
-  reapplicationStatus: {
-    isDue: boolean;
-    timeRemaining?: number;
-    nextApplication?: SunscreenApplication;
-  };
 }
 
-interface SunscreenContextType extends SunscreenState {
-  logApplication: (spf: number, bodyParts: string[], notes?: string) => Promise<void>;
-  updateUserProfile: (profile: UserSunscreenProfile) => Promise<void>;
-  loadRecentApplications: () => Promise<void>;
-  checkReapplicationStatus: () => Promise<void>;
-  cancelReminders: (applicationId: string) => Promise<void>;
-  clearError: () => void;
-  initializeNotifications: () => Promise<boolean>;
-}
+const SunscreenContext = createContext<SunscreenContextValue | undefined>(undefined);
 
-const SunscreenContext = createContext<SunscreenContextType | undefined>(undefined);
+// Configure notification handler
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+    shouldShowBanner: true,
+    shouldShowList: true,
+  }),
+});
 
-interface SunscreenProviderProps {
-  children: ReactNode;
-}
-
-export function SunscreenProvider({ children }: SunscreenProviderProps) {
+export const SunscreenProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { weatherData } = useWeather();
   const [state, setState] = useState<SunscreenState>({
-    applications: [],
-    userProfile: null,
-    isLoading: false,
-    error: null,
-    reapplicationStatus: { isDue: false },
+    currentApplication: null,
+    alertActive: false,
+    isSwimming: false,
   });
+  const [isLoading, setIsLoading] = useState(true);
+  const [timeRemaining, setTimeRemaining] = useState(0);
+  const intervalRef = useRef<number | undefined>(undefined);
 
-  // Initialize notifications and load data on mount
+  // Load persisted state on mount
   useEffect(() => {
-    const initialize = async () => {
-      try {
-        setState(prev => ({ ...prev, isLoading: true }));
-        
-        // Initialize notifications
-        await SunscreenService.initializeNotifications();
-        
-        // Load user profile
-        const profile = await SunscreenService.getUserProfile();
-        
-        // Load recent applications
-        const applications = await SunscreenService.getRecentApplications(10);
-        
-        // Check reapplication status
-        const status = await SunscreenService.checkReapplicationStatus();
-        
-        setState(prev => ({
-          ...prev,
-          userProfile: profile,
-          applications,
-          reapplicationStatus: status,
-          isLoading: false,
-        }));
-      } catch (error) {
-        setState(prev => ({
-          ...prev,
-          error: error instanceof Error ? error.message : 'Failed to initialize sunscreen tracking',
-          isLoading: false,
-        }));
-      }
-    };
-
-    initialize();
+    loadPersistedState();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Set up intelligent reapplication status checking
+  // Request notification permissions on mount
   useEffect(() => {
-    let timeoutId: NodeJS.Timeout | null = null;
-    let isMounted = true;
+    requestNotificationPermissions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-    const scheduleNextCheck = async () => {
-      // Clear any existing timeout
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-        timeoutId = null;
+  // Update time remaining every minute
+  useEffect(() => {
+    if (state.currentApplication) {
+      updateTimeRemaining();
+      intervalRef.current = setInterval(updateTimeRemaining, 60000); // Every minute
+
+      return () => {
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+        }
+      };
+    }
+  }, [state.currentApplication]);
+
+  // Check if reapplication is needed
+  useEffect(() => {
+    if (state.currentApplication && !state.alertActive) {
+      const isNeeded = SunscreenTrackerService.isReapplicationNeeded(
+        state.currentApplication.appliedAt,
+        state.currentApplication.reapplyAt
+      );
+
+      if (isNeeded) {
+        triggerReapplicationAlert();
+      }
+    }
+  }, [timeRemaining, state.currentApplication, state.alertActive]);
+
+  const loadPersistedState = async () => {
+    try {
+      const stored = await AsyncStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        const parsed: SunscreenState = JSON.parse(stored);
+        setState(parsed);
+        logger.info('Loaded persisted sunscreen state', 'SUNSCREEN', { parsed });
+      }
+    } catch (error) {
+      logger.error('Failed to load persisted state', error as Error, 'SUNSCREEN');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const persistState = async (newState: SunscreenState) => {
+    try {
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(newState));
+      logger.info('Persisted sunscreen state', 'SUNSCREEN');
+    } catch (error) {
+      logger.error('Failed to persist state', error as Error, 'SUNSCREEN');
+    }
+  };
+
+  const requestNotificationPermissions = async () => {
+    try {
+      const { status: existingStatus } = await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+
+      if (existingStatus !== 'granted') {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
       }
 
-      // Check if component is still mounted before proceeding
-      if (!isMounted) {
+      if (finalStatus !== 'granted') {
+        logger.warn('Notification permissions not granted', 'SUNSCREEN');
+      }
+    } catch (error) {
+      logger.error('Failed to request notification permissions', error as Error, 'SUNSCREEN');
+    }
+  };
+
+  const updateTimeRemaining = () => {
+    if (state.currentApplication) {
+      const remaining = SunscreenTrackerService.getTimeRemaining(
+        state.currentApplication.reapplyAt
+      );
+      setTimeRemaining(remaining);
+    } else {
+      setTimeRemaining(0);
+    }
+  };
+
+  const scheduleNotification = async (reapplyAt: number) => {
+    try {
+      // Cancel any existing notifications
+      await Notifications.cancelAllScheduledNotificationsAsync();
+
+      // Schedule new notification      
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: '☀️ Sunscreen Reapplication',
+          body: "It's time to reapply your sunscreen for continued protection!",
+          sound: true,
+          priority: Notifications.AndroidNotificationPriority.HIGH,
+        },
+        trigger: { 
+          type: Notifications.SchedulableTriggerInputTypes.DATE,
+          date: new Date(reapplyAt) 
+        },
+      });
+
+      logger.info('Scheduled reapplication notification', 'SUNSCREEN', { reapplyAt });
+    } catch (error) {
+      logger.error('Failed to schedule notification', error as Error, 'SUNSCREEN');
+    }
+  };
+
+  const triggerReapplicationAlert = () => {
+    setState((prev) => {
+      const newState = { ...prev, alertActive: true };
+      persistState(newState);
+      return newState;
+    });
+    logger.info('Reapplication alert activated', 'SUNSCREEN');
+  };
+
+  const applySunscreen = useCallback(
+    async (isSwimming = false) => {
+      if (!weatherData) {
+        logger.warn('Cannot apply sunscreen without weather data', 'SUNSCREEN');
         return;
       }
 
       try {
-        const status = await SunscreenService.checkReapplicationStatus();
-        
-        // Double-check if still mounted after async operation
-        if (!isMounted) {
-          return;
-        }
+        const now = Date.now();
 
-        setState(prev => ({
-          ...prev,
-          reapplicationStatus: status,
-        }));
+        // Calculate reapplication time
+        const calculation = SunscreenTrackerService.calculateReapplicationTime({
+          uvIndex: weatherData.uvIndex?.value || 0,
+          temperature: weatherData.current.temperature,
+          humidity: weatherData.current.humidity,
+          cloudCover: weatherData.current.cloudCover || 0,
+          isSwimming,
+        });
 
-        // Calculate next check delay with bounds checking
-        let nextCheckDelay: number;
-        
-        if (status.nextApplication && status.timeRemaining && status.timeRemaining > 0) {
-          // Check again when reapplication is due, or in 5 minutes, whichever is sooner
-          // Ensure minimum delay of 30 seconds to prevent excessive checking
-          nextCheckDelay = Math.max(
-            Math.min(status.timeRemaining * 60 * 1000, 5 * 60 * 1000),
-            30 * 1000
-          );
-        } else if (!status.nextApplication) {
-          // No recent application, check less frequently (every 10 minutes)
-          nextCheckDelay = 10 * 60 * 1000;
-        } else {
-          // Application is due, check every minute
-          nextCheckDelay = 60 * 1000;
-        }
+        const reapplyAt = now + calculation.minutes * 60000;
 
-        // Schedule next check only if component is still mounted
-        if (isMounted) {
-          timeoutId = setTimeout(scheduleNextCheck, nextCheckDelay);
-        }
+        const application: SunscreenApplication = {
+          appliedAt: now,
+          uvIndex: weatherData.uvIndex?.value || 0,
+          temperature: weatherData.current.temperature,
+          humidity: weatherData.current.humidity,
+          cloudCover: weatherData.current.cloudCover || 0,
+          reapplicationMinutes: calculation.minutes,
+          reapplyAt,
+        };
+
+        const newState: SunscreenState = {
+          currentApplication: application,
+          alertActive: false,
+          isSwimming,
+        };
+
+        setState(newState);
+        await persistState(newState);
+        await scheduleNotification(reapplyAt);
+
+        logger.info('Sunscreen applied', 'SUNSCREEN', { application, calculation });
       } catch (error) {
-        logger.error('Error checking reapplication status', error instanceof Error ? error : new Error(String(error)));
-        
-        // Only retry if component is still mounted
-        if (isMounted) {
-          // Retry in 5 minutes on error with exponential backoff consideration
-          timeoutId = setTimeout(scheduleNextCheck, 5 * 60 * 1000);
-        }
+        logger.error('Failed to apply sunscreen', error as Error, 'SUNSCREEN');
+        throw error;
       }
-    };
+    },
+    [weatherData]
+  );
 
-    // Start the intelligent checking
-    scheduleNextCheck();
-
-    return () => {
-      isMounted = false;
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-        timeoutId = null;
-      }
-    };
-  }, []);
-
-  const checkReapplicationStatus = useCallback(async () => {
+  const clearApplication = useCallback(async () => {
     try {
-      const status = await SunscreenService.checkReapplicationStatus();
-      
-      setState(prev => ({
-        ...prev,
-        reapplicationStatus: status,
-      }));
+      await Notifications.cancelAllScheduledNotificationsAsync();
+
+      const newState: SunscreenState = {
+        currentApplication: null,
+        alertActive: false,
+        isSwimming: false,
+      };
+
+      setState(newState);
+      await persistState(newState);
+      setTimeRemaining(0);
+
+      logger.info('Sunscreen application cleared', 'SUNSCREEN');
     } catch (error) {
-      logger.error('Error checking reapplication status', error instanceof Error ? error : new Error(String(error)));
+      logger.error('Failed to clear application', error as Error, 'SUNSCREEN');
+      throw error;
     }
   }, []);
 
-  const logApplication = useCallback(async (spf: number, bodyParts: string[], notes?: string) => {
-    try {
-      setState(prev => ({ ...prev, isLoading: true, error: null }));
-      
-      const application = await SunscreenService.logSunscreenApplication(spf, bodyParts, notes);
-      
-      setState(prev => ({
-        ...prev,
-        applications: [application, ...prev.applications].slice(0, 10), // Keep latest 10
-        isLoading: false,
-      }));
-
-      // Refresh reapplication status
-      await checkReapplicationStatus();
-      
-    } catch (error) {
-      setState(prev => ({
-        ...prev,
-        isLoading: false,
-        error: error instanceof Error ? error.message : 'Failed to log sunscreen application',
-      }));
-    }
-  }, [checkReapplicationStatus]);
-
-  const updateUserProfile = useCallback(async (profile: UserSunscreenProfile) => {
-    try {
-      setState(prev => ({ ...prev, isLoading: true, error: null }));
-      
-      await SunscreenService.saveUserProfile(profile);
-      
-      setState(prev => ({
-        ...prev,
-        userProfile: profile,
-        isLoading: false,
-      }));
-    } catch (error) {
-      setState(prev => ({
-        ...prev,
-        isLoading: false,
-        error: error instanceof Error ? error.message : 'Failed to update profile',
-      }));
-    }
+  const toggleSwimmingMode = useCallback(() => {
+    setState((prev) => {
+      const newState = { ...prev, isSwimming: !prev.isSwimming };
+      persistState(newState);
+      return newState;
+    });
   }, []);
 
-  const loadRecentApplications = useCallback(async () => {
-    try {
-      setState(prev => ({ ...prev, isLoading: true, error: null }));
-      
-      const applications = await SunscreenService.getRecentApplications(10);
-      
-      setState(prev => ({
-        ...prev,
-        applications,
-        isLoading: false,
-      }));
-    } catch (error) {
-      setState(prev => ({
-        ...prev,
-        isLoading: false,
-        error: error instanceof Error ? error.message : 'Failed to load applications',
-      }));
-    }
-  }, []);
+  const timeRemainingFormatted = SunscreenTrackerService.formatTimeRemaining(timeRemaining);
 
-  const cancelReminders = useCallback(async (applicationId: string) => {
-    try {
-      await SunscreenService.cancelReminders(applicationId);
-      logger.info('Cancelled reminders for application', { applicationId });
-    } catch (error) {
-      logger.error('Error cancelling reminders', error instanceof Error ? error : new Error(String(error)));
-    }
-  }, []);
-
-  const initializeNotifications = useCallback(async (): Promise<boolean> => {
-    return await SunscreenService.initializeNotifications();
-  }, []);
-
-  const clearError = useCallback(() => {
-    setState(prev => ({ ...prev, error: null }));
-  }, []);
-
-  const contextValue: SunscreenContextType = {
+  const value: SunscreenContextValue = {
     ...state,
-    logApplication,
-    updateUserProfile,
-    loadRecentApplications,
-    checkReapplicationStatus,
-    cancelReminders,
-    clearError,
-    initializeNotifications,
+    applySunscreen,
+    clearApplication,
+    toggleSwimmingMode,
+    timeRemaining,
+    timeRemainingFormatted,
+    isLoading,
   };
 
-  return (
-    <SunscreenContext.Provider value={contextValue}>
-      {children}
-    </SunscreenContext.Provider>
-  );
-}
+  return <SunscreenContext.Provider value={value}>{children}</SunscreenContext.Provider>;
+};
 
-export function useSunscreen(): SunscreenContextType {
+export const useSunscreen = (): SunscreenContextValue => {
   const context = useContext(SunscreenContext);
   if (!context) {
-    throw new Error('useSunscreen must be used within a SunscreenProvider');
+    throw new Error('useSunscreen must be used within SunscreenProvider');
   }
   return context;
-}
+};
+
