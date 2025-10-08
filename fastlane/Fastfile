@@ -3,12 +3,21 @@ default_platform(:ios)
 platform :ios do
   desc "Generate localized App Store screenshots"
   lane :screenshots do
-    ensure_bundle_exec
-    snapshot(
-      clean: true,
-      reinstall_app: true,
-      erase_simulator: false
-    )
+    UI.important("Note: iOS screenshot automation requires UI test setup")
+    UI.important("This lane is temporarily disabled until UI tests are configured")
+    
+    # Alternative: launch simulator manually for screenshots
+    # ensure_bundle_exec
+    # snapshot(
+    #   clean: true,
+    #   reinstall_app: true,
+    #   erase_simulator: false
+    # )
+    
+    UI.message("For now, please take screenshots manually:")
+    UI.message("1. Run: bun run ios")
+    UI.message("2. Navigate through app screens")
+    UI.message("3. Use Xcode's Debug menu > Take Screenshot")
   end
 end
 
