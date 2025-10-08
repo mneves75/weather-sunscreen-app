@@ -1,0 +1,381 @@
+{
+	admin localhost:2019
+	debug
+	default_sni conhecendotudo.online
+
+	servers {
+		protocols h1 h2 h3
+		strict_sni_host
+	}
+
+	log {
+		output file /var/log/caddy/access.log {
+			roll_size 100mb
+			roll_keep 10
+			roll_keep_for 720h
+		}
+		format json
+		level INFO
+	}
+}
+
+(security_headers) {
+	header {
+		X-Frame-Options DENY
+		X-Content-Type-Options nosniff
+		X-XSS-Protection "1; mode=block"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+}
+
+(cors_headers) {
+	header {
+		Access-Control-Allow-Origin *
+		Access-Control-Allow-Methods "GET, POST, OPTIONS"
+		Access-Control-Allow-Headers "Content-Type, Authorization"
+	}
+}
+
+conhecendotudo.online, www.conhecendotudo.online {
+	import security_headers
+
+	handle /.well-known/acme-challenge/* {
+		root * /var/www/html
+		file_server
+	}
+
+	root * /var/www/html
+	encode gzip
+
+	# Global images handler for DNSChat (with base path)
+	handle /dnschatimages/dnschat/* {
+		root * /home/claude/PROJECTS/dnschat-site/dist
+		uri strip_prefix /dnschat
+		file_server
+	}
+
+	handle /dnschat/_astro/* {
+		root * /home/claude/PROJECTS/dnschat-site/dist
+		uri strip_prefix /dnschat
+		file_server
+	}
+
+	handle /dnschat/images/* {
+		root * /home/claude/PROJECTS/dnschat-site/dist
+		uri strip_prefix /dnschat
+		file_server
+	}
+
+	# Landing page de eventos - URLs em português e inglês
+	handle /eventos/* {
+		root * /home/claude/PROJECTS/eventos-site/dist
+		rewrite * /eventos/index.html
+		file_server
+	}
+
+	handle /events/* {
+		root * /home/claude/PROJECTS/eventos-site/dist
+		rewrite * /events/index.html
+		file_server
+	}
+
+	handle_path /eventos {
+		redir * /eventos/
+	}
+
+	handle_path /events {
+		redir * /events/
+	}
+
+	# Static assets for eventos site (CSS, JS)
+	handle /_astro/* {
+		root * /home/claude/PROJECTS/eventos-site/dist
+		file_server
+	}
+
+	# Cigar Info App - Landing page
+	handle /cigarinfoai/* {
+		root * /home/claude/public_html/cigarinfoai
+		uri strip_prefix /cigarinfoai
+		file_server
+	}
+
+	handle_path /cigarinfoai {
+		redir * /cigarinfoai/
+	}
+
+	# DNSChat Privacy Policy and Terms of Service (MUST come before catch-all /dnschat/*)
+	handle /dnschat/privacy/* {
+		root * /home/claude/PROJECTS/dnschat-site/dist
+		rewrite * /privacy/index.html
+		file_server
+	}
+
+	handle /dnschat/terms/* {
+		root * /home/claude/PROJECTS/dnschat-site/dist
+		rewrite * /terms/index.html
+		file_server
+	}
+
+	handle /dnschat/pt/* {
+		root * /home/claude/PROJECTS/dnschat-site/dist
+		rewrite * /dnschat-pt/index.html
+		file_server
+	}
+
+	handle /dnschat/* {
+		root * /home/claude/PROJECTS/dnschat-site/dist
+		rewrite * /dnschat/index.html
+		file_server
+	}
+
+	handle_path /dnschat/pt {
+		redir * /dnschat/pt/
+	}
+
+	handle_path /dnschat {
+		redir * /dnschat/
+	}
+
+	# Cruzadas Rubro-Negras - Jogo de Palavras Cruzadas do Flamengo
+	handle /flamengo-palavras/* {
+		root * /home/claude/PROJECTS/palavras-cruzadas
+		uri strip_prefix /flamengo-palavras
+
+		# Security headers específicos para PWA (temporariamente relaxado para debug)
+		header {
+			Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; manifest-src 'self'; worker-src 'self';"
+			Service-Worker-Allowed "/"
+		}
+
+		# Cache específico por tipo de arquivo (temporariamente desabilitado para debug)
+		@static_cruzadas {
+			path *.css *.js *.json *.png *.jpg *.jpeg *.gif *.ico *.svg *.woff *.woff2
+		}
+		header @static_cruzadas {
+			Cache-Control "no-cache, no-store, must-revalidate"
+			Pragma "no-cache"
+			Expires "0"
+		}
+
+		@html_cruzadas {
+			path *.html
+		}
+		header @html_cruzadas {
+			Cache-Control "no-cache, no-store, must-revalidate"
+			Pragma "no-cache"
+			Expires "0"
+		}
+
+		# Service Worker headers
+		@service_worker {
+			path sw.js
+		}
+		header @service_worker {
+			Cache-Control "no-cache"
+			Service-Worker-Allowed "/"
+		}
+
+		# Fallback for SPA
+		try_files {path} {path}/ /index.html
+		file_server
+	}
+
+	handle_path /flamengo-palavras {
+		redir * /flamengo-palavras/
+	}
+
+	file_server {
+		index index.html index.htm index.nginx-debian.html
+		hide .git .env
+	}
+
+	@static {
+		path *.js *.css *.png *.jpg *.jpeg *.gif *.ico *.svg *.woff *.woff2
+	}
+	header @static {
+		Cache-Control "public, max-age=31536000, immutable"
+	}
+
+	# IA Travel Agent Application - All routes (MUST come before more specific handlers)
+	handle /iatravel/* {
+		import cors_headers
+
+		reverse_proxy localhost:3001 {
+			lb_policy first
+			fail_duration 30s
+			max_fails 3
+
+			header_up Host {host}
+			header_up X-Real-IP {remote_host}
+			header_up X-Forwarded-For {remote_host}
+			header_up X-Forwarded-Proto {scheme}
+
+			transport http {
+				dial_timeout 30s
+				read_timeout 120s
+				write_timeout 120s
+			}
+		}
+	}
+
+	# IA Travel Agent - Root path (without trailing slash)
+	handle /iatravel {
+		import cors_headers
+
+		reverse_proxy localhost:3001 {
+			lb_policy first
+			fail_duration 30s
+			max_fails 3
+
+			header_up Host {host}
+			header_up X-Real-IP {remote_host}
+			header_up X-Forwarded-For {remote_host}
+			header_up X-Forwarded-Proto {scheme}
+
+			transport http {
+				dial_timeout 30s
+				read_timeout 120s
+				write_timeout 120s
+			}
+		}
+	}
+
+	# Eventos App - Next.js Application for Event Management
+	handle /eventos-app/* {
+		import cors_headers
+
+		reverse_proxy localhost:3016 {
+			lb_policy first
+			fail_duration 30s
+			max_fails 3
+
+			header_up Host {host}
+			header_up X-Real-IP {remote_host}
+			header_up X-Forwarded-For {remote_host}
+			header_up X-Forwarded-Proto {scheme}
+
+			transport http {
+				dial_timeout 30s
+				read_timeout 120s
+				write_timeout 120s
+			}
+		}
+	}
+
+	# Eventos App - Root redirect
+	handle_path /eventos-app {
+		import cors_headers
+
+		reverse_proxy localhost:3016 {
+			lb_policy first
+			fail_duration 30s
+			max_fails 3
+
+			header_up Host {host}
+			header_up X-Real-IP {remote_host}
+			header_up X-Forwarded-For {remote_host}
+			header_up X-Forwarded-Proto {scheme}
+
+			transport http {
+				dial_timeout 30s
+				read_timeout 120s
+				write_timeout 120s
+			}
+		}
+	}
+
+	header Strict-Transport-Security "max-age=31536000; includeSubDomains"
+
+	log {
+		output file /var/log/caddy/conhecendotudo.log {
+			roll_size 50mb
+			roll_keep 5
+		}
+	}
+}
+
+http://212.85.2.24, http://localhost {
+	import security_headers
+
+	root * /var/www/fatima_aniversario/client/dist
+	encode gzip
+
+	handle /* {
+		try_files {path} {path}/ /index.html
+		file_server
+	}
+
+	handle /fatima_aniversario_2025/* {
+		uri strip_prefix /fatima_aniversario_2025
+		try_files {path} {path}/ /fatima_aniversario_2025/index.html
+		file_server
+
+		@static_fatima {
+			path *.js *.css *.png *.jpg *.jpeg *.gif *.ico *.svg *.woff *.woff2
+		}
+		header @static_fatima {
+			Cache-Control "public, max-age=31536000, immutable"
+		}
+	}
+
+	handle /fatima_aniversario_2025/api/* {
+		import cors_headers
+
+		uri strip_prefix /fatima_aniversario_2025
+		reverse_proxy localhost:8085 {
+			lb_policy first
+			fail_duration 30s
+			max_fails 3
+
+			header_up Host {host}
+			header_up X-Real-IP {remote_host}
+			header_up X-Forwarded-For {remote_host}
+			header_up X-Forwarded-Proto {scheme}
+
+			transport http {
+				dial_timeout 75s
+				read_timeout 300s
+				write_timeout 300s
+			}
+		}
+	}
+
+	@options {
+		method OPTIONS
+		path /fatima_aniversario_2025/api/*
+	}
+	handle @options {
+		import cors_headers
+		header Content-Length 0
+		header Content-Type "text/plain"
+		respond 200
+	}
+
+	log {
+		output file /var/log/caddy/ip-access.log {
+			roll_size 50mb
+			roll_keep 5
+		}
+	}
+}
+
+http://localhost:2020 {
+	handle /health {
+		respond "OK" 200
+	}
+
+	handle /metrics {
+		metrics
+	}
+}
+
+:443 {
+	tls internal
+	respond "Not Found" 404
+}
+
+:80 {
+	respond "Not Found" 404
+}
