@@ -6,6 +6,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { logger } from '../services/LoggerService';
 import { SunscreenTrackerService } from '../services/SunscreenTrackerService';
 import { SunscreenApplication, SunscreenState } from '../types/sunscreen';
@@ -37,6 +38,7 @@ Notifications.setNotificationHandler({
 
 export const SunscreenProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { weatherData } = useWeather();
+  const { t, i18n } = useTranslation();
   const [state, setState] = useState<SunscreenState>({
     currentApplication: null,
     alertActive: false,
@@ -144,11 +146,17 @@ export const SunscreenProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       // Cancel any existing notifications
       await Notifications.cancelAllScheduledNotificationsAsync();
 
+      const title = t('sunscreen.reapplyNotification.title', '☀️ Sunscreen Reapplication');
+      const body = t(
+        'sunscreen.reapplyNotification.body',
+        "It's time to reapply your sunscreen for continued protection!"
+      );
+
       // Schedule new notification      
       await Notifications.scheduleNotificationAsync({
         content: {
-          title: '☀️ Sunscreen Reapplication',
-          body: "It's time to reapply your sunscreen for continued protection!",
+          title,
+          body,
           sound: true,
           priority: Notifications.AndroidNotificationPriority.HIGH,
         },
@@ -163,6 +171,15 @@ export const SunscreenProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       logger.error('Failed to schedule notification', error as Error, 'SUNSCREEN');
     }
   };
+
+  useEffect(() => {
+    if (!state.currentApplication) {
+      return;
+    }
+
+    scheduleNotification(state.currentApplication.reapplyAt);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.currentApplication?.reapplyAt, i18n.language]);
 
   const triggerReapplicationAlert = () => {
     setState((prev) => {

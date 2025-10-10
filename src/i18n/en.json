@@ -246,6 +246,10 @@
     "expired": "TIME'S UP",
     "interval": "interval",
     "swimmingMode": "Swimming/Water Activities",
-    "swimmingActive": "Swimming Mode Active"
+    "swimmingActive": "Swimming Mode Active",
+    "reapplyNotification": {
+      "title": "☀️ Sunscreen Reapplication",
+      "body": "It's time to reapply your sunscreen for continued protection!"
+    }
   }
 }

@@ -246,6 +246,10 @@
     "expired": "TEMPO ESGOTADO",
     "interval": "intervalo",
     "swimmingMode": "Natação/Atividades Aquáticas",
-    "swimmingActive": "Modo Natação Ativo"
+    "swimmingActive": "Modo Natação Ativo",
+    "reapplyNotification": {
+      "title": "☀️ Reaplicar Protetor Solar",
+      "body": "É hora de reaplicar o protetor solar para manter a proteção!"
+    }
   }
 }

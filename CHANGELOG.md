@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Regenerated iOS native project with `expo prebuild` 
   - Fixed missing asset file paths causing prebuild failures
   - Successfully installed 111 CocoaPods dependencies and synced workspace
+- **Localized Sunscreen Notifications** - Reapplication alerts now respect the active app language and refresh when users switch languages
 
 ## [1.0.0] - 2025-10-08
 
