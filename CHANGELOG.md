@@ -8,6 +8,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **App Store Screenshot Generation System** - Complete automated screenshot capture infrastructure
+  - iPhone screenshots (1284x2778) for 6.7" display (iPhone 16 Pro Max, 15 Pro Max, 14 Pro Max)
+  - iPad screenshots (2064x2752) for 13" display (iPad Pro 13-inch M4)
+  - 4 comprehensive screenshots per device: Home/Dashboard, UV Index, Forecast, Settings
+  - Automated capture scripts: `bun run screenshots` (iPhone), `bun run screenshots:ipad` (iPad)
+  - Auto-resize scripts ensuring exact App Store Connect dimensions
+  - Interactive screenshot tools with step-by-step guidance
+  - npm scripts: `ios:screenshots`, `screenshots`, `screenshots:resize`, `ios:ipad`, `screenshots:ipad`, `screenshots:ipad:resize`
+  - Comprehensive documentation: `docs/APP_STORE_SCREENSHOTS.md`, `fastlane/screenshots/README.md`
+  - All screenshots ready for immediate App Store Connect upload
+
 - **Liquid Glass Icon Integration** - Updated app to use custom liquid glass icon across all platforms
   - Converted SVG icon to PNG format for iOS compatibility
   - Updated app.json to use liquid glass icon for main app icon, Android adaptive icon, and push notifications

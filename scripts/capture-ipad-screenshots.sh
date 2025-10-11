@@ -1,32 +1,40 @@
 #!/bin/bash
 
-# Interactive iOS App Store Screenshot Capture
-# For Weather Sunscreen App
+# Interactive iPad App Store Screenshot Capture
+# For Weather Sunscreen App - iPad Pro 13-inch
 
 set -e
 
-SIMULATOR_ID="E13841AC-07D8-4647-A485-92D4ABA6DFFE"
-SCREENSHOT_DIR="fastlane/screenshots/ios/en-US"
+# iPad Pro 13-inch (M4) simulator
+SIMULATOR_ID="49B69A76-7F74-40DE-8AA2-9E3AC87F6413"
+SCREENSHOT_DIR="fastlane/screenshots/ios-ipad/en-US"
 
-# App Store Connect required dimensions (6.7" display)
-TARGET_WIDTH=1284
-TARGET_HEIGHT=2778
+# App Store Connect required dimensions (iPad Pro 13-inch)
+# Portrait: 2064 × 2752 pixels
+# Landscape: 2752 × 2064 pixels
+TARGET_WIDTH=2064
+TARGET_HEIGHT=2752
 
 # Colors for output
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
+RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 echo -e "${BLUE}==================================="
-echo "iOS App Store Screenshot Capture"
+echo "iPad App Store Screenshot Capture"
+echo "iPad Pro 13-inch (M4)"
 echo -e "===================================${NC}\n"
 
 # Verify simulator is running
 if ! xcrun simctl list devices | grep "$SIMULATOR_ID" | grep -q "Booted"; then
-  echo -e "${YELLOW}Error: iPhone 16 Pro Max simulator is not running${NC}"
-  echo "Please run: EXPO_IOS_SIM_DEVICE=\"iPhone 16 Pro Max\" bun run ios"
-  exit 1
+  echo -e "${YELLOW}iPad Pro 13-inch simulator is not running${NC}"
+  echo "Booting simulator..."
+  xcrun simctl boot "$SIMULATOR_ID" 2>/dev/null || echo "Already booted"
+  open -a Simulator
+  echo "Waiting for simulator to be ready..."
+  sleep 10
 fi
 
 echo -e "${GREEN}Simulator is running!${NC}\n"
@@ -49,7 +57,7 @@ capture_screenshot() {
   # Capture screenshot
   xcrun simctl io "$SIMULATOR_ID" screenshot "$filepath"
 
-  # Resize to App Store requirements
+  # Resize to App Store requirements (iPad Pro 13" portrait)
   sips -z "$TARGET_HEIGHT" "$TARGET_WIDTH" "$filepath" --out "$filepath" > /dev/null
 
   # Verify dimensions
@@ -61,44 +69,44 @@ capture_screenshot() {
 }
 
 # Main screenshot capture flow
-echo -e "${BLUE}We will capture 4-6 screenshots for the App Store.${NC}"
-echo "The app should already be running on iPhone 16 Pro Max simulator."
+echo -e "${BLUE}We will capture 4-6 screenshots for the App Store (iPad).${NC}"
+echo "Make sure the app is running on iPad Pro 13-inch simulator."
 echo ""
 echo "Press ENTER to begin..."
 read -r
 echo ""
 
 # Screenshot 1: Home/Dashboard
-capture_screenshot "01-home-dashboard.png" \
-  "SCREEN 1: Home/Dashboard
-  - Show weather cards with liquid glass effects
+capture_screenshot "01-home-dashboard-ipad.png" \
+  "SCREEN 1: Home/Dashboard (iPad)
+  - Show weather cards optimized for iPad layout
   - Current weather and UV index visible
-  - Location indicator at top
-  - Make sure data is loaded (not loading state)"
+  - Take advantage of larger screen real estate
+  - Liquid glass effects showcased"
 
 # Screenshot 2: UV Index Detail
-capture_screenshot "02-uv-index.png" \
-  "SCREEN 2: UV Index Detail
-  - Navigate to UV Index screen (tap UV card or tab)
+capture_screenshot "02-uv-index-ipad.png" \
+  "SCREEN 2: UV Index Detail (iPad)
+  - Navigate to UV Index screen
   - Show UV index gauge/visualization
   - Sunscreen recommendations visible
-  - Liquid glass card design showcased"
+  - iPad-optimized layout"
 
 # Screenshot 3: 7-Day Forecast
-capture_screenshot "03-forecast.png" \
-  "SCREEN 3: 7-Day Forecast
+capture_screenshot "03-forecast-ipad.png" \
+  "SCREEN 3: 7-Day Forecast (iPad)
   - Navigate to Forecast tab/screen
   - Show week-long weather forecast
-  - Temperature trends visible
-  - Multiple forecast items displayed"
+  - iPad layout with more details visible
+  - Temperature trends and graphs"
 
 # Screenshot 4: Settings/Styles
-capture_screenshot "04-settings.png" \
-  "SCREEN 4: Settings/Personalization
+capture_screenshot "04-settings-ipad.png" \
+  "SCREEN 4: Settings/Personalization (iPad)
   - Navigate to Settings/Styles tab
   - Show theme toggle options
   - Display personalization features
-  - Material 3 design elements visible"
+  - iPad-optimized settings layout"
 
 # Optional screenshots
 echo ""
@@ -107,28 +115,28 @@ read -r response
 
 if [[ "$response" == "y" || "$response" == "Y" ]]; then
 
-  capture_screenshot "05-weather-details.png" \
-    "SCREEN 5: Weather Details (Optional)
+  capture_screenshot "05-weather-details-ipad.png" \
+    "SCREEN 5: Weather Details (Optional - iPad)
     - Show detailed weather metrics
     - Humidity, wind, pressure, etc.
-    - Beautiful data visualization"
+    - Beautiful data visualization on iPad"
 
   echo -e "${BLUE}Capture notifications screen? (y/n)${NC}"
   read -r notif_response
 
   if [[ "$notif_response" == "y" || "$notif_response" == "Y" ]]; then
-    capture_screenshot "06-notifications.png" \
-      "SCREEN 6: Notifications (Optional)
+    capture_screenshot "06-notifications-ipad.png" \
+      "SCREEN 6: Notifications (Optional - iPad)
       - Show notification settings or examples
       - Smart notification features
-      - Personalization options"
+      - iPad layout"
   fi
 fi
 
 # Summary
 echo ""
 echo -e "${GREEN}==================================="
-echo "Screenshot Capture Complete!"
+echo "iPad Screenshot Capture Complete!"
 echo -e "===================================${NC}\n"
 
 echo "Screenshots saved to: ${SCREENSHOT_DIR}"
@@ -158,8 +166,8 @@ done
 echo ""
 echo -e "${BLUE}Next steps:${NC}"
 echo "1. Review screenshots in: ${SCREENSHOT_DIR}"
-echo "2. Verify image quality and content"
+echo "2. Verify image quality and iPad layout optimization"
 echo "3. Optional: Add device frames using Shotbot or Screenshot.rocks"
-echo "4. Upload to App Store Connect"
+echo "4. Upload to App Store Connect (iPad Pro 13-inch section)"
 echo ""
 echo -e "${GREEN}See docs/APP_STORE_SCREENSHOTS.md for detailed guidance${NC}"
