@@ -1,0 +1,43 @@
+<svg width="1024" height="2048" viewBox="0 0 1024 2048" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1024" height="2048" rx="96" fill="url(#bg)"/>
+  <rect x="96" y="128" width="832" height="120" rx="36" fill="rgba(255,255,255,0.18)"/>
+  <rect x="96" y="280" width="832" height="1640" rx="72" fill="white"/>
+  <text x="176" y="404" fill="#0D3B66" font-family="Inter" font-size="68" font-weight="700">Skin Type Setup</text>
+  <text x="176" y="478" fill="#4A5568" font-family="Inter" font-size="32">Personalize SPF guidance in seconds</text>
+  <line x1="176" y1="520" x2="848" y2="520" stroke="#E2E8F0" stroke-width="2"/>
+  <g font-family="Inter" font-size="34" fill="#4A5568">
+    <text x="176" y="612">Choose your Fitzpatrick type</text>
+  </g>
+  <g>
+    <rect x="176" y="660" width="672" height="120" rx="36" fill="#F7FAFC"/>
+    <rect x="176" y="804" width="672" height="120" rx="36" fill="#EFF6FF"/>
+    <rect x="176" y="948" width="672" height="120" rx="36" fill="#FFEDD5"/>
+    <rect x="176" y="1092" width="672" height="120" rx="36" fill="#FFF8EB"/>
+    <rect x="176" y="1236" width="672" height="120" rx="36" fill="#FFF1D6"/>
+    <rect x="176" y="1380" width="672" height="120" rx="36" fill="#FFE8D6"/>
+  </g>
+  <g font-family="Inter" font-size="40" font-weight="600">
+    <text x="220" y="738" fill="#0D3B66">Type I – Very Fair</text>
+    <text x="220" y="882" fill="#0D3B66">Type II – Fair</text>
+    <text x="220" y="1026" fill="#0D3B66">Type III – Medium</text>
+    <text x="220" y="1170" fill="#0D3B66">Type IV – Olive</text>
+    <text x="220" y="1314" fill="#0D3B66">Type V – Brown</text>
+    <text x="220" y="1458" fill="#0D3B66">Type VI – Deep Brown</text>
+  </g>
+  <g font-family="Inter" font-size="28" fill="#4A5568">
+    <text x="220" y="778">Burns easily, minimal tanning</text>
+    <text x="220" y="922">Usually burns, tans lightly</text>
+    <text x="220" y="1066">Sometimes mild burn, tans uniformly</text>
+    <text x="220" y="1210">Rarely burns, tans well</text>
+    <text x="220" y="1354">Very rarely burns, deep pigmentation</text>
+    <text x="220" y="1498">Never burns, deeply pigmented</text>
+  </g>
+  <rect x="176" y="1568" width="672" height="160" rx="40" fill="#0D3B66"/>
+  <text x="336" y="1668" fill="white" font-family="Inter" font-size="48" font-weight="700">Continue • SPF Profile</text>
+  <defs>
+    <linearGradient id="bg" x1="512" y1="0" x2="512" y2="2048" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0D3B66"/>
+      <stop offset="1" stop-color="#1A5490"/>
+    </linearGradient>
+  </defs>
+</svg>
