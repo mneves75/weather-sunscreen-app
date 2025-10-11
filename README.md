@@ -2,7 +2,7 @@
 
 <div align="center">
 
-<img src="assets/images/icon.png" alt="Weather Sunscreen App Icon" width="120">
+<img src="assets/icon-liquid-glass-source.png" alt="Weather Sunscreen App Icon" width="120">
 
 **Smart UV Protection & Personalized Sunscreen Recommendations**
 
