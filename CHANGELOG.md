@@ -8,6 +8,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Landing Page Enhancements** - Integrated iOS screenshots and GitHub attribution
+  - Added screenshots gallery section with 4 iPhone app screenshots
+  - Interactive hover effects with translateY + scale animations
+  - Responsive 4-column grid layout (auto-fit, minmax 280px)
+  - App icon integrated into website header logo (32x32px with 8px border radius)
+  - GitHub repository link added to screenshots section and footer
+  - Updated GitHub URLs from generic placeholder to https://github.com/mneves75/weather-sunscreen-app
+  - Proper semantic HTML with descriptive alt text for accessibility
+  - Consistent with existing design system (coral gradient, Material Design 3 easing, 8pt grid)
+  - Screenshots copied to `website-weather/assets/images/screenshots/`
+  - Ready for deployment to production
+
 - **App Store Screenshot Generation System** - Complete automated screenshot capture infrastructure
   - iPhone screenshots (1284x2778) for 6.7" display (iPhone 16 Pro Max, 15 Pro Max, 14 Pro Max)
   - iPad screenshots (2064x2752) for 13" display (iPad Pro 13-inch M4)
