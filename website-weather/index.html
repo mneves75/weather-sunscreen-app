@@ -19,6 +19,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preload" href="/assets/images/hero-uv-dashboard.svg" as="image">
 
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -388,30 +389,10 @@
 
         .feature-screenshot {
             width: 100%;
-            max-width: 350px;
+            max-width: 380px;
             height: auto;
             border-radius: var(--radius-2xl);
             box-shadow: var(--shadow-xl);
-        }
-
-        .app-preview-placeholder {
-            text-align: center;
-            color: var(--primary);
-        }
-
-        .app-preview-placeholder i {
-            font-size: 5rem;
-            margin-bottom: var(--space-md);
-            animation: float 3s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% {
-                transform: translateY(0);
-            }
-            50% {
-                transform: translateY(-10px);
-            }
         }
 
         @media (max-width: 768px) {
@@ -857,11 +838,7 @@
                 <div class="hero-image">
                     <div class="phone-mockup">
                         <div class="phone-screen">
-                            <div class="app-preview-placeholder">
-                                <i data-lucide="sun"></i>
-                                <h3>UV Index Monitor</h3>
-                                <p style="color: var(--text-secondary);">Smart protection for your skin</p>
-                            </div>
+                            <img src="/assets/images/hero-uv-dashboard.svg" alt="Weather Sunscreen dashboard displaying UV index and sun safety guidance" class="phone-screenshot">
                         </div>
                     </div>
                 </div>
@@ -996,11 +973,7 @@
                     </ul>
                 </div>
                 <div class="feature-visual">
-                    <div style="text-align: center; color: var(--primary);">
-                        <i data-lucide="user-check" style="font-size: 4rem; margin-bottom: 1rem;"></i>
-                        <h4 style="color: var(--text-primary);">Skin Type Selection</h4>
-                        <p style="color: var(--text-secondary);">Personalized for you</p>
-                    </div>
+                    <img src="/assets/images/feature-skin-type.svg" alt="Screen showing Weather Sunscreen skin type personalization options" class="feature-screenshot">
                 </div>
             </div>
 
@@ -1028,11 +1001,7 @@
                     </ul>
                 </div>
                 <div class="feature-visual">
-                    <div style="text-align: center; color: var(--primary);">
-                        <i data-lucide="cloud-sun" style="font-size: 4rem; margin-bottom: 1rem;"></i>
-                        <h4 style="color: var(--text-primary);">Weather Details</h4>
-                        <p style="color: var(--text-secondary);">Complete forecast data</p>
-                    </div>
+                    <img src="/assets/images/feature-weather-details.svg" alt="Screen summarizing detailed weather metrics and UV forecast" class="feature-screenshot">
                 </div>
             </div>
 
@@ -1060,11 +1029,7 @@
                     </ul>
                 </div>
                 <div class="feature-visual">
-                    <div style="text-align: center; color: var(--primary);">
-                        <i data-lucide="bell-ring" style="font-size: 4rem; margin-bottom: 1rem;"></i>
-                        <h4 style="color: var(--text-primary);">Smart Alerts</h4>
-                        <p style="color: var(--text-secondary);">Never miss protection</p>
-                    </div>
+                    <img src="/assets/images/feature-alerts.svg" alt="Screen highlighting Weather Sunscreen smart alert notifications" class="feature-screenshot">
                 </div>
             </div>
         </div>

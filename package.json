@@ -6,11 +6,14 @@
     "start": "expo start",
     "android": "expo run:android",
     "ios": "node scripts/ensure-simulator.js && expo run:ios",
+    "ios:screenshots": "EXPO_IOS_SIM_DEVICE=\"iPhone 16 Pro Max\" node scripts/ensure-simulator.js && expo run:ios",
     "web": "expo start --web",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "generate-icons": "bash scripts/generate-icons.sh"
+    "generate-icons": "bash scripts/generate-icons.sh",
+    "screenshots": "bash scripts/capture-app-store-screenshots.sh",
+    "screenshots:auto": "bash scripts/auto-screenshot.sh"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^2.0.23",

@@ -1,0 +1,111 @@
+<svg width="1170" height="2532" viewBox="0 0 1170 2532" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1170" height="2532" rx="120" fill="url(#paint0_linear)"/>
+  <rect x="64" y="120" width="1042" height="156" rx="48" fill="rgba(255,255,255,0.18)"/>
+  <circle cx="152" cy="198" r="36" fill="url(#paint1_radial)"/>
+  <rect x="224" y="168" width="420" height="60" rx="30" fill="rgba(255,255,255,0.45)"/>
+  <rect x="224" y="236" width="260" height="40" rx="20" fill="rgba(255,255,255,0.25)"/>
+  <g filter="url(#filter0_d)">
+    <rect x="64" y="344" width="1042" height="604" rx="72" fill="white"/>
+    <text x="144" y="456" fill="#0D3B66" font-family="Inter" font-size="72" font-weight="700">Current UV</text>
+    <text x="144" y="548" fill="#4A5568" font-family="Inter" font-size="36">Rio de Janeiro • 11:30 AM</text>
+    <text x="144" y="670" fill="#FF6B35" font-family="Inter" font-size="220" font-weight="800">6</text>
+    <text x="384" y="690" fill="#FF6B35" font-family="Inter" font-size="56" font-weight="600">High</text>
+    <rect x="144" y="760" width="782" height="36" rx="18" fill="#FFE3D6"/>
+    <rect x="144" y="760" width="520" height="36" rx="18" fill="#FF6B35"/>
+    <text x="144" y="852" fill="#4A5568" font-family="Inter" font-size="34">Apply SPF 50 now • Reapply in 1h 20m</text>
+  </g>
+  <g filter="url(#filter1_d)">
+    <rect x="64" y="1016" width="472" height="564" rx="56" fill="white"/>
+    <text x="124" y="1128" fill="#0D3B66" font-family="Inter" font-size="52" font-weight="700">Today</text>
+    <text x="124" y="1210" fill="#4A5568" font-family="Inter" font-size="30">24°C • Feels 26°C</text>
+    <line x1="124" y1="1258" x2="492" y2="1258" stroke="#E2E8F0" stroke-width="2"/>
+    <g font-family="Inter" fill="#4A5568" font-size="28">
+      <text x="124" y="1328">09:00</text>
+      <text x="124" y="1408">12:00</text>
+      <text x="124" y="1488">15:00</text>
+    </g>
+    <g>
+      <rect x="260" y="1296" width="210" height="44" rx="22" fill="#F7FAFC"/>
+      <rect x="260" y="1376" width="210" height="44" rx="22" fill="#FFEDD5"/>
+      <rect x="260" y="1456" width="210" height="44" rx="22" fill="#FEEBC8"/>
+    </g>
+    <g font-family="Inter" font-size="26" font-weight="600" fill="#0D3B66">
+      <text x="280" y="1326">UV 4 • Moderate</text>
+      <text x="280" y="1406">UV 6 • High</text>
+      <text x="280" y="1486">UV 5 • High</text>
+    </g>
+  </g>
+  <g filter="url(#filter2_d)">
+    <rect x="634" y="1016" width="472" height="564" rx="56" fill="white"/>
+    <text x="694" y="1128" fill="#0D3B66" font-family="Inter" font-size="52" font-weight="700">Skin Plan</text>
+    <text x="694" y="1210" fill="#4A5568" font-family="Inter" font-size="30">Type III • Balanced</text>
+    <line x1="694" y1="1258" x2="1032" y2="1258" stroke="#E2E8F0" stroke-width="2"/>
+    <rect x="694" y="1306" width="296" height="108" rx="28" fill="#F7FAFC"/>
+    <text x="734" y="1376" fill="#0D3B66" font-family="Inter" font-size="34" font-weight="700">SPF 50+</text>
+    <text x="734" y="1418" fill="#4A5568" font-family="Inter" font-size="28">Water resistant</text>
+    <rect x="694" y="1478" width="296" height="108" rx="28" fill="#FFF1D6"/>
+    <text x="734" y="1548" fill="#FF6B35" font-family="Inter" font-size="34" font-weight="700">Reapply 1h</text>
+    <text x="734" y="1590" fill="#4A5568" font-family="Inter" font-size="28">Reminder enabled</text>
+  </g>
+  <g filter="url(#filter3_d)">
+    <rect x="64" y="1628" width="1042" height="780" rx="72" fill="white"/>
+    <text x="144" y="1740" fill="#0D3B66" font-family="Inter" font-size="60" font-weight="700">7-Day UV Outlook</text>
+    <g font-family="Inter" font-size="32" fill="#4A5568">
+      <text x="144" y="1834">Fri</text>
+      <text x="312" y="1834">Sat</text>
+      <text x="480" y="1834">Sun</text>
+      <text x="648" y="1834">Mon</text>
+      <text x="816" y="1834">Tue</text>
+      <text x="984" y="1834">Wed</text>
+    </g>
+    <g>
+      <path d="M152 2320C152 2172 216 2064 320 2064C424 2064 488 2160 592 2160C696 2160 760 2028 864 2028C968 2028 1032 2128 1032 2320" stroke="#FF6B35" stroke-width="18" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <g font-family="Inter" font-size="28" font-weight="600" fill="#FF6B35">
+        <text x="152" y="2050">5</text>
+        <text x="320" y="1996">7</text>
+        <text x="488" y="2084">6</text>
+        <text x="656" y="2036">7</text>
+        <text x="824" y="1988">8</text>
+        <text x="992" y="2120">6</text>
+      </g>
+    </g>
+  </g>
+  <defs>
+    <linearGradient id="paint0_linear" x1="585" y1="0" x2="585" y2="2532" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0D3B66"/>
+      <stop offset="1" stop-color="#1A5490"/>
+    </linearGradient>
+    <radialGradient id="paint1_radial" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(152 198) rotate(90) scale(36)">
+      <stop stop-color="#F4D35E"/>
+      <stop offset="1" stop-color="#FF6B35"/>
+    </radialGradient>
+    <filter id="filter0_d" x="32" y="312" width="1106" height="668" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feGaussianBlur in="BackgroundImageFix" stdDeviation="16"/>
+      <feComposite in2="SourceAlpha" operator="in" result="effect1_backgroundBlur"/>
+      <feOffset dy="12"/>
+      <feGaussianBlur stdDeviation="24"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.08 0"/>
+      <feBlend mode="normal" in2="effect1_backgroundBlur" result="effect2_dropShadow"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="effect2_dropShadow" result="shape"/>
+    </filter>
+    <filter id="filter1_d" x="32" y="984" width="536" height="628" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feOffset dy="12"/>
+      <feGaussianBlur stdDeviation="24"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.08 0"/>
+      <feBlend mode="normal" in="SourceGraphic" result="shape"/>
+    </filter>
+    <filter id="filter2_d" x="602" y="984" width="536" height="628" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feOffset dy="12"/>
+      <feGaussianBlur stdDeviation="24"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.08 0"/>
+      <feBlend mode="normal" in="SourceGraphic" result="shape"/>
+    </filter>
+    <filter id="filter3_d" x="32" y="1596" width="1106" height="844" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feOffset dy="12"/>
+      <feGaussianBlur stdDeviation="24"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.08 0"/>
+      <feBlend mode="normal" in="SourceGraphic" result="shape"/>
+    </filter>
+  </defs>
+</svg>

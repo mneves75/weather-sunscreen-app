@@ -1,0 +1,44 @@
+<svg width="1024" height="2048" viewBox="0 0 1024 2048" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1024" height="2048" rx="96" fill="url(#bg)"/>
+  <rect x="96" y="128" width="832" height="120" rx="36" fill="rgba(255,255,255,0.18)"/>
+  <rect x="96" y="280" width="832" height="1640" rx="72" fill="white"/>
+  <text x="176" y="404" fill="#0D3B66" font-family="Inter" font-size="68" font-weight="700">Smart Alerts</text>
+  <text x="176" y="478" fill="#4A5568" font-family="Inter" font-size="32">Stay ahead of UV spikes and reapplication</text>
+  <line x1="176" y1="520" x2="848" y2="520" stroke="#E2E8F0" stroke-width="2"/>
+  <g>
+    <rect x="176" y="560" width="672" height="220" rx="44" fill="#FFF4E6"/>
+    <circle cx="244" cy="670" r="48" fill="#FF6B35" opacity="0.9"/>
+    <text x="316" y="650" fill="#FF6B35" font-family="Inter" font-size="40" font-weight="700">High UV Alert</text>
+    <text x="316" y="702" fill="#4A5568" font-family="Inter" font-size="30">UV index rising to 8 at 13:00</text>
+    <text x="316" y="750" fill="#4A5568" font-family="Inter" font-size="26">Plan shade breaks and SPF 50+</text>
+  </g>
+  <g>
+    <rect x="176" y="820" width="672" height="220" rx="44" fill="#E6FFFA"/>
+    <circle cx="244" cy="930" r="48" fill="#2A9D8F" opacity="0.9"/>
+    <text x="316" y="910" fill="#2A9D8F" font-family="Inter" font-size="40" font-weight="700">Reapply Sunscreen</text>
+    <text x="316" y="962" fill="#4A5568" font-family="Inter" font-size="30">You’ve been outside for 92 minutes</text>
+    <text x="316" y="1010" fill="#4A5568" font-family="Inter" font-size="26">Next reminder in 60 minutes</text>
+  </g>
+  <g>
+    <rect x="176" y="1080" width="672" height="220" rx="44" fill="#EFF6FF"/>
+    <circle cx="244" cy="1190" r="48" fill="#1A5490" opacity="0.9"/>
+    <text x="316" y="1170" fill="#1A5490" font-family="Inter" font-size="40" font-weight="700">Weather Shift Ahead</text>
+    <text x="316" y="1222" fill="#4A5568" font-family="Inter" font-size="30">Cloud cover decreasing • UV +2</text>
+    <text x="316" y="1270" fill="#4A5568" font-family="Inter" font-size="26">Adjust sunscreen plan accordingly</text>
+  </g>
+  <g>
+    <rect x="176" y="1336" width="672" height="420" rx="44" fill="#F7FAFC"/>
+    <text x="216" y="1420" fill="#0D3B66" font-family="Inter" font-size="40" font-weight="700">Quiet Hours</text>
+    <text x="216" y="1474" fill="#4A5568" font-family="Inter" font-size="28">Custom schedules for notifications</text>
+    <rect x="216" y="1508" width="480" height="80" rx="28" fill="#0D3B66"/>
+    <text x="256" y="1560" fill="white" font-family="Inter" font-size="36" font-weight="700">Weekdays 21:00 – 06:30</text>
+    <rect x="216" y="1604" width="480" height="80" rx="28" fill="#E2E8F0"/>
+    <text x="256" y="1656" fill="#0D3B66" font-family="Inter" font-size="36" font-weight="700">Weekends 22:00 – 08:00</text>
+  </g>
+  <defs>
+    <linearGradient id="bg" x1="512" y1="0" x2="512" y2="2048" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0D3B66"/>
+      <stop offset="1" stop-color="#1A5490"/>
+    </linearGradient>
+  </defs>
+</svg>
