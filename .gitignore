@@ -31,7 +31,10 @@ yarn-error.*
 *.pem
 
 # local env files
+.env
 .env*.local
+.env.production
+.env.development
 
 # typescript
 *.tsbuildinfo
@@ -39,3 +42,27 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# secrets and credentials
+*.credentials
+*.secrets
+*-secret.json
+credentials.json
+secrets.json
+
+# SSH keys
+id_rsa
+id_rsa.pub
+id_ed25519
+id_ed25519.pub
+*.ppk
+
+# database
+*.db
+*.sqlite
+*.sqlite3
+
+# deployment artifacts
+*.tar.gz
+*.zip
+*.rar
