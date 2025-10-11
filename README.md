@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Weather Sunscreen](assets/images/icon.png)
+<img src="assets/images/icon.png" alt="Weather Sunscreen App Icon" width="120">
 
 **Smart UV Protection & Personalized Sunscreen Recommendations**
 

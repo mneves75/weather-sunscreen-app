@@ -1,10 +1,10 @@
-# Apache Configuration for Cigar Info Landing Page
-# Subdirectory: /cigarinfoai
+# Apache Configuration for Weather Sunscreen Landing Page
+# Subdirectory: /weathersunscreen
 
 # Enable RewriteEngine
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteBase /cigarinfoai/
+    RewriteBase /weathersunscreen/
 
     # Force HTTPS (if not already)
     RewriteCond %{HTTPS} off
