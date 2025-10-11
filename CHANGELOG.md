@@ -7,7 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.1] - 2025-10-11
+
 ### Added
+- **Landing Page Production Deployment** - Weather Sunscreen website now live at conhecendotudo.online
+  - Configured Caddy web server with weathersunscreen subdirectory routing
+  - Added typo-tolerant alias (weathersuncreen) for common misspellings
+  - Automated deployment script (`deploy-weathersunscreen-auto.sh`) with 6-step process
+  - Real-time deployment verification with HTTP status checking
+  - File permissions and asset integrity validation
+
+### Changed
+- **Landing Page Image Strategy** - Replaced placeholder SVGs with real app screenshots
+  - Hero section now displays actual iPhone screenshot (01-home-dashboard.png)
+  - Feature sections showcase real app screens (Settings, Forecast, UV Index)
+  - Removed duplicate "See Weather Sunscreen in Action" section
+  - Cleaner page structure with screenshots integrated into features
+  - Preload optimization for hero image (faster LCP)
+
+### Fixed
+- **VPS Deployment Configuration** - Resolved 404 errors and missing images
+  - Added Caddyfile handlers for /weathersunscreen/* and /weathersuncreen/* routes
+  - Fixed missing PNG screenshots in initial deployment (SVGs only)
+  - Configured proper file permissions (644 for files, 755 for directories)
+  - Verified Caddy service reload without downtime
+
+### Added (Unreleased)
 - **Landing Page Enhancements** - Integrated iOS screenshots and GitHub attribution
   - Added screenshots gallery section with 4 iPhone app screenshots
   - Interactive hover effects with translateY + scale animations
