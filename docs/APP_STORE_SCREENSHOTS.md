@@ -10,15 +10,26 @@ This guide covers generating high-quality screenshots for the iOS App Store subm
 
 For iOS App Store, you need screenshots for:
 
+### iPhone
+
 1. **6.7" Display (Required)** - iPhone 16 Pro Max, iPhone 15 Pro Max, iPhone 14 Pro Max
-   - Resolution: 1290 x 2796 pixels
+   - Resolution: **1284 x 2778 pixels** (Portrait)
+   - Resolution: **2778 x 1284 pixels** (Landscape)
    - Primary device for App Store
 
 2. **6.5" Display (Optional)** - iPhone 11 Pro Max, iPhone XS Max
-   - Resolution: 1242 x 2688 pixels
+   - Resolution: **1242 x 2688 pixels** (Portrait)
+   - Resolution: **2688 x 1242 pixels** (Landscape)
 
 3. **5.5" Display (Optional)** - iPhone 8 Plus, iPhone 7 Plus
-   - Resolution: 1242 x 2208 pixels
+   - Resolution: 1242 x 2208 pixels (Portrait)
+
+### iPad
+
+1. **iPad Pro 13-inch (Required)** - iPad Pro 13" (6th generation, M4)
+   - Resolution: **2064 x 2752 pixels** (Portrait)
+   - Resolution: **2752 x 2064 pixels** (Landscape)
+   - Required for iPad support
 
 ### App Store Requirements
 
@@ -27,6 +38,7 @@ For iOS App Store, you need screenshots for:
 - Format: PNG or JPG
 - File size: Recommended < 500 KB per screenshot
 - Orientation: Portrait (for this app)
+- Exact dimensions required (no automatic resizing by Apple)
 
 ## Quick Start
 
@@ -71,6 +83,9 @@ xcrun simctl io booted screenshot fastlane/screenshots/ios/en-US/01-home.png
 sleep 2
 
 # Repeat for each screen
+
+# Resize all screenshots to App Store requirements
+bun run screenshots:resize
 ```
 
 ## Required Screenshots
@@ -247,9 +262,10 @@ bun run ios
 - Capture from actual device if possible
 
 **Wrong resolution:**
-- Verify simulator device type
-- Check `xcrun simctl io booted screenshot` output
-- Resize with: `sips -z 2796 1290 input.png --out output.png`
+- iOS Simulator outputs native device resolution (1320x2868 for iPhone 16 Pro Max)
+- App Store Connect requires exact dimensions: **1284x2778 for 6.7" display**
+- Use automated resize script: `bun run screenshots:resize`
+- Or manual resize: `sips -z 2778 1284 input.png --out output.png`
 
 ### Build Failures
 

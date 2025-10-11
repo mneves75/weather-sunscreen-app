@@ -18,21 +18,45 @@ screenshots/
 
 ## Screenshot Requirements
 
-### iOS (6.7" Display - iPhone 16 Pro Max)
+### iPhone (6.7" Display - iPhone 16 Pro Max)
 
-- **Expected Resolution**: 1290 x 2796 pixels (App Store standard)
-- **Actual Simulator Output**: 1320 x 2868 pixels (device native resolution)
+- **Required Resolution**: **1284 x 2778 pixels** (App Store Connect standard)
+- **Simulator Output**: 1320 x 2868 pixels (device native resolution)
 - **Format**: PNG or JPG
 - **Quantity**: 3-10 screenshots
 - **File Size**: < 500 KB recommended
 
-Note: The simulator outputs screenshots at the device's native resolution (1320x2868), which is slightly different from Apple's standard screenshot size (1290x2796). App Store Connect typically accepts both, but you can resize if needed:
+**IMPORTANT**: App Store Connect requires **exact dimensions**. The simulator outputs screenshots at the device's native resolution (1320x2868), which must be resized to 1284x2778.
 
+### Auto-Resize All Screenshots
 ```bash
-sips -z 2796 1290 input.png --out output.png
+bun run screenshots:resize
+```
+
+### Manual Resize
+```bash
+sips -z 2778 1284 input.png --out output.png
+```
+
+### iPad (13" Display - iPad Pro 13-inch M4)
+
+- **Required Resolution**: **2064 x 2752 pixels** (App Store Connect standard)
+- **Simulator Output**: Variable (device native resolution)
+- **Format**: PNG or JPG
+- **Quantity**: 3-10 screenshots
+- **File Size**: < 500 KB recommended
+
+**IMPORTANT**: App Store Connect requires **exact dimensions** for iPad screenshots.
+
+### Auto-Resize iPad Screenshots
+```bash
+# Coming soon - manual resize for now:
+sips -z 2752 2064 input.png --out output.png
 ```
 
 ## Current Screenshots
+
+### iPhone
 
 1. **01-home-dashboard.png** - Home screen with weather cards and liquid glass effects
 2. **02-uv-index.png** - UV Index detail with recommendations (to be captured)
@@ -53,7 +77,12 @@ sips -z 2796 1290 input.png --out output.png
    bun run screenshots
    ```
 
-3. **Or use the auto-capture tool:**
+3. **Resize all screenshots to App Store requirements:**
+   ```bash
+   bun run screenshots:resize
+   ```
+
+4. **Or use the auto-capture tool:**
    ```bash
    bun run screenshots:auto
    ```
@@ -92,9 +121,14 @@ sips -z 2796 1290 input.png --out output.png
 ## Troubleshooting
 
 **Wrong resolution:**
-App Store Connect may reject screenshots if resolution doesn't match. Resize with:
+App Store Connect requires exact dimensions (1284x2778 for 6.7" display). Auto-resize all screenshots:
 ```bash
-sips -z 2796 1290 input.png --out output.png
+bun run screenshots:resize
+```
+
+Or manually resize individual files:
+```bash
+sips -z 2778 1284 input.png --out output.png
 ```
 
 **Simulator not booting:**

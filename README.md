@@ -81,9 +81,14 @@ Stop guessing your UV exposure. Get personalized sun safety guidance based on yo
 
 | Home Screen | UV Index | Weather Detail | Settings |
 |-------------|----------|----------------|----------|
-| ![Home](docs/screenshots/home.png) | ![UV](docs/screenshots/uv.png) | ![Weather](docs/screenshots/weather.png) | ![Settings](docs/screenshots/settings.png) |
+| ![Home](fastlane/screenshots/ios/en-US/01-home-dashboard.png) | ![UV](fastlane/screenshots/ios/en-US/02-uv-index.png) | ![Forecast](fastlane/screenshots/ios/en-US/03-forecast.png) | ![Settings](fastlane/screenshots/ios/en-US/04-settings.png) |
 
 *iOS 26 Liquid Glass UI with dramatic hero components and smooth animations*
+
+**App Store Ready:** 8 screenshots generated (4 iPhone + 4 iPad) at exact dimensions required by App Store Connect
+📱 iPhone: 1284×2778 (6.7" display) | 📱 iPad: 2064×2752 (13" display)
+
+See [docs/APP_STORE_SCREENSHOTS.md](docs/APP_STORE_SCREENSHOTS.md) for screenshot generation guide.
 
 </div>
 
@@ -334,6 +339,20 @@ bun run sync-versions:dry    # Preview version changes
 npm test                 # Run Jest tests
 npm test -- --watch      # Watch mode
 npm test -- --coverage   # Coverage report
+```
+
+### App Store Screenshots
+
+```bash
+# iPhone screenshots (1284x2778 for 6.7" display)
+bun run ios:screenshots        # Launch app on iPhone 16 Pro Max
+bun run screenshots            # Interactive screenshot capture
+bun run screenshots:resize     # Resize to exact App Store dimensions
+
+# iPad screenshots (2064x2752 for 13" display)
+bun run ios:ipad               # Launch app on iPad Pro 13-inch
+bun run screenshots:ipad       # Interactive iPad screenshot capture
+bun run screenshots:ipad:resize # Resize iPad screenshots
 ```
 
 ---
