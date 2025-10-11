@@ -105,6 +105,28 @@ conhecendotudo.online, www.conhecendotudo.online {
 		redir * /cigarinfoai/
 	}
 
+	# Weather Sunscreen App - Landing page
+	handle /weathersunscreen/* {
+		root * /home/claude/public_html/weathersunscreen
+		uri strip_prefix /weathersunscreen
+		file_server
+	}
+
+	handle_path /weathersunscreen {
+		redir * /weathersunscreen/
+	}
+
+	# Weather Sunscreen App - Typo alias (weathersuncreen)
+	handle /weathersuncreen/* {
+		root * /home/claude/public_html/weathersuncreen
+		uri strip_prefix /weathersuncreen
+		file_server
+	}
+
+	handle_path /weathersuncreen {
+		redir * /weathersuncreen/
+	}
+
 	# DNSChat Privacy Policy and Terms of Service (MUST come before catch-all /dnschat/*)
 	handle /dnschat/privacy/* {
 		root * /home/claude/PROJECTS/dnschat-site/dist

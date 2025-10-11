@@ -24,6 +24,7 @@ echo ""
 
 VPS_IP="212.85.2.24"
 VPS_USER="claude"
+SSH_HOST="megasena-vps"  # Use SSH config alias
 WEB_ROOT="/home/claude/public_html"
 SUBDIRECTORY="weathersunscreen"
 ALIAS_SUBDIRECTORY="weathersuncreen"  # common typo redirect
@@ -31,6 +32,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOCAL_DIR="$SCRIPT_DIR"
 
 echo -e "${GREEN}Configuration:${NC}"
+echo "  SSH Host: $SSH_HOST"
 echo "  VPS IP: $VPS_IP"
 echo "  Username: $VPS_USER"
 echo "  Web Root: $WEB_ROOT"
@@ -70,7 +72,7 @@ echo -e "${GREEN}✓ Archive created: $ARCHIVE_NAME${NC}"
 echo ""
 echo -e "${YELLOW}[2/6] Uploading to VPS...${NC}"
 
-scp "/tmp/$ARCHIVE_NAME" "$VPS_USER@$VPS_IP:/tmp/"
+scp "/tmp/$ARCHIVE_NAME" "$SSH_HOST:/tmp/"
 
 echo -e "${GREEN}✓ Files uploaded${NC}"
 
@@ -81,7 +83,7 @@ echo -e "${GREEN}✓ Files uploaded${NC}"
 echo ""
 echo -e "${YELLOW}[3/6] Extracting files on VPS...${NC}"
 
-ssh "$VPS_USER@$VPS_IP" bash <<EOF
+ssh "$SSH_HOST" bash <<EOF
     set -e
 
     # Create subdirectory if not exists
@@ -114,7 +116,7 @@ echo -e "${GREEN}✓ Files extracted${NC}"
 echo ""
 echo -e "${YELLOW}[4/6] Setting file permissions...${NC}"
 
-ssh "$VPS_USER@$VPS_IP" bash <<EOF
+ssh "$SSH_HOST" bash <<EOF
     set -e
 
     cd "$WEB_ROOT/$SUBDIRECTORY"
@@ -133,7 +135,7 @@ EOF
 echo -e "${GREEN}✓ Permissions configured${NC}"
 
 # Ensure alias directory exists and inherits permissions
-ssh "$VPS_USER@$VPS_IP" bash <<EOF
+ssh "$SSH_HOST" bash <<EOF
     set -e
 
     if [ -d "$WEB_ROOT/$ALIAS_SUBDIRECTORY" ]; then
@@ -154,7 +156,7 @@ echo -e "${GREEN}✓ Alias directory verified${NC}"
 echo ""
 echo -e "${YELLOW}[5/6] Verifying Caddy configuration...${NC}"
 
-ssh "$VPS_USER@$VPS_IP" bash <<EOF
+ssh "$SSH_HOST" bash <<EOF
     set -e
 
     SITE_ROOT="$WEB_ROOT/$SUBDIRECTORY"
