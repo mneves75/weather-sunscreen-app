@@ -26,7 +26,7 @@ import { useFocusEffect } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AccessibilityInfo, Animated, Linking, Platform, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
-import { getUVLevelLabel } from '@/src/utils';
+import { getUVLevelLabel, UV_GRADIENT } from '@/src/utils';
 
 const { spacing, borderRadius } = tokens;
 
@@ -74,6 +74,10 @@ const { weatherData: weatherSnapshot } = useWeatherData();
   // Check for reduce motion accessibility preference
   const [reduceMotion, setReduceMotion] = useState(false);
 
+  // Performance optimization: reduced glass card count from 6 to 4 (Hero + Hourly + Skin/Recs + Daylight)
+  // Apple recommends limiting to 5-10 static glass effects for optimal performance
+  // Further scroll-based optimization can be added via conditional rendering if needed
+
   useEffect(() => {
     AccessibilityInfo.isReduceMotionEnabled().then(setReduceMotion);
 
@@ -92,66 +96,49 @@ const { weatherData: weatherSnapshot } = useWeatherData();
   const recommendationsAnim = createSlideUpComponent(50, 200);
   const daylightAnim = createSlideUpComponent(50, 250);
 
-  // Trigger entrance animations when data loads
+  // Limit detailed display to the next 12 readings for readability; hook already sorts ascending.
+  const hourlyPreview = useMemo(() => displayHourly.slice(0, 12), [displayHourly]);
+
+  const resolvedSpf = spfRecommendation ?? 30;
+  const hasExplicitSpfRecommendation = spfRecommendation !== null && spfRecommendation !== undefined;
+
+  const formatHour = useCallback((timestamp: number) => {
+    return new Date(timestamp).toLocaleTimeString(preferences.locale, {
+      hour: 'numeric',
+      hour12: preferences.timeFormat !== '24h',
+    });
+  }, [preferences.locale, preferences.timeFormat]);
+
+  // CRITICAL FIX: Initialize animations to visible state immediately to prevent blank screen
+  // Bug: createSlideUpComponent starts with opacity=0, causing blank space until animation triggers
+  // Solution: Set visible state immediately on mount, skip entrance animation for better UX
   useEffect(() => {
-    if (uvIndex) {
-      if (reduceMotion) {
-        uvCardAnim.opacity.setValue(1);
-        uvCardAnim.translateY.setValue(0);
-      } else {
-        uvCardAnim.animate();
-      }
-    }
+    // Always set to visible state immediately (no entrance animation)
+    uvCardAnim.opacity.setValue(1);
+    uvCardAnim.translateY.setValue(0);
     // Animation objects are stable references from createSlideUpComponent
-  }, [uvIndex, reduceMotion]);
+  }, [uvIndex]);
+
+  // Initialize all animations to visible state immediately (prevent blank screens)
+  useEffect(() => {
+    skinCardAnim.opacity.setValue(1);
+    skinCardAnim.translateY.setValue(0);
+  }, [skinType]);
 
   useEffect(() => {
-    if (skinType) {
-      if (reduceMotion) {
-        skinCardAnim.opacity.setValue(1);
-        skinCardAnim.translateY.setValue(0);
-      } else {
-        skinCardAnim.animate();
-      }
-    }
-    // Animation objects are stable references from createSlideUpComponent
-  }, [skinType, reduceMotion]);
+    recommendationsAnim.opacity.setValue(1);
+    recommendationsAnim.translateY.setValue(0);
+  }, [recommendations]);
 
   useEffect(() => {
-    if (recommendations.length > 0) {
-      if (reduceMotion) {
-        recommendationsAnim.opacity.setValue(1);
-        recommendationsAnim.translateY.setValue(0);
-      } else {
-        recommendationsAnim.animate();
-      }
-    }
-    // Animation objects are stable references from createSlideUpComponent
-  }, [recommendations, reduceMotion, recommendationsAnim]);
+    hourlyAnim.opacity.setValue(1);
+    hourlyAnim.translateY.setValue(0);
+  }, [hourlyPreview]);
 
   useEffect(() => {
-    if (hourlyPreview.length > 1) {
-      if (reduceMotion) {
-        hourlyAnim.opacity.setValue(1);
-        hourlyAnim.translateY.setValue(0);
-      } else {
-        hourlyAnim.animate();
-      }
-    }
-    // Animation objects are stable references from createSlideUpComponent
-  }, [hourlyPreview, reduceMotion, hourlyAnim]);
-
-  useEffect(() => {
-    if (hasDaylightData) {
-      if (reduceMotion) {
-        daylightAnim.opacity.setValue(1);
-        daylightAnim.translateY.setValue(0);
-      } else {
-        daylightAnim.animate();
-      }
-    }
-    // Animation objects are stable references from createSlideUpComponent
-  }, [hasDaylightData, reduceMotion, daylightAnim]);
+    daylightAnim.opacity.setValue(1);
+    daylightAnim.translateY.setValue(0);
+  }, [hasDaylightData]);
 
   const isLocationAvailable = hasLocation || locationState.hasLocation || Boolean(currentLocation);
   const shouldShowLocationPrompt = !isLocationAvailable && !uvIndex && !isLoading;
@@ -273,17 +260,6 @@ const { weatherData: weatherSnapshot } = useWeatherData();
     );
   }
 
-  const resolvedSpf = spfRecommendation ?? 30;
-  const hasExplicitSpfRecommendation = spfRecommendation !== null && spfRecommendation !== undefined;
-  // Limit detailed display to the next 12 readings for readability; hook already sorts ascending.
-  const hourlyPreview = useMemo(() => displayHourly.slice(0, 12), [displayHourly]);
-  const formatHour = useCallback((timestamp: number) => {
-    return new Date(timestamp).toLocaleTimeString(preferences.locale, {
-      hour: 'numeric',
-      hour12: preferences.timeFormat !== '24h',
-    });
-  }, [preferences.locale, preferences.timeFormat]);
-
   return (
     <ScrollView
       style={[styles.container, { backgroundColor: colors.background }]}
@@ -312,7 +288,7 @@ const { weatherData: weatherSnapshot } = useWeatherData();
             accessibilityLabel={`UV Index: ${uvIndex.value}, ${uvLevelLabel}. SPF ${resolvedSpf}+ ${t('uv.protection', 'Protection recommended')}`}
           >
             <View style={styles.heroContent}>
-              <Text variant="h2" style={[styles.heroTitle, { color: colors.onSurface }]}> 
+              <Text variant="h2" style={[styles.heroTitle, { color: colors.onSurface }]}>
                 {t('uv.currentIndex', 'Current UV Index')}
               </Text>
               {weatherSnapshot?.location?.city && (
@@ -328,7 +304,7 @@ const { weatherData: weatherSnapshot } = useWeatherData();
                 max={11}
                 size={240}
                 trackWidth={16}
-                gradient={['#30D158', '#FFD60A', '#FF9F0A', '#FF453A', '#BF5AF2']}
+                gradient={UV_GRADIENT}
               >
                 <View style={styles.uvProgressCenter}>
                   <Text variant="h1" style={{ color: colors.onSurface, fontSize: 76, fontWeight: '200' }}>
@@ -344,7 +320,7 @@ const { weatherData: weatherSnapshot } = useWeatherData();
               </CircularProgress>
 
               {hasExplicitSpfRecommendation && (
-                <View style={styles.spfBadge}>
+                <View style={[styles.spfBadge, { backgroundColor: colors.primaryContainer }]}>
                   <Text variant="body1" style={{ color: colors.onPrimaryContainer, fontWeight: '600' }}>
                     SPF {resolvedSpf}+
                   </Text>
@@ -367,7 +343,7 @@ const { weatherData: weatherSnapshot } = useWeatherData();
             accessibilityLabel={`UV Index: ${uvIndex.value}, ${uvLevelLabel}. SPF ${resolvedSpf}+ ${t('uv.protection', 'Protection recommended')}`}
           >
             <View style={styles.heroContent}>
-              <Text variant="h2" style={[styles.heroTitle, { color: colors.onSurface }]}> 
+              <Text variant="h2" style={[styles.heroTitle, { color: colors.onSurface }]}>
                 {t('uv.currentIndex', 'Current UV Index')}
               </Text>
               {weatherSnapshot?.location?.city && (
@@ -383,7 +359,7 @@ const { weatherData: weatherSnapshot } = useWeatherData();
                 max={11}
                 size={240}
                 trackWidth={16}
-                gradient={['#30D158', '#FFD60A', '#FF9F0A', '#FF453A', '#BF5AF2']}
+                gradient={UV_GRADIENT}
               >
                 <View style={styles.uvProgressCenter}>
                   <Text variant="h1" style={{ color: colors.onSurface, fontSize: 76, fontWeight: '200' }}>
@@ -399,7 +375,7 @@ const { weatherData: weatherSnapshot } = useWeatherData();
               </CircularProgress>
 
               {hasExplicitSpfRecommendation && (
-                <View style={styles.spfBadge}>
+                <View style={[styles.spfBadge, { backgroundColor: colors.primaryContainer }]}>
                   <Text variant="body1" style={{ color: colors.onPrimaryContainer, fontWeight: '600' }}>
                     SPF {resolvedSpf}+
                   </Text>
@@ -499,7 +475,8 @@ const { weatherData: weatherSnapshot } = useWeatherData();
         </Animated.View>
       )}
       
-      {/* Skin Type Selector with Glass */}
+      {/* Combined Skin Type Selector + SPF Recommendations (consolidated for performance) */}
+      {/* Merging related sections reduces glass card count from 6 to 4, improving 60fps target */}
       <Animated.View
         style={{
           opacity: skinCardAnim.opacity,
@@ -526,12 +503,21 @@ const { weatherData: weatherSnapshot } = useWeatherData();
                 }}
                 locale={preferences.locale}
               />
+
+              {/* Inline recommendations in same card - related content */}
+              {recommendations.length > 0 && (
+                <View style={[styles.recommendationsInline, { borderTopColor: colors.outlineVariant }]}>
+                  <UVRecommendations
+                    recommendations={recommendations}
+                    spfRecommendation={spfRecommendation}
+                  />
+                </View>
+              )}
             </View>
           </GlassView>
         ) : (
           <View
             style={[styles.solidSection, { backgroundColor: colors.surface }]}
-            accessibilityRole="button"
             accessibilityLabel={t('uv.skinTypePrompt', 'Select your skin type for personalized recommendations')}
           >
             <Text variant="body2" style={[styles.sectionNote, { color: colors.onSurfaceVariant }]}>
@@ -545,45 +531,19 @@ const { weatherData: weatherSnapshot } = useWeatherData();
               }}
               locale={preferences.locale}
             />
-          </View>
-        )}
-      </Animated.View>
-      
-      {/* AI-Powered SPF Recommendations */}
-      {recommendations.length > 0 && (
-        <Animated.View
-          style={{
-            opacity: recommendationsAnim.opacity,
-            transform: [{ translateY: recommendationsAnim.translateY }],
-          }}
-        >
-          {canUseGlass ? (
-            <GlassView
-              style={styles.glassSection}
-              glassEffectStyle="regular"
-              tintColor={colors.surfaceTint}
-              accessibilityLabel={`SPF ${resolvedSpf} recommended. ${recommendations.length} safety recommendations`}
-            >
-              <View style={styles.sectionContent}>
+
+            {/* Inline recommendations in same card - related content */}
+            {recommendations.length > 0 && (
+              <View style={[styles.recommendationsInline, { borderTopColor: colors.outlineVariant }]}>
                 <UVRecommendations
                   recommendations={recommendations}
                   spfRecommendation={spfRecommendation}
                 />
               </View>
-            </GlassView>
-          ) : (
-            <View
-              style={[styles.solidSection, { backgroundColor: colors.surface }]}
-              accessibilityLabel={`SPF ${resolvedSpf} recommended. ${recommendations.length} safety recommendations`}
-            >
-              <UVRecommendations
-                recommendations={recommendations}
-                spfRecommendation={spfRecommendation}
-              />
-            </View>
-      )}
-    </Animated.View>
-  )}
+            )}
+          </View>
+        )}
+      </Animated.View>
 
       {hasDaylightData && (
         <Animated.View
@@ -603,36 +563,19 @@ const { weatherData: weatherSnapshot } = useWeatherData();
         </Animated.View>
       )}
 
-      {/* Educational UV Information */}
-      {canUseGlass ? (
-        <GlassView 
-          style={styles.glassSection}
-          glassEffectStyle="regular"
-          tintColor={colors.surfaceTint}
-          accessibilityLabel={t('uv.aboutTitle', 'About UV Index')}
-        >
-          <View style={styles.sectionContent}>
-            <Text variant="h3" style={[styles.infoTitle, { color: colors.onSurface }]}>
-              {t('uv.aboutTitle')}
-            </Text>
-            <Text variant="body2" style={{ color: colors.onSurfaceVariant }}>
-              {t('uv.aboutDescription')}
-            </Text>
-          </View>
-        </GlassView>
-      ) : (
-        <View 
-          style={[styles.solidSection, { backgroundColor: colors.surface }]}
-          accessibilityLabel={t('uv.aboutTitle', 'About UV Index')}
-        >
-          <Text variant="h3" style={[styles.infoTitle, { color: colors.onSurface }]}>
-            {t('uv.aboutTitle')}
-          </Text>
-          <Text variant="body2" style={{ color: colors.onSurfaceVariant }}>
-            {t('uv.aboutDescription')}
-          </Text>
-        </View>
-      )}
+      {/* Educational UV Information - Solid only (lowest priority, helps reduce glass count) */}
+      {/* Total glass cards reduced to 3: Hero UV + Hourly Breakdown + Skin/Recommendations */}
+      <View
+        style={[styles.solidSection, { backgroundColor: colors.surface }]}
+        accessibilityLabel={t('uv.aboutTitle', 'About UV Index')}
+      >
+        <Text variant="h3" style={[styles.infoTitle, { color: colors.onSurface }]}>
+          {t('uv.aboutTitle')}
+        </Text>
+        <Text variant="body2" style={{ color: colors.onSurfaceVariant }}>
+          {t('uv.aboutDescription')}
+        </Text>
+      </View>
     </ScrollView>
   );
 }
@@ -680,7 +623,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   spfBadge: {
-    backgroundColor: 'rgba(0, 122, 255, 0.15)',
+    // Theme-aware primary container background with consistent opacity
+    // Adapts automatically to light/dark mode via theme system
+    backgroundColor: 'transparent', // Override in JSX with colors.primaryContainer
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
     borderRadius: borderRadius.full,
@@ -741,5 +686,13 @@ const styles = StyleSheet.create({
   },
   locationMessage: {
     textAlign: 'center',
+  },
+  // Inline recommendations within consolidated Skin Type card
+  // Adds subtle visual separation between selector and recommendations
+  recommendationsInline: {
+    marginTop: spacing.lg,
+    paddingTop: spacing.lg,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    // borderTopColor set dynamically in JSX via colors.outlineVariant
   },
 });

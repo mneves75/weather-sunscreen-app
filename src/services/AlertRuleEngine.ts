@@ -127,7 +127,7 @@ class AlertRuleEngine {
           body: 'UV index is {{current}}. {{riskLevel}}. Apply SPF {{spf}}+ sunscreen.',
           severity: 'warning',
           actionLabel: 'View Recommendations',
-          actionUrl: '/(tabs)/(home)/uv',
+          actionUrl: '/uv',
         },
         cooldownMinutes: 180, // 3 hours
         priority: 2,
@@ -147,7 +147,7 @@ class AlertRuleEngine {
           body: 'UV index is {{current}} - EXTREME. Avoid sun exposure. Apply SPF 50+ and reapply every 2 hours.',
           severity: 'critical',
           actionLabel: 'View Safety Tips',
-          actionUrl: '/(tabs)/(home)/uv',
+          actionUrl: '/uv',
         },
         cooldownMinutes: 120, // 2 hours
         priority: 1,
@@ -167,7 +167,7 @@ class AlertRuleEngine {
           body: 'Temperature is {{temperature}}°C. Stay hydrated and avoid direct sun exposure.',
           severity: 'warning',
           actionLabel: 'View Weather',
-          actionUrl: '/(tabs)/(home)/weather',
+          actionUrl: '/weather',
         },
         cooldownMinutes: 240, // 4 hours
         priority: 2,
@@ -187,7 +187,7 @@ class AlertRuleEngine {
           body: 'Temperature is {{temperature}}°C. Protect exposed skin and dress warmly.',
           severity: 'warning',
           actionLabel: 'View Weather',
-          actionUrl: '/(tabs)/(home)/weather',
+          actionUrl: '/weather',
         },
         cooldownMinutes: 240, // 4 hours
         priority: 2,
@@ -207,7 +207,7 @@ class AlertRuleEngine {
           body: '{{precipitationProbability}}% chance of rain. Don\'t forget your umbrella!',
           severity: 'info',
           actionLabel: 'View Forecast',
-          actionUrl: '/(tabs)/(home)/forecast',
+          actionUrl: '/forecast',
         },
         cooldownMinutes: 360, // 6 hours
         priority: 3,
@@ -227,7 +227,7 @@ class AlertRuleEngine {
           body: 'Wind speed is {{windSpeed}} km/h. Be cautious outdoors.',
           severity: 'warning',
           actionLabel: 'View Details',
-          actionUrl: '/(tabs)/(home)/weather',
+          actionUrl: '/weather',
         },
         cooldownMinutes: 180, // 3 hours
         priority: 2,
@@ -247,7 +247,7 @@ class AlertRuleEngine {
           body: 'Visibility is {{visibility}}m. Drive carefully and use headlights.',
           severity: 'warning',
           actionLabel: 'View Weather',
-          actionUrl: '/(tabs)/(home)/weather',
+          actionUrl: '/weather',
         },
         cooldownMinutes: 180, // 3 hours
         priority: 2,
@@ -621,4 +621,3 @@ class AlertRuleEngine {
 
 // Export singleton instance
 export const alertRuleEngine = AlertRuleEngine.getInstance();
-

@@ -52,6 +52,47 @@
       "96": "Thunderstorm with slight hail",
       "99": "Thunderstorm with heavy hail",
       "unknown": "Unknown weather"
+    },
+    "main": {
+      "Clear": "Clear",
+      "Clouds": "Cloudy",
+      "Rain": "Rain",
+      "Drizzle": "Drizzle",
+      "Thunderstorm": "Thunderstorm",
+      "Snow": "Snow",
+      "Fog": "Fog"
+    },
+    "windSpeed": {
+      "calm": "Calm",
+      "lightBreeze": "Light Breeze",
+      "moderateBreeze": "Moderate Breeze",
+      "strongWind": "Strong Wind",
+      "veryStrongWind": "Very Strong Wind"
+    },
+    "humidity": {
+      "veryDry": "Very Dry",
+      "dry": "Dry",
+      "comfortable": "Comfortable",
+      "humid": "Humid",
+      "veryHumid": "Very Humid"
+    },
+    "cardinal": {
+      "N": "N",
+      "NNE": "NNE",
+      "NE": "NE",
+      "ENE": "ENE",
+      "E": "E",
+      "ESE": "ESE",
+      "SE": "SE",
+      "SSE": "SSE",
+      "S": "S",
+      "SSW": "SSW",
+      "SW": "SW",
+      "WSW": "WSW",
+      "W": "W",
+      "WNW": "WNW",
+      "NW": "NW",
+      "NNW": "NNW"
     }
   },
   "uv": {

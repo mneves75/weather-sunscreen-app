@@ -168,8 +168,11 @@ export class OpenMeteoClient {
         'precipitation_probability_max',
         'wind_speed_10m_max',
         'wind_direction_10m_dominant',
+        'sunrise',
+        'sunset',
+        'daylight_duration',
       ].join(','),
-      forecast_days: 7,
+      forecast_days: 10,
       timezone: 'auto',
     };
 

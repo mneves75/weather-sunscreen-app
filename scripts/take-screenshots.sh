@@ -9,7 +9,7 @@ set -e
 SIMULATOR_NAME="iPhone 16 Pro Max"
 SIMULATOR_ID="E13841AC-07D8-4647-A485-92D4ABA6DFFE"
 SCREENSHOT_DIR="fastlane/screenshots/ios/en-US"
-APP_SCHEME="weathersuncreenapp"
+APP_SCHEME="weathersunscreenapp"
 
 echo "==================================="
 echo "iOS App Store Screenshot Generator"
@@ -32,7 +32,7 @@ sleep 5
 echo "3. Building and installing app..."
 echo "   (This may take a few minutes)"
 cd ios
-xcodebuild -workspace weathersuncreenapp.xcworkspace \
+xcodebuild -workspace weathersunscreenapp.xcworkspace \
   -scheme "$APP_SCHEME" \
   -configuration Release \
   -destination "id=$SIMULATOR_ID" \
@@ -42,7 +42,7 @@ cd ..
 
 # Launch app
 echo "4. Launching app..."
-xcrun simctl launch "$SIMULATOR_ID" com.mneves.weather-suncreen-app
+xcrun simctl launch "$SIMULATOR_ID" com.mneves.weather-sunscreen-app
 
 echo ""
 echo "==================================="

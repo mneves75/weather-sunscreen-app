@@ -239,7 +239,7 @@ import { Text } from '@/components/Themed';
 
 ## Project Structure
 ```
-weather-suncreen-app/
+weather-sunscreen-app/
 ├── app/                      # Expo Router v6 routes (file-based)
 │   ├── _layout.tsx           # Root layout with fonts, splash, theme
 │   ├── (tabs)/               # Main tabbed navigation

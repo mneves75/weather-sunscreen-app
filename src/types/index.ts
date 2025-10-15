@@ -14,7 +14,7 @@ export * from './weather';
 // Re-export commonly used types for convenience
 export type {
     Forecast,
-    ForecastDay, UVIndex, WeatherData
+    ForecastDay, DaylightData, UVHourlyPoint, UVIndex, WeatherData
 } from './weather';
 
 export type {
@@ -43,4 +43,3 @@ export type {
     NotificationPermissionStatus, NotificationPlatform, NotificationResponse, NotificationServiceConfig, NotificationToken, NotificationTrigger,
     NotificationTriggerType, ReceivedNotification, ScheduledNotification
 } from './notifications';
-

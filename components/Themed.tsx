@@ -1,11 +1,12 @@
 /**
  * Learn more about Light and Dark modes:
  * https://docs.expo.io/guides/color-schemes/
+ *
+ * Note: These are legacy components from Expo scaffold.
+ * Prefer using components from @/src/components with the new theme system.
  */
 
 import { Text as DefaultText, View as DefaultView } from 'react-native';
-
-import Colors from '@/constants/Colors';
 import { useColorScheme } from './useColorScheme';
 
 type ThemeProps = {
@@ -16,9 +17,23 @@ type ThemeProps = {
 export type TextProps = ThemeProps & DefaultText['props'];
 export type ViewProps = ThemeProps & DefaultView['props'];
 
+// Default colors for legacy components (migrated from deleted Colors.ts)
+const defaultColors = {
+  light: {
+    text: '#000000',
+    background: '#FFFFFF',
+    tint: '#007AFF',
+  },
+  dark: {
+    text: '#FFFFFF',
+    background: '#000000',
+    tint: '#0A84FF',
+  },
+};
+
 export function useThemeColor(
   props: { light?: string; dark?: string },
-  colorName: keyof typeof Colors.light & keyof typeof Colors.dark
+  colorName: keyof typeof defaultColors.light
 ) {
   const theme = useColorScheme() ?? 'light';
   const colorFromProps = props[theme];
@@ -26,7 +41,7 @@ export function useThemeColor(
   if (colorFromProps) {
     return colorFromProps;
   } else {
-    return Colors[theme][colorName];
+    return defaultColors[theme][colorName];
   }
 }
 

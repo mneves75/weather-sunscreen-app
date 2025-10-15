@@ -82,13 +82,13 @@ export const WeatherDetails = React.memo<WeatherDetailsProps>(({
         <DetailItem
           label={t('weatherDetails.humidity', 'Humidity')}
           value={`${data.current.humidity}%`}
-          subtitle={humidityLevel}
+          subtitle={t(humidityLevel)}
         />
         
         <DetailItem
           label={t('weatherDetails.wind', 'Wind')}
           value={windValueDisplay}
-          subtitle={`${windDirection} • ${windDesc}`}
+          subtitle={`${t(windDirection)} • ${t(windDesc)}`}
         />
         
         <DetailItem

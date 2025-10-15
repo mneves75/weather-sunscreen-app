@@ -52,6 +52,47 @@
       "96": "Tempestade com granizo leve",
       "99": "Tempestade com granizo forte",
       "unknown": "Clima desconhecido"
+    },
+    "main": {
+      "Clear": "Limpo",
+      "Clouds": "Nublado",
+      "Rain": "Chuva",
+      "Drizzle": "Garoa",
+      "Thunderstorm": "Tempestade",
+      "Snow": "Neve",
+      "Fog": "Neblina"
+    },
+    "windSpeed": {
+      "calm": "Calmo",
+      "lightBreeze": "Brisa Leve",
+      "moderateBreeze": "Brisa Moderada",
+      "strongWind": "Vento Forte",
+      "veryStrongWind": "Vento Muito Forte"
+    },
+    "humidity": {
+      "veryDry": "Muito Seco",
+      "dry": "Seco",
+      "comfortable": "Confortável",
+      "humid": "Úmido",
+      "veryHumid": "Muito Úmido"
+    },
+    "cardinal": {
+      "N": "N",
+      "NNE": "NNE",
+      "NE": "NE",
+      "ENE": "ENE",
+      "E": "L",
+      "ESE": "ESE",
+      "SE": "SE",
+      "SSE": "SSE",
+      "S": "S",
+      "SSW": "SSO",
+      "SW": "SO",
+      "WSW": "OSO",
+      "W": "O",
+      "WNW": "ONO",
+      "NW": "NO",
+      "NNW": "NNO"
     }
   },
   "uv": {

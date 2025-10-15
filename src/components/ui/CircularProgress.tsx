@@ -10,12 +10,14 @@
  *
  * @example
  * ```typescript
+ * import { UV_GRADIENT } from '@/src/utils';
+ *
  * <CircularProgress
  *   value={8}
  *   max={11}
  *   size={200}
  *   trackWidth={12}
- *   gradient={['#30D158', '#FFD60A', '#FF9F0A', '#FF453A', '#BF5AF2']}
+ *   gradient={UV_GRADIENT}
  * >
  *   <Text variant="5xl" fontWeight="700">8</Text>
  *   <Text variant="body1">Very High</Text>
@@ -25,7 +27,7 @@
 
 import React, { useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
-import Svg, { Circle } from 'react-native-svg';
+import Svg, { Circle, Defs, LinearGradient, Stop } from 'react-native-svg';
 import Animated, {
   useSharedValue,
   withTiming,
@@ -33,6 +35,7 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import { useColors } from '@/src/theme/theme';
+import { UV_GRADIENT } from '@/src/utils';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
@@ -45,8 +48,11 @@ interface CircularProgressProps {
   size?: number;
   /** Ring thickness */
   trackWidth?: number;
-  /** Array of colors for gradient progression */
-  gradient?: string[];
+  /**
+   * Array of colors for gradient progression
+   * Accepts both mutable and readonly arrays for flexibility with constants
+   */
+  gradient?: readonly string[];
   /** Custom track color (inactive portion) */
   trackColor?: string;
   /** Animation duration in milliseconds */
@@ -60,7 +66,7 @@ export function CircularProgress({
   max,
   size = 200,
   trackWidth = 12,
-  gradient = ['#30D158', '#FFD60A', '#FF9F0A', '#FF453A', '#BF5AF2'], // UV gradient
+  gradient = UV_GRADIENT, // UV gradient - single source of truth from utils
   trackColor,
   duration = 1000,
   children,
@@ -89,32 +95,31 @@ export function CircularProgress({
     };
   });
 
-  // Calculate gradient color based on current progress
-  const getGradientColor = (progressValue: number): string => {
-    if (gradient.length === 0) return colors.primary;
-    if (gradient.length === 1) return gradient[0];
-
-    // Map progress (0-1) to gradient array index
-    const position = progressValue * (gradient.length - 1);
-    const index = Math.floor(position);
-    const nextIndex = Math.min(index + 1, gradient.length - 1);
-
-    // If exactly on a color stop, return that color
-    if (position === index) {
-      return gradient[index];
-    }
-
-    // Otherwise, interpolate between two colors (simple approach: just use nearest)
-    // For a full gradient ring, you'd need SVG linearGradient or more complex interpolation
-    return gradient[Math.min(Math.round(position), gradient.length - 1)];
-  };
-
-  const strokeColor = getGradientColor(value / max);
   const defaultTrackColor = trackColor || colors.surfaceVariant;
 
   return (
     <View style={[styles.container, { width: size, height: size }]}>
       <Svg width={size} height={size}>
+        <Defs>
+          {/* True SVG linear gradient with evenly spaced color stops */}
+          {/* For UV_GRADIENT = ['#30D158', '#FFD60A', '#FF9F0A', '#FF453A', '#BF5AF2'] */}
+          {/* This creates smooth color transitions: Low(green) → Moderate(yellow) → High(orange) → Very High(red) → Extreme(purple) */}
+          <LinearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            {gradient.map((color, index) => {
+              // Distribute stops evenly across the gradient (0%, 25%, 50%, 75%, 100%)
+              const offset = gradient.length > 1 ? (index / (gradient.length - 1)) * 100 : 0;
+              return (
+                <Stop
+                  key={`stop-${index}`}
+                  offset={`${offset}%`}
+                  stopColor={color}
+                  stopOpacity="1"
+                />
+              );
+            })}
+          </LinearGradient>
+        </Defs>
+
         {/* Background track (inactive portion) */}
         <Circle
           cx={centerX}
@@ -125,12 +130,12 @@ export function CircularProgress({
           fill="transparent"
         />
 
-        {/* Animated progress circle */}
+        {/* Animated progress circle with true gradient stroke */}
         <AnimatedCircle
           cx={centerX}
           cy={centerY}
           r={radius}
-          stroke={strokeColor}
+          stroke="url(#progressGradient)"
           strokeWidth={trackWidth}
           strokeDasharray={circumference}
           strokeDashoffset={circumference}  // Start hidden

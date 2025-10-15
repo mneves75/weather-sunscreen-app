@@ -10,7 +10,7 @@
 [![React Native](https://img.shields.io/badge/React%20Native-0.81.4-61DAFB.svg?style=flat-square&logo=react&labelColor=20232a)](https://reactnative.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9.2-3178C6.svg?style=flat-square&logo=typescript&labelColor=white)](https://www.typescriptlang.org)
 [![License](https://img.shields.io/badge/License-MIT-green.svg?style=flat-square)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-1.0.0-blue.svg?style=flat-square)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-1.1.0-blue.svg?style=flat-square)](CHANGELOG.md)
 
 [Features](#-features) • [Screenshots](#-screenshots) • [Installation](#-installation) • [Documentation](#-documentation) • [Contributing](#-contributing)
 
@@ -139,7 +139,7 @@ See [docs/APP_STORE_SCREENSHOTS.md](docs/APP_STORE_SCREENSHOTS.md) for screensho
 ### Project Structure
 
 ```
-weather-suncreen-app/
+weather-sunscreen-app/
 ├── app/                          # Expo Router v6 routes
 │   ├── _layout.tsx               # Root layout (fonts, splash, theme)
 │   ├── (tabs)/                   # Tabbed navigation
@@ -191,8 +191,8 @@ weather-suncreen-app/
 
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/weather-suncreen-app.git
-cd weather-suncreen-app
+git clone https://github.com/yourusername/weather-sunscreen-app.git
+cd weather-sunscreen-app
 
 # Install dependencies
 bun install
@@ -509,8 +509,8 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ## 📞 Support
 
-- **Issues** - [GitHub Issues](https://github.com/yourusername/weather-suncreen-app/issues)
-- **Discussions** - [GitHub Discussions](https://github.com/yourusername/weather-suncreen-app/discussions)
+- **Issues** - [GitHub Issues](https://github.com/yourusername/weather-sunscreen-app/issues)
+- **Discussions** - [GitHub Discussions](https://github.com/yourusername/weather-sunscreen-app/discussions)
 - **Email** - support@weathersunscreen.app
 - **Website** - [weathersunscreen.app](https://weathersunscreen.app)
 
@@ -520,7 +520,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 See [MODERNIZATION_PLAN.md](docs/MODERNIZATION_PLAN.md) for the complete 9-phase roadmap.
 
-### ✅ Completed (v1.0.0)
+### ✅ Completed (v1.1.0)
 
 - [x] iOS 26 Liquid Glass UI implementation
 - [x] Material Design 3 components
@@ -549,6 +549,6 @@ See [MODERNIZATION_PLAN.md](docs/MODERNIZATION_PLAN.md) for the complete 9-phase
 
 ⭐ Star this repo if you find it helpful!
 
-[Report Bug](https://github.com/yourusername/weather-suncreen-app/issues) · [Request Feature](https://github.com/yourusername/weather-suncreen-app/issues) · [Documentation](docs/)
+[Report Bug](https://github.com/yourusername/weather-sunscreen-app/issues) · [Request Feature](https://github.com/yourusername/weather-sunscreen-app/issues) · [Documentation](docs/)
 
 </div>

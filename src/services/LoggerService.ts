@@ -40,7 +40,21 @@ class LoggerService {
   private formatLog(entry: LogEntry): string {
     const timestamp = new Date(entry.timestamp).toISOString();
     const category = entry.category ? `[${entry.category}]` : '';
-    const dataStr = entry.data ? `\n${JSON.stringify(entry.data, null, 2)}` : '';
+
+    // Safe JSON stringification with circular reference handling
+    // Try-catch prevents errors from breaking the logger when data contains:
+    // - Circular references (e.g., React Native objects, Expo notification objects)
+    // - Non-serializable values (functions, symbols, BigInt, etc.)
+    let dataStr = '';
+    if (entry.data) {
+      try {
+        dataStr = `\n${JSON.stringify(entry.data, null, 2)}`;
+      } catch (error) {
+        // Fallback: provide useful diagnostic message instead of crashing
+        dataStr = `\n[Data serialization failed: ${error instanceof Error ? error.message : 'circular references or non-serializable values'}]`;
+      }
+    }
+
     const errorStr = entry.error ? `\nError: ${entry.error.message}\n${entry.error.stack}` : '';
 
     return `[${timestamp}] ${entry.level.toUpperCase()} ${category} ${entry.message}${dataStr}${errorStr}`;

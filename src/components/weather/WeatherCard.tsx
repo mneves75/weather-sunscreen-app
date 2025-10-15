@@ -23,8 +23,8 @@ interface WeatherCardProps {
   use24HourTime?: boolean;
 }
 
-export const WeatherCard = React.memo<WeatherCardProps>(({ 
-  data, 
+export const WeatherCard = React.memo<WeatherCardProps>(({
+  data,
   onPress,
   showLastUpdated = true,
   temperatureText,
@@ -37,28 +37,27 @@ export const WeatherCard = React.memo<WeatherCardProps>(({
 }) => {
   const colors = useColors();
   const { t } = useTranslation();
-  
+
   const Container = onPress ? TouchableOpacity : View;
+
+  // ACCESSIBILITY & NULL SAFETY: Use optional chaining (?.) to safely access nested properties.
+  // - data.location?.city: Returns undefined if location is null/undefined, fallback to 'Unknown location'
+  // - data.current?.condition?.description: Safely access condition translation key (e.g., "weather.conditions.2")
+  // - t(key): Translates the key to current language (pt-BR shows "Parcialmente nublado", en shows "Partly cloudy")
+  // - Fallback to 'Unknown': If key doesn't exist or is falsy, shows 'Unknown' instead of raw key
+  // This prevents crashes from undefined data while ensuring proper i18n translation of weather conditions.
+
   const temperatureDisplay = temperatureText ?? `${Math.round(data.current.temperature)}°`;
   const feelsLikeDisplay = feelsLikeText ?? `${Math.round(data.current.feelsLike)}°`;
   const windDisplay = windText ?? `${Math.round(data.current.windSpeed)} km/h`;
   const pressureDisplay = pressureText ?? `${data.current.pressure} hPa`;
   const humidityDisplay = humidityText ?? `${data.current.humidity}%`;
-  
+
   return (
     <Container
       style={styles.container}
       onPress={onPress}
       accessibilityRole={onPress ? "button" : undefined}
-      {/*
-        ACCESSIBILITY & NULL SAFETY: Use optional chaining (?.) to safely access nested properties.
-        - data.location?.city: Returns undefined if location is null/undefined, fallback to 'Unknown location'
-        - data.current?.condition?.description: Safely access condition translation key (e.g., "weather.conditions.2")
-        - t(key): Translates the key to current language (pt-BR shows "Parcialmente nublado", en shows "Partly cloudy")
-        - Fallback to 'Unknown': If key doesn't exist or is falsy, shows 'Unknown' instead of raw key
-
-        This prevents crashes from undefined data while ensuring proper i18n translation of weather conditions.
-      */}
       accessibilityLabel={t('accessibility.weatherCard.summary', {
         defaultValue: 'Weather for {{city}}. Temperature {{temperature}}. {{description}}',
         city: data.location?.city || 'Unknown location',
@@ -78,7 +77,7 @@ export const WeatherCard = React.memo<WeatherCardProps>(({
           )}
         </View>
       </View>
-      
+
       <View style={styles.main}>
         <View style={styles.temperatureContainer}>
           <Text style={[styles.temperature, { color: colors.primary }]}>
@@ -88,7 +87,7 @@ export const WeatherCard = React.memo<WeatherCardProps>(({
             {t('weatherCard.feelsLike', { defaultValue: 'Feels like {{value}}', value: feelsLikeDisplay })}
           </Text>
         </View>
-        
+
         <View style={styles.conditionContainer}>
           {/* TODO: Replace emoji with SF Symbols (iOS) or Material Icons (Android) for premium feel */}
           <Text style={styles.emoji}>
@@ -104,7 +103,7 @@ export const WeatherCard = React.memo<WeatherCardProps>(({
           </Text>
         </View>
       </View>
-      
+
       <View style={[styles.details, { borderTopColor: colors.divider }]}>
         <View style={styles.detailItem}>
           <Text variant="caption" style={{ color: colors.onSurfaceVariant }}>
@@ -133,7 +132,7 @@ export const WeatherCard = React.memo<WeatherCardProps>(({
           </Text>
         </View>
       </View>
-      
+
       {showLastUpdated && (
         <Text variant="caption" style={[styles.timestamp, { color: colors.onSurfaceVariant }]}>
           {t('weatherCard.updated', {

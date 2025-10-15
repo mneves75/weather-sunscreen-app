@@ -126,6 +126,8 @@ export function Button({
       case 'outlined':
         return {
           containerStyle: {
+            // Transparent background allows outlined buttons to work on any surface
+            // Border and text colors adapt to theme (light/dark mode)
             backgroundColor: 'transparent',
             borderWidth: 2,
             borderColor: colors.outline,

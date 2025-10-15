@@ -111,6 +111,8 @@ export function Swipeable({
                   <Icon
                     name={action.icon}
                     size={24}
+                    // White icon for contrast on colored action backgrounds
+                    // Action background color is provided via props
                     color="#FFFFFF"
                   />
                 )}
@@ -161,6 +163,8 @@ export function Swipeable({
                   <Icon
                     name={action.icon}
                     size={24}
+                    // White icon for contrast on colored action backgrounds
+                    // Action background color is provided via props
                     color="#FFFFFF"
                   />
                 )}
@@ -213,6 +217,7 @@ export function Swipeable({
                   <Icon
                     name={action.icon}
                     size={18}
+                    // White icon for contrast on colored action backgrounds (fallback mode)
                     color="#FFFFFF"
                   />
                 )}
@@ -258,6 +263,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   actionText: {
+    // White text for maximum contrast on colored action backgrounds
+    // Works reliably across all action colors (delete=red, check=green, etc.)
     color: '#FFFFFF',
     marginTop: 4,
     fontSize: 12,
@@ -278,6 +285,8 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
   fallbackActionText: {
+    // White text for maximum contrast on colored action backgrounds
+    // Fallback mode when gesture handler is unavailable
     color: '#FFFFFF',
     marginLeft: 6,
     fontWeight: '600',
