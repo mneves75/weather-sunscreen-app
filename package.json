@@ -1,11 +1,12 @@
 {
-  "name": "weather-suncreen-app",
+  "name": "weather-sunscreen-app",
   "main": "expo-router/entry",
-  "version": "1.0.0",
+  "version": "1.1.1",
   "scripts": {
     "start": "expo start",
     "android": "expo run:android",
     "ios": "node scripts/ensure-simulator.js && expo run:ios",
+    "ios:release": "expo run:ios --configuration Release",
     "ios:screenshots": "EXPO_IOS_SIM_DEVICE=\"iPhone 16 Pro Max\" node scripts/ensure-simulator.js && expo run:ios",
     "web": "expo start --web",
     "test": "jest",
