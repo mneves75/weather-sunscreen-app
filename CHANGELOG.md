@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **UV Hourly Insights** – Home dashboard now renders a UV sparkline fed by hourly data, including graceful fallbacks when future samples are unavailable.
+- **UV Detail Visualization** – Dedicated UV screen displays a 12-hour chart with accessible annotations and contextual location subtitle.
+
+### Fixed
+- **UV Data Refresh Flow** – Focus-driven guard prevents repeated fetch loops while still auto-refreshing when a location becomes available, ensuring the UV graphic no longer appears blank.
+
 ## [1.0.1] - 2025-10-11
 
 ### Added

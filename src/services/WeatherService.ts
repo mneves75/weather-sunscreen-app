@@ -15,6 +15,7 @@ import { WeatherServiceConfig, WeatherServiceError } from '@/src/types/services'
 import { logger } from './LoggerService';
 import { openMeteoClient } from './OpenMeteoClient';
 import { OpenMeteoMapper } from './OpenMeteoMapper';
+import { calculateSolarNoon } from '@/src/utils';
 
 interface CacheEntry<T> {
   data: T;
@@ -419,6 +420,18 @@ class WeatherService {
     const level = this.calculateUVLevel(value);
     const spfRecommendation = this.getSPFRecommendation(value, 'medium'); // Use actual calculation
 
+    const now = new Date();
+    // Synthetic hourly profile used when the API is unreachable; keeps the UI functional in dev/offline.
+    const hourly = Array.from({ length: 12 }, (_, index) => {
+      const hour = new Date(now.getTime() + index * 60 * 60 * 1000);
+      const simulatedValue = Math.max(0, Math.min(11, value + Math.sin(index / 2) * 2));
+      return {
+        timestamp: hour.getTime(),
+        value: parseFloat(simulatedValue.toFixed(2)),
+        level: this.calculateUVLevel(Math.round(simulatedValue)),
+      };
+    });
+
     return {
       value,
       level,
@@ -435,6 +448,7 @@ class WeatherService {
           priority: 'medium',
         },
       ],
+      hourly,
       timestamp: Date.now(),
     };
   }
@@ -447,7 +461,7 @@ class WeatherService {
     coordinates: Coordinates,
     locationDetails?: Partial<Location>
   ): Forecast {
-    const days = Array.from({ length: 7 }, (_, i) => {
+    const days = Array.from({ length: 10 }, (_, i) => {
       const date = new Date();
       date.setDate(date.getDate() + i);
 
@@ -461,8 +475,25 @@ class WeatherService {
       const seed = coordinates.latitude + coordinates.longitude + i;
       const pseudoRandom = (seed * 9301 + 49297) % 233280 / 233280; // Simple LCG
 
+      const sunriseDate = new Date(date);
+      sunriseDate.setHours(6, Math.round(15 + pseudoRandom * 30), 0, 0);
+
+      const daylightDurationMinutes = Math.max(600, Math.round(720 + Math.sin(i / 2) * 90));
+      const sunsetDate = new Date(sunriseDate.getTime() + daylightDurationMinutes * 60 * 1000);
+
+      const sunriseIso = sunriseDate.toISOString();
+      const sunsetIso = sunsetDate.toISOString();
+
       return {
         date: date.toISOString().split('T')[0],
+        sunrise: sunriseIso,
+        sunset: sunsetIso,
+        daylight: {
+          sunrise: sunriseIso,
+          sunset: sunsetIso,
+          daylightDuration: daylightDurationMinutes,
+          solarNoon: calculateSolarNoon(sunriseIso, sunsetIso),
+        },
         temperature: {
           min: minTemp,
           max: maxTemp,

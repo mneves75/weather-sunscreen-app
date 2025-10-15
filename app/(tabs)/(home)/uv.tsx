@@ -11,18 +11,22 @@
  * - Platform-adaptive Material fallbacks
  */
 
-import { CircularProgress, Container, ErrorView, LoadingSpinner, Text } from '@/src/components/ui';
-import { SkinTypeSelector, UVRecommendations } from '@/src/components/weather';
+import { Button, CircularProgress, Container, ErrorView, LoadingSpinner, Text } from '@/src/components/ui';
+import { DaylightSection, SkinTypeSelector, UVRecommendations } from '@/src/components/weather';
+import { UVHourlyChart } from '@/src/components/weather/UVHourlyChart';
+import { UVHourlySparkline } from '@/src/components/weather/UVHourlySparkline';
 import { useSettings } from '@/src/context/SettingsContext';
-import { useUVIndex } from '@/src/hooks';
+import { useDaylight, useLocation, useUVIndex, useWeatherData } from '@/src/hooks';
 import { useHaptics } from '@/src/hooks/useHaptics';
 import { useColors, useGlassAvailability } from '@/src/theme';
 import { tokens } from '@/src/theme/tokens';
 import { createSlideUpComponent } from '@/src/theme/animations';
 import { GlassView } from 'expo-glass-effect';
-import React, { useEffect, useState } from 'react';
+import { useFocusEffect } from 'expo-router';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AccessibilityInfo, Animated, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import { AccessibilityInfo, Animated, Linking, Platform, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import { getUVLevelLabel } from '@/src/utils';
 
 const { spacing, borderRadius } = tokens;
 
@@ -32,7 +36,6 @@ export default function UVIndexScreen() {
   const { preferences, updatePreference } = useSettings();
   const { t } = useTranslation();
   const { trigger: triggerHaptic } = useHaptics();
-
   const {
     uvIndex,
     uvLevelLabel,
@@ -42,7 +45,31 @@ export default function UVIndexScreen() {
     error,
     refresh,
     skinType,
+    hasLocation,
+    hourly,
+    upcomingHourly,
+    displayHourly,
   } = useUVIndex();
+// Snapshot of broader weather data (temperature, city name, etc.) used for contextual copy.
+const { weatherData: weatherSnapshot } = useWeatherData();
+  const locationState = useLocation();
+  const {
+    currentLocation,
+    permissionStatus,
+    isRequesting: isRequestingLocation,
+    getCurrentLocation,
+  } = locationState;
+  const {
+    day: daylightDay,
+    daylight,
+    peakUV: peakDayUV,
+  } = useDaylight();
+  const sunrise = daylight?.sunrise ?? '';
+  const sunset = daylight?.sunset ?? '';
+  const solarNoon = daylight?.solarNoon ?? '';
+  const daylightDurationMinutes = daylight?.daylightDuration ?? 0;
+  const peakUVValue = peakDayUV ?? daylightDay?.uvIndex.max;
+  const hasDaylightData = Boolean(sunrise && sunset);
 
   // Check for reduce motion accessibility preference
   const [reduceMotion, setReduceMotion] = useState(false);
@@ -61,7 +88,9 @@ export default function UVIndexScreen() {
   // Entrance animations
   const uvCardAnim = createSlideUpComponent(50, 50);
   const skinCardAnim = createSlideUpComponent(50, 100);
-  const recommendationsAnim = createSlideUpComponent(50, 150);
+  const hourlyAnim = createSlideUpComponent(50, 150);
+  const recommendationsAnim = createSlideUpComponent(50, 200);
+  const daylightAnim = createSlideUpComponent(50, 250);
 
   // Trigger entrance animations when data loads
   useEffect(() => {
@@ -73,6 +102,7 @@ export default function UVIndexScreen() {
         uvCardAnim.animate();
       }
     }
+    // Animation objects are stable references from createSlideUpComponent
   }, [uvIndex, reduceMotion]);
 
   useEffect(() => {
@@ -84,6 +114,7 @@ export default function UVIndexScreen() {
         skinCardAnim.animate();
       }
     }
+    // Animation objects are stable references from createSlideUpComponent
   }, [skinType, reduceMotion]);
 
   useEffect(() => {
@@ -95,7 +126,119 @@ export default function UVIndexScreen() {
         recommendationsAnim.animate();
       }
     }
-  }, [recommendations, reduceMotion]);
+    // Animation objects are stable references from createSlideUpComponent
+  }, [recommendations, reduceMotion, recommendationsAnim]);
+
+  useEffect(() => {
+    if (hourlyPreview.length > 1) {
+      if (reduceMotion) {
+        hourlyAnim.opacity.setValue(1);
+        hourlyAnim.translateY.setValue(0);
+      } else {
+        hourlyAnim.animate();
+      }
+    }
+    // Animation objects are stable references from createSlideUpComponent
+  }, [hourlyPreview, reduceMotion, hourlyAnim]);
+
+  useEffect(() => {
+    if (hasDaylightData) {
+      if (reduceMotion) {
+        daylightAnim.opacity.setValue(1);
+        daylightAnim.translateY.setValue(0);
+      } else {
+        daylightAnim.animate();
+      }
+    }
+    // Animation objects are stable references from createSlideUpComponent
+  }, [hasDaylightData, reduceMotion, daylightAnim]);
+
+  const isLocationAvailable = hasLocation || locationState.hasLocation || Boolean(currentLocation);
+  const shouldShowLocationPrompt = !isLocationAvailable && !uvIndex && !isLoading;
+  // Guard flag ensures we don't spam the weather service every time the screen refocuses.
+  // Prevent repeated fetches when the screen re-focuses rapidly (e.g., tab switches).
+  const focusFetchGuard = useRef(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!isLocationAvailable) {
+        focusFetchGuard.current = false;
+        return;
+      }
+
+      if (uvIndex || isLoading) {
+        focusFetchGuard.current = false;
+        return;
+      }
+
+      if (focusFetchGuard.current) {
+        return;
+      }
+
+      focusFetchGuard.current = true;
+      refresh().catch(() => {
+        focusFetchGuard.current = false;
+      });
+
+      // Cleanup: reset guard on blur to prevent stale state across remounts
+      return () => {
+        focusFetchGuard.current = false;
+      };
+    }, [isLocationAvailable, isLoading, refresh, uvIndex])
+  );
+
+  const handleRefresh = useCallback(() => {
+    // Reset guard to allow pull-to-refresh even if guard-triggered fetch previously failed
+    focusFetchGuard.current = false;
+    refresh();
+  }, [refresh]);
+
+  const handleLocationRequest = useCallback(async () => {
+    triggerHaptic('light');
+
+    if (permissionStatus === 'denied') {
+      if (Platform.OS === 'ios') {
+        await Linking.openURL('app-settings:');
+      } else {
+        await Linking.openSettings();
+      }
+      return;
+    }
+
+    try {
+      await getCurrentLocation({ promptForServices: true });
+      // Reset guard so next focus can fetch if needed
+      // Note: WeatherContext auto-refreshes when location changes, so no manual refresh needed
+      focusFetchGuard.current = false;
+    } catch {
+      // Surface handled by useLocation error state; no additional action needed
+    }
+  }, [getCurrentLocation, permissionStatus, triggerHaptic]);
+
+  // Show location request only when we have neither location nor UV data to display.
+  if (shouldShowLocationPrompt) {
+    return (
+      <Container style={styles.centerContainer}>
+        <Text variant="h2" style={[styles.locationTitle, { color: colors.onBackground }]}>
+          {t('uv.locationRequiredTitle', 'Turn on Location Services')}
+        </Text>
+        <Text variant="body1" style={[styles.locationMessage, { color: colors.onSurfaceVariant }]}>
+          {t('uv.locationRequiredDescription', 'Enable location access so we can calculate the UV index for where you are.')}
+        </Text>
+        <Button
+          title={
+            permissionStatus === 'denied'
+              ? t('location.openSettings', 'Open Settings')
+              : t('location.allowLocation', 'Allow Location Access')
+          }
+          onPress={handleLocationRequest}
+          loading={isRequestingLocation}
+          disabled={isRequestingLocation}
+          variant="tonal"
+        />
+      </Container>
+    );
+  }
   
   // Show loading on first load
   if (isLoading && !uvIndex) {
@@ -111,24 +254,36 @@ export default function UVIndexScreen() {
     return (
       <Container style={styles.centerContainer}>
         <ErrorView
-          message={t('errors.uvData')}
+          message={t('errors.uvData', 'Unable to load UV index data')}
           onRetry={refresh}
         />
       </Container>
     );
   }
 
+  // Final fallback: show error if no UV data available after all checks
   if (!uvIndex) {
     return (
       <Container style={styles.centerContainer}>
         <ErrorView
-          message={t('errors.uvData')}
+          message={t('errors.uvData', 'Unable to load UV index data')}
           onRetry={refresh}
         />
       </Container>
     );
   }
-  
+
+  const resolvedSpf = spfRecommendation ?? 30;
+  const hasExplicitSpfRecommendation = spfRecommendation !== null && spfRecommendation !== undefined;
+  // Limit detailed display to the next 12 readings for readability; hook already sorts ascending.
+  const hourlyPreview = useMemo(() => displayHourly.slice(0, 12), [displayHourly]);
+  const formatHour = useCallback((timestamp: number) => {
+    return new Date(timestamp).toLocaleTimeString(preferences.locale, {
+      hour: 'numeric',
+      hour12: preferences.timeFormat !== '24h',
+    });
+  }, [preferences.locale, preferences.timeFormat]);
+
   return (
     <ScrollView
       style={[styles.container, { backgroundColor: colors.background }]}
@@ -136,7 +291,7 @@ export default function UVIndexScreen() {
       refreshControl={
         <RefreshControl
           refreshing={isLoading}
-          onRefresh={refresh}
+          onRefresh={handleRefresh}
           tintColor={colors.primary}
         />
       }
@@ -151,15 +306,22 @@ export default function UVIndexScreen() {
         {canUseGlass ? (
           <GlassView
             style={styles.heroCard}
-            glassEffectStyle="prominent"
+            glassEffectStyle="regular"
             tintColor={colors.surfaceTint}
             accessibilityRole="alert"
-            accessibilityLabel={`UV Index: ${uvIndex.value}, ${uvLevelLabel}. ${t('uv.protection', 'Protection recommended')}`}
+            accessibilityLabel={`UV Index: ${uvIndex.value}, ${uvLevelLabel}. SPF ${resolvedSpf}+ ${t('uv.protection', 'Protection recommended')}`}
           >
             <View style={styles.heroContent}>
-              <Text variant="h2" style={[styles.heroTitle, { color: colors.onSurface }]}>
+              <Text variant="h2" style={[styles.heroTitle, { color: colors.onSurface }]}> 
                 {t('uv.currentIndex', 'Current UV Index')}
               </Text>
+              {weatherSnapshot?.location?.city && (
+                <Text variant="body2" style={{ color: colors.onSurfaceVariant }}>
+                  {t('uv.locationSubtitle', 'Based on conditions in {{city}}', {
+                    city: weatherSnapshot.location.city,
+                  })}
+                </Text>
+              )}
 
               <CircularProgress
                 value={uvIndex.value}
@@ -181,14 +343,19 @@ export default function UVIndexScreen() {
                 </View>
               </CircularProgress>
 
-              {spfRecommendation && (
+              {hasExplicitSpfRecommendation && (
                 <View style={styles.spfBadge}>
                   <Text variant="body1" style={{ color: colors.onPrimaryContainer, fontWeight: '600' }}>
-                    SPF {spfRecommendation.minimumSpf}+
+                    SPF {resolvedSpf}+
                   </Text>
                   <Text variant="caption" style={{ color: colors.onPrimaryContainer, marginTop: spacing.xxs }}>
                     {t('uv.minimumRecommended', 'Minimum recommended')}
                   </Text>
+                </View>
+              )}
+              {displayHourly.length > 1 && (
+                <View style={styles.sparklineWrapper}>
+                  <UVHourlySparkline data={displayHourly.slice(0, 12)} />
                 </View>
               )}
             </View>
@@ -197,12 +364,19 @@ export default function UVIndexScreen() {
           <View
             style={[styles.heroCard, styles.heroCardSolid, { backgroundColor: colors.surface }]}
             accessibilityRole="alert"
-            accessibilityLabel={`UV Index: ${uvIndex.value}, ${uvLevelLabel}. ${t('uv.protection', 'Protection recommended')}`}
+            accessibilityLabel={`UV Index: ${uvIndex.value}, ${uvLevelLabel}. SPF ${resolvedSpf}+ ${t('uv.protection', 'Protection recommended')}`}
           >
             <View style={styles.heroContent}>
-              <Text variant="h2" style={[styles.heroTitle, { color: colors.onSurface }]}>
+              <Text variant="h2" style={[styles.heroTitle, { color: colors.onSurface }]}> 
                 {t('uv.currentIndex', 'Current UV Index')}
               </Text>
+              {weatherSnapshot?.location?.city && (
+                <Text variant="body2" style={{ color: colors.onSurfaceVariant }}>
+                  {t('uv.locationSubtitle', 'Based on conditions in {{city}}', {
+                    city: weatherSnapshot.location.city,
+                  })}
+                </Text>
+              )}
 
               <CircularProgress
                 value={uvIndex.value}
@@ -224,20 +398,106 @@ export default function UVIndexScreen() {
                 </View>
               </CircularProgress>
 
-              {spfRecommendation && (
+              {hasExplicitSpfRecommendation && (
                 <View style={styles.spfBadge}>
                   <Text variant="body1" style={{ color: colors.onPrimaryContainer, fontWeight: '600' }}>
-                    SPF {spfRecommendation.minimumSpf}+
+                    SPF {resolvedSpf}+
                   </Text>
                   <Text variant="caption" style={{ color: colors.onPrimaryContainer, marginTop: spacing.xxs }}>
                     {t('uv.minimumRecommended', 'Minimum recommended')}
                   </Text>
                 </View>
               )}
+              {displayHourly.length > 1 && (
+                <View style={styles.sparklineWrapper}>
+                  <UVHourlySparkline data={displayHourly.slice(0, 12)} />
+                </View>
+              )}
             </View>
           </View>
         )}
       </Animated.View>
+
+      {/* Hourly Breakdown */}
+      {hourlyPreview.length > 0 && (
+        <Animated.View
+          style={{
+            opacity: hourlyAnim.opacity,
+            transform: [{ translateY: hourlyAnim.translateY }],
+          }}
+        >
+          {canUseGlass ? (
+            <GlassView
+              style={styles.glassSection}
+              glassEffectStyle="regular"
+              tintColor={colors.surfaceTint}
+              accessibilityLabel={t('uv.hourlyForecast', 'Hourly UV forecast')}
+            >
+              <View style={styles.sectionContent}>
+                <Text variant="h3" style={[styles.infoTitle, { color: colors.onSurface }]}>
+                  {t('uv.hourlyForecast', 'Hourly UV forecast')}
+                </Text>
+                <UVHourlyChart data={hourlyPreview} locale={preferences.locale} />
+                <View style={styles.hourlyList}>
+                  {hourlyPreview.map((point, index) => (
+                    <View
+                      key={point.timestamp}
+                      style={[
+                        styles.hourRow,
+                        index === hourlyPreview.length - 1
+                          ? styles.hourRowLast
+                          : { borderBottomColor: colors.outlineVariant },
+                      ]}
+                      accessibilityRole="text"
+                      accessibilityLabel={`${formatHour(point.timestamp)}: UV ${Math.round(point.value)} ${getUVLevelLabel(point.level, preferences.locale)}`}>
+                      <Text variant="body2" style={{ color: colors.onSurface }}>
+                        {formatHour(point.timestamp)}
+                      </Text>
+                      <Text variant="body2" style={{ color: colors.primary }}>
+                        {Math.round(point.value)}
+                      </Text>
+                      <Text variant="caption" style={{ color: colors.onSurfaceVariant }}>
+                        {getUVLevelLabel(point.level, preferences.locale)}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            </GlassView>
+          ) : (
+            <View style={[styles.solidSection, { backgroundColor: colors.surface }]}>
+              <Text variant="h3" style={[styles.infoTitle, { color: colors.onSurface }]}>
+                {t('uv.hourlyForecast', 'Hourly UV forecast')}
+              </Text>
+              <UVHourlyChart data={hourlyPreview} locale={preferences.locale} />
+              <View style={styles.hourlyList}>
+                {hourlyPreview.map((point, index) => (
+                  <View
+                    key={point.timestamp}
+                    style={[
+                      styles.hourRow,
+                      index === hourlyPreview.length - 1
+                        ? styles.hourRowLast
+                        : { borderBottomColor: colors.outlineVariant },
+                    ]}
+                    accessibilityRole="text"
+                    accessibilityLabel={`${formatHour(point.timestamp)}: UV ${Math.round(point.value)} ${getUVLevelLabel(point.level, preferences.locale)}`}>
+                    <Text variant="body2" style={{ color: colors.onSurface }}>
+                      {formatHour(point.timestamp)}
+                    </Text>
+                    <Text variant="body2" style={{ color: colors.primary }}>
+                      {Math.round(point.value)}
+                    </Text>
+                    <Text variant="caption" style={{ color: colors.onSurfaceVariant }}>
+                      {getUVLevelLabel(point.level, preferences.locale)}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
+        </Animated.View>
+      )}
       
       {/* Skin Type Selector with Glass */}
       <Animated.View
@@ -302,7 +562,7 @@ export default function UVIndexScreen() {
               style={styles.glassSection}
               glassEffectStyle="regular"
               tintColor={colors.surfaceTint}
-              accessibilityLabel={`SPF ${spfRecommendation?.minimumSpf} recommended. ${recommendations.length} safety recommendations`}
+              accessibilityLabel={`SPF ${resolvedSpf} recommended. ${recommendations.length} safety recommendations`}
             >
               <View style={styles.sectionContent}>
                 <UVRecommendations
@@ -314,17 +574,35 @@ export default function UVIndexScreen() {
           ) : (
             <View
               style={[styles.solidSection, { backgroundColor: colors.surface }]}
-              accessibilityLabel={`SPF ${spfRecommendation?.minimumSpf} recommended. ${recommendations.length} safety recommendations`}
+              accessibilityLabel={`SPF ${resolvedSpf} recommended. ${recommendations.length} safety recommendations`}
             >
               <UVRecommendations
                 recommendations={recommendations}
                 spfRecommendation={spfRecommendation}
               />
             </View>
-          )}
+      )}
+    </Animated.View>
+  )}
+
+      {hasDaylightData && (
+        <Animated.View
+          style={{
+            opacity: daylightAnim.opacity,
+            transform: [{ translateY: daylightAnim.translateY }],
+          }}
+        >
+          <DaylightSection
+            sunrise={sunrise}
+            sunset={sunset}
+            solarNoon={solarNoon}
+            daylightDurationMinutes={daylightDurationMinutes}
+            peakUV={peakUVValue}
+            currentTime={new Date()}
+          />
         </Animated.View>
       )}
-      
+
       {/* Educational UV Information */}
       {canUseGlass ? (
         <GlassView 
@@ -372,10 +650,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: spacing.lg,
+    gap: spacing.md,
   },
   // Hero UV card with prominent glass effect
   heroCard: {
-    borderRadius: borderRadius.xxl,
+    borderRadius: borderRadius['2xl'],
     marginVertical: spacing.sm,
     overflow: 'hidden',
   },
@@ -408,6 +687,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: spacing.md,
   },
+  sparklineWrapper: {
+    width: '100%',
+    marginTop: spacing.md,
+  },
   // Glass sections (iOS 26+)
   glassSection: {
     borderRadius: borderRadius.xl,
@@ -435,5 +718,28 @@ const styles = StyleSheet.create({
   },
   infoTitle: {
     marginBottom: spacing.sm,
+  },
+  hourlyList: {
+    borderRadius: borderRadius.md,
+    overflow: 'hidden',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'transparent',
+  },
+  hourRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.sm,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  hourRowLast: {
+    borderBottomWidth: 0,
+  },
+  locationTitle: {
+    textAlign: 'center',
+  },
+  locationMessage: {
+    textAlign: 'center',
   },
 });

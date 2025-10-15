@@ -50,7 +50,23 @@ export function useUVIndex() {
     if (!uvIndex) return '';
     return getUVLevelLabel(uvIndex.level, preferences.locale);
   }, [uvIndex, preferences.locale]);
-  
+
+  const hourly = useMemo(() => {
+    if (!uvIndex) return [];
+    return uvIndex.hourly
+      .slice()
+      .sort((a, b) => a.timestamp - b.timestamp);
+  }, [uvIndex]);
+
+  const upcomingHourly = useMemo(() => {
+    if (!hourly.length) return [];
+    const now = Date.now();
+    return hourly.filter(point => point.timestamp >= now - 60 * 60 * 1000);
+  }, [hourly]);
+
+  // Prefer upcoming points, but fall back to the raw set when API data is stale (e.g., overnight).
+  const displayHourly = upcomingHourly.length > 0 ? upcomingHourly : hourly;
+
   return {
     uvIndex,
     isLoading: isLoadingUV,
@@ -63,7 +79,10 @@ export function useUVIndex() {
     recommendations,
     uvLevelColor,
     uvLevelLabel,
-    
+    hourly,
+    upcomingHourly,
+    displayHourly,
+
     // User preferences
     skinType: preferences.skinType,
     locale: preferences.locale,

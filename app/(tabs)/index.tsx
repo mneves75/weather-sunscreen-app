@@ -20,6 +20,7 @@ import {
     WeatherGradient,
     type WeatherType,
 } from '@/src/components/weather';
+import { UVHourlySparkline } from '@/src/components/weather/UVHourlySparkline';
 import { useSettings } from '@/src/context/SettingsContext';
 import { LocationError, useForecast, useLocation, useUVIndex, useWeatherData } from '@/src/hooks';
 import { useHaptics } from '@/src/hooks/useHaptics';
@@ -93,6 +94,7 @@ export default function HomeScreen() {
     isLoading: isLoadingUV,
     error: uvError,
     refresh: refreshUV,
+    displayHourly,
   } = useUVIndex();
   
   // Get location
@@ -227,6 +229,7 @@ export default function HomeScreen() {
   }, [weatherData, uvIndex, reduceMotion]);
   
   const isLoading = isLoadingWeather || isLoadingForecast || isLoadingUV;
+  const resolvedSpf = spfRecommendation ?? 30;
   const hasError = weatherError || forecastError || uvError;
 
   // Helper: Determine weather type for gradient/tinting
@@ -316,7 +319,7 @@ export default function HomeScreen() {
           <View style={styles.locationDisplayWrapper}>
             <LocationDisplay
               location={weatherData.location}
-              onPress={() => router.push('/(tabs)/(home)/weather')}
+          onPress={() => router.push('/weather')}
             />
           </View>
         </View>
@@ -333,7 +336,7 @@ export default function HomeScreen() {
           <TouchableOpacity
             onPress={() => {
               triggerHaptic('light');
-              router.push('/(tabs)/(home)/weather');
+          router.push('/weather');
             }}
             activeOpacity={0.9}
             accessibilityRole="button"
@@ -366,7 +369,7 @@ export default function HomeScreen() {
           <TouchableOpacity
             onPress={() => {
               triggerHaptic('light');
-              router.push('/(tabs)/(home)/uv');
+          router.push('/uv');
             }}
             activeOpacity={0.9}
             accessibilityRole="button"
@@ -398,8 +401,12 @@ export default function HomeScreen() {
                     </View>
                   </CircularProgress>
                   <Text variant="body1" style={{ color: colors.onSurface, marginTop: spacing.md }}>
-                    SPF {spfRecommendation?.minimumSpf || 30}+ {t('home.recommended')}
+                    SPF {resolvedSpf}+ {t('home.recommended')}
                   </Text>
+                  <UVHourlySparkline
+                    data={displayHourly.slice(0, 8)}
+                    style={styles.uvSparkline}
+                  />
                 </View>
               </GlassView>
             ) : (
@@ -422,8 +429,12 @@ export default function HomeScreen() {
                     </View>
                   </CircularProgress>
                   <Text variant="body1" style={{ color: colors.onSurface, marginTop: spacing.md }}>
-                    SPF {spfRecommendation?.minimumSpf || 30}+ {t('home.recommended')}
+                    SPF {resolvedSpf}+ {t('home.recommended')}
                   </Text>
+                  <UVHourlySparkline
+                    data={displayHourly.slice(0, 8)}
+                    style={styles.uvSparkline}
+                  />
                 </View>
               </View>
             )}
@@ -440,7 +451,7 @@ export default function HomeScreen() {
           title={t('home.viewDetails')}
           onPress={() => {
             triggerHaptic('light');
-            router.push('/(tabs)/(home)/weather');
+            router.push('/weather');
           }}
           variant="tonal"
           size="medium"
@@ -449,7 +460,7 @@ export default function HomeScreen() {
           title={t('home.uvAndSpf')}
           onPress={() => {
             triggerHaptic('light');
-            router.push('/(tabs)/(home)/uv');
+            router.push('/uv');
           }}
           variant="tonal"
           size="medium"
@@ -460,7 +471,7 @@ export default function HomeScreen() {
           title={t('home.sevenDayForecast')}
           onPress={() => {
             triggerHaptic('light');
-            router.push('/(tabs)/(home)/forecast');
+            router.push('/forecast');
           }}
           variant="outlined"
           size="medium"
@@ -631,5 +642,8 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     borderBottomWidth: 1,
     // borderBottomColor set dynamically in JSX
+  },
+  uvSparkline: {
+    marginTop: spacing.sm,
   },
 });
