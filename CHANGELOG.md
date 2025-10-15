@@ -8,6 +8,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- _Nothing yet._
+
+### Fixed
+- _Nothing yet._
+
+## [1.1.1] - 2025-10-15
+
+### Fixed
+- **UI Layout Bug: Text Overlap** - Fixed "Partly cloudy" weather condition text creating large rectangle overlapping other UI elements
+  - Wrapped weather condition text in View with maxWidth constraint (85%)
+  - Added numberOfLines={2} and ellipsizeMode="tail" for proper truncation
+  - Fixed invalid StyleSheet properties that were causing layout engine to ignore width constraints
+  - Applied to TemperatureDisplay component for all weather conditions
+- **pt-BR Translation Bug: Missing Weather Condition Translations** - Fixed weather conditions showing English text instead of Portuguese translations
+  - Changed OpenMeteoMapper to return i18n keys instead of hardcoded English strings
+  - Added complete weather.conditions object to both en.json and pt-BR.json with 29 WMO weather codes
+  - All weather condition descriptions now properly translate based on user's locale setting
+- **Null Safety Improvements** - Added optional chaining (?.) and nullish coalesce (??) operators throughout
+  - WeatherCard: Safe access to nested condition data
+  - ForecastDayCard: Safe access to uvIndex and condition properties with ?? fallbacks
+  - weather.tsx and index.tsx: Safe fallbacks for temperature display
+  - Prevents potential null reference crashes with defensive null checks
+- **Hardened Weather Type Detection** - Changed from fragile .includes() to exact matching
+  - Prevents unreliable substring matches (e.g., "Thunderstorm" containing "storm")
+  - Added explicit mapping of 7 standard WMO condition types: Clear, Clouds, Rain, Drizzle, Thunderstorm, Snow, Fog
+  - Includes defensive null checks and safe fallback to 'default' theme
+- **Comprehensive Code Documentation** - Added detailed comments on all complex logic
+  - Layout fix comments explaining WHY constraints were needed and HOW they solve the problem
+  - i18n translation flow documentation in components
+  - Defensive programming patterns explained (optional chaining, nullish coalesce)
+  - Edge case handling and fallback behavior documented for code review standards
+
+## [1.1.0] - 2025-10-15
+
+### Added
 - **UV Hourly Insights** – Home dashboard now renders a UV sparkline fed by hourly data, including graceful fallbacks when future samples are unavailable.
 - **UV Detail Visualization** – Dedicated UV screen displays a 12-hour chart with accessible annotations and contextual location subtitle.
 

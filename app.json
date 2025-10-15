@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "weather-suncreen-app",
-    "slug": "weather-suncreen-app",
-    "version": "1.0.0",
+    "name": "weather-sunscreen-app",
+    "slug": "weather-sunscreen-app",
+    "version": "1.1.1",
     "orientation": "portrait",
     "icon": "./assets/icon-liquid-glass-source.png",
-    "scheme": "weathersuncreenapp",
+    "scheme": "weathersunscreenapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
@@ -15,7 +15,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.mneves.weather-suncreen-app",
+      "bundleIdentifier": "com.mneves.weather-sunscreen-app",
       "infoPlist": {
         "UIBackgroundModes": [
           "fetch",
@@ -42,7 +42,7 @@
         "android.permission.ACCESS_FINE_LOCATION",
         "android.permission.FOREGROUND_SERVICE"
       ],
-      "package": "com.mneves.weather_suncreen_app"
+      "package": "com.mneves.weather_sunscreen_app"
     },
     "web": {
       "bundler": "metro",
