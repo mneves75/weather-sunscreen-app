@@ -1,5 +1,56 @@
 /**
  * Weather condition helpers and utilities
+ *
+ * INTERNATIONALIZATION (i18n) ARCHITECTURE:
+ *
+ * This module contains functions that return i18n keys (like 'weather.humidityLevels.dry')
+ * instead of hardcoded strings. The translation happens at the component level using react-i18next's t() function.
+ *
+ * KEY STRUCTURE IN TRANSLATION FILES (en.json, pt-BR.json):
+ * ============================================================
+ *
+ * The 'weather' object avoids key collisions by separating labels from descriptions:
+ *
+ *   "weather": {
+ *     // Top-level string labels for metrics (never collide)
+ *     "humidity": "Humidity",        // Label for humidity metric
+ *     "wind": "Wind",                // Label for wind metric
+ *     "pressure": "Pressure",        // Label for pressure metric
+ *
+ *     // Nested objects for descriptions (renamed to avoid collision with labels)
+ *     "humidityLevels": {            // OLD: "humidity" → would overwrite label above
+ *       "veryDry": "Very Dry",
+ *       "dry": "Dry",
+ *       ...
+ *     },
+ *     "windLevels": {                // OLD: "windSpeed" → would overwrite label above
+ *       "calm": "Calm",
+ *       "lightBreeze": "Light Breeze",
+ *       ...
+ *     },
+ *     "cardinal": {                  // Cardinal directions (no collision)
+ *       "N": "N",
+ *       "E": "E",
+ *       ...
+ *     }
+ *   }
+ *
+ * FLOW EXAMPLE - getHumidityLevel(45) → 'weather.humidityLevels.dry' → t() → "Dry" (English) or "Seco" (Portuguese)
+ * ================================================================================================================
+ *
+ * 1. Utility function receives humidity value (0-100)
+ * 2. Utility function returns i18n KEY: 'weather.humidityLevels.dry'
+ * 3. Component calls t(key) to translate: t('weather.humidityLevels.dry')
+ * 4. react-i18next looks up key in current language file
+ * 5. Returns translated string: "Dry" (en.json) or "Seco" (pt-BR.json)
+ *
+ * WHY THIS PATTERN:
+ * - Separates business logic (utility functions) from translations (json files)
+ * - Allows easy language switching without code changes
+ * - Avoids hardcoding strings in TypeScript
+ * - Enables pluralization, interpolation, and context-aware translations
+ *
+ * CRITICAL: Always return i18n keys from utility functions, never hardcoded strings!
  */
 
 import { WeatherCondition } from '@/src/types';
@@ -162,27 +213,33 @@ export function formatCloudCover(cloudCover: number): string {
 
 /**
  * Get humidity level description as i18n key
- * Returns i18n key like 'weather.humidity.veryDry'
+ * Returns i18n key like 'weather.humidityLevels.veryDry'
  * Component should call t() to translate the key
+ *
+ * Note: Uses 'humidityLevels' to avoid key collision with 'weather.humidity'
+ * which is the top-level label key for the humidity metric.
  */
 export function getHumidityLevel(humidity: number, locale: string = 'en'): string {
-  if (humidity < 30) return 'weather.humidity.veryDry';
-  if (humidity < 50) return 'weather.humidity.dry';
-  if (humidity < 70) return 'weather.humidity.comfortable';
-  if (humidity < 85) return 'weather.humidity.humid';
-  return 'weather.humidity.veryHumid';
+  if (humidity < 30) return 'weather.humidityLevels.veryDry';
+  if (humidity < 50) return 'weather.humidityLevels.dry';
+  if (humidity < 70) return 'weather.humidityLevels.comfortable';
+  if (humidity < 85) return 'weather.humidityLevels.humid';
+  return 'weather.humidityLevels.veryHumid';
 }
 
 /**
  * Get wind speed description as i18n key
- * Returns i18n key like 'weather.windSpeed.calm'
+ * Returns i18n key like 'weather.windLevels.calm'
  * Component should call t() to translate the key
+ *
+ * Note: Uses 'windLevels' to avoid key collision with 'weather.wind'
+ * which is the top-level label key for the wind metric.
  */
 export function getWindDescription(speedKmh: number, locale: string = 'en'): string {
-  if (speedKmh < 5) return 'weather.windSpeed.calm';
-  if (speedKmh < 20) return 'weather.windSpeed.lightBreeze';
-  if (speedKmh < 40) return 'weather.windSpeed.moderateBreeze';
-  if (speedKmh < 60) return 'weather.windSpeed.strongWind';
-  return 'weather.windSpeed.veryStrongWind';
+  if (speedKmh < 5) return 'weather.windLevels.calm';
+  if (speedKmh < 20) return 'weather.windLevels.lightBreeze';
+  if (speedKmh < 40) return 'weather.windLevels.moderateBreeze';
+  if (speedKmh < 60) return 'weather.windLevels.strongWind';
+  return 'weather.windLevels.veryStrongWind';
 }
 
