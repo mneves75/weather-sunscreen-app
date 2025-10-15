@@ -174,10 +174,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   condition: {
-    fontSize: 22,
-    fontWeight: '300',      // Light
-    marginTop: spacing.sm,
-    opacity: 0.8,
+    fontSize: 26,                              // Increased from 22 for better visual prominence
+    fontWeight: '400',                         // Increased from 300 for improved readability
+    marginTop: spacing.md,                     // Increased from spacing.sm for better separation
     textAlign: 'center',
+    // Removed opacity: 0.8 for better WCAG AA contrast compliance
+    // and improved readability on glass/gradient backgrounds
   },
 });
