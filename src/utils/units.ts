@@ -3,6 +3,7 @@
  */
 
 import { PressureUnit, SpeedUnit, TemperatureUnit } from '@/src/types';
+import { I18N_KEYS, CardinalKey } from '@/src/types/i18n';
 
 // Temperature conversions
 export function celsiusToFahrenheit(celsius: number): number {
@@ -164,14 +165,26 @@ export function formatVisibility(
 }
 
 /**
- * Wind direction conversion (degrees to cardinal direction i18n key)
- * Returns i18n key like 'weather.cardinal.N'
- * Component should call t() to translate the key
+ * Converts compass degrees to cardinal direction i18n key
+ * Returns type-safe i18n key for cardinal direction
+ *
+ * @param degrees - Compass heading (0-360), where 0=N, 90=E, 180=S, 270=W
+ * @returns Type-safe i18n key for cardinal direction
+ *
+ * EDGE CASE HANDLING:
+ * - Wraps around: 360° = 0° (North)
+ * - Negative degrees: wraps to positive (e.g., -90° = 270° = West)
+ * - 16-point compass: N, NNE, NE, ENE, E, ESE, SE, SSE, S, SSW, SW, WSW, W, WNW, NW, NNW
  */
-export function degreesToCardinal(degrees: number): string {
-  const directions = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
-  const index = Math.round(degrees / 22.5) % 16;
+export function degreesToCardinal(degrees: number): CardinalKey {
+  // Normalize to 0-360 range (handles negative and > 360 values)
+  const normalized = ((degrees % 360) + 360) % 360;
+
+  // Map to 16-point compass (each sector is 22.5°)
+  const directions = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'] as const;
+  const index = Math.round(normalized / 22.5) % 16;
   const cardinal = directions[index];
-  return `weather.cardinal.${cardinal}`;
+
+  return I18N_KEYS.weather.cardinal[cardinal as keyof typeof I18N_KEYS.weather.cardinal];
 }
 

@@ -1,59 +1,14 @@
 /**
- * Weather condition helpers and utilities
+ * Weather condition utilities
  *
- * INTERNATIONALIZATION (i18n) ARCHITECTURE:
+ * All classification functions return i18n keys for translation by components.
+ * Use t() from react-i18next to translate keys to current language.
  *
- * This module contains functions that return i18n keys (like 'weather.humidityLevels.dry')
- * instead of hardcoded strings. The translation happens at the component level using react-i18next's t() function.
- *
- * KEY STRUCTURE IN TRANSLATION FILES (en.json, pt-BR.json):
- * ============================================================
- *
- * The 'weather' object avoids key collisions by separating labels from descriptions:
- *
- *   "weather": {
- *     // Top-level string labels for metrics (never collide)
- *     "humidity": "Humidity",        // Label for humidity metric
- *     "wind": "Wind",                // Label for wind metric
- *     "pressure": "Pressure",        // Label for pressure metric
- *
- *     // Nested objects for descriptions (renamed to avoid collision with labels)
- *     "humidityLevels": {            // OLD: "humidity" → would overwrite label above
- *       "veryDry": "Very Dry",
- *       "dry": "Dry",
- *       ...
- *     },
- *     "windLevels": {                // OLD: "windSpeed" → would overwrite label above
- *       "calm": "Calm",
- *       "lightBreeze": "Light Breeze",
- *       ...
- *     },
- *     "cardinal": {                  // Cardinal directions (no collision)
- *       "N": "N",
- *       "E": "E",
- *       ...
- *     }
- *   }
- *
- * FLOW EXAMPLE - getHumidityLevel(45) → 'weather.humidityLevels.dry' → t() → "Dry" (English) or "Seco" (Portuguese)
- * ================================================================================================================
- *
- * 1. Utility function receives humidity value (0-100)
- * 2. Utility function returns i18n KEY: 'weather.humidityLevels.dry'
- * 3. Component calls t(key) to translate: t('weather.humidityLevels.dry')
- * 4. react-i18next looks up key in current language file
- * 5. Returns translated string: "Dry" (en.json) or "Seco" (pt-BR.json)
- *
- * WHY THIS PATTERN:
- * - Separates business logic (utility functions) from translations (json files)
- * - Allows easy language switching without code changes
- * - Avoids hardcoding strings in TypeScript
- * - Enables pluralization, interpolation, and context-aware translations
- *
- * CRITICAL: Always return i18n keys from utility functions, never hardcoded strings!
+ * See: src/types/i18n.ts for i18n key constants and type definitions
  */
 
 import { WeatherCondition } from '@/src/types';
+import { I18N_KEYS, HumidityLevelKey, WindLevelKey, CardinalKey, AdvisoryKey } from '@/src/types/i18n';
 
 /**
  * Get weather icon emoji for condition code
@@ -143,57 +98,50 @@ export function isCloudy(wmoCode: number): boolean {
 }
 
 /**
- * Get weather advisory based on conditions
+ * Returns i18n key for weather advisory based on conditions
+ * Follows consistent pattern: utility returns key, component translates
+ *
+ * @param condition - Weather condition object with WMO code
+ * @param temperature - Current temperature in Celsius
+ * @returns Type-safe i18n key for advisory message, or null if no advisory needed
+ *
+ * PRIORITY ORDER (highest to lowest):
+ * 1. Thunderstorm (life-threatening)
+ * 2. Extreme temperatures (health-threatening)
+ * 3. Precipitation (daily life)
+ *
+ * REMOVED: locale parameter (now handled by i18n system, not here)
  */
 export function getWeatherAdvisory(
   condition: WeatherCondition,
-  temperature: number,
-  locale: string = 'en'
-): string | null {
+  temperature: number
+): AdvisoryKey | null {
   const wmoCode = condition.wmoCode || 0;
-  
-  if (locale === 'pt-BR') {
-    if (hasThunderstorm(wmoCode)) {
-      return 'Alerta de tempestade - Busque abrigo';
-    }
-    
-    if (isRainy(wmoCode)) {
-      return 'Leve um guarda-chuva';
-    }
-    
-    if (isSnowy(wmoCode)) {
-      return 'Condições de neve - Dirija com cuidado';
-    }
-    
-    if (temperature >= 35) {
-      return 'Alerta de calor extremo - Mantenha-se hidratado';
-    }
-    
-    if (temperature <= 0) {
-      return 'Alerta de frio extremo - Vista-se adequadamente';
-    }
-  } else {
-    if (hasThunderstorm(wmoCode)) {
-      return 'Thunderstorm warning - Seek shelter';
-    }
-    
-    if (isRainy(wmoCode)) {
-      return 'Bring an umbrella';
-    }
-    
-    if (isSnowy(wmoCode)) {
-      return 'Snow conditions - Drive carefully';
-    }
-    
-    if (temperature >= 35) {
-      return 'Extreme heat warning - Stay hydrated';
-    }
-    
-    if (temperature <= 0) {
-      return 'Extreme cold warning - Dress warmly';
-    }
+
+  // Highest priority: thunderstorm warning
+  if (hasThunderstorm(wmoCode)) {
+    return I18N_KEYS.weather.advisories.thunderstorm;
   }
-  
+
+  // High priority: extreme temperatures
+  if (temperature >= 35) {
+    return I18N_KEYS.weather.advisories.extremeHeat;
+  }
+
+  if (temperature <= 0) {
+    return I18N_KEYS.weather.advisories.extremeCold;
+  }
+
+  // Medium priority: precipitation
+  if (isSnowy(wmoCode)) {
+    return I18N_KEYS.weather.advisories.snowConditions;
+  }
+
+  if (isRainy(wmoCode)) {
+    return I18N_KEYS.weather.advisories.bringUmbrella;
+  }
+
+  // No advisory needed
   return null;
 }
 
@@ -212,34 +160,63 @@ export function formatCloudCover(cloudCover: number): string {
 }
 
 /**
- * Get humidity level description as i18n key
- * Returns i18n key like 'weather.humidityLevels.veryDry'
- * Component should call t() to translate the key
+ * Returns i18n key for humidity level classification
+ * Clamps input to valid range [0-100] and handles invalid inputs gracefully
  *
- * Note: Uses 'humidityLevels' to avoid key collision with 'weather.humidity'
- * which is the top-level label key for the humidity metric.
+ * @param humidity - Relative humidity percentage (0-100)
+ * @returns Type-safe i18n key for humidity level description
+ *
+ * EDGE CASE HANDLING:
+ * - NaN, Infinity: defaults to comfortable (50%)
+ * - Negative values: clamped to 0 (veryDry)
+ * - Values > 100: clamped to 100 (veryHumid)
  */
-export function getHumidityLevel(humidity: number, locale: string = 'en'): string {
-  if (humidity < 30) return 'weather.humidityLevels.veryDry';
-  if (humidity < 50) return 'weather.humidityLevels.dry';
-  if (humidity < 70) return 'weather.humidityLevels.comfortable';
-  if (humidity < 85) return 'weather.humidityLevels.humid';
-  return 'weather.humidityLevels.veryHumid';
+export function getHumidityLevel(humidity: number): HumidityLevelKey {
+  // Handle invalid inputs gracefully
+  if (!Number.isFinite(humidity)) {
+    console.warn(`getHumidityLevel: Invalid humidity value ${humidity}, using comfortable default`);
+    return I18N_KEYS.weather.humidityLevels.comfortable;
+  }
+
+  // Clamp to valid range [0, 100]
+  const clamped = Math.max(0, Math.min(100, humidity));
+
+  if (clamped < 30) return I18N_KEYS.weather.humidityLevels.veryDry;
+  if (clamped < 50) return I18N_KEYS.weather.humidityLevels.dry;
+  if (clamped < 70) return I18N_KEYS.weather.humidityLevels.comfortable;
+  if (clamped < 85) return I18N_KEYS.weather.humidityLevels.humid;
+  return I18N_KEYS.weather.humidityLevels.veryHumid;
 }
 
 /**
- * Get wind speed description as i18n key
- * Returns i18n key like 'weather.windLevels.calm'
- * Component should call t() to translate the key
+ * Returns i18n key for wind speed classification
+ * Clamps input to reasonable range [0-200] km/h and handles invalid inputs gracefully
  *
- * Note: Uses 'windLevels' to avoid key collision with 'weather.wind'
- * which is the top-level label key for the wind metric.
+ * @param speedKmh - Wind speed in kilometers per hour
+ * @returns Type-safe i18n key for wind level description
+ *
+ * EDGE CASE HANDLING:
+ * - NaN, Infinity, negative: defaults to calm
+ * - Values > 200 km/h: clamped to 200 (veryStrongWind)
+ *
+ * RATIONALE FOR UPPER BOUND:
+ * 200 km/h is approximately 124 mph, which is hurricane/cyclone force winds.
+ * This is the practical upper bound for weather data.
  */
-export function getWindDescription(speedKmh: number, locale: string = 'en'): string {
-  if (speedKmh < 5) return 'weather.windLevels.calm';
-  if (speedKmh < 20) return 'weather.windLevels.lightBreeze';
-  if (speedKmh < 40) return 'weather.windLevels.moderateBreeze';
-  if (speedKmh < 60) return 'weather.windLevels.strongWind';
-  return 'weather.windLevels.veryStrongWind';
+export function getWindDescription(speedKmh: number): WindLevelKey {
+  // Handle invalid inputs gracefully
+  if (!Number.isFinite(speedKmh) || speedKmh < 0) {
+    console.warn(`getWindDescription: Invalid wind speed ${speedKmh}, using calm default`);
+    return I18N_KEYS.weather.windLevels.calm;
+  }
+
+  // Clamp to reasonable range [0, 200] km/h
+  const clamped = Math.min(200, speedKmh);
+
+  if (clamped < 5) return I18N_KEYS.weather.windLevels.calm;
+  if (clamped < 20) return I18N_KEYS.weather.windLevels.lightBreeze;
+  if (clamped < 40) return I18N_KEYS.weather.windLevels.moderateBreeze;
+  if (clamped < 60) return I18N_KEYS.weather.windLevels.strongWind;
+  return I18N_KEYS.weather.windLevels.veryStrongWind;
 }
 
