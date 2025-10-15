@@ -93,6 +93,13 @@
       "WNW": "ONO",
       "NW": "NO",
       "NNW": "NNO"
+    },
+    "advisories": {
+      "thunderstorm": "Alerta de tempestade - Busque abrigo",
+      "bringUmbrella": "Leve um guarda-chuva",
+      "snowConditions": "Condições de neve - Dirija com cuidado",
+      "extremeHeat": "Alerta de calor extremo - Mantenha-se hidratado",
+      "extremeCold": "Alerta de frio extremo - Vista-se adequadamente"
     }
   },
   "uv": {

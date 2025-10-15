@@ -93,6 +93,13 @@
       "WNW": "WNW",
       "NW": "NW",
       "NNW": "NNW"
+    },
+    "advisories": {
+      "thunderstorm": "Thunderstorm warning - Seek shelter",
+      "bringUmbrella": "Bring an umbrella",
+      "snowConditions": "Snow conditions - Drive carefully",
+      "extremeHeat": "Extreme heat warning - Stay hydrated",
+      "extremeCold": "Extreme cold warning - Dress warmly"
     }
   },
   "uv": {
