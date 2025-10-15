@@ -9,7 +9,7 @@
  * - Platform-adaptive design (iOS Glass + Android Material)
  */
 
-import { Button, Container, ErrorView, LoadingSpinner, Text, CircularProgress } from '@/src/components/ui';
+import { Button, Container, ErrorView, LoadingSpinner, Text, CircularProgress, WeatherCardSkeleton, UVCardSkeleton } from '@/src/components/ui';
 import {
     LocationDisplay,
     SunscreenTracker,
@@ -26,6 +26,7 @@ import { LocationError, useForecast, useLocation, useUVIndex, useWeatherData } f
 import { useHaptics } from '@/src/hooks/useHaptics';
 import { useColors, useGlassAvailability } from '@/src/theme';
 import { tokens } from '@/src/theme/tokens';
+import { UV_GRADIENT } from '@/src/utils';
 import { createFadeInComponent, createSlideUpComponent } from '@/src/theme/animations';
 import { getStaggerDelay } from '@/src/theme/animations';
 import { GlassView } from 'expo-glass-effect';
@@ -208,7 +209,7 @@ export default function HomeScreen() {
   }, [weatherData, reduceMotion]);
 
   useEffect(() => {
-    if (uvIndex) {
+    if (uvIndex !== null && uvIndex !== undefined) {
       if (reduceMotion) {
         uvCardAnim.opacity.setValue(1);
         uvCardAnim.translateY.setValue(0);
@@ -219,7 +220,7 @@ export default function HomeScreen() {
   }, [uvIndex, reduceMotion]);
 
   useEffect(() => {
-    if (weatherData && uvIndex) {
+    if (weatherData && (uvIndex !== null && uvIndex !== undefined)) {
       if (reduceMotion) {
         actionsAnim.opacity.setValue(1);
       } else {
@@ -232,13 +233,33 @@ export default function HomeScreen() {
   const resolvedSpf = spfRecommendation ?? 30;
   const hasError = weatherError || forecastError || uvError;
 
-  // Helper: Determine weather type for gradient/tinting
-  const getWeatherType = (condition: string): WeatherType => {
-    const lowerCondition = condition.toLowerCase();
-    if (lowerCondition.includes('sun') || lowerCondition.includes('clear')) return 'sunny';
-    if (lowerCondition.includes('rain') || lowerCondition.includes('storm')) return 'rainy';
-    if (lowerCondition.includes('cloud') || lowerCondition.includes('overcast')) return 'cloudy';
-    if (lowerCondition.includes('snow') || lowerCondition.includes('ice')) return 'snowy';
+  /*
+    HARDENED WEATHER TYPE DETECTION: Map API condition.main to visual theme.
+
+    CRITICAL FIX: Changed from .includes() to exact === matching for reliability.
+    - includes() is fragile: "Thunderstorm" contains "storm" but also contains "Thund"
+    - === matching is explicit and predictable
+
+    The Open-Meteo API returns these values for condition.main:
+      Clear, Clouds, Rain, Drizzle, Thunderstorm, Snow, Fog
+
+    We match case-insensitively (.toLowerCase()) and allow synonyms for robustness:
+      - 'clear'/'sunny' -> sunny theme (blue tint, bright background)
+      - 'rain'/'thunderstorm'/'drizzle' -> rainy theme (gray tint)
+      - 'clouds'/'cloudy'/'overcast'/'fog' -> cloudy theme (light gray tint)
+      - 'snow' -> snowy theme (light blue tint)
+      - anything else -> default theme (safe fallback)
+
+    This prevents edge cases where typos or unexpected values crash the UI.
+  */
+  const getWeatherType = (condition?: string): WeatherType => {
+    if (!condition) return 'default';
+    const lowerCondition = condition.toLowerCase().trim();
+    // Use exact match for reliability (API returns: Clear, Clouds, Rain, Drizzle, Thunderstorm, Snow, Fog)
+    if (lowerCondition === 'clear' || lowerCondition === 'sunny') return 'sunny';
+    if (lowerCondition === 'rain' || lowerCondition === 'thunderstorm' || lowerCondition === 'drizzle') return 'rainy';
+    if (lowerCondition === 'clouds' || lowerCondition === 'cloudy' || lowerCondition === 'overcast' || lowerCondition === 'fog') return 'cloudy';
+    if (lowerCondition === 'snow') return 'snowy';
     return 'default';
   };
   
@@ -326,7 +347,7 @@ export default function HomeScreen() {
       )}
       
       {/* Hero Temperature Display with Weather Gradient */}
-      {weatherData && (
+      {weatherData ? (
         <Animated.View
           style={{
             opacity: weatherCardAnim.opacity,
@@ -341,25 +362,27 @@ export default function HomeScreen() {
             activeOpacity={0.9}
             accessibilityRole="button"
             accessibilityLabel={t('accessibility.weatherCard.currentWeather', {
-              temperature: weatherData.current.temperature,
-              condition: weatherData.current.condition.description,
+              temperature: weatherData.current?.temperature ?? 0,
+              condition: weatherData.current?.condition?.description ? t(weatherData.current.condition.description) : 'Unknown',
             })}
             accessibilityHint={t('accessibility.weatherCard.hint')}
           >
-            <WeatherGradient weatherType={getWeatherType(weatherData.current.condition.description)}>
+            <WeatherGradient weatherType={getWeatherType(weatherData.current.condition.main)}>
               <TemperatureDisplay
                 temperature={weatherData.current.temperature}
                 unit={preferences.temperatureUnit === 'celsius' ? 'C' : 'F'}
                 condition={weatherData.current.condition.description}
-                weatherType={getWeatherType(weatherData.current.condition.description)}
+                weatherType={getWeatherType(weatherData.current.condition.main)}
               />
             </WeatherGradient>
           </TouchableOpacity>
         </Animated.View>
+      ) : (
+        <WeatherCardSkeleton />
       )}
       
       {/* UV Index with Animated Circular Progress */}
-      {uvIndex && (
+      {(uvIndex !== null && uvIndex !== undefined) ? (
         <Animated.View
           style={{
             opacity: uvCardAnim.opacity,
@@ -389,7 +412,7 @@ export default function HomeScreen() {
                     max={11}
                     size={160}
                     trackWidth={12}
-                    gradient={['#30D158', '#FFD60A', '#FF9F0A', '#FF453A', '#BF5AF2']}
+                    gradient={UV_GRADIENT}
                   >
                     <View style={styles.uvProgressCenter}>
                       <Text variant="h1" style={{ color: colors.onSurface, fontSize: 56, fontWeight: '300' }}>
@@ -417,7 +440,7 @@ export default function HomeScreen() {
                     max={11}
                     size={160}
                     trackWidth={12}
-                    gradient={['#30D158', '#FFD60A', '#FF9F0A', '#FF453A', '#BF5AF2']}
+                    gradient={UV_GRADIENT}
                   >
                     <View style={styles.uvProgressCenter}>
                       <Text variant="h1" style={{ color: colors.onSurface, fontSize: 56, fontWeight: '300' }}>
@@ -440,47 +463,53 @@ export default function HomeScreen() {
             )}
           </TouchableOpacity>
         </Animated.View>
+      ) : (
+        <UVCardSkeleton />
       )}
       
       {/* Sunscreen Tracker */}
       <SunscreenTracker />
-      
-      {/* Quick Actions with Animation */}
-      <Animated.View style={[styles.actionsContainer, { opacity: actionsAnim.opacity }]}>
-        <Button
-          title={t('home.viewDetails')}
-          onPress={() => {
-            triggerHaptic('light');
-            router.push('/weather');
-          }}
-          variant="tonal"
-          size="medium"
-        />
-        <Button
-          title={t('home.uvAndSpf')}
-          onPress={() => {
-            triggerHaptic('light');
-            router.push('/uv');
-          }}
-          variant="tonal"
-          size="medium"
-        />
-      </Animated.View>
-      <Animated.View style={[styles.forecastButton, { opacity: actionsAnim.opacity }]}>
-        <Button
-          title={t('home.sevenDayForecast')}
-          onPress={() => {
-            triggerHaptic('light');
-            router.push('/forecast');
-          }}
-          variant="outlined"
-          size="medium"
-          fullWidth
-        />
-      </Animated.View>
+
+      {/* Quick Actions with Animation - Only show when data is available */}
+      {weatherData && (uvIndex !== null && uvIndex !== undefined) && (
+        <>
+          <Animated.View style={[styles.actionsContainer, { opacity: actionsAnim.opacity }]}>
+            <Button
+              title={t('home.viewDetails')}
+              onPress={() => {
+                triggerHaptic('light');
+                router.push('/weather');
+              }}
+              variant="tonal"
+              size="medium"
+            />
+            <Button
+              title={t('home.uvAndSpf')}
+              onPress={() => {
+                triggerHaptic('light');
+                router.push('/uv');
+              }}
+              variant="tonal"
+              size="medium"
+            />
+          </Animated.View>
+          <Animated.View style={[styles.forecastButton, { opacity: actionsAnim.opacity }]}>
+            <Button
+              title={t('home.sevenDayForecast')}
+              onPress={() => {
+                triggerHaptic('light');
+                router.push('/forecast');
+              }}
+              variant="outlined"
+              size="medium"
+              fullWidth
+            />
+          </Animated.View>
+        </>
+      )}
       
       {/* UV Recommendations Preview */}
-      {uvIndex && recommendations.length > 0 && spfRecommendation && (
+      {(uvIndex !== null && uvIndex !== undefined) && recommendations.length > 0 && spfRecommendation && (
         <UVRecommendations
           recommendations={recommendations.slice(0, 3)}
           spfRecommendation={spfRecommendation}
@@ -549,8 +578,8 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xxs,
   },
   refreshIconButton: {
-    width: 44,
-    height: 44,
+    width: 48,     // WCAG AA compliant touch target (was 44)
+    height: 48,    // WCAG AA compliant touch target (was 44)
     borderRadius: borderRadius.full,
     justifyContent: 'center',
     alignItems: 'center',

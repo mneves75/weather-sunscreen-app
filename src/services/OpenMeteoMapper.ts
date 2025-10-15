@@ -5,6 +5,7 @@
 
 import {
     Coordinates,
+    DaylightData,
     Forecast,
     ForecastDay,
     Location,
@@ -17,40 +18,44 @@ import {
     WeatherData
 } from '@/src/types';
 import { logger } from './LoggerService';
+import { calculateDaylightDuration, calculateSolarNoon } from '@/src/utils';
 
 /**
  * WMO Weather interpretation codes mapping
  * Based on Open-Meteo documentation
+ *
+ * Note: description field contains i18n keys (e.g., 'weather.conditions.0')
+ * which are translated via the i18n system in consuming components.
  */
 const WMO_CODES: Record<number, { main: string; description: string; icon: string }> = {
-  0: { main: 'Clear', description: 'Clear sky', icon: '01d' },
-  1: { main: 'Clouds', description: 'Mainly clear', icon: '02d' },
-  2: { main: 'Clouds', description: 'Partly cloudy', icon: '03d' },
-  3: { main: 'Clouds', description: 'Overcast', icon: '04d' },
-  45: { main: 'Fog', description: 'Fog', icon: '50d' },
-  48: { main: 'Fog', description: 'Depositing rime fog', icon: '50d' },
-  51: { main: 'Drizzle', description: 'Light drizzle', icon: '09d' },
-  53: { main: 'Drizzle', description: 'Moderate drizzle', icon: '09d' },
-  55: { main: 'Drizzle', description: 'Dense drizzle', icon: '09d' },
-  56: { main: 'Drizzle', description: 'Light freezing drizzle', icon: '09d' },
-  57: { main: 'Drizzle', description: 'Dense freezing drizzle', icon: '09d' },
-  61: { main: 'Rain', description: 'Slight rain', icon: '10d' },
-  63: { main: 'Rain', description: 'Moderate rain', icon: '10d' },
-  65: { main: 'Rain', description: 'Heavy rain', icon: '10d' },
-  66: { main: 'Rain', description: 'Light freezing rain', icon: '13d' },
-  67: { main: 'Rain', description: 'Heavy freezing rain', icon: '13d' },
-  71: { main: 'Snow', description: 'Slight snow fall', icon: '13d' },
-  73: { main: 'Snow', description: 'Moderate snow fall', icon: '13d' },
-  75: { main: 'Snow', description: 'Heavy snow fall', icon: '13d' },
-  77: { main: 'Snow', description: 'Snow grains', icon: '13d' },
-  80: { main: 'Rain', description: 'Slight rain showers', icon: '09d' },
-  81: { main: 'Rain', description: 'Moderate rain showers', icon: '09d' },
-  82: { main: 'Rain', description: 'Violent rain showers', icon: '09d' },
-  85: { main: 'Snow', description: 'Slight snow showers', icon: '13d' },
-  86: { main: 'Snow', description: 'Heavy snow showers', icon: '13d' },
-  95: { main: 'Thunderstorm', description: 'Thunderstorm', icon: '11d' },
-  96: { main: 'Thunderstorm', description: 'Thunderstorm with slight hail', icon: '11d' },
-  99: { main: 'Thunderstorm', description: 'Thunderstorm with heavy hail', icon: '11d' },
+  0: { main: 'Clear', description: 'weather.conditions.0', icon: '01d' },
+  1: { main: 'Clouds', description: 'weather.conditions.1', icon: '02d' },
+  2: { main: 'Clouds', description: 'weather.conditions.2', icon: '03d' },
+  3: { main: 'Clouds', description: 'weather.conditions.3', icon: '04d' },
+  45: { main: 'Fog', description: 'weather.conditions.45', icon: '50d' },
+  48: { main: 'Fog', description: 'weather.conditions.48', icon: '50d' },
+  51: { main: 'Drizzle', description: 'weather.conditions.51', icon: '09d' },
+  53: { main: 'Drizzle', description: 'weather.conditions.53', icon: '09d' },
+  55: { main: 'Drizzle', description: 'weather.conditions.55', icon: '09d' },
+  56: { main: 'Drizzle', description: 'weather.conditions.56', icon: '09d' },
+  57: { main: 'Drizzle', description: 'weather.conditions.57', icon: '09d' },
+  61: { main: 'Rain', description: 'weather.conditions.61', icon: '10d' },
+  63: { main: 'Rain', description: 'weather.conditions.63', icon: '10d' },
+  65: { main: 'Rain', description: 'weather.conditions.65', icon: '10d' },
+  66: { main: 'Rain', description: 'weather.conditions.66', icon: '13d' },
+  67: { main: 'Rain', description: 'weather.conditions.67', icon: '13d' },
+  71: { main: 'Snow', description: 'weather.conditions.71', icon: '13d' },
+  73: { main: 'Snow', description: 'weather.conditions.73', icon: '13d' },
+  75: { main: 'Snow', description: 'weather.conditions.75', icon: '13d' },
+  77: { main: 'Snow', description: 'weather.conditions.77', icon: '13d' },
+  80: { main: 'Rain', description: 'weather.conditions.80', icon: '09d' },
+  81: { main: 'Rain', description: 'weather.conditions.81', icon: '09d' },
+  82: { main: 'Rain', description: 'weather.conditions.82', icon: '09d' },
+  85: { main: 'Snow', description: 'weather.conditions.85', icon: '13d' },
+  86: { main: 'Snow', description: 'weather.conditions.86', icon: '13d' },
+  95: { main: 'Thunderstorm', description: 'weather.conditions.95', icon: '11d' },
+  96: { main: 'Thunderstorm', description: 'weather.conditions.96', icon: '11d' },
+  99: { main: 'Thunderstorm', description: 'weather.conditions.99', icon: '11d' },
 };
 
 export class OpenMeteoMapper {
@@ -60,7 +65,7 @@ export class OpenMeteoMapper {
   public static mapWeatherCondition(wmoCode: number, isDay: boolean = true): WeatherCondition {
     const mapping = WMO_CODES[wmoCode] || {
       main: 'Unknown',
-      description: 'Unknown weather',
+      description: 'weather.conditions.unknown',
       icon: '01d',
     };
 
@@ -140,24 +145,36 @@ export class OpenMeteoMapper {
       let currentUVIndex = 0;
       let peakTime = '12:00 PM';
       let maxUV = 0;
+      const hourly: UVIndex['hourly'] = [];
 
       if (data.hourly && data.hourly.time && data.hourly.uv_index) {
         for (let i = 0; i < data.hourly.time.length; i++) {
           const time = new Date(data.hourly.time[i]);
           const uvValue = data.hourly.uv_index[i];
+          const roundedValue = Number.isFinite(uvValue) ? Math.max(0, uvValue) : 0;
+          const levelForHour = this.calculateUVLevel(Math.round(roundedValue));
 
           // Find current hour UV
           if (time.getHours() === currentHour && time.getDate() === now.getDate()) {
-            currentUVIndex = uvValue;
+            currentUVIndex = roundedValue;
           }
 
           // Track peak UV
-          if (uvValue > maxUV) {
-            maxUV = uvValue;
+          if (roundedValue > maxUV) {
+            maxUV = roundedValue;
             peakTime = time.toLocaleTimeString('en-US', {
               hour: 'numeric',
               minute: '2-digit',
               hour12: true,
+            });
+          }
+
+          // Only collect data for the current day (matching date) to avoid mixing following days
+          if (time.getDate() === now.getDate()) {
+            hourly.push({
+              timestamp: time.getTime(),
+              value: parseFloat(roundedValue.toFixed(2)),
+              level: levelForHour,
             });
           }
         }
@@ -171,6 +188,7 @@ export class OpenMeteoMapper {
         level,
         peakTime,
         recommendations: this.generateUVRecommendations(value, level),
+        hourly,
         timestamp: Date.now(),
       };
     } catch (error) {
@@ -314,8 +332,28 @@ export class OpenMeteoMapper {
         // Calculate precipitation amount from hourly data
         const precipAmount = this.calculatePrecipitationAmount(hourly, date);
 
+        const sunrise = daily.sunrise?.[i] ?? '';
+        const sunset = daily.sunset?.[i] ?? '';
+        const daylightDurationFromApi = daily.daylight_duration?.[i];
+
+        const daylightDurationMinutes = typeof daylightDurationFromApi === 'number'
+          ? Math.round(daylightDurationFromApi / 60)
+          : sunrise && sunset
+            ? calculateDaylightDuration(sunrise, sunset)
+            : 0;
+
+        const daylight: DaylightData = {
+          sunrise,
+          sunset,
+          daylightDuration: daylightDurationMinutes,
+          solarNoon: sunrise && sunset ? calculateSolarNoon(sunrise, sunset) : '',
+        };
+
         days.push({
           date,
+          sunrise: daylight.sunrise,
+          sunset: daylight.sunset,
+          daylight,
           temperature: temps,
           condition: this.mapWeatherCondition(daily.weather_code[i]),
           precipitation: {
@@ -422,4 +460,3 @@ export class OpenMeteoMapper {
     return count > 0 ? Math.round(totalHumidity / count) : 60;
   }
 }
-
