@@ -45,7 +45,10 @@ describe('WeatherService', () => {
 
       (openMeteoClient.getCurrentWeather as jest.Mock).mockResolvedValue(mockWeatherResponse);
       (openMeteoClient.getUVIndex as jest.Mock).mockResolvedValue({
-        hourly: { uv_index: [6] },
+        hourly: {
+          time: [new Date().toISOString()],
+          uv_index: [6],
+        },
       });
 
       // First call without location details
@@ -103,6 +106,64 @@ describe('WeatherService', () => {
     });
   });
 
+  it('maps daylight data into forecast days', async () => {
+    const hourlyTime = [
+      '2025-01-01T00:00:00Z',
+      '2025-01-01T06:00:00Z',
+      '2025-01-01T12:00:00Z',
+      '2025-01-01T18:00:00Z',
+    ];
+
+    (openMeteoClient.getForecast as jest.Mock).mockResolvedValue({
+      hourly: {
+        time: hourlyTime,
+        temperature_2m: [12, 16, 22, 18],
+        relative_humidity_2m: [80, 70, 60, 65],
+        uv_index: [0, 3, 7, 2],
+        wind_speed_10m: [5, 7, 9, 6],
+        wind_direction_10m: [180, 200, 220, 190],
+        precipitation_probability: [10, 20, 40, 30],
+        cloud_cover: [20, 30, 40, 50],
+        weather_code: [0, 0, 1, 2],
+      },
+      daily: {
+        time: ['2025-01-01'],
+        temperature_2m_max: [24],
+        temperature_2m_min: [12],
+        uv_index_max: [9],
+        precipitation_probability_max: [40],
+        wind_speed_10m_max: [12],
+        wind_direction_10m_dominant: [210],
+        sunrise: ['2025-01-01T06:32:00Z'],
+        sunset: ['2025-01-01T18:21:00Z'],
+        daylight_duration: [42360],
+      },
+    });
+
+    const forecast = await weatherService.getForecast(mockCoordinates);
+
+    expect(forecast.days[0].sunrise).toBeDefined();
+    expect(forecast.days[0].sunset).toBeDefined();
+    expect(forecast.days[0].daylight.daylightDuration).toBeGreaterThan(0);
+    expect(forecast.days[0].daylight.solarNoon).not.toBe('');
+  });
+
+  it('returns hourly uv points alongside summary', async () => {
+    const nowIso = new Date().toISOString();
+    (openMeteoClient.getUVIndex as jest.Mock).mockResolvedValue({
+      hourly: {
+        time: [nowIso, new Date(Date.now() + 3600000).toISOString()],
+        uv_index: [4.2, 6.1],
+      },
+    });
+
+    const uv = await weatherService.getUVIndex(mockCoordinates);
+
+    expect(uv.hourly.length).toBeGreaterThan(0);
+    expect(uv.hourly[0].timestamp).toBeGreaterThan(0);
+    expect(uv.hourly[0].value).toBeGreaterThanOrEqual(0);
+  });
+
   describe('Cache Validation', () => {
     it('should return cached data when coordinates match and cache is fresh', async () => {
       const mockResponse = {
@@ -118,7 +179,10 @@ describe('WeatherService', () => {
 
       (openMeteoClient.getCurrentWeather as jest.Mock).mockResolvedValue(mockResponse);
       (openMeteoClient.getUVIndex as jest.Mock).mockResolvedValue({
-        hourly: { uv_index: [6] },
+        hourly: {
+          time: [new Date().toISOString()],
+          uv_index: [6],
+        },
       });
 
       // First call
@@ -145,7 +209,10 @@ describe('WeatherService', () => {
 
       (openMeteoClient.getCurrentWeather as jest.Mock).mockResolvedValue(mockResponse);
       (openMeteoClient.getUVIndex as jest.Mock).mockResolvedValue({
-        hourly: { uv_index: [6] },
+        hourly: {
+          time: [new Date().toISOString()],
+          uv_index: [6],
+        },
       });
 
       // First location
@@ -173,7 +240,10 @@ describe('WeatherService', () => {
 
       (openMeteoClient.getCurrentWeather as jest.Mock).mockResolvedValue(mockResponse);
       (openMeteoClient.getUVIndex as jest.Mock).mockResolvedValue({
-        hourly: { uv_index: [6] },
+        hourly: {
+          time: [new Date().toISOString()],
+          uv_index: [6],
+        },
       });
 
       // First call
@@ -205,7 +275,10 @@ describe('WeatherService', () => {
       // First successful call
       (openMeteoClient.getCurrentWeather as jest.Mock).mockResolvedValueOnce(mockResponse);
       (openMeteoClient.getUVIndex as jest.Mock).mockResolvedValue({
-        hourly: { uv_index: [6] },
+        hourly: {
+          time: [new Date().toISOString()],
+          uv_index: [6],
+        },
       });
 
       const firstResult = await weatherService.getWeatherData(mockCoordinates);
@@ -276,7 +349,10 @@ describe('WeatherService', () => {
 
       (openMeteoClient.getCurrentWeather as jest.Mock).mockResolvedValue(mockResponse);
       (openMeteoClient.getUVIndex as jest.Mock).mockResolvedValue({
-        hourly: { uv_index: [6] },
+        hourly: {
+          time: [new Date().toISOString()],
+          uv_index: [6],
+        },
       });
 
       // Populate cache
