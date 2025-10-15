@@ -50,11 +50,20 @@ export const WeatherCard = React.memo<WeatherCardProps>(({
       style={styles.container}
       onPress={onPress}
       accessibilityRole={onPress ? "button" : undefined}
+      {/*
+        ACCESSIBILITY & NULL SAFETY: Use optional chaining (?.) to safely access nested properties.
+        - data.location?.city: Returns undefined if location is null/undefined, fallback to 'Unknown location'
+        - data.current?.condition?.description: Safely access condition translation key (e.g., "weather.conditions.2")
+        - t(key): Translates the key to current language (pt-BR shows "Parcialmente nublado", en shows "Partly cloudy")
+        - Fallback to 'Unknown': If key doesn't exist or is falsy, shows 'Unknown' instead of raw key
+
+        This prevents crashes from undefined data while ensuring proper i18n translation of weather conditions.
+      */}
       accessibilityLabel={t('accessibility.weatherCard.summary', {
         defaultValue: 'Weather for {{city}}. Temperature {{temperature}}. {{description}}',
-        city: data.location.city,
+        city: data.location?.city || 'Unknown location',
         temperature: temperatureDisplay,
-        description: data.current.condition.description,
+        description: data.current?.condition?.description ? t(data.current.condition.description) : 'Unknown',
       })}
     >
       <View style={styles.header}>
@@ -85,8 +94,13 @@ export const WeatherCard = React.memo<WeatherCardProps>(({
           <Text style={styles.emoji}>
             {getWeatherEmoji(data.current.condition.wmoCode || 0)}
           </Text>
+          {/*
+            TRANSLATION: condition.description is an i18n key like "weather.conditions.2"
+            The t() function translates it to the current language.
+            If translation key is missing or null, falls back to 'Unknown' to prevent exposing raw keys.
+          */}
           <Text variant="body1" style={{ color: colors.onSurface }}>
-            {data.current.condition.description}
+            {data.current?.condition?.description ? t(data.current.condition.description) : 'Unknown'}
           </Text>
         </View>
       </View>

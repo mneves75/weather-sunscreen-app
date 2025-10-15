@@ -11,15 +11,18 @@
  */
 
 import { Text } from '@/src/components/ui';
+import { WeatherIcon } from '@/src/components/ui/WeatherIcon';
+import { UVIndexBar } from '@/src/components/weather/UVIndexBar';
 import { useHaptics } from '@/src/hooks/useHaptics';
 import { useColors, useGlassAvailability } from '@/src/theme';
 import { getStaggerDelay } from '@/src/theme/animations';
 import { ForecastDay } from '@/src/types';
-import { formatShortDate, getRelativeDayLabel, getWeatherEmoji } from '@/src/utils';
+import { formatShortDate, getRelativeDayLabel } from '@/src/utils';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { GlassView } from 'expo-glass-effect';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AccessibilityInfo, Animated, Easing, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { AccessibilityInfo, Animated, Easing, Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 interface ForecastDayCardProps {
   day: ForecastDay;
@@ -95,13 +98,23 @@ export const ForecastDayCard = React.memo<ForecastDayCardProps>(({
   const highTemp = formatTemperature ? formatTemperature(day.temperature.max) : `${Math.round(day.temperature.max)}°`;
   const lowTemp = formatTemperature ? formatTemperature(day.temperature.min) : `${Math.round(day.temperature.min)}°`;
   
+  {/*
+    ACCESSIBILITY LABEL: Build a comprehensive description for screen readers.
+    - day.condition?.description: i18n key like "weather.conditions.2" (safely accessed with ?.)
+    - t(key): Translates to current language before including in accessibility string
+    - ?? 0: Nullish coalesce operator - use 0 if uvIndex.max is null/undefined (cleaner than || 0)
+
+    The order is critical: translate condition first, then pass translated string to main i18n string.
+    This ensures screen reader users get natural language (e.g., "Tuesday. Partly cloudy. High 28...")
+    instead of raw keys (e.g., "Tuesday. weather.conditions.2. High 28...").
+  */}
   const accessibilityLabel = t('forecast.daySummary', {
     defaultValue: '{{day}}. {{condition}}. High {{high}}, Low {{low}}. UV Index {{uv}}',
     day: dayLabel,
-    condition: day.condition.description,
+    condition: day.condition?.description ? t(day.condition.description) : 'Unknown',
     high: highTemp,
     low: lowTemp,
-    uv: day.uvIndex.max,
+    uv: day.uvIndex?.max ?? 0,
   });
 
   // Card content (used in both glass and solid variants)
@@ -117,8 +130,11 @@ export const ForecastDayCard = React.memo<ForecastDayCardProps>(({
       </View>
       
       <View style={styles.conditionContainer}>
-        {/* TODO: Replace emoji with SF Symbols (iOS) or Material Icons (Android) */}
-        <Text style={styles.emoji}>{getWeatherEmoji(day.condition.wmoCode || 0)}</Text>
+        <WeatherIcon
+          wmoCode={day.condition.wmoCode || 0}
+          size={32}
+          color={colors.secondary}
+        />
         <Text variant="caption" style={{ color: colors.onSurfaceVariant }}>
           {day.condition.main}
         </Text>
@@ -137,15 +153,23 @@ export const ForecastDayCard = React.memo<ForecastDayCardProps>(({
         <Text variant="caption" style={{ color: colors.onSurfaceVariant }}>
           {t('forecast.uvLabel', 'UV')}
         </Text>
-        <Text variant="body2" style={{ color: colors.onSurface }}>
+        <UVIndexBar
+          value={day.uvIndex.max}
+          height={8}
+          variant="compact"
+        />
+        <Text variant="body2" style={[styles.uvValue, { color: colors.onSurface }]}>
           {day.uvIndex.max}
         </Text>
       </View>
       
       {day.precipitation.probability > 0 && (
         <View style={styles.precipContainer}>
-          {/* TODO: Replace emoji with SF Symbol (drop.fill) or Material Icon (water_drop) */}
-          <Text style={styles.rainEmoji}>💧</Text>
+          {Platform.OS === 'ios' ? (
+            <Ionicons name="water" size={16} color={colors.primary} />
+          ) : (
+            <MaterialCommunityIcons name="water" size={16} color={colors.primary} />
+          )}
           <Text variant="caption" style={{ color: colors.primary }}>
             {Math.round(day.precipitation.probability)}%
           </Text>
@@ -238,9 +262,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 4,
   },
-  emoji: {
-    fontSize: 32,
-  },
   temperatureContainer: {
     flex: 1,
     flexDirection: 'row',
@@ -249,9 +270,14 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   uvContainer: {
-    flex: 0.8,
-    alignItems: 'center',
-    gap: 2,
+    flex: 1,
+    alignItems: 'stretch',
+    justifyContent: 'center',
+    gap: 4,
+    minWidth: 72,
+  },
+  uvValue: {
+    textAlign: 'center',
   },
   precipContainer: {
     flex: 0.7,
@@ -259,8 +285,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 4,
-  },
-  rainEmoji: {
-    fontSize: 16,
   },
 });

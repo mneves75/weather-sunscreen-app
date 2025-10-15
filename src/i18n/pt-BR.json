@@ -21,7 +21,38 @@
     "cloudCover": "Cobertura de Nuvens",
     "lastUpdated": "Última atualização",
     "refreshing": "Atualizando...",
-    "pullToRefresh": "Puxe para atualizar"
+    "pullToRefresh": "Puxe para atualizar",
+    "conditions": {
+      "0": "Céu claro",
+      "1": "Principalmente limpo",
+      "2": "Parcialmente nublado",
+      "3": "Nublado",
+      "45": "Neblina",
+      "48": "Neblina com geada",
+      "51": "Garoa leve",
+      "53": "Garoa moderada",
+      "55": "Garoa densa",
+      "56": "Garoa congelante leve",
+      "57": "Garoa congelante densa",
+      "61": "Chuva leve",
+      "63": "Chuva moderada",
+      "65": "Chuva forte",
+      "66": "Chuva congelante leve",
+      "67": "Chuva congelante forte",
+      "71": "Queda de neve leve",
+      "73": "Queda de neve moderada",
+      "75": "Queda de neve forte",
+      "77": "Grãos de neve",
+      "80": "Pancadas de chuva leves",
+      "81": "Pancadas de chuva moderadas",
+      "82": "Pancadas de chuva violentas",
+      "85": "Pancadas de neve leves",
+      "86": "Pancadas de neve fortes",
+      "95": "Tempestade",
+      "96": "Tempestade com granizo leve",
+      "99": "Tempestade com granizo forte",
+      "unknown": "Clima desconhecido"
+    }
   },
   "uv": {
     "title": "Índice UV",
@@ -42,6 +73,15 @@
       "veryHigh": "Muito Alto",
       "extreme": "Extremo"
     }
+  },
+  "daylight": {
+    "title": "Luz do dia",
+    "solarNoon": "Meio-dia solar",
+    "peakUV": "UV máximo",
+    "duration": "Luz do dia",
+    "sunrise": "Nascer do sol",
+    "sunset": "Pôr do sol",
+    "accessibilityArc": "Arco de luz do dia mostrando {{hours}} horas e {{minutes}} minutos de luz solar"
   },
   "forecast": {
     "title": "Previsão",

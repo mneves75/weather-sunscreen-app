@@ -14,7 +14,7 @@
  * <TemperatureDisplay
  *   temperature={24}
  *   unit="C"
- *   condition="Partly Cloudy"
+ *   condition="weather.conditions.2"
  *   weatherType="cloudy"
  * />
  * ```
@@ -106,14 +106,29 @@ export function TemperatureDisplay({
     >
       <Animated.View style={[styles.content, animatedStyle]}>
         {/* Hero temperature */}
-        <Text style={[styles.temperature, { color: colors.text }]}>
+        <Text style={[styles.temperature, { color: colors.onSurface }]}>
           {temperature}°
         </Text>
 
-        {/* Condition */}
-        <Text style={[styles.condition, { color: colors.textSecondary }]}>
-          {condition}
-        </Text>
+        {/* Condition: i18n translation key (e.g., "weather.conditions.2" for "Partly cloudy") */}
+        {/*
+          LAYOUT FIX: Wrapped in View to constrain width and prevent text overflow.
+          - conditionWrapper: Constrains width to 85% of parent, ensuring long translations don't break layout
+          - numberOfLines={2}: Limits text to maximum 2 lines, preventing excessive height
+          - ellipsizeMode="tail": Adds "..." truncation if text exceeds space
+
+          This fixes the bug where weather condition text created a large rectangle overlapping other UI.
+          The combination of width constraint + line limit prevents layout issues with all languages.
+        */}
+        <View style={styles.conditionWrapper}>
+          <Text
+            style={[styles.condition, { color: colors.onSurfaceVariant }]}
+            numberOfLines={2}
+            ellipsizeMode="tail"
+          >
+            {t(condition)}
+          </Text>
+        </View>
       </Animated.View>
     </GlassView>
   );
@@ -152,6 +167,11 @@ const styles = StyleSheet.create({
     letterSpacing: -1.5,    // Tighter for large sizes
     lineHeight: 84,         // 1.1 ratio
     textAlign: 'center',
+  },
+  conditionWrapper: {
+    maxWidth: '85%',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   condition: {
     fontSize: 22,

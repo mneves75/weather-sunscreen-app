@@ -198,13 +198,33 @@ export default function WeatherDetailScreen() {
     );
   }
 
-  // Helper: Determine weather type for gradient/tinting
-  const getWeatherType = (condition: string): WeatherType => {
-    const lowerCondition = condition.toLowerCase();
-    if (lowerCondition.includes('sun') || lowerCondition.includes('clear')) return 'sunny';
-    if (lowerCondition.includes('rain') || lowerCondition.includes('storm')) return 'rainy';
-    if (lowerCondition.includes('cloud') || lowerCondition.includes('overcast')) return 'cloudy';
-    if (lowerCondition.includes('snow') || lowerCondition.includes('ice')) return 'snowy';
+  /*
+    HARDENED WEATHER TYPE DETECTION: Map API condition.main to visual theme.
+
+    CRITICAL FIX: Changed from .includes() to exact === matching for reliability.
+    - includes() is fragile: "Thunderstorm" contains "storm" but also contains "Thund"
+    - === matching is explicit and predictable
+
+    The Open-Meteo API returns these values for condition.main:
+      Clear, Clouds, Rain, Drizzle, Thunderstorm, Snow, Fog
+
+    We match case-insensitively (.toLowerCase()) and allow synonyms for robustness:
+      - 'clear'/'sunny' -> sunny theme (blue tint, bright background)
+      - 'rain'/'thunderstorm'/'drizzle' -> rainy theme (gray tint)
+      - 'clouds'/'cloudy'/'overcast'/'fog' -> cloudy theme (light gray tint)
+      - 'snow' -> snowy theme (light blue tint)
+      - anything else -> default theme (safe fallback)
+
+    This prevents edge cases where typos or unexpected values crash the UI.
+  */
+  const getWeatherType = (condition?: string): WeatherType => {
+    if (!condition) return 'default';
+    const lowerCondition = condition.toLowerCase().trim();
+    // Use exact match for reliability (API returns: Clear, Clouds, Rain, Drizzle, Thunderstorm, Snow, Fog)
+    if (lowerCondition === 'clear' || lowerCondition === 'sunny') return 'sunny';
+    if (lowerCondition === 'rain' || lowerCondition === 'thunderstorm' || lowerCondition === 'drizzle') return 'rainy';
+    if (lowerCondition === 'clouds' || lowerCondition === 'cloudy' || lowerCondition === 'overcast' || lowerCondition === 'fog') return 'cloudy';
+    if (lowerCondition === 'snow') return 'snowy';
     return 'default';
   };
 
@@ -261,9 +281,9 @@ export default function WeatherDetailScreen() {
           },
         ]}
       >
-        <WeatherGradient weatherType={getWeatherType(weatherData.current.condition.description)}>
+        <WeatherGradient weatherType={getWeatherType(weatherData.current?.condition?.main || 'default')}>
           <View style={styles.headerContent}>
-            {weatherData.location && (
+            {weatherData?.location && (
               <View style={styles.locationWrapper}>
                 <LocationDisplay
                   location={weatherData.location}
@@ -272,10 +292,10 @@ export default function WeatherDetailScreen() {
               </View>
             )}
             <TemperatureDisplay
-              temperature={weatherData.current.temperature}
+              temperature={weatherData.current?.temperature ?? 0}
               unit={preferences.temperatureUnit === 'celsius' ? 'C' : 'F'}
-              condition={weatherData.current.condition.description}
-              weatherType={getWeatherType(weatherData.current.condition.description)}
+              condition={weatherData.current?.condition?.description || 'weather.conditions.unknown'}
+              weatherType={getWeatherType(weatherData.current?.condition?.main || 'default')}
             />
           </View>
         </WeatherGradient>
