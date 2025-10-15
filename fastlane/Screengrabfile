@@ -1,6 +1,6 @@
-app_package_name("com.mneves.weather_suncreen_app")
+app_package_name("com.mneves.weather_sunscreen_app")
 locales(["en-US", "pt-BR"])
 clear_previous_screenshots(true)
 output_directory("./fastlane/screenshots/android")
-use_tests_in_packages(["com.mneves.weather_suncreen_app"])
+use_tests_in_packages(["com.mneves.weather_sunscreen_app"])
 test_instrumentation_runner("androidx.test.runner.AndroidJUnitRunner")

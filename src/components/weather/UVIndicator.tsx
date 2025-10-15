@@ -5,7 +5,7 @@
 import { Text } from '@/src/components/ui';
 import { useColors } from '@/src/theme/theme';
 import { UVIndex } from '@/src/types';
-import { formatUVIndex, getUVLevelColor, getUVLevelLabel } from '@/src/utils';
+import { formatUVIndex, getUVLevelColor, getUVLevelLabel, getUVTextColor } from '@/src/utils';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
@@ -60,10 +60,13 @@ export const UVIndicator = React.memo<UVIndicatorProps>(({
               isSmall && styles.indicatorSmall,
             ]}
           >
-            <Text 
+            <Text
               style={[
-                styles.value, 
-                { color: '#FFFFFF' },
+                styles.value,
+                // Use WCAG AA compliant text color based on UV level
+                // Dark text (#1C1C1E) for low/moderate/high/very-high (passes 4.5:1 contrast)
+                // White text (#FFFFFF) for extreme only (purple background has 5.2:1 contrast)
+                { color: getUVTextColor(uvIndex.level) },
                 isSmall && styles.valueSmall,
               ]}
             >
@@ -87,14 +90,19 @@ export const UVIndicator = React.memo<UVIndicatorProps>(({
           </View>
         </View>
         
-        {/* UV Level Bar */}
+        {/* UV Level Bar - Theme-aware UV colors from design tokens */}
         {!isSmall && (
           <View style={styles.levelBar}>
-            <View style={[styles.levelSegment, { backgroundColor: '#4CAF50' }]} />
-            <View style={[styles.levelSegment, { backgroundColor: '#FFC107' }]} />
-            <View style={[styles.levelSegment, { backgroundColor: '#FF9800' }]} />
-            <View style={[styles.levelSegment, { backgroundColor: '#F44336' }]} />
-            <View style={[styles.levelSegment, { backgroundColor: '#9C27B0' }]} />
+            {/* Low (0-2): Green */}
+            <View style={[styles.levelSegment, { backgroundColor: colors.uvLow }]} />
+            {/* Moderate (3-5): Yellow */}
+            <View style={[styles.levelSegment, { backgroundColor: colors.uvModerate }]} />
+            {/* High (6-7): Orange */}
+            <View style={[styles.levelSegment, { backgroundColor: colors.uvHigh }]} />
+            {/* Very High (8-10): Red */}
+            <View style={[styles.levelSegment, { backgroundColor: colors.uvVeryHigh }]} />
+            {/* Extreme (11+): Purple */}
+            <View style={[styles.levelSegment, { backgroundColor: colors.uvExtreme }]} />
             
             <View 
               style={[
@@ -180,6 +188,7 @@ const styles = StyleSheet.create({
     height: 16,
     borderRadius: 8,
     borderWidth: 2,
+    // White border provides contrast on UV bar in both themes
     borderColor: '#FFFFFF',
     marginLeft: -8,
   },

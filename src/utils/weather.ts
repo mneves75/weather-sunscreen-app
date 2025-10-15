@@ -161,40 +161,28 @@ export function formatCloudCover(cloudCover: number): string {
 }
 
 /**
- * Get humidity level description
+ * Get humidity level description as i18n key
+ * Returns i18n key like 'weather.humidity.veryDry'
+ * Component should call t() to translate the key
  */
 export function getHumidityLevel(humidity: number, locale: string = 'en'): string {
-  if (locale === 'pt-BR') {
-    if (humidity < 30) return 'Muito Seco';
-    if (humidity < 50) return 'Seco';
-    if (humidity < 70) return 'Confortável';
-    if (humidity < 85) return 'Úmido';
-    return 'Muito Úmido';
-  }
-  
-  if (humidity < 30) return 'Very Dry';
-  if (humidity < 50) return 'Dry';
-  if (humidity < 70) return 'Comfortable';
-  if (humidity < 85) return 'Humid';
-  return 'Very Humid';
+  if (humidity < 30) return 'weather.humidity.veryDry';
+  if (humidity < 50) return 'weather.humidity.dry';
+  if (humidity < 70) return 'weather.humidity.comfortable';
+  if (humidity < 85) return 'weather.humidity.humid';
+  return 'weather.humidity.veryHumid';
 }
 
 /**
- * Get wind speed description
+ * Get wind speed description as i18n key
+ * Returns i18n key like 'weather.windSpeed.calm'
+ * Component should call t() to translate the key
  */
 export function getWindDescription(speedKmh: number, locale: string = 'en'): string {
-  if (locale === 'pt-BR') {
-    if (speedKmh < 5) return 'Calmo';
-    if (speedKmh < 20) return 'Brisa Leve';
-    if (speedKmh < 40) return 'Brisa Moderada';
-    if (speedKmh < 60) return 'Vento Forte';
-    return 'Vento Muito Forte';
-  }
-  
-  if (speedKmh < 5) return 'Calm';
-  if (speedKmh < 20) return 'Light Breeze';
-  if (speedKmh < 40) return 'Moderate Breeze';
-  if (speedKmh < 60) return 'Strong Wind';
-  return 'Very Strong Wind';
+  if (speedKmh < 5) return 'weather.windSpeed.calm';
+  if (speedKmh < 20) return 'weather.windSpeed.lightBreeze';
+  if (speedKmh < 40) return 'weather.windSpeed.moderateBreeze';
+  if (speedKmh < 60) return 'weather.windSpeed.strongWind';
+  return 'weather.windSpeed.veryStrongWind';
 }
 

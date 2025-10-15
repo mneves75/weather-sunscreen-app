@@ -19,6 +19,7 @@ import { useHaptics } from '@/src/hooks/useHaptics';
 import { useColors, useGlassAvailability, useTheme } from '@/src/theme';
 import { getStaggerDelay } from '@/src/theme/animations';
 import { tokens } from '@/src/theme/tokens';
+import Constants from 'expo-constants';
 import { GlassView } from 'expo-glass-effect';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -223,7 +224,6 @@ export default function SettingsScreen() {
               triggerHaptic('success');
             }
           }}
-          rightElement={<Text style={[styles.chevron, { color: colors.onSurfaceVariant }]}>›</Text>}
         />
 
         <Divider />
@@ -291,7 +291,6 @@ export default function SettingsScreen() {
               preferences.temperatureUnit === 'celsius' ? 'fahrenheit' : 'celsius'
             );
           }}
-          rightElement={<Text style={[styles.chevron, { color: colors.onSurfaceVariant }]}>›</Text>}
         />
 
         <Divider />
@@ -309,7 +308,6 @@ export default function SettingsScreen() {
             const nextUnit = units[(currentIndex + 1) % units.length];
             updatePreference('speedUnit', nextUnit);
           }}
-          rightElement={<Text style={[styles.chevron, { color: colors.onSurfaceVariant }]}>›</Text>}
         />
 
         <Divider />
@@ -327,7 +325,6 @@ export default function SettingsScreen() {
             const nextUnit = units[(currentIndex + 1) % units.length];
             updatePreference('pressureUnit', nextUnit);
           }}
-          rightElement={<Text style={[styles.chevron, { color: colors.onSurfaceVariant }]}>›</Text>}
         />
 
         <Divider />
@@ -342,7 +339,6 @@ export default function SettingsScreen() {
             const nextFormat = formats[(currentIndex + 1) % formats.length];
             void updatePreference('timeFormat', nextFormat);
           }}
-          rightElement={<Text style={[styles.chevron, { color: colors.onSurfaceVariant }]}>›</Text>}
         />
       </AnimatedSettingSection>
       
@@ -362,50 +358,6 @@ export default function SettingsScreen() {
         />
       </AnimatedSettingSection>
 
-      {/* Notifications Section */}
-      <AnimatedSettingSection
-        index={4}
-        title={t('settings.notifications')}
-        accessibilityLabel={t('settings.notificationsSection')}
-      >
-
-        <SettingItem
-          title={t('settings.notificationsToggle')}
-          subtitle={t('settings.comingSoon')}
-          rightElement={
-            <Switch
-              value={preferences.notificationsEnabled}
-              onValueChange={(value) => {
-                triggerHaptic('medium');
-                updatePreference('notificationsEnabled', value);
-              }}
-              trackColor={{ false: colors.surfaceVariant, true: colors.primary }}
-              thumbColor={preferences.notificationsEnabled ? colors.onPrimary : colors.onSurfaceVariant}
-              disabled
-            />
-          }
-        />
-
-        <Divider />
-
-        <SettingItem
-          title={t('settings.uvAlerts')}
-          subtitle={t('settings.comingSoon')}
-          rightElement={
-            <Switch
-              value={preferences.uvAlerts}
-              onValueChange={(value) => {
-                triggerHaptic('medium');
-                updatePreference('uvAlerts', value);
-              }}
-              trackColor={{ false: colors.surfaceVariant, true: colors.primary }}
-              thumbColor={preferences.uvAlerts ? colors.onPrimary : colors.onSurfaceVariant}
-              disabled
-            />
-          }
-        />
-      </AnimatedSettingSection>
-      
       {/* Reset Section */}
       <TouchableOpacity
         style={[styles.resetButton, { backgroundColor: colors.errorContainer }]}
@@ -422,7 +374,7 @@ export default function SettingsScreen() {
           {t('settings.appName')}
         </Text>
         <Text variant="caption" style={{ color: colors.onSurfaceVariant, textAlign: 'center' }}>
-          {t('settings.versionLabel', { version: '1.0.0' })}
+          {t('settings.versionLabel', { version: Constants.expoConfig?.version || '1.1.0' })}
         </Text>
       </View>
     </ScrollView>

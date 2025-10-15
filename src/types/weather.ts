@@ -39,11 +39,18 @@ export interface WeatherData {
   uvIndex?: UVIndex;
 }
 
+export interface UVHourlyPoint {
+  timestamp: number;
+  value: number;
+  level: UVLevel;
+}
+
 export interface UVIndex {
   value: number;
   level: UVLevel;
   peakTime?: string;
   recommendations: UVRecommendation[];
+  hourly: UVHourlyPoint[];
   timestamp: number;
 }
 
@@ -55,8 +62,18 @@ export interface UVRecommendation {
   priority: 'low' | 'medium' | 'high';
 }
 
+export interface DaylightData {
+  sunrise: string;
+  sunset: string;
+  daylightDuration: number; // minutes
+  solarNoon: string;
+}
+
 export interface ForecastDay {
   date: string;
+  sunrise: string;
+  sunset: string;
+  daylight: DaylightData;
   temperature: {
     min: number;
     max: number;
@@ -134,6 +151,9 @@ export interface OpenMeteoDailyData {
   precipitation_probability_max: number[];
   wind_speed_10m_max: number[];
   wind_direction_10m_dominant: number[];
+  sunrise: string[];
+  sunset: string[];
+  daylight_duration?: number[];
 }
 
 export interface OpenMeteoUVIndex {

@@ -17,7 +17,7 @@ This guide will help you get the Weather Sunscreen App running on your device in
 ### 1. Install Dependencies
 
 ```bash
-cd weather-suncreen-app
+cd weather-sunscreen-app
 npm install
 ```
 
@@ -363,6 +363,6 @@ You should now have the Weather Sunscreen App running on your device. Explore th
 
 ---
 
-**Version**: 1.0.0  
+**Version**: 1.1.0  
 **Last Updated**: October 1, 2025  
 **Status**: ✅ Ready for Development Testing

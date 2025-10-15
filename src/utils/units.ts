@@ -163,10 +163,15 @@ export function formatVisibility(
   return `${km.toFixed(1)} km`;
 }
 
-// Wind direction conversion (degrees to cardinal)
+/**
+ * Wind direction conversion (degrees to cardinal direction i18n key)
+ * Returns i18n key like 'weather.cardinal.N'
+ * Component should call t() to translate the key
+ */
 export function degreesToCardinal(degrees: number): string {
   const directions = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
   const index = Math.round(degrees / 22.5) % 16;
-  return directions[index];
+  const cardinal = directions[index];
+  return `weather.cardinal.${cardinal}`;
 }
 

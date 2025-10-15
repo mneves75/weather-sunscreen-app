@@ -136,7 +136,7 @@ export const ForecastDayCard = React.memo<ForecastDayCardProps>(({
           color={colors.secondary}
         />
         <Text variant="caption" style={{ color: colors.onSurfaceVariant }}>
-          {day.condition.main}
+          {t(`weather.main.${day.condition.main}`)}
         </Text>
       </View>
       

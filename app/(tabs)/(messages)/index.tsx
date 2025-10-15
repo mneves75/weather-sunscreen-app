@@ -311,62 +311,13 @@ export default function MessagesScreen() {
         />
       )}
 
-      {/* Selection mode toolbar with Glass */}
+      {/* Selection mode toolbar - Always solid background for better legibility on primary color */}
       {isSelectionMode && (
-        canUseGlass ? (
-          <GlassView 
-            style={styles.glassToolbar}
-            glassEffectStyle="regular"
-            tintColor={colors.primary}
-            accessibilityRole="toolbar"
-            accessibilityLabel={t('messages.selectionMode', 'Selection mode active')}
-          >
-            <View style={styles.toolbarContent}>
-              <TouchableOpacity 
-                onPress={handleToggleSelectionMode}
-                accessibilityRole="button"
-                accessibilityLabel={t('messages.cancelSelection', 'Cancel selection')}
-              >
-                <Text variant="body2" style={[styles.selectionText, { color: colors.onPrimary }]}>
-                  {t('common.cancel', 'Cancel')}
-                </Text>
-              </TouchableOpacity>
-
-              {selectedIds.length > 0 && (
-                <>
-                  <Text variant="body2" style={[styles.selectionText, { color: colors.onPrimary }]}>
-                    {t('messages.selectedCount', '{{count}} selected', { count: selectedIds.length })}
-                  </Text>
-
-                  <TouchableOpacity 
-                    onPress={handleBatchMarkAsRead}
-                    accessibilityRole="button"
-                    accessibilityLabel={t('messages.markSelectedAsRead', 'Mark selected as read')}
-                  >
-                    <Text variant="body2" style={[styles.selectionText, { color: colors.onPrimary }]}>
-                      {t('messages.markRead', 'Mark Read')}
-                    </Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity 
-                    onPress={handleBatchDelete}
-                    accessibilityRole="button"
-                    accessibilityLabel={t('messages.deleteSelected', 'Delete selected messages')}
-                  >
-                    <Text variant="body2" style={[styles.selectionText, { color: colors.onPrimary }]}>
-                      {t('common.delete', 'Delete')}
-                    </Text>
-                  </TouchableOpacity>
-                </>
-              )}
-            </View>
-          </GlassView>
-        ) : (
-          <View 
-            style={[styles.solidToolbar, { backgroundColor: colors.primary }]}
-            accessibilityRole="toolbar"
-            accessibilityLabel={t('messages.selectionMode', 'Selection mode active')}
-          >
+        <View
+          style={[styles.solidToolbar, { backgroundColor: colors.primary }]}
+          accessibilityRole="toolbar"
+          accessibilityLabel={t('messages.selectionMode', 'Selection mode active')}
+        >
             <TouchableOpacity 
               onPress={handleToggleSelectionMode}
               accessibilityRole="button"
@@ -405,7 +356,6 @@ export default function MessagesScreen() {
               </>
             )}
           </View>
-        )
       )}
 
       {/* Quick actions (when not in selection mode) */}

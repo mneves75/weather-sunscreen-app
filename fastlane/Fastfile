@@ -27,8 +27,8 @@ platform :android do
     ensure_bundle_exec
     screengrab(
       clear_previous_screenshots: true,
-      app_package_name: "com.mneves.weather_suncreen_app",
-      use_tests_in_packages: ["com.mneves.weather_suncreen_app"],
+      app_package_name: "com.mneves.weather_sunscreen_app",
+      use_tests_in_packages: ["com.mneves.weather_sunscreen_app"],
       test_instrumentation_runner_argument: {
         "clearPackageData" => "true"
       }

@@ -58,7 +58,7 @@ Fastlane sequentially runs the iOS and Android lanes, producing a complete scree
 ## Customisation Tips
 
 - **Locales / devices**: edit `Snapfile` and `Screengrabfile` to add or remove languages and hardware targets.
-- **Test flows**: update `ios/weathersuncreenappUITests/WeatherSunscreenAppUITests.swift` and `android/app/src/androidTest/.../ScreenshotTest.kt` to drive additional screens.
+- **Test flows**: update `ios/weathersunscreenappUITests/WeatherSunscreenAppUITests.swift` and `android/app/src/androidTest/.../ScreenshotTest.kt` to drive additional screens.
 - **Clean runs**: pass `erase_simulator: true` to `snapshot` or add `clearPackageData` arguments in `Screengrabfile` if you need a fully fresh environment.
 
 ## Troubleshooting

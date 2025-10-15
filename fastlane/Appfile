@@ -1,4 +1,4 @@
-app_identifier("com.mneves.weather-suncreen-app")
+app_identifier("com.mneves.weather-sunscreen-app")
 apple_id(ENV.fetch("APP_STORE_CONNECT_USERNAME", "apple-id@example.com"))
 itc_team_id(ENV.fetch("APP_STORE_CONNECT_TEAM_ID", ""))
 team_id("Q96FUTC5G8")

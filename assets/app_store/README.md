@@ -143,8 +143,8 @@ Replace these placeholder URLs with your actual website URLs:
 
 ### Bundle and Package Identifiers
 Ensure these match your application configuration:
-- **iOS**: `com.mneves.weather-suncreen-app`
-- **Android**: `com.mneves.weather_suncreen_app`
+- **iOS**: `com.mneves.weather-sunscreen-app`
+- **Android**: `com.mneves.weather_sunscreen_app`
 
 ### Feature Graphic Requirements
 - **Google Play**: 1024 x 500 pixels required

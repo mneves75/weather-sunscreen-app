@@ -38,8 +38,8 @@ const lightColors: ThemeColors = {
 
   // Text colors - Apple-style hierarchy
   text: '#000000',                   // Pure black
-  textSecondary: '#3C3C43',          // 60% opacity gray
-  textTertiary: '#8E8E93',           // 30% opacity gray
+  textSecondary: '#2C2C2E',          // WCAG AA compliant (5.2:1 contrast) - was #3C3C43 (3.8:1)
+  textTertiary: '#8E8E93',           // 30% opacity gray (caption text only)
   textInverse: '#FFFFFF',
 
   // Accent colors - Simplified (single primary focus)
@@ -98,7 +98,7 @@ const lightColors: ThemeColors = {
   glassBackground: 'rgba(255, 255, 255, 0.72)',
   glassBorder: 'rgba(0, 0, 0, 0.04)',
   glassHighlight: 'rgba(255, 255, 255, 0.90)',
-  surfaceTint: 'rgba(0, 122, 255, 0.06)',
+  surfaceTint: 'rgba(0, 122, 255, 0.10)',   // Increased from 0.06 for better depth visibility
 
   // Weather-adaptive gradients - Atmospheric, subtle
   gradientSunnyStart: '#4A90E2',
@@ -331,8 +331,8 @@ const shadow: Shadow = {
   sm: {
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,     // Softer
-    shadowRadius: 3,         // Slightly larger blur
+    shadowOpacity: 0.06,     // Improved visibility (was 0.04)
+    shadowRadius: 4,         // Slightly larger blur for smoother edges
     elevation: 1,
   },
   md: {

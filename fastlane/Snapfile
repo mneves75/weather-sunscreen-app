@@ -9,7 +9,7 @@ languages([
   "en-US"
 ])
 
-workspace("./ios/weathersuncreenapp.xcworkspace")
+workspace("./ios/weathersunscreenapp.xcworkspace")
 scheme("weathersunscreenapp")
 output_directory("./fastlane/screenshots/ios")
 clear_previous_screenshots(true)

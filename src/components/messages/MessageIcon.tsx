@@ -2,13 +2,14 @@
  * Message Icon Component
  * Displays icons for different message categories and severities
  *
- * Modernized with:
- * - Theme-aware colors
- * - Proper semantic color usage
- * - No hardcoded rgba values
+ * Fully theme-aware implementation:
+ * - Uses theme tokens for all colors (adapts to light/dark mode)
+ * - Semantic color mapping (error, warning, info, UV levels)
+ * - No hardcoded hex values
  */
 
 import type { MessageCategory, MessageSeverity } from '@/src/types';
+import type { ThemeColors } from '@/src/types/theme';
 import { useColors } from '@/src/theme';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
@@ -38,21 +39,69 @@ function getCategoryIcon(category: MessageCategory): string {
 }
 
 /**
- * Get background color for message category
+ * Get theme-aware background color for message category and severity
+ *
+ * CRITICAL: This function replaces all hardcoded Material Design colors with theme tokens.
+ * All colors automatically adapt to light/dark mode via the theme system.
+ *
+ * Color mapping strategy:
+ * - Weather alerts: Use standard severity colors (error/warning/info)
+ * - UV alerts: Use UV-specific color scale (uvVeryHigh/uvHigh/uvLow)
+ * - System messages: Use accent purple for brand consistency
+ * - Info messages: Use info blue for informational states
+ *
+ * Theme tokens ensure:
+ * 1. Automatic light/dark mode adaptation
+ * 2. Consistent color palette across the app
+ * 3. WCAG accessibility compliance
+ * 4. Easy theme customization in one place (tokens.ts)
+ *
+ * @param category - Message category (weather-alert, uv-alert, system, info)
+ * @param severity - Message severity (critical, warning, info)
+ * @param colors - Theme colors object from useColors() hook
+ * @returns Hex color string for the icon background
  */
-function getCategoryColor(category: MessageCategory, severity: MessageSeverity): string {
-  // Colors based on Material Design color palette
+function getCategoryColor(
+  category: MessageCategory,
+  severity: MessageSeverity,
+  colors: ThemeColors
+): string {
   switch (category) {
     case 'weather-alert':
-      return severity === 'critical' ? '#B3261E' : severity === 'warning' ? '#F57C00' : '#00639D';
+      // Weather alerts use standard severity colors
+      // Critical: Red (#FF453A light, #FF453A dark) - Severe weather warnings
+      // Warning: Yellow (#FFD60A) - Moderate weather alerts
+      // Info: Blue (#64D2FF) - General weather updates
+      return severity === 'critical'
+        ? colors.error      // Red for critical weather (storms, extreme temps)
+        : severity === 'warning'
+        ? colors.warning    // Yellow for warnings (rain, wind)
+        : colors.info;      // Blue for informational alerts
+
     case 'uv-alert':
-      return severity === 'critical' ? '#FF6F00' : severity === 'warning' ? '#FFB74D' : '#4CAF50';
+      // UV alerts use UV-specific color scale for consistency with UV indicator
+      // Critical: Red (UV 8-10) - Dangerous UV levels, avoid sun exposure
+      // Warning: Orange (UV 6-7) - High UV, protection required
+      // Info: Green (UV 0-2) - Safe UV levels, minimal protection needed
+      return severity === 'critical'
+        ? colors.uvVeryHigh  // Red for dangerous UV (8-10)
+        : severity === 'warning'
+        ? colors.uvHigh      // Orange for high UV (6-7)
+        : colors.uvLow;      // Green for safe UV (0-2)
+
     case 'system':
-      return '#6200EE';
+      // System messages use accent purple for brand consistency
+      // Example: App updates, feature announcements, system maintenance
+      return colors.accent;  // Purple (#5E5CE6 light, #BF5AF2 dark)
+
     case 'info':
-      return '#2196F3';
+      // Info messages use info blue for informational states
+      // Example: Tips, tutorials, general information
+      return colors.info;    // Light blue (#64D2FF)
+
     default:
-      return '#6200EE';
+      // Fallback to accent purple for unknown categories
+      return colors.accent;
   }
 }
 
@@ -63,7 +112,7 @@ export function MessageIcon({
 }: MessageIconProps) {
   const colors = useColors();
   const icon = getCategoryIcon(category);
-  const backgroundColor = getCategoryColor(category, severity);
+  const backgroundColor = getCategoryColor(category, severity, colors);
 
   return (
     <View

@@ -46,7 +46,7 @@ First, generate PNG files from the SVG source:
 
 ```bash
 # Navigate to project root
-cd /Users/mvneves/dev/MOBILE/weather-suncreen-app
+cd /Users/mvneves/dev/MOBILE/weather-sunscreen-app
 
 # Run the icon generation script
 bun run generate-icons
@@ -106,7 +106,7 @@ cp assets/images/icon-liquid-glass-1024.png assets/images/AppIcon.appiconset/ico
 **Option A: Using Xcode Asset Catalog (Recommended)**
 
 1. Open Xcode and your project
-2. Navigate to `ios/weathersuncreenapp/Images.xcassets`
+2. Navigate to `ios/weathersunscreenapp/Images.xcassets`
 3. Select or create an AppIcon asset
 4. In the Attributes Inspector, enable "Supports Liquid Glass"
 5. Drag `icon-liquid-glass-1024.png` into the 1024x1024 slot
@@ -151,7 +151,7 @@ If you have a native iOS project (CNG workflow):
 
 ```bash
 # Copy .icon file to iOS project
-cp assets/images/AppIcon.icon ios/weathersuncreenapp/Images.xcassets/AppIcon.appiconset/
+cp assets/images/AppIcon.icon ios/weathersunscreenapp/Images.xcassets/AppIcon.appiconset/
 
 # Update Info.plist if needed
 # The icon should be automatically detected by the build system
