@@ -13,6 +13,63 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - _Nothing yet._
 
+## [1.2.0] - 2025-10-15
+
+### Added
+- **Type-Safe Internationalization System** - Production-ready i18n with compile-time validation
+  - Created `src/types/i18n.ts` with I18N_KEYS constants and TypeScript union types
+  - Type-safe keys prevent typos at compile time: HumidityLevelKey, WindLevelKey, CardinalKey, AdvisoryKey
+  - Exhaustive type checking with `as const` assertion on direction arrays
+  - All weather utility functions now return typed i18n keys instead of hardcoded strings
+  - Refactored getWeatherAdvisory() to return typed advisory keys with consistent pattern
+  - Updated components to use t() wrapper for all translatable content
+
+- **Input Validation & Edge Case Handling** - Defensive programming for utility functions
+  - getHumidityLevel(): Validates input, clamps to 0-100 range, handles NaN/Infinity with safe defaults
+  - getWindDescription(): Validates input, handles invalid values gracefully
+  - degreesToCardinal(): Proper degree normalization (handles negative and > 360 values)
+  - All functions include console warnings for invalid inputs (debugging assistance)
+  - Prevents silent failures and improves code reliability
+
+- **Advisory Translation System** - Localized weather advisories in 2 languages
+  - Added weather.advisories section to both en.json and pt-BR.json
+  - 5 advisory types: thunderstorm, bringUmbrella, snowConditions, extremeHeat, extremeCold
+  - Portuguese translations: "Alerta de tempestade", "Leve um guarda-chuva", etc.
+  - Advisory logic: thunderstorm > temperature > precipitation (priority-based)
+
+- **Comprehensive Unit Tests (31 Tests)** - Full coverage for utility functions
+  - Boundary condition tests (humidity 0-100, wind 0-200, degrees 0-360)
+  - Edge case tests (NaN, Infinity, negative values, out-of-range)
+  - Translation file validation (ensures keys exist in both languages)
+  - All 31 tests passing with 100% success rate
+  - Created `src/utils/__tests__/weather.test.ts` with professional test structure
+
+- **Metro Configuration for Bundling** - Offline iOS builds without Metro dev server
+  - Created `metro.config.js` using Expo's getDefaultConfig
+  - Enables JavaScript bundling for release builds and CI/CD
+  - Supports additional file extensions (cjs, mjs) for compatibility
+
+- **iOS Build Scripts** - Production-ready bundling workflows
+  - `scripts/build-ios-bundle.sh` - Metro-based bundle creation for Xcode
+  - `scripts/build-ios-bundle-expo.sh` - Expo export method (alternative)
+  - `scripts/xcode-bundle-react-native.sh` - Xcode run script phase integration
+  - All scripts include colorized output and helpful next steps guidance
+
+### Fixed
+- **Code Quality & Maintainability** - Removed dead code and excessive documentation
+  - Removed unused locale parameters from utility function calls (getWindDescription, getHumidityLevel)
+  - Reduced excessive inline documentation from 54 lines → 3 lines header
+  - Cleaned up verbose comments in components
+  - Maintained code clarity through type safety instead of comments
+  - Applied John Carmack standards for pragmatic code
+
+### Changed
+- **i18n Architecture Evolution** - Improved naming for nested objects
+  - Renamed `weather.windSpeed` → `weather.windLevels` to avoid key collision with main "Wind" label
+  - Renamed `weather.humidity` → `weather.humidityLevels` for consistency
+  - Added new `weather.wind` label key ("Wind" / "Vento")
+  - Prevents i18n key overwrites and improves clarity
+
 ## [1.1.1] - 2025-10-15
 
 ### Fixed

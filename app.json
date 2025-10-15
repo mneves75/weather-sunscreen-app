@@ -2,7 +2,7 @@
   "expo": {
     "name": "weather-sunscreen-app",
     "slug": "weather-sunscreen-app",
-    "version": "1.1.1",
+    "version": "1.2.0",
     "orientation": "portrait",
     "icon": "./assets/icon-liquid-glass-source.png",
     "scheme": "weathersunscreenapp",
