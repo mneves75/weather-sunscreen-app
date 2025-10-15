@@ -13,10 +13,10 @@
     "title": "Weather",
     "currentConditions": "Current Conditions",
     "temperature": "Temperature",
-    "feelsLike": "Feels like",
+    "feelsLike": "Feels Like",
     "humidity": "Humidity",
     "pressure": "Pressure",
-    "windSpeed": "Wind Speed",
+    "wind": "Wind",
     "visibility": "Visibility",
     "cloudCover": "Cloud Cover",
     "lastUpdated": "Last updated",
@@ -62,14 +62,14 @@
       "Snow": "Snow",
       "Fog": "Fog"
     },
-    "windSpeed": {
+    "windLevels": {
       "calm": "Calm",
       "lightBreeze": "Light Breeze",
       "moderateBreeze": "Moderate Breeze",
       "strongWind": "Strong Wind",
       "veryStrongWind": "Very Strong Wind"
     },
-    "humidity": {
+    "humidityLevels": {
       "veryDry": "Very Dry",
       "dry": "Dry",
       "comfortable": "Comfortable",

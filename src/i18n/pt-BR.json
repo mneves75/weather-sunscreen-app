@@ -13,10 +13,10 @@
     "title": "Clima",
     "currentConditions": "Condições Atuais",
     "temperature": "Temperatura",
-    "feelsLike": "Sensação térmica",
+    "feelsLike": "Sensação Térmica",
     "humidity": "Umidade",
     "pressure": "Pressão",
-    "windSpeed": "Velocidade do Vento",
+    "wind": "Vento",
     "visibility": "Visibilidade",
     "cloudCover": "Cobertura de Nuvens",
     "lastUpdated": "Última atualização",
@@ -62,14 +62,14 @@
       "Snow": "Neve",
       "Fog": "Neblina"
     },
-    "windSpeed": {
+    "windLevels": {
       "calm": "Calmo",
       "lightBreeze": "Brisa Leve",
       "moderateBreeze": "Brisa Moderada",
       "strongWind": "Vento Forte",
       "veryStrongWind": "Vento Muito Forte"
     },
-    "humidity": {
+    "humidityLevels": {
       "veryDry": "Muito Seco",
       "dry": "Seco",
       "comfortable": "Confortável",

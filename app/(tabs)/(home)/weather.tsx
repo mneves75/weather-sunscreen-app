@@ -385,7 +385,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   locationWrapper: {
-    marginBottom: spacing.md,
+    marginBottom: spacing.xl,
     alignItems: 'center',
   },
   scrollView: {
