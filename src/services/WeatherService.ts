@@ -409,6 +409,8 @@ class WeatherService {
         },
         timestamp: Date.now(),
       },
+      // Provide UV data even when we're offline so the UI can keep rendering.
+      uvIndex: this.getMockUVIndex(),
     };
   }
 
@@ -451,6 +453,14 @@ class WeatherService {
       hourly,
       timestamp: Date.now(),
     };
+  }
+
+  /**
+   * Expose a safe mock UV value for contexts that need to display something even when API calls fail.
+   * We keep the actual generator private so the mock shape stays consistent in one place.
+   */
+  public getFallbackUVIndex(): UVIndex {
+    return this.getMockUVIndex();
   }
 
   /**
