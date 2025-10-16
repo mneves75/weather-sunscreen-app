@@ -15,7 +15,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.mneves.weather-sunscreen-app",
+      "bundleIdentifier": "com.mneves.weather-suncreen-app",
       "infoPlist": {
         "UIBackgroundModes": [
           "fetch",
@@ -42,7 +42,7 @@
         "android.permission.ACCESS_FINE_LOCATION",
         "android.permission.FOREGROUND_SERVICE"
       ],
-      "package": "com.mneves.weather_sunscreen_app"
+      "package": "com.mneves.weather-suncreen-app"
     },
     "web": {
       "bundler": "metro",
