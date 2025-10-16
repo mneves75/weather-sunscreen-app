@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **Bundle ID Standardization** - Aligned Android package name with iOS format
+  - Updated Android package from `com.mneves.weather_sunscreen_app` to `com.mneves.weather-suncreen-app`
+  - Changed Android namespace in build.gradle to match iOS bundle ID format
+  - Android applicationId now uses consistent hyphenated format across both platforms
+  - Note: Intentional typo maintained for App Store Connect compatibility
+
 ### Added
 - _Nothing yet._
 
