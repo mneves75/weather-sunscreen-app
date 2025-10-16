@@ -3,7 +3,7 @@
  * Navigation for messages with detail view
  */
 
-import { useColors } from '@/src/theme/theme';
+import { useColors } from '../../../src/theme/theme';
 import { Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 

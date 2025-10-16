@@ -13,6 +13,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - _Nothing yet._
 
+## [1.2.1] - 2025-10-16
+
+### Fixed
+- **Import Path Resolution** - Fixed relative import path in Messages layout tab
+  - Changed from path alias `@/src/theme/theme` to explicit relative path `../../../src/theme/theme`
+  - Resolves module resolution issues in nested route structures
+- **Build Script Syntax** - Fixed Expo export parameter in iOS bundling script
+  - Changed from `--dev false` to `--dev=false` for proper flag handling
+  - Made build script executable (755 permissions)
+  - Ensures successful iOS bundle generation in CI/CD environments
+- **Critical GlassView Layout Fix** - Fixed text overflow and layout constraints in TemperatureDisplay
+  - Added explicit `width: '100%'` and `overflow: 'hidden'` to container for GlassView boundary containment
+  - Changed condition text constraint from percentage-based (`maxWidth: '85%'`) to pixel-based (`maxWidth: 280`)
+  - Percentage constraints can fail on GlassView due to native rendering; pixel-based ensures text wraps properly
+  - Added `flexShrink: 1` to prevent flex layout overflow
+  - Added `flexWrap: 'wrap'` to condition text for proper line breaking
+  - Added horizontal padding (`paddingHorizontal: spacing.sm`) to content for breathing room
+  - **Impact:** Portuguese translations with longer condition text (e.g., "Nublado") now render properly without overflow
+- **Defensive UV Index Logging** - Added comprehensive logging and defensive programming to UV refresh flow
+  - Added detailed info logging when UV index fetches successfully (value, level, location)
+  - Added explicit comment explaining WeatherService always returns valid data (real, cached, or mock)
+  - Added defensive catch block comment clarifying error handling expectations
+  - Improved debuggability for UV index refresh operations
+
 ## [1.2.0] - 2025-10-15
 
 ### Added

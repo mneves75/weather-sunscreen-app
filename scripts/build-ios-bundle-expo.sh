@@ -23,7 +23,7 @@ echo -e "${YELLOW}Exporting with Expo...${NC}"
 npx expo export \
   --platform ios \
   --output-dir ios/dist \
-  --dev false
+  --dev=false
 
 # Step 3: Create symbolic link for Xcode compatibility
 echo -e "${YELLOW}Setting up for Xcode...${NC}"
