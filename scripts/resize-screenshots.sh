@@ -3,7 +3,8 @@
 # Resize iOS Screenshots to App Store Connect Requirements
 # Automatically resizes simulator screenshots to correct dimensions
 
-set -e
+# Note: Not using 'set -e' to allow graceful handling of all screenshots
+# even if individual operations fail
 
 SCREENSHOT_DIR="fastlane/screenshots/ios/en-US"
 
@@ -43,12 +44,15 @@ echo ""
 resized_count=0
 skipped_count=0
 
-while IFS= read -r screenshot; do
+# Use for loop to iterate through files (more reliable than while read)
+for screenshot in "$SCREENSHOT_DIR"/*.png; do
+  [ -f "$screenshot" ] || continue
+
   filename=$(basename "$screenshot")
 
-  # Get current dimensions
-  width=$(sips -g pixelWidth "$screenshot" | tail -1 | awk '{print $2}')
-  height=$(sips -g pixelHeight "$screenshot" | tail -1 | awk '{print $2}')
+  # Get current dimensions using sips
+  width=$(sips -g pixelWidth "$screenshot" 2>/dev/null | tail -1 | awk '{print $2}')
+  height=$(sips -g pixelHeight "$screenshot" 2>/dev/null | tail -1 | awk '{print $2}')
 
   if [ "$width" -eq "$TARGET_WIDTH" ] && [ "$height" -eq "$TARGET_HEIGHT" ]; then
     echo -e "${GREEN}✓${NC} $filename - Already ${width}x${height}"
@@ -56,12 +60,12 @@ while IFS= read -r screenshot; do
   else
     echo -e "${YELLOW}→${NC} $filename - Resizing from ${width}x${height} to ${TARGET_WIDTH}x${TARGET_HEIGHT}"
 
-    # Resize in place
-    sips -z "$TARGET_HEIGHT" "$TARGET_WIDTH" "$screenshot" --out "$screenshot" > /dev/null
+    # Resize in place using sips
+    sips -z "$TARGET_HEIGHT" "$TARGET_WIDTH" "$screenshot" --out "$screenshot" > /dev/null 2>&1 || true
 
-    # Verify resize
-    new_width=$(sips -g pixelWidth "$screenshot" | tail -1 | awk '{print $2}')
-    new_height=$(sips -g pixelHeight "$screenshot" | tail -1 | awk '{print $2}')
+    # Verify resize completed
+    new_width=$(sips -g pixelWidth "$screenshot" 2>/dev/null | tail -1 | awk '{print $2}')
+    new_height=$(sips -g pixelHeight "$screenshot" 2>/dev/null | tail -1 | awk '{print $2}')
 
     if [ "$new_width" -eq "$TARGET_WIDTH" ] && [ "$new_height" -eq "$TARGET_HEIGHT" ]; then
       echo -e "${GREEN}✓${NC} $filename - Resized successfully"
@@ -70,7 +74,7 @@ while IFS= read -r screenshot; do
       echo -e "${RED}✗${NC} $filename - Resize failed (got ${new_width}x${new_height})"
     fi
   fi
-done <<< "$screenshots"
+done
 
 echo ""
 echo -e "${GREEN}==================================="
