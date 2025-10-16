@@ -89,6 +89,11 @@ export function WeatherProvider({ children }: WeatherProviderProps) {
         : data;
 
       setWeatherData(enrichedData);
+      if (enrichedData.uvIndex) {
+        // Mirror UV data from the weather payload so UI renders even if the dedicated UV fetch fails.
+        setUVIndex(enrichedData.uvIndex);
+        setUVError(null);
+      }
     } catch (error) {
       logger.error('Failed to refresh weather', error as Error, 'WEATHER');
       setWeatherError(error as Error);
@@ -153,9 +158,10 @@ export function WeatherProvider({ children }: WeatherProviderProps) {
       // Update state with UV data (ensures UI has data to display)
       setUVIndex(data);
     } catch (error) {
-      // WeatherService has internal error handling and never throws
-      // This catch is defensive programming in case unexpected errors occur
+      // If the network request fails, fall back to a deterministic mock so the UI still renders.
       logger.error('Failed to refresh UV', error as Error, 'WEATHER');
+      const fallbackUV = weatherService.getFallbackUVIndex();
+      setUVIndex(fallbackUV);
       setUVError(error as Error);
     } finally {
       setIsLoadingUV(false);

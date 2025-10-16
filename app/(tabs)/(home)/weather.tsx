@@ -20,9 +20,9 @@ import { useColors, useGlassAvailability } from '@/src/theme';
 import { getStaggerDelay } from '@/src/theme/animations';
 import { tokens } from '@/src/theme/tokens';
 import { GlassView } from 'expo-glass-effect';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AccessibilityInfo, Animated, Easing, Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import { AccessibilityInfo, Animated, Easing, LayoutChangeEvent, Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import Feather from '@expo/vector-icons/Feather';
 
 const { spacing, borderRadius } = tokens;
@@ -141,6 +141,9 @@ export default function WeatherDetailScreen() {
 
   // Check for reduce motion accessibility preference
   const [reduceMotion, setReduceMotion] = useState(false);
+  // Track header height so we can push content far enough down to avoid overlap with the parallax card.
+  // Start slightly larger than the minimum card height so initial renders on slower devices still have safe spacing.
+  const [headerHeight, setHeaderHeight] = useState(320);
 
   useEffect(() => {
     AccessibilityInfo.isReduceMotionEnabled().then(setReduceMotion);
@@ -247,6 +250,15 @@ export default function WeatherDetailScreen() {
     extrapolate: 'clamp',
   });
 
+  const handleHeaderLayout = useCallback((event: LayoutChangeEvent) => {
+    const { height } = event.nativeEvent.layout;
+    // Avoid state churn from minor measurement jitter during animations. Small sub-pixel changes caused by
+    // parallax transforms should not re-render the whole screen.
+    if (Math.abs(height - headerHeight) > 2) {
+      setHeaderHeight(height);
+    }
+  }, [headerHeight]);
+
   // Metric chip data for quick insights
   const metricChips = [
     {
@@ -282,7 +294,7 @@ export default function WeatherDetailScreen() {
         ]}
       >
         <WeatherGradient weatherType={getWeatherType(weatherData.current?.condition?.main || 'default')}>
-          <View style={styles.headerContent}>
+          <View style={styles.headerContent} onLayout={handleHeaderLayout}>
             {weatherData?.location && (
               <View style={styles.locationWrapper}>
                 <LocationDisplay
@@ -303,7 +315,12 @@ export default function WeatherDetailScreen() {
 
       <Animated.ScrollView
         style={styles.scrollView}
-        contentContainerStyle={styles.contentContainer}
+        contentContainerStyle={[
+          styles.contentContainer,
+          // Dynamically push the content below the measured header height to prevent overlap.
+          // The extra spacing.md keeps a comfortable gap between the hero card and the metric chips.
+          { paddingTop: headerHeight + spacing.md },
+        ]}
         refreshControl={
           <RefreshControl
             refreshing={isLoading}
@@ -392,7 +409,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   contentContainer: {
-    paddingTop: 320, // Account for parallax header
     paddingHorizontal: spacing.md,
     paddingBottom: spacing.xl,
   },
