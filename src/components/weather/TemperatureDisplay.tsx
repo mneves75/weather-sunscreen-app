@@ -156,10 +156,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     minHeight: 200,
+    // CRITICAL FIX: Ensure GlassView container constrains content width
+    // This prevents overflow when condition text is long (especially in pt-BR)
+    width: '100%',
+    overflow: 'hidden',
   },
   content: {
     alignItems: 'center',
     justifyContent: 'center',
+    width: '100%',
+    // Constrain content to prevent text spillover
+    paddingHorizontal: spacing.sm,
   },
   temperature: {
     fontSize: 76,
@@ -169,15 +176,21 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   conditionWrapper: {
-    maxWidth: '85%',
+    // CRITICAL: Use absolute pixel-based constraint instead of percentage
+    // Percentage constraints can fail on GlassView due to native rendering
+    // This ensures text wraps properly regardless of parent width
+    maxWidth: 280,
+    width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
+    flexShrink: 1,
   },
   condition: {
     fontSize: 26,                              // Increased from 22 for better visual prominence
     fontWeight: '400',                         // Increased from 300 for improved readability
     marginTop: spacing.md,                     // Increased from spacing.sm for better separation
     textAlign: 'center',
+    flexWrap: 'wrap',
     // Removed opacity: 0.8 for better WCAG AA contrast compliance
     // and improved readability on glass/gradient backgrounds
   },

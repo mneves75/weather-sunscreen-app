@@ -126,6 +126,9 @@ export function WeatherProvider({ children }: WeatherProviderProps) {
   }, [currentLocation, currentLocationDetails]);
 
   // Refresh UV index
+  // CRITICAL: This function fetches UV index data and updates the state.
+  // The WeatherService always returns data (real, cached, or mock), never throws.
+  // This ensures the context always has valid UV data to display.
   const refreshUV = useCallback(async () => {
     if (!currentLocation) {
       logger.warn('Cannot refresh UV: no location set', 'WEATHER');
@@ -138,8 +141,20 @@ export function WeatherProvider({ children }: WeatherProviderProps) {
     try {
       logger.info('Refreshing UV index', 'WEATHER', { location: currentLocation });
       const data = await weatherService.getUVIndex(currentLocation);
+
+      // WeatherService always returns valid data (real, cached, or mock fallback)
+      // Never returns null/undefined
+      logger.info('UV index fetched successfully', 'WEATHER', {
+        location: currentLocation,
+        uvValue: data.value,
+        uvLevel: data.level,
+      });
+
+      // Update state with UV data (ensures UI has data to display)
       setUVIndex(data);
     } catch (error) {
+      // WeatherService has internal error handling and never throws
+      // This catch is defensive programming in case unexpected errors occur
       logger.error('Failed to refresh UV', error as Error, 'WEATHER');
       setUVError(error as Error);
     } finally {
