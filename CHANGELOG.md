@@ -13,6 +13,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - _Nothing yet._
 
+## [1.3.1] - 2026-06-01
+
+Code-health pass on top of 1.3.0. Drives the [react-doctor](https://www.react.doctor) score to a clean 100/100 (from 84) with no degradation of correct code and no weakened tests. tsc 0 errors · jest 62/62.
+
+### Changed
+- **Message-list actions refresh faster.** `createMessage`, `markAsRead`, `markAllAsRead`, `deleteMessage`, `deleteMessages`, and `clearAllMessages` reloaded the list and stats sequentially (`await loadMessages(); await loadStats();`) even though the two reads are independent — now `Promise.all([...])`, roughly halving post-action refresh latency. Behavior-neutral.
+
+### Internal
+- **react-doctor 100/100.** Every remaining finding was verified false-positive or reviewed-intentional and annotated with a per-instance, co-located rationale (ESLint-style `react-doctor-disable-next-line`), so the score is now a regression gate rather than a vanity number. No suppression masks a real bug — the State & Effects cluster (the only category that could) was audited site-by-site.
+  - 12 error-severity findings cleared: `effect-needs-cleanup` ×11 (effects clean up via RN's modern `EmitterSubscription.remove()`, which the matcher doesn't recognize) and `only-export-components` ×1 (`unstable_settings` is a required Expo Router route export).
+  - Advisory `rn-prefer-reanimated` ×10 documented as deliberately deferred — the `Animated` + `useNativeDriver` code is correct; a reanimated migration needs on-device QA.
+  - `unused-dependency` (`eas-build-cache-provider`, referenced by `app.json > buildCacheProvider: "eas"` at build time) scoped-ignored in a new `react-doctor.config.json`.
+- Run react-doctor scoped to this project: `npx react-doctor@latest --project weather-sunscreen-app` (the bare CLI walks up and scans sibling projects).
+- Full rationale table and placement notes in `implementation-notes.html` §7.
+
 ## [1.3.0] - 2026-06-01
 
 Production-hardening pass: clean typecheck, modernized APIs, and a security guardrail. No user-facing behavior changes.

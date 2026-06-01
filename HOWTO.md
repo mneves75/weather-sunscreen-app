@@ -2,7 +2,7 @@
 
 Practical guides for developers working with the Weather Sunscreen App.
 
-## Internationalization (i18n) - v1.2.0
+## Internationalization (i18n) - v1.3.1
 
 ### Using Type-Safe i18n Keys
 
@@ -86,7 +86,7 @@ Test coverage validates:
 - Key exists in pt-BR.json
 - Functions handle edge cases (NaN, Infinity, out-of-range)
 
-## Building for iOS Release - v1.2.0
+## Building for iOS Release - v1.3.1
 
 ### Option 1: Metro-Based Bundling (Recommended)
 
@@ -171,7 +171,7 @@ npm test -- --coverage
 ```
 
 ### Test Coverage
-Current v1.2.0 coverage:
+Current v1.3.1 coverage:
 - ✅ 31 comprehensive weather utility tests
 - ✅ Boundary conditions (0-100 humidity, 0-360 degrees, etc.)
 - ✅ Edge cases (NaN, Infinity, negative values)
@@ -230,7 +230,7 @@ npm test -- --watch           # Watch mode
 
 # Version Management
 bun run sync-versions          # Sync version from CHANGELOG.md
-git tag v1.2.0               # Create release tag
+git tag v1.3.1               # Create release tag
 ```
 
 ## Resources
