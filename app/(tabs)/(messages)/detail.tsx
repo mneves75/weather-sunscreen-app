@@ -18,7 +18,7 @@ import { Share } from 'react-native';
 export default function MessageDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { t } = useTranslation();
-  const router = useRouter();
+  const { back } = useRouter();
 
   const {
     messages,
@@ -33,8 +33,8 @@ export default function MessageDetailScreen() {
 
   // Handle close
   const handleClose = useCallback(() => {
-    router.back();
-  }, [router]);
+    back();
+  }, [back]);
 
   // Handle mark as read (called when message is viewed)
   const handleMarkAsRead = useCallback(async () => {
@@ -47,9 +47,9 @@ export default function MessageDetailScreen() {
   const handleDelete = useCallback(async () => {
     if (message) {
       await deleteMessage(message.id);
-      router.back();
+      back();
     }
-  }, [message, deleteMessage, router]);
+  }, [message, deleteMessage, back]);
 
   // Handle share message
   const handleShare = useCallback(async () => {

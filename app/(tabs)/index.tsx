@@ -31,9 +31,9 @@ import { createFadeInComponent, createSlideUpComponent } from '@/src/theme/anima
 import { getStaggerDelay } from '@/src/theme/animations';
 import { GlassView } from 'expo-glass-effect';
 import { useRouter } from 'expo-router';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AccessibilityInfo, Alert, Animated, Linking, Platform, RefreshControl, ScrollView, StyleSheet, View, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { AccessibilityInfo, Alert, Animated, Linking, Platform, Pressable, RefreshControl, ScrollView, StyleSheet, View, ActivityIndicator } from 'react-native';
 import Feather from '@expo/vector-icons/Feather';
 
 const { spacing, borderRadius } = tokens;
@@ -41,7 +41,7 @@ const { spacing, borderRadius } = tokens;
 export default function HomeScreen() {
   const colors = useColors();
   const { canUseGlass } = useGlassAvailability();
-  const router = useRouter();
+  const { push } = useRouter();
   const { preferences } = useSettings();
   const { t } = useTranslation();
   const { trigger: triggerHaptic } = useHaptics();
@@ -233,6 +233,17 @@ export default function HomeScreen() {
   const resolvedSpf = spfRecommendation ?? 30;
   const hasError = weatherError || forecastError || uvError;
 
+  const refreshControl = useMemo(
+    () => (
+      <RefreshControl
+        refreshing={isLoading}
+        onRefresh={handleRefresh}
+        tintColor={colors.primary}
+      />
+    ),
+    [isLoading, handleRefresh, colors.primary]
+  );
+
   /*
     HARDENED WEATHER TYPE DETECTION: Map API condition.main to visual theme.
 
@@ -307,40 +318,34 @@ export default function HomeScreen() {
     <ScrollView
       style={[styles.container, { backgroundColor: colors.background }]}
       contentContainerStyle={styles.contentContainer}
-      refreshControl={
-        <RefreshControl
-          refreshing={isLoading}
-          onRefresh={handleRefresh}
-          tintColor={colors.primary}
-        />
-      }
+      refreshControl={refreshControl}
       contentInsetAdjustmentBehavior="automatic"
     >
       {/* Location Display */}
       {weatherData?.location && (
         <View style={styles.locationHeader}>
-          <TouchableOpacity
+          <Pressable
             onPress={handleRefreshPress}
             accessibilityRole="button"
             accessibilityLabel={t('home.refreshWeather')}
             disabled={isRequesting || isLoading}
-            style={[
+            style={({ pressed }) => [
               styles.refreshIconButton,
               { backgroundColor: colors.surfaceVariant },
               (isRequesting || isLoading) && styles.refreshIconButtonDisabled,
+              pressed && { opacity: 0.7 },
             ]}
-            activeOpacity={0.7}
           >
             {isRequesting || isLoading ? (
               <ActivityIndicator size="small" color={colors.primary} />
             ) : (
               <Feather name="refresh-ccw" size={20} color={colors.primary} />
             )}
-          </TouchableOpacity>
+          </Pressable>
           <View style={styles.locationDisplayWrapper}>
             <LocationDisplay
               location={weatherData.location}
-          onPress={() => router.push('/weather')}
+          onPress={() => push('/weather')}
             />
           </View>
         </View>
@@ -354,12 +359,12 @@ export default function HomeScreen() {
             transform: [{ translateY: weatherCardAnim.translateY }],
           }}
         >
-          <TouchableOpacity
+          <Pressable
             onPress={() => {
               triggerHaptic('light');
-          router.push('/weather');
+          push('/weather');
             }}
-            activeOpacity={0.9}
+            style={({ pressed }) => pressed && { opacity: 0.9 }}
             accessibilityRole="button"
             accessibilityLabel={t('accessibility.weatherCard.currentWeather', {
               temperature: weatherData.current?.temperature ?? 0,
@@ -375,7 +380,7 @@ export default function HomeScreen() {
                 weatherType={getWeatherType(weatherData.current.condition.main)}
               />
             </WeatherGradient>
-          </TouchableOpacity>
+          </Pressable>
         </Animated.View>
       ) : (
         <WeatherCardSkeleton />
@@ -389,16 +394,15 @@ export default function HomeScreen() {
             transform: [{ translateY: uvCardAnim.translateY }],
           }}
         >
-          <TouchableOpacity
+          <Pressable
             onPress={() => {
               triggerHaptic('light');
-          router.push('/uv');
+          push('/uv');
             }}
-            activeOpacity={0.9}
             accessibilityRole="button"
             accessibilityLabel={`UV Index: ${uvIndex.value}, ${uvIndex.level}`}
             accessibilityHint="Double tap to view UV details and recommendations"
-            style={styles.uvCardContainer}
+            style={({ pressed }) => [styles.uvCardContainer, pressed && { opacity: 0.9 }]}
           >
             {canUseGlass ? (
               <GlassView
@@ -461,7 +465,7 @@ export default function HomeScreen() {
                 </View>
               </View>
             )}
-          </TouchableOpacity>
+          </Pressable>
         </Animated.View>
       ) : (
         <UVCardSkeleton />
@@ -478,7 +482,7 @@ export default function HomeScreen() {
               title={t('home.viewDetails')}
               onPress={() => {
                 triggerHaptic('light');
-                router.push('/weather');
+                push('/weather');
               }}
               variant="tonal"
               size="medium"
@@ -487,7 +491,7 @@ export default function HomeScreen() {
               title={t('home.uvAndSpf')}
               onPress={() => {
                 triggerHaptic('light');
-                router.push('/uv');
+                push('/uv');
               }}
               variant="tonal"
               size="medium"
@@ -498,7 +502,7 @@ export default function HomeScreen() {
               title={t('home.sevenDayForecast')}
               onPress={() => {
                 triggerHaptic('light');
-                router.push('/forecast');
+                push('/forecast');
               }}
               variant="outlined"
               size="medium"
@@ -618,11 +622,7 @@ const styles = StyleSheet.create({
   solidCard: {
     borderRadius: borderRadius.xl,
     marginVertical: spacing.xs,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
   },
   uvCardContainer: {
     marginVertical: spacing.xs,
@@ -656,11 +656,7 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.xl,
     padding: spacing.lg,
     marginVertical: spacing.xs,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
+    boxShadow: '0px 2px 4px rgba(0,0,0,0.08)',
   },
   forecastTitle: {
     marginBottom: spacing.sm,

@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Weather Sunscreen App - A React Native mobile application built with Expo SDK 54 providing real-time weather, UV index monitoring, and personalized sunscreen recommendations. Uses React Native 0.81.4 with New Architecture (Fabric) enabled and Expo Router v6 for file-based navigation.
 
-**Current Version:** 3.1.0 (Expo SDK 54, iOS 26 support, New Architecture enabled, Jest testing infrastructure)
+**Current Version:** 1.3.0 (Expo SDK 54, iOS 26 support, New Architecture enabled, Jest testing infrastructure; versioned on the active 1.x line — the `v3.x` git tags are from an earlier experimental line)
 
 ## Reference Documentation - CRITICAL
 

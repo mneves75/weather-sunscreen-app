@@ -52,7 +52,7 @@ export function getWeatherEmoji(wmoCode: number): string {
 /**
  * Get weather condition description
  */
-export function getWeatherDescription(condition: WeatherCondition, locale: string = 'en'): string {
+function getWeatherDescription(condition: WeatherCondition, locale: string = 'en'): string {
   // Use the description from the condition object
   if (condition.description) {
     return condition.description;
@@ -86,14 +86,14 @@ export function hasThunderstorm(wmoCode: number): boolean {
 /**
  * Check if weather condition is clear/sunny
  */
-export function isClearSky(wmoCode: number): boolean {
+function isClearSky(wmoCode: number): boolean {
   return [0, 1].includes(wmoCode);
 }
 
 /**
  * Check if weather condition is cloudy
  */
-export function isCloudy(wmoCode: number): boolean {
+function isCloudy(wmoCode: number): boolean {
   return [2, 3].includes(wmoCode);
 }
 
@@ -148,14 +148,14 @@ export function getWeatherAdvisory(
 /**
  * Format humidity percentage
  */
-export function formatHumidity(humidity: number): string {
+function formatHumidity(humidity: number): string {
   return `${Math.round(humidity)}%`;
 }
 
 /**
  * Format cloud cover percentage
  */
-export function formatCloudCover(cloudCover: number): string {
+function formatCloudCover(cloudCover: number): string {
   return `${Math.round(cloudCover)}%`;
 }
 

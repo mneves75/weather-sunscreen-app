@@ -2,7 +2,7 @@
  * Settings context for user preferences
  */
 
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import React, { createContext, use, useState, useCallback, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { UserPreferences, SkinType } from '@/src/types';
 import { logger } from '@/src/services/LoggerService';
@@ -117,7 +117,7 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
  * Hook to access settings context
  */
 export function useSettings(): SettingsContextValue {
-  const context = useContext(SettingsContext);
+  const context = use(SettingsContext);
   if (context === undefined) {
     throw new Error('useSettings must be used within a SettingsProvider');
   }

@@ -32,7 +32,7 @@
  * @see docs/REF_DOC/liquid-glass-app-with-expo-ui-and-swiftui.md
  */
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, use, useState, useEffect, useCallback } from 'react';
 import { AccessibilityInfo, AppState, AppStateStatus, Platform } from 'react-native';
 
 /**
@@ -104,24 +104,24 @@ export function GlassEffectProvider({
    * We must respect this setting for WCAG compliance
    */
   useEffect(() => {
-    if (Platform.OS === 'ios' || Platform.OS === 'android') {
-      // Initial check
-      AccessibilityInfo.isReduceTransparencyEnabled()
-        .then(setReduceTransparency)
-        .catch((error) => {
-          // Fail-safe: If we can't detect, assume transparency is OK
-          console.warn('Failed to check reduce transparency setting:', error);
-          setReduceTransparency(false);
-        });
+    if (Platform.OS !== 'ios' && Platform.OS !== 'android') return;
 
-      // Listen for changes (user might toggle in Settings during app use)
-      const subscription = AccessibilityInfo.addEventListener(
-        'reduceTransparencyChanged',
-        setReduceTransparency
-      );
+    // Initial check
+    AccessibilityInfo.isReduceTransparencyEnabled()
+      .then(setReduceTransparency)
+      .catch((error) => {
+        // Fail-safe: If we can't detect, assume transparency is OK
+        console.warn('Failed to check reduce transparency setting:', error);
+        setReduceTransparency(false);
+      });
 
-      return () => subscription.remove();
-    }
+    // Listen for changes (user might toggle in Settings during app use)
+    const subscription = AccessibilityInfo.addEventListener(
+      'reduceTransparencyChanged',
+      setReduceTransparency
+    );
+
+    return () => subscription.remove();
   }, []);
 
   /**
@@ -222,7 +222,7 @@ export function GlassEffectProvider({
  * </ScrollView>
  */
 export function useGlassEffect(): GlassEffectContextType {
-  const context = useContext(GlassEffectContext);
+  const context = use(GlassEffectContext);
 
   if (context === undefined) {
     throw new Error(

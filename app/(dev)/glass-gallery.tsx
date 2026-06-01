@@ -19,7 +19,7 @@ import {
   View,
   Text,
   ScrollView,
-  TouchableOpacity,
+  Pressable,
   StyleSheet,
   Platform,
   Switch,
@@ -238,23 +238,23 @@ export default function GlassGalleryScreen() {
           </Text>
 
           <View style={styles.countControls}>
-            <TouchableOpacity
+            <Pressable
               style={[styles.countButton, { backgroundColor: colors.primary }]}
               onPress={() => setGlassCount(Math.max(1, glassCount - 1))}
             >
               <Ionicons name="remove" size={20} color="#fff" />
-            </TouchableOpacity>
+            </Pressable>
 
             <Text style={[styles.countText, { color: colors.text }]}>
               {glassCount} Glass Elements
             </Text>
 
-            <TouchableOpacity
+            <Pressable
               style={[styles.countButton, { backgroundColor: colors.primary }]}
               onPress={() => setGlassCount(Math.min(20, glassCount + 1))}
             >
               <Ionicons name="add" size={20} color="#fff" />
-            </TouchableOpacity>
+            </Pressable>
           </View>
 
           <View style={styles.stressTestGrid}>

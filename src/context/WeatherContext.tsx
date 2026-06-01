@@ -5,7 +5,7 @@
 import { alertRuleEngine, weatherService } from '@/src/services';
 import { logger } from '@/src/services/LoggerService';
 import { Coordinates, Forecast, Location, UVIndex, WeatherData } from '@/src/types';
-import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { createContext, useCallback, use, useEffect, useRef, useState } from 'react';
 
 interface WeatherContextValue {
   // State
@@ -288,7 +288,7 @@ export function WeatherProvider({ children }: WeatherProviderProps) {
  * Hook to access weather context
  */
 export function useWeather(): WeatherContextValue {
-  const context = useContext(WeatherContext);
+  const context = use(WeatherContext);
   if (context === undefined) {
     throw new Error('useWeather must be used within a WeatherProvider');
   }

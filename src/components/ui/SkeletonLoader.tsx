@@ -21,7 +21,7 @@ export function SkeletonBox({ width = '100%', height = 20, borderRadius = 8, sty
 
   return (
     <Skeleton
-      width={width}
+      width={width as number | `${number}%`}
       height={height}
       radius={borderRadius}
       colorMode={colors.text === '#F9FAFB' ? 'dark' : 'light'}

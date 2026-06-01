@@ -5,7 +5,7 @@
 
 import React from 'react';
 import {
-  TouchableOpacity,
+  Pressable,
   View,
   Text,
   StyleSheet,
@@ -223,15 +223,14 @@ export function Button({
 
   return (
     <Animated.View style={[{ transform: [{ scale }] }, fullWidth && styles.fullWidth]}>
-      <TouchableOpacity
+      <Pressable
         disabled={disabled || loading}
         onPress={handlePress}
         onPressIn={pressIn}
         onPressOut={pressOut}
-        activeOpacity={0.8}
-        style={styles.touchable}
+        style={({ pressed }) => [styles.touchable, pressed && { opacity: 0.8 }]}
       >
-        {shouldUseGradient ? (
+        {shouldUseGradient && LinearGradient ? (
           <LinearGradient
             colors={variantStyles.gradientColors as [string, string, ...string[]]}
             start={{ x: 0, y: 0 }}
@@ -243,7 +242,7 @@ export function Button({
         ) : (
           <View style={buttonStyle}>{buttonContent}</View>
         )}
-      </TouchableOpacity>
+      </Pressable>
     </Animated.View>
   );
 }

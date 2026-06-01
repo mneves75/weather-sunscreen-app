@@ -8,7 +8,7 @@ import { SkinType } from '@/src/types';
 import { getSkinTypeLabel } from '@/src/utils';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 interface SkinTypeSelectorProps {
   value: SkinType;
@@ -41,7 +41,7 @@ export const SkinTypeSelector = React.memo<SkinTypeSelectorProps>(({
           const isSelected = value === skinType;
           
           return (
-            <TouchableOpacity
+            <Pressable
               key={skinType}
               style={[
                 styles.option,
@@ -63,7 +63,7 @@ export const SkinTypeSelector = React.memo<SkinTypeSelectorProps>(({
               >
                 {getSkinTypeLabel(skinType, locale)}
               </Text>
-            </TouchableOpacity>
+            </Pressable>
           );
         })}
       </ScrollView>

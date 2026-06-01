@@ -208,8 +208,10 @@ describe('degreesToCardinal', () => {
 
 describe('getWeatherAdvisory', () => {
   const createCondition = (wmoCode: number) => ({
+    id: wmoCode,
     main: 'Test',
     description: 'Test condition',
+    icon: '01d',
     wmoCode,
   });
 

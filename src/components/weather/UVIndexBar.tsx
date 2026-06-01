@@ -3,7 +3,7 @@
  */
 
 import React, { useMemo } from 'react';
-import { Platform, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
+import { DimensionValue, Platform, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Text } from '@/src/components/ui';
 import { GlassView } from '@/src/components/glass';
@@ -115,7 +115,7 @@ export const UVIndexBar: React.FC<UVIndexBarProps> = ({
           style={[
             styles.fillWrapper,
             {
-              width: progressPercent,
+              width: progressPercent as DimensionValue,
             },
           ]}
         >
@@ -132,7 +132,7 @@ export const UVIndexBar: React.FC<UVIndexBarProps> = ({
                 {
                   backgroundColor: isDark ? colors.surface : colors.background,
                   borderColor: indicatorColor,
-                  shadowColor: indicatorColor,
+                  boxShadow: `0px 0px 4px ${indicatorColor}66`,
                 },
               ]}
             />
@@ -194,7 +194,6 @@ export const UVIndexBar: React.FC<UVIndexBarProps> = ({
         styles.solidWrapper,
         {
           backgroundColor: colors.surface,
-          shadowOpacity: 0.1,
         },
       ]}
     >
@@ -211,10 +210,7 @@ const styles = StyleSheet.create({
   solidWrapper: {
     borderRadius: borderRadius.lg,
     padding: spacing.md,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 6,
-    elevation: 3,
+    boxShadow: '0px 2px 6px rgba(0,0,0,0.1)',
   },
   container: {
     gap: spacing.sm,
@@ -250,9 +246,6 @@ const styles = StyleSheet.create({
     borderWidth: StyleSheet.hairlineWidth,
     alignSelf: 'flex-end',
     transform: [{ translateY: -2 }],
-    shadowOpacity: 0.4,
-    shadowOffset: { width: 0, height: 0 },
-    shadowRadius: 4,
   },
   // Scale labels row positioned below the UV bar
   scaleRow: {

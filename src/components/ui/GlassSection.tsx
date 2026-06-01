@@ -170,11 +170,7 @@ const styles = StyleSheet.create({
   },
   // Solid section (Android, iOS < 26, accessibility)
   solidSection: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
   },
   content: {
     // Padding applied dynamically via props

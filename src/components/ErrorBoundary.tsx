@@ -12,7 +12,7 @@
  */
 
 import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, useColorScheme } from 'react-native';
+import { View, StyleSheet, Text, Pressable, useColorScheme } from 'react-native';
 import { logger } from '@/src/services/LoggerService';
 import { diagnosticsSink } from '@/src/services/diagnosticsSink';
 
@@ -133,12 +133,11 @@ function ErrorBoundaryUI({ error, errorInfo, onReset }: { error: Error; errorInf
     stackTextColor: isDark ? 'rgba(235, 235, 245, 0.6)' : '#757575',
     buttonBg: '#007AFF', // Apple Blue - consistent across themes
     buttonText: '#FFFFFF',
-    shadowColor: '#000',
   };
 
   return (
     <View style={[styles.container, { backgroundColor: themeColors.containerBg }]}>
-      <View style={[styles.content, { backgroundColor: themeColors.contentBg, shadowColor: themeColors.shadowColor }]}>
+      <View style={[styles.content, { backgroundColor: themeColors.contentBg }]}>
         <Text style={[styles.title, { color: themeColors.titleColor }]}>Something went wrong</Text>
         <Text style={[styles.message, { color: themeColors.messageColor }]}>{error.message}</Text>
 
@@ -151,14 +150,14 @@ function ErrorBoundaryUI({ error, errorInfo, onReset }: { error: Error; errorInf
           </View>
         )}
 
-        <TouchableOpacity
+        <Pressable
           style={[styles.button, { backgroundColor: themeColors.buttonBg }]}
           onPress={onReset}
           accessibilityRole="button"
           accessibilityLabel="Try again"
         >
           <Text style={[styles.buttonText, { color: themeColors.buttonText }]}>Try Again</Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
     </View>
   );
@@ -173,15 +172,12 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   content: {
-    // backgroundColor and shadowColor set via inline style for theme awareness
+    // backgroundColor set via inline style for theme awareness
     borderRadius: 12,
     padding: 24,
     maxWidth: 400,
     width: '100%',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    boxShadow: '0px 2px 8px rgba(0,0,0,0.1)',
   },
   title: {
     fontSize: 24,

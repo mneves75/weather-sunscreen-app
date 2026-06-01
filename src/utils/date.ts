@@ -41,7 +41,7 @@ export function formatShortDate(date: Date | string | number, locale: string = '
 /**
  * Format date to long date string (e.g., "Monday, January 15, 2024")
  */
-export function formatLongDate(date: Date | string | number, locale: string = 'en'): string {
+function formatLongDate(date: Date | string | number, locale: string = 'en'): string {
   const d = typeof date === 'string' || typeof date === 'number' ? new Date(date) : date;
   
   return d.toLocaleDateString(locale, {
@@ -55,7 +55,7 @@ export function formatLongDate(date: Date | string | number, locale: string = 'e
 /**
  * Get day of week name
  */
-export function getDayName(date: Date | string | number, locale: string = 'en', short: boolean = false): string {
+function getDayName(date: Date | string | number, locale: string = 'en', short: boolean = false): string {
   const d = typeof date === 'string' || typeof date === 'number' ? new Date(date) : date;
   
   return d.toLocaleDateString(locale, {
@@ -66,7 +66,7 @@ export function getDayName(date: Date | string | number, locale: string = 'en', 
 /**
  * Check if date is today
  */
-export function isToday(date: Date | string | number): boolean {
+function isToday(date: Date | string | number): boolean {
   const d = typeof date === 'string' || typeof date === 'number' ? new Date(date) : date;
   const today = new Date();
   
@@ -80,7 +80,7 @@ export function isToday(date: Date | string | number): boolean {
 /**
  * Check if date is tomorrow
  */
-export function isTomorrow(date: Date | string | number): boolean {
+function isTomorrow(date: Date | string | number): boolean {
   const d = typeof date === 'string' || typeof date === 'number' ? new Date(date) : date;
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
@@ -128,7 +128,7 @@ export function getRelativeDayLabel(date: Date | string | number, locale: string
  * Format relative time (e.g., "5 minutes ago")
  * Uses Intl.RelativeTimeFormat for proper locale support
  */
-export function formatRelativeTime(timestamp: number, locale: string = 'en'): string {
+function formatRelativeTime(timestamp: number, locale: string = 'en'): string {
   const now = Date.now();
   const diff = now - timestamp;
   const seconds = Math.floor(diff / 1000);
@@ -175,14 +175,14 @@ export function formatRelativeTime(timestamp: number, locale: string = 'en'): st
 /**
  * Parse ISO date string to Date
  */
-export function parseISODate(dateString: string): Date {
+function parseISODate(dateString: string): Date {
   return new Date(dateString);
 }
 
 /**
  * Add days to date
  */
-export function addDays(date: Date | string | number, days: number): Date {
+function addDays(date: Date | string | number, days: number): Date {
   const d = typeof date === 'string' || typeof date === 'number'
     ? new Date(date)
     : new Date(date.getTime()); // Clone Date object by timestamp
@@ -193,7 +193,7 @@ export function addDays(date: Date | string | number, days: number): Date {
 /**
  * Get start of day
  */
-export function startOfDay(date: Date | string | number): Date {
+function startOfDay(date: Date | string | number): Date {
   const d = typeof date === 'string' || typeof date === 'number'
     ? new Date(date)
     : new Date(date.getTime()); // Clone Date object by timestamp
@@ -204,7 +204,7 @@ export function startOfDay(date: Date | string | number): Date {
 /**
  * Get end of day
  */
-export function endOfDay(date: Date | string | number): Date {
+function endOfDay(date: Date | string | number): Date {
   const d = typeof date === 'string' || typeof date === 'number'
     ? new Date(date)
     : new Date(date.getTime()); // Clone Date object by timestamp

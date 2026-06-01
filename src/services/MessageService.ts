@@ -315,9 +315,17 @@ class MessageService {
       errors: [],
     };
 
+    const indexById = new Map<string, number>();
+    for (let i = 0; i < this.messages.length; i++) {
+      const messageId = this.messages[i].id;
+      if (!indexById.has(messageId)) {
+        indexById.set(messageId, i);
+      }
+    }
+
     for (const id of ids) {
       try {
-        const index = this.messages.findIndex(m => m.id === id);
+        const index = indexById.get(id) ?? -1;
         if (index !== -1) {
           this.messages[index].isRead = true;
           result.success++;
@@ -373,12 +381,22 @@ class MessageService {
       errors: [],
     };
 
-    // Delete in reverse order to maintain indices
+    // Map id -> first matching message for O(1) lookups; entries are removed
+    // once consumed so duplicate ids behave like the prior findIndex logic.
+    const messageById = new Map<string, Message>();
+    for (const message of this.messages) {
+      if (!messageById.has(message.id)) {
+        messageById.set(message.id, message);
+      }
+    }
+
     for (const id of ids) {
       try {
-        const index = this.messages.findIndex(m => m.id === id);
+        const message = messageById.get(id);
+        const index = message ? this.messages.indexOf(message) : -1;
         if (index !== -1) {
           this.messages.splice(index, 1);
+          messageById.delete(id);
           result.success++;
         } else {
           result.failed++;

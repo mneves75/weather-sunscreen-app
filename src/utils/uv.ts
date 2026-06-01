@@ -193,7 +193,7 @@ export function getSkinTypeLabel(skinType: SkinType, locale: string = 'en'): str
  * Get protection time in minutes based on UV index and SPF
  * Formula: Protection time ≈ (SPF × Burn time without protection)
  */
-export function getProtectionTime(uvIndex: number, spf: number, skinType: SkinType): number {
+function getProtectionTime(uvIndex: number, spf: number, skinType: SkinType): number {
   // Burn time without protection (in minutes) by skin type
   const burnTime: Record<SkinType, number> = {
     'very-fair': 10,

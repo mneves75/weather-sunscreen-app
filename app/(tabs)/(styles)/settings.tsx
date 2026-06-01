@@ -23,13 +23,128 @@ import Constants from 'expo-constants';
 import { GlassView } from 'expo-glass-effect';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AccessibilityInfo, Alert, Animated, Easing, ScrollView, StyleSheet, Switch, TouchableOpacity, View } from 'react-native';
+import { AccessibilityInfo, Alert, Animated, Easing, Pressable, ScrollView, StyleSheet, Switch, View } from 'react-native';
 
 const { spacing, borderRadius } = tokens;
 
-export default function SettingsScreen() {
+type SettingItemProps = {
+  title: string;
+  subtitle?: string;
+  onPress?: () => void;
+  rightElement?: React.ReactNode;
+  accessibilityLabel?: string;
+};
+
+// Reusable Setting Item component (module scope so it isn't recreated each render)
+function SettingItem({ title, subtitle, onPress, rightElement, accessibilityLabel }: SettingItemProps) {
+  const colors = useColors();
+  return (
+    <Pressable
+      style={styles.settingItem}
+      onPress={onPress}
+      disabled={!onPress}
+      accessibilityRole={onPress ? 'button' : undefined}
+      accessibilityLabel={accessibilityLabel || `${title}${subtitle ? `, ${subtitle}` : ''}`}
+    >
+      <View style={styles.settingTextContainer}>
+        <Text variant="body1" style={{ color: colors.onSurface }}>
+          {title}
+        </Text>
+        {subtitle && (
+          <Text variant="caption" style={{ color: colors.onSurfaceVariant }}>
+            {subtitle}
+          </Text>
+        )}
+      </View>
+      {rightElement}
+    </Pressable>
+  );
+}
+
+type AnimatedSettingSectionProps = {
+  title: string;
+  children: React.ReactNode;
+  index: number;
+  reduceMotion: boolean;
+  accessibilityLabel?: string;
+};
+
+// Animated Section wrapper with staggered entrance (module scope: stable component
+// identity prevents remount-on-every-render, which previously restarted animations).
+function AnimatedSettingSection({
+  title,
+  children,
+  index,
+  reduceMotion,
+  accessibilityLabel,
+}: AnimatedSettingSectionProps) {
   const colors = useColors();
   const { canUseGlass } = useGlassAvailability();
+  const animatedOpacity = useRef(new Animated.Value(0)).current;
+  const animatedTranslateY = useRef(new Animated.Value(20)).current;
+
+  useEffect(() => {
+    if (reduceMotion) {
+      animatedOpacity.setValue(1);
+      animatedTranslateY.setValue(0);
+    } else {
+      Animated.parallel([
+        Animated.timing(animatedOpacity, {
+          toValue: 1,
+          duration: 500,
+          delay: getStaggerDelay(index, 80),
+          easing: Easing.bezier(0.4, 0.0, 0.2, 1.0),
+          useNativeDriver: true,
+        }),
+        Animated.spring(animatedTranslateY, {
+          toValue: 0,
+          delay: getStaggerDelay(index, 80),
+          damping: 15,
+          stiffness: 120,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [index, reduceMotion, animatedOpacity, animatedTranslateY]);
+
+  const animatedStyle = {
+    opacity: animatedOpacity,
+    transform: [{ translateY: animatedTranslateY }],
+  };
+
+  return (
+    <Animated.View style={animatedStyle}>
+      {canUseGlass ? (
+        <GlassView
+          style={styles.glassSection}
+          glassEffectStyle="regular"
+          tintColor={colors.surfaceTint}
+          accessibilityLabel={accessibilityLabel || title}
+        >
+          <View style={styles.sectionContent}>
+            <Text variant="h3" style={[styles.sectionTitle, { color: colors.onSurface }]}>
+              {title}
+            </Text>
+            {children}
+          </View>
+        </GlassView>
+      ) : (
+        <View
+          style={[styles.solidSection, { backgroundColor: colors.surface }]}
+          accessibilityLabel={accessibilityLabel || title}
+        >
+          <Text variant="h3" style={[styles.sectionTitle, { color: colors.onSurface }]}>
+            {title}
+          </Text>
+          {children}
+        </View>
+      )}
+    </Animated.View>
+  );
+}
+
+export default function SettingsScreen() {
+  const colors = useColors();
   const { themeMode, setThemeMode, highContrast, setHighContrast } = useTheme();
   const { preferences, updatePreference, resetPreferences } = useSettings();
   const { t, i18n } = useTranslation();
@@ -83,117 +198,7 @@ export default function SettingsScreen() {
     : preferences.timeFormat === '12h'
       ? t('settings.timeFormat12')
       : t('settings.timeFormatSystem');
-  
-  // Reusable Setting Item component
-  const SettingItem = ({ 
-    title, 
-    subtitle, 
-    onPress,
-    rightElement,
-    accessibilityLabel,
-  }: { 
-    title: string; 
-    subtitle?: string; 
-    onPress?: () => void;
-    rightElement?: React.ReactNode;
-    accessibilityLabel?: string;
-  }) => (
-    <TouchableOpacity
-      style={styles.settingItem}
-      onPress={onPress}
-      disabled={!onPress}
-      accessibilityRole={onPress ? "button" : undefined}
-      accessibilityLabel={accessibilityLabel || `${title}${subtitle ? `, ${subtitle}` : ''}`}
-    >
-      <View style={styles.settingTextContainer}>
-        <Text variant="body1" style={{ color: colors.onSurface }}>
-          {title}
-        </Text>
-        {subtitle && (
-          <Text variant="caption" style={{ color: colors.onSurfaceVariant }}>
-            {subtitle}
-          </Text>
-        )}
-      </View>
-      {rightElement}
-    </TouchableOpacity>
-  );
 
-  // Animated Section wrapper with staggered entrance
-  const AnimatedSettingSection = ({
-    title,
-    children,
-    index,
-    accessibilityLabel,
-  }: {
-    title: string;
-    children: React.ReactNode;
-    index: number;
-    accessibilityLabel?: string;
-  }) => {
-    const animatedOpacity = useRef(new Animated.Value(0)).current;
-    const animatedTranslateY = useRef(new Animated.Value(20)).current;
-
-    useEffect(() => {
-      if (reduceMotion) {
-        animatedOpacity.setValue(1);
-        animatedTranslateY.setValue(0);
-      } else {
-        Animated.parallel([
-          Animated.timing(animatedOpacity, {
-            toValue: 1,
-            duration: 500,
-            delay: getStaggerDelay(index, 80),
-            easing: Easing.bezier(0.4, 0.0, 0.2, 1.0),
-            useNativeDriver: true,
-          }),
-          Animated.spring(animatedTranslateY, {
-            toValue: 0,
-            delay: getStaggerDelay(index, 80),
-            damping: 15,
-            stiffness: 120,
-            useNativeDriver: true,
-          }),
-        ]).start();
-      }
-    }, [index, reduceMotion]);
-
-    const animatedStyle = {
-      opacity: animatedOpacity,
-      transform: [{ translateY: animatedTranslateY }],
-    };
-
-    return (
-      <Animated.View style={animatedStyle}>
-        {canUseGlass ? (
-          <GlassView
-            style={styles.glassSection}
-            glassEffectStyle="regular"
-            tintColor={colors.surfaceTint}
-            accessibilityLabel={accessibilityLabel || title}
-          >
-            <View style={styles.sectionContent}>
-              <Text variant="h3" style={[styles.sectionTitle, { color: colors.onSurface }]}>
-                {title}
-              </Text>
-              {children}
-            </View>
-          </GlassView>
-        ) : (
-          <View
-            style={[styles.solidSection, { backgroundColor: colors.surface }]}
-            accessibilityLabel={accessibilityLabel || title}
-          >
-            <Text variant="h3" style={[styles.sectionTitle, { color: colors.onSurface }]}>
-              {title}
-            </Text>
-            {children}
-          </View>
-        )}
-      </Animated.View>
-    );
-  };
-  
   return (
     <ScrollView
       style={[styles.container, { backgroundColor: colors.background }]}
@@ -202,6 +207,7 @@ export default function SettingsScreen() {
       {/* Appearance Section */}
       <AnimatedSettingSection
         index={0}
+        reduceMotion={reduceMotion}
         title={t('settings.appearance')}
         accessibilityLabel={t('settings.appearanceSection')}
       >
@@ -247,6 +253,7 @@ export default function SettingsScreen() {
       {/* Language Section */}
       <AnimatedSettingSection
         index={1}
+        reduceMotion={reduceMotion}
         title={t('settings.language')}
         accessibilityLabel={t('settings.languageSection')}
       >
@@ -277,6 +284,7 @@ export default function SettingsScreen() {
       {/* Units Section */}
       <AnimatedSettingSection
         index={2}
+        reduceMotion={reduceMotion}
         title={t('settings.units')}
         accessibilityLabel={t('settings.unitsSection')}
       >
@@ -345,6 +353,7 @@ export default function SettingsScreen() {
       {/* Skin Type Section */}
       <AnimatedSettingSection
         index={3}
+        reduceMotion={reduceMotion}
         title={t('settings.uvRecommendations')}
         accessibilityLabel={t('settings.skinTypeSection')}
       >
@@ -359,14 +368,14 @@ export default function SettingsScreen() {
       </AnimatedSettingSection>
 
       {/* Reset Section */}
-      <TouchableOpacity
+      <Pressable
         style={[styles.resetButton, { backgroundColor: colors.errorContainer }]}
         onPress={handleReset}
       >
         <Text variant="body1" style={{ color: colors.onErrorContainer }}>
           {t('settings.reset')}
         </Text>
-      </TouchableOpacity>
+      </Pressable>
       
       {/* About Section */}
       <View style={styles.aboutSection}>
@@ -403,11 +412,7 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.xl,
     padding: spacing.lg,
     marginVertical: spacing.xs,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
   },
   sectionTitle: {
     marginBottom: spacing.md,

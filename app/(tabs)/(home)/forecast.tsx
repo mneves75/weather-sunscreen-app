@@ -133,11 +133,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.lg,
     paddingHorizontal: spacing.md,
     gap: spacing.xxs,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 3,
-    elevation: 2,
+    boxShadow: '0px 2px 3px rgba(0,0,0,0.08)',
     borderBottomWidth: 1,
     // borderBottomColor set via inline style for theme awareness
   },

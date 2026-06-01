@@ -6,7 +6,7 @@
 import { Animated, Easing } from 'react-native';
 
 // Timing constants (based on Material Motion)
-export const duration = {
+const duration = {
   fastest: 100,   // Icon transitions, instant feedback
   fast: 200,      // Button taps, toggles
   moderate: 300,  // Card movements, list items
@@ -15,7 +15,7 @@ export const duration = {
 } as const;
 
 // Easing curves
-export const easing = {
+const easing = {
   // Standard easing (most common)
   standard: Easing.bezier(0.4, 0.0, 0.2, 1),
 
@@ -30,7 +30,7 @@ export const easing = {
 } as const;
 
 // Spring physics configurations - Apple-style fluid motion
-export const springs = {
+const springs = {
   // Gentle spring (cards, modals) - Softer, more fluid
   gentle: {
     stiffness: 200,      // Softer spring
@@ -57,7 +57,7 @@ export const springs = {
 } as const;
 
 // Common animation patterns
-export const animations = {
+const animations = {
   // Fade in entrance
   fadeIn: (animValue: Animated.Value, delay = 0) => {
     return Animated.timing(animValue, {
@@ -151,9 +151,9 @@ export const animations = {
 } as const;
 
 // Animation hooks and utilities
-export const createAnimatedValue = (initialValue = 0) => new Animated.Value(initialValue);
+const createAnimatedValue = (initialValue = 0) => new Animated.Value(initialValue);
 
-export const createAnimatedValueXY = (x = 0, y = 0) => new Animated.ValueXY({ x, y });
+const createAnimatedValueXY = (x = 0, y = 0) => new Animated.ValueXY({ x, y });
 
 /**
  * Calculate stagger delay for sequential animations
@@ -174,7 +174,7 @@ export const getStaggerDelay = (index: number, baseDelay: number = 80): number =
 };
 
 // Interpolation helper
-export const interpolate = (
+const interpolate = (
   animValue: Animated.Value,
   inputRange: number[],
   outputRange: number[] | string[]

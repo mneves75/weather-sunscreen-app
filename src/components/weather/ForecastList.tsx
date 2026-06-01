@@ -12,7 +12,7 @@
 import { useColors } from '@/src/theme';
 import { ForecastDay } from '@/src/types';
 import { FlashList, ListRenderItem } from '@shopify/flash-list';
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { RefreshControl, StyleSheet } from 'react-native';
 import { ForecastDayCard } from './ForecastDayCard';
 
@@ -46,23 +46,26 @@ export const ForecastList = React.memo<ForecastListProps>(({
   ), [onDayPress, locale, formatTemperature]);
   
   const keyExtractor = useCallback((item: ForecastDay) => item.date, []);
-  
+
+  const refreshControl = useMemo(
+    () =>
+      onRefresh ? (
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          tintColor={colors.primary}
+        />
+      ) : undefined,
+    [onRefresh, refreshing, colors.primary]
+  );
+
   return (
     <FlashList
       data={days}
       renderItem={renderItem}
       keyExtractor={keyExtractor}
-      estimatedItemSize={108}
       contentContainerStyle={styles.container}
-      refreshControl={
-        onRefresh ? (
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            tintColor={colors.primary}
-          />
-        ) : undefined
-      }
+      refreshControl={refreshControl}
       showsVerticalScrollIndicator={false}
     />
   );

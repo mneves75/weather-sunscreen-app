@@ -69,12 +69,7 @@ export function GlassView({
             // Formula: opacity = elevation * 0.05 (0.05 to 0.25)
             //          radius = elevation * 4 (4px to 20px)
             //          offset = elevation * 2 (2px to 10px)
-            shadowColor: '#000',
-            shadowOpacity: elevation * 0.05,
-            shadowRadius: elevation * 4,
-            shadowOffset: { width: 0, height: elevation * 2 },
-            // Android elevation support
-            elevation: Platform.OS === 'android' ? elevation * 2 : 0,
+            boxShadow: `0px ${elevation * 2}px ${elevation * 4}px rgba(0,0,0,${elevation * 0.05})`,
           },
           style,
         ]}

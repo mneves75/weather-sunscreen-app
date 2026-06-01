@@ -7,7 +7,7 @@ import { Text } from '@/src/components/ui';
 import { useColors } from '@/src/theme/theme';
 import type { Message } from '@/src/types';
 import React from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { MessageIcon } from './MessageIcon';
 
 interface MessageCardProps {
@@ -95,7 +95,7 @@ export function MessageCard({
   const categoryColor = getCategoryColor(message.category);
 
   return (
-    <TouchableOpacity
+    <Pressable
       style={[
         styles.container,
         { backgroundColor: colors.surface },
@@ -172,7 +172,7 @@ export function MessageCard({
           </View>
         </View>
       </View>
-    </TouchableOpacity>
+    </Pressable>
   );
 }
 
@@ -181,11 +181,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     marginVertical: 4,
     borderRadius: 12,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
   },
   content: {
     padding: 16,

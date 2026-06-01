@@ -58,24 +58,24 @@ export function useGlassAvailability(): GlassAvailability {
     const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
     setHasLiquidGlass(glassAvailable);
 
-    // Check accessibility preferences
-    if (Platform.OS === 'ios') {
-      AccessibilityInfo.isReduceTransparencyEnabled().then((enabled) => {
-        setShouldReduceTransparency(enabled ?? false);
-      });
+    // Accessibility preferences only observable on iOS
+    if (Platform.OS !== 'ios') return;
 
-      // Listen for changes to accessibility settings
-      const subscription = AccessibilityInfo.addEventListener(
-        'reduceTransparencyChanged',
-        (enabled) => {
-          setShouldReduceTransparency(enabled);
-        }
-      );
+    AccessibilityInfo.isReduceTransparencyEnabled().then((enabled) => {
+      setShouldReduceTransparency(enabled ?? false);
+    });
 
-      return () => {
-        subscription?.remove();
-      };
-    }
+    // Listen for changes to accessibility settings
+    const subscription = AccessibilityInfo.addEventListener(
+      'reduceTransparencyChanged',
+      (enabled) => {
+        setShouldReduceTransparency(enabled);
+      }
+    );
+
+    return () => {
+      subscription?.remove();
+    };
   }, []);
 
   return {

@@ -56,6 +56,7 @@ export interface ThemeColors {
   successContainer: string;
   onSuccessContainer: string;
   warning: string;
+  onWarning: string;
   warningLight: string;
   warningDark: string;
   warningContainer: string;

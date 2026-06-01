@@ -7,18 +7,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- _Nothing yet._
+
+### Fixed
+- _Nothing yet._
+
+## [1.3.0] - 2026-06-01
+
+Production-hardening pass: clean typecheck, modernized APIs, and a security guardrail. No user-facing behavior changes.
+
+### Fixed
+- **TypeScript now compiles clean (0 errors, was 27).** Resolved SDK 54 library API drift that `tsc` was silently flagging:
+  - AI SDK v5: `generateText` option `maxTokens` → `maxOutputTokens`.
+  - FlashList v2: removed the dropped `estimatedItemSize` prop (auto-sized now).
+  - Reanimated v4: removed the dropped `restDisplacementThreshold`/`restSpeedThreshold` spring options.
+  - expo-linear-gradient 15: `colors` now requires a non-empty tuple; added correct typing and narrowed the optional component.
+  - expo-symbols / RN 0.81 `DimensionValue`: typed `Icon`, `Skeleton`, and `UVIndexBar` style boundaries.
+  - Added the missing `onWarning` color to `ThemeColors` (already present in tokens and used by `SunscreenTracker`).
+- **Rules-of-Hooks violations** in the Weather screen (`useCallback`/`useMemo` were placed after early returns) — hoisted above the returns.
+- **Settings screen state-loss bug**: `SettingItem` and `AnimatedSettingSection` were defined inside the screen and remounted every render (restarting entrance animations); extracted to module scope.
+- **Latent UV gradient crash risk**: `getUVBarGradient` could return a single color for low UV; `LinearGradient` requires ≥2 stops — now guaranteed.
+
 ### Changed
+- **Security guardrail for AI key**: documented and warns (in production) that `EXPO_PUBLIC_ANTHROPIC_API_KEY` is inlined into the client bundle; recommends a server proxy for production. `.env.example` updated.
+- **Modernized to current React 19 / RN 0.81 (New Architecture) idioms**: `useContext` → `use()` across providers; legacy `shadow*`/`elevation` styles → cross-platform `boxShadow`; `TouchableOpacity` → `Pressable` (press feedback preserved); `useRouter()` method destructuring; memoized inline list `refreshControl`/JSX props.
 - **Bundle ID Standardization** - Aligned Android package name with iOS format
   - Updated Android package from `com.mneves.weather_sunscreen_app` to `com.mneves.weather-suncreen-app`
   - Changed Android namespace in build.gradle to match iOS bundle ID format
   - Android applicationId now uses consistent hyphenated format across both platforms
   - Note: Intentional typo maintained for App Store Connect compatibility
 
-### Added
-- _Nothing yet._
+### Removed
+- Deleted 14 unreachable/dead modules (unused barrels, `performance.ts`, `colorBlend.ts`, etc.) and dropped unused exports.
+- Removed unused dependencies `@craftzdog/react-native-buffer` and `sharp`.
 
-### Fixed
-- _Nothing yet._
+### Tooling
+- Added `npm run type-check` (`tsc --noEmit`) — previously referenced by AGENTS.md but missing.
 
 ## [1.2.1] - 2025-10-16
 

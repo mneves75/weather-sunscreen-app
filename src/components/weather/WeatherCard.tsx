@@ -8,7 +8,7 @@ import { WeatherData } from '@/src/types';
 import { formatTime, getWeatherEmoji } from '@/src/utils';
 import { useTranslation } from 'react-i18next';
 import React from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 interface WeatherCardProps {
   data: WeatherData;
@@ -38,7 +38,7 @@ export const WeatherCard = React.memo<WeatherCardProps>(({
   const colors = useColors();
   const { t } = useTranslation();
 
-  const Container = onPress ? TouchableOpacity : View;
+  const Container = onPress ? Pressable : View;
 
   // ACCESSIBILITY & NULL SAFETY: Use optional chaining (?.) to safely access nested properties.
   // - data.location?.city: Returns undefined if location is null/undefined, fallback to 'Unknown location'

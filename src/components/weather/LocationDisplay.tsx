@@ -6,7 +6,7 @@ import { Text } from '@/src/components/ui';
 import { useColors } from '@/src/theme/theme';
 import { Location } from '@/src/types';
 import React from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 interface LocationDisplayProps {
   location: Location;
@@ -21,7 +21,7 @@ export const LocationDisplay = React.memo<LocationDisplayProps>(({
 }) => {
   const colors = useColors();
   
-  const Container = onPress ? TouchableOpacity : View;
+  const Container = onPress ? Pressable : View;
   
   return (
     <Container

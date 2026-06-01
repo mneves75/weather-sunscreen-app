@@ -130,5 +130,5 @@ grep -r "runtimeVersion" docs/REF_DOC/docs_expo_dev/eas-update/
 
 ## QA & Diagnostics
 - Gate Liquid Glass UI behind both `isLiquidGlassAvailable()` and accessibility checks; fall back to elevated blur/shadow styles elsewhere.
-- After upgrading native modules, run `npm run lint`, `npm run type-check`, and targeted Jest specs; add coverage for new storage paths when adopting the `expo-sqlite` localStorage API.
+- After upgrading native modules, run `npm run type-check` (`tsc --noEmit`) and targeted Jest specs; add coverage for new storage paths when adopting the `expo-sqlite` localStorage API. (No ESLint config is checked in yet — `npm run lint` is not wired; run `npx expo lint` to set one up if desired.)
 - Capture before/after build timings when enabling precompiled React Native; if improvements do not materialize, confirm Pods are not forced through `use_frameworks!`.

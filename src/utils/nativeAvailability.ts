@@ -11,7 +11,7 @@ function resolveModule(name: string): boolean {
   return Boolean(proxyModules[name] ?? nativeModules[name]);
 }
 
-export function isNativeModuleAvailable(name: string): boolean {
+function isNativeModuleAvailable(name: string): boolean {
   if (availabilityCache[name] === undefined) {
     availabilityCache[name] = resolveModule(name);
   }

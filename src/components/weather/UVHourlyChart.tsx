@@ -65,14 +65,14 @@ export function UVHourlyChart({ data, locale = 'en' }: UVHourlyChartProps) {
 
     const tickCount = Math.min(6, trimmed.length);
     const tickEvery = Math.max(1, Math.floor(trimmed.length / tickCount));
-    const xTicks = trimmed.map((point, index) => {
+    const xTicks = trimmed.flatMap((point, index) => {
       if (index % tickEvery !== 0 && index !== trimmed.length - 1) {
-        return null;
+        return [];
       }
       const x = index * horizontalStep;
       const hour = labelFormatter.format(new Date(point.timestamp));
-      return { hour, x };
-    }).filter(Boolean) as Array<{ hour: string; x: number }>;
+      return [{ hour, x }];
+    }) as Array<{ hour: string; x: number }>;
 
     const accessibleSummary = `Peak UV ${Math.round(highest.value)} at ${labelFormatter.format(new Date(highest.timestamp))}.`;
 

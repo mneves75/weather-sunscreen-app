@@ -62,7 +62,7 @@ export function WeatherGradient({
     opacity: opacity.value,
   }));
 
-  const gradientColors = getWeatherGradient(weatherType, colors);
+  const gradientColors = getWeatherGradient(weatherType, colors) as [string, string, ...string[]];
 
   return (
     <AnimatedLinearGradient

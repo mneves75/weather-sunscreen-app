@@ -20,7 +20,7 @@
  */
 
 import React, { useEffect } from 'react';
-import { View, StyleSheet, ViewStyle } from 'react-native';
+import { View, StyleSheet, ViewStyle, DimensionValue } from 'react-native';
 import Animated, {
   useSharedValue,
   withRepeat,
@@ -57,7 +57,7 @@ export function Skeleton({ children, style }: SkeletonContainerProps) {
 }
 
 interface SkeletonRectProps {
-  width: number | string;
+  width: DimensionValue;
   height: number;
   borderRadius?: number;
   style?: ViewStyle;
@@ -149,7 +149,7 @@ function SkeletonCircle({ size, style }: SkeletonCircleProps) {
 }
 
 interface SkeletonTextProps {
-  width: number | string;
+  width: DimensionValue;
   height?: number;
   style?: ViewStyle;
 }

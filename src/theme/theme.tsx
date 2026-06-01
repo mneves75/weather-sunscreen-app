@@ -2,7 +2,7 @@
  * Theme system with context provider, hooks, and AsyncStorage persistence
  */
 
-import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
+import React, { createContext, use, useState, useEffect, useCallback, useMemo } from 'react';
 import { useColorScheme as useNativeColorScheme } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ThemeMode, ColorScheme, ThemeContextValue, Theme } from '@/src/types/theme';
@@ -139,7 +139,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
  * @returns Theme context with mode, colors, and utility functions
  */
 export function useTheme(): ThemeContextValue {
-  const context = useContext(ThemeContext);
+  const context = use(ThemeContext);
   if (context === undefined) {
     throw new Error('useTheme must be used within a ThemeProvider');
   }

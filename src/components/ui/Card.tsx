@@ -6,12 +6,13 @@
 import React from 'react';
 import {
   View,
-  TouchableOpacity,
+  Pressable,
   StyleSheet,
   Animated,
   ViewProps,
   GestureResponderEvent,
   ViewStyle,
+  StyleProp,
 } from 'react-native';
 import type { LinearGradientProps } from 'expo-linear-gradient';
 import { GlassView } from 'expo-glass-effect';
@@ -110,7 +111,7 @@ export function Card({
 
   const variantStyles = getVariantStyles();
 
-  const cardStyle: ViewStyle[] = [
+  const cardStyle: StyleProp<ViewStyle>[] = [
     styles.card,
     {
       borderRadius: borderRadius.xl,
@@ -143,12 +144,11 @@ export function Card({
     return (
       <Animated.View style={[{ transform: [{ scale: interactive ? scale : 1 }] }, style]}>
         {interactive ? (
-          <TouchableOpacity
+          <Pressable
             onPress={onPress}
             onPressIn={pressIn}
             onPressOut={pressOut}
-            activeOpacity={0.8}
-            style={styles.touchable}
+            style={({ pressed }) => [styles.touchable, pressed && styles.pressed]}
           >
             <GlassView
               style={cardStyle}
@@ -158,7 +158,7 @@ export function Card({
             >
               {cardContent}
             </GlassView>
-          </TouchableOpacity>
+          </Pressable>
         ) : (
           <GlassView
             style={cardStyle}
@@ -174,20 +174,23 @@ export function Card({
   }
 
   // Standard variants
-  const Container = interactive ? TouchableOpacity : View;
-
   return (
     <Animated.View style={[{ transform: [{ scale: interactive ? scale : 1 }] }, style]}>
-      <Container
-        onPress={interactive ? onPress : undefined}
-        onPressIn={interactive ? pressIn : undefined}
-        onPressOut={interactive ? pressOut : undefined}
-        activeOpacity={interactive ? 0.8 : 1}
-        style={cardStyle}
-        {...props}
-      >
-        {cardContent}
-      </Container>
+      {interactive ? (
+        <Pressable
+          onPress={onPress}
+          onPressIn={pressIn}
+          onPressOut={pressOut}
+          style={({ pressed }) => [cardStyle, pressed && styles.pressed]}
+          {...props}
+        >
+          {cardContent}
+        </Pressable>
+      ) : (
+        <View style={cardStyle} {...props}>
+          {cardContent}
+        </View>
+      )}
     </Animated.View>
   );
 }
@@ -195,6 +198,9 @@ export function Card({
 const styles = StyleSheet.create({
   touchable: {
     overflow: 'hidden',
+  },
+  pressed: {
+    opacity: 0.8,
   },
   card: {
     overflow: 'hidden',

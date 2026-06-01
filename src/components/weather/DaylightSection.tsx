@@ -81,7 +81,7 @@ export const DaylightSection: React.FC<DaylightSectionProps> = ({
     <View
       style={[
         styles.solidWrapper,
-        { backgroundColor: colors.surface, shadowColor: '#000' },
+        { backgroundColor: colors.surface },
         style,
       ]}
       accessibilityRole="summary"
@@ -100,10 +100,7 @@ const styles = StyleSheet.create({
   solidWrapper: {
     borderRadius: borderRadius.xl,
     marginVertical: spacing.xs,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    boxShadow: '0px 2px 8px rgba(0,0,0,0.1)',
   },
   content: {
     padding: spacing.lg,

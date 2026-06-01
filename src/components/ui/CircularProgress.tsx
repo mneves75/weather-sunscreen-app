@@ -110,7 +110,7 @@ export function CircularProgress({
               const offset = gradient.length > 1 ? (index / (gradient.length - 1)) * 100 : 0;
               return (
                 <Stop
-                  key={`stop-${index}`}
+                  key={`stop-${color}-${index}`}
                   offset={`${offset}%`}
                   stopColor={color}
                   stopOpacity="1"

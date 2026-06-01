@@ -20,7 +20,7 @@ import { useColors, useGlassAvailability } from '@/src/theme';
 import { getStaggerDelay } from '@/src/theme/animations';
 import { tokens } from '@/src/theme/tokens';
 import { GlassView } from 'expo-glass-effect';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AccessibilityInfo, Animated, Easing, LayoutChangeEvent, Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import Feather from '@expo/vector-icons/Feather';
@@ -155,9 +155,18 @@ export default function WeatherDetailScreen() {
 
     return () => subscription?.remove();
   }, []);
-  
-  const { 
-    weatherData, 
+
+  const handleHeaderLayout = useCallback((event: LayoutChangeEvent) => {
+    const { height } = event.nativeEvent.layout;
+    // Avoid state churn from minor measurement jitter during animations. Small sub-pixel changes caused by
+    // parallax transforms should not re-render the whole screen.
+    if (Math.abs(height - headerHeight) > 2) {
+      setHeaderHeight(height);
+    }
+  }, [headerHeight]);
+
+  const {
+    weatherData,
     isLoading, 
     error, 
     refresh,
@@ -168,7 +177,18 @@ export default function WeatherDetailScreen() {
     formatWindSpeed,
     formatPressure,
   } = useWeatherData();
-  
+
+  const refreshControl = useMemo(
+    () => (
+      <RefreshControl
+        refreshing={isLoading}
+        onRefresh={refresh}
+        tintColor={colors.primary}
+      />
+    ),
+    [isLoading, refresh, colors.primary]
+  );
+
   // Show loading on first load
   if (isLoading && !weatherData) {
     return (
@@ -250,15 +270,6 @@ export default function WeatherDetailScreen() {
     extrapolate: 'clamp',
   });
 
-  const handleHeaderLayout = useCallback((event: LayoutChangeEvent) => {
-    const { height } = event.nativeEvent.layout;
-    // Avoid state churn from minor measurement jitter during animations. Small sub-pixel changes caused by
-    // parallax transforms should not re-render the whole screen.
-    if (Math.abs(height - headerHeight) > 2) {
-      setHeaderHeight(height);
-    }
-  }, [headerHeight]);
-
   // Metric chip data for quick insights
   const metricChips = [
     {
@@ -321,13 +332,7 @@ export default function WeatherDetailScreen() {
           // The extra spacing.md keeps a comfortable gap between the hero card and the metric chips.
           { paddingTop: headerHeight + spacing.md },
         ]}
-        refreshControl={
-          <RefreshControl
-            refreshing={isLoading}
-            onRefresh={refresh}
-            tintColor={colors.primary}
-          />
-        }
+        refreshControl={refreshControl}
         onScroll={Animated.event(
           [{ nativeEvent: { contentOffset: { y: scrollY } } }],
           { useNativeDriver: true }
@@ -420,11 +425,7 @@ const styles = StyleSheet.create({
   },
   // Solid fallback card styles
   solidCard: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
   },
   // Metric chips row
   chipRow: {
@@ -440,11 +441,7 @@ const styles = StyleSheet.create({
   chipSolid: {
     flex: 1,
     borderRadius: borderRadius.lg,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 2,
-    elevation: 2,
+    boxShadow: '0px 1px 2px rgba(0,0,0,0.08)',
   },
   chipContent: {
     padding: spacing.sm,

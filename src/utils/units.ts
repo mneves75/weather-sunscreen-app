@@ -6,11 +6,11 @@ import { PressureUnit, SpeedUnit, TemperatureUnit } from '@/src/types';
 import { I18N_KEYS, CardinalKey } from '@/src/types/i18n';
 
 // Temperature conversions
-export function celsiusToFahrenheit(celsius: number): number {
+function celsiusToFahrenheit(celsius: number): number {
   return (celsius * 9) / 5 + 32;
 }
 
-export function fahrenheitToCelsius(fahrenheit: number): number {
+function fahrenheitToCelsius(fahrenheit: number): number {
   return ((fahrenheit - 32) * 5) / 9;
 }
 
@@ -32,7 +32,7 @@ export function convertTemperature(
   return value;
 }
 
-export function formatTemperature(
+function formatTemperature(
   value: number,
   unit: TemperatureUnit,
   decimals: number = 0
@@ -42,19 +42,19 @@ export function formatTemperature(
 }
 
 // Speed conversions
-export function kmhToMph(kmh: number): number {
+function kmhToMph(kmh: number): number {
   return kmh * 0.621371;
 }
 
-export function kmhToMs(kmh: number): number {
+function kmhToMs(kmh: number): number {
   return kmh / 3.6;
 }
 
-export function mphToKmh(mph: number): number {
+function mphToKmh(mph: number): number {
   return mph / 0.621371;
 }
 
-export function msToKmh(ms: number): number {
+function msToKmh(ms: number): number {
   return ms * 3.6;
 }
 
@@ -97,19 +97,19 @@ export function formatSpeed(
 }
 
 // Pressure conversions
-export function hPaToInHg(hPa: number): number {
+function hPaToInHg(hPa: number): number {
   return hPa * 0.02953;
 }
 
-export function hPaToMmHg(hPa: number): number {
+function hPaToMmHg(hPa: number): number {
   return hPa * 0.750062;
 }
 
-export function inHgToHPa(inHg: number): number {
+function inHgToHPa(inHg: number): number {
   return inHg / 0.02953;
 }
 
-export function mmHgToHPa(mmHg: number): number {
+function mmHgToHPa(mmHg: number): number {
   return mmHg / 0.750062;
 }
 

@@ -4,7 +4,7 @@
  */
 
 import React, { useMemo, useRef } from 'react';
-import { View, StyleSheet, Animated, TouchableOpacity, Platform } from 'react-native';
+import { View, StyleSheet, Animated, Pressable, Platform } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { Icon } from './Icon';
 import { Text } from './Text';
@@ -47,6 +47,8 @@ interface SwipeAction {
   onPress: () => void;
 }
 
+const EMPTY_ACTIONS: SwipeAction[] = [];
+
 interface SwipeableProps {
   children: React.ReactNode;
   rightActions?: SwipeAction[];
@@ -56,8 +58,8 @@ interface SwipeableProps {
 
 export function Swipeable({
   children,
-  rightActions = [],
-  leftActions = [],
+  rightActions = EMPTY_ACTIONS,
+  leftActions = EMPTY_ACTIONS,
   haptic = true,
 }: SwipeableProps) {
   const GestureSwipeable = useMemo(() => getGestureSwipeable(), []);
@@ -92,7 +94,7 @@ export function Swipeable({
 
           return (
             <Animated.View
-              key={index}
+              key={`${action.label}-${index}`}
               style={[
                 styles.action,
                 {
@@ -100,7 +102,7 @@ export function Swipeable({
                 },
               ]}
             >
-              <TouchableOpacity
+              <Pressable
                 style={[
                   styles.actionButton,
                   { backgroundColor: action.backgroundColor },
@@ -119,7 +121,7 @@ export function Swipeable({
                 <Text variant="caption" style={styles.actionText}>
                   {action.label}
                 </Text>
-              </TouchableOpacity>
+              </Pressable>
             </Animated.View>
           );
         })}
@@ -144,7 +146,7 @@ export function Swipeable({
 
           return (
             <Animated.View
-              key={index}
+              key={`${action.label}-${index}`}
               style={[
                 styles.action,
                 {
@@ -152,7 +154,7 @@ export function Swipeable({
                 },
               ]}
             >
-              <TouchableOpacity
+              <Pressable
                 style={[
                   styles.actionButton,
                   { backgroundColor: action.backgroundColor },
@@ -171,7 +173,7 @@ export function Swipeable({
                 <Text variant="caption" style={styles.actionText}>
                   {action.label}
                 </Text>
-              </TouchableOpacity>
+              </Pressable>
             </Animated.View>
           );
         })}
@@ -203,7 +205,7 @@ export function Swipeable({
             ]}
           >
             {fallbackActions.map((action, index) => (
-              <TouchableOpacity
+              <Pressable
                 key={`${action.label}-${index}`}
                 style={[
                   styles.fallbackActionButton,
@@ -224,7 +226,7 @@ export function Swipeable({
                 <Text variant="caption" style={styles.fallbackActionText}>
                   {action.label}
                 </Text>
-              </TouchableOpacity>
+              </Pressable>
             ))}
           </View>
         )}

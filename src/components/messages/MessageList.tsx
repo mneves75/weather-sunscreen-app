@@ -125,7 +125,7 @@ export function MessageList({
         <View style={styles.emptyContainer}>
           <ActivityIndicator size="large" color={colors.primary} />
           <Text variant="body2" style={[styles.emptyText, { color: colors.onSurfaceVariant }]}>
-            Loading messages...
+            Loading messages…
           </Text>
         </View>
       );

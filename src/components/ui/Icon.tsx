@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { Platform, ViewStyle } from 'react-native';
+import { Platform, ViewStyle, TextStyle, StyleProp } from 'react-native';
 import type { SymbolViewProps, SymbolWeight } from 'expo-symbols';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useColors } from '@/src/theme';
@@ -160,7 +160,7 @@ export function Icon({
 
       return (
         <SymbolView
-          name={symbolName}
+          name={symbolName as SymbolViewProps['name']}
           size={size}
           tintColor={iconColor}
           weight={weight as SymbolWeight}
@@ -183,7 +183,7 @@ export function Icon({
       name={platformIcon.android as any}
       size={size}
       color={iconColor}
-      style={style}
+      style={style as StyleProp<TextStyle>}
     />
   );
 }

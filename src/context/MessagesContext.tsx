@@ -14,7 +14,7 @@ import type {
     NotificationPermission,
     NotificationResponse,
 } from '@/src/types';
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { createContext, useCallback, use, useEffect, useMemo, useState } from 'react';
 import { AppState, AppStateStatus } from 'react-native';
 
 /**
@@ -539,7 +539,7 @@ export function MessagesProvider({ children }: MessagesProviderProps) {
  * Hook to access messages context
  */
 export function useMessages(): MessagesContextValue {
-  const context = useContext(MessagesContext);
+  const context = use(MessagesContext);
   if (context === undefined) {
     throw new Error('useMessages must be used within a MessagesProvider');
   }

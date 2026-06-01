@@ -66,8 +66,6 @@ export function TemperatureDisplay({
       mass: 1,
       stiffness: 100,
       overshootClamping: false,
-      restDisplacementThreshold: 0.01,
-      restSpeedThreshold: 0.01,
     });
 
     opacity.value = withSpring(1, {

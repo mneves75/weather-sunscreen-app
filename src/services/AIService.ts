@@ -62,13 +62,28 @@ class AIService {
   private model: ReturnType<typeof anthropic>;
 
   private constructor() {
+    const apiKey = process.env.EXPO_PUBLIC_ANTHROPIC_API_KEY || '';
+
+    // SECURITY: `EXPO_PUBLIC_*` variables are inlined into the client JS bundle at build
+    // time, so any value here ships inside the app binary and is recoverable by anyone who
+    // inspects it. This is acceptable only for low-value / rate-limited keys in development.
+    // For production, proxy AI calls through a server you control (e.g. an EAS Hosting API
+    // route) and keep the secret server-side. See .env.example for the full rationale.
+    if (apiKey && !__DEV__) {
+      logger.warn(
+        'A client-side Anthropic key is bundled via EXPO_PUBLIC_ANTHROPIC_API_KEY. ' +
+          'This key is recoverable from the app binary — move AI calls behind a server proxy for production.',
+        'AI_SERVICE'
+      );
+    }
+
     // Default configuration
     this.config = {
-      apiKey: process.env.EXPO_PUBLIC_ANTHROPIC_API_KEY || '',
+      apiKey,
       model: 'claude-3-5-sonnet-20241022',
       maxTokens: 500,
       temperature: 0.7,
-      enabled: !!process.env.EXPO_PUBLIC_ANTHROPIC_API_KEY,
+      enabled: !!apiKey,
     };
 
     this.model = anthropic(this.config.model);
@@ -241,7 +256,7 @@ class AIService {
         model: this.model,
         prompt,
         temperature: 0.2,
-        maxTokens: Math.min(this.config.maxTokens ?? 500, 400),
+        maxOutputTokens: Math.min(this.config.maxTokens ?? 500, 400),
       });
 
       const translation = this.parseTranslation(text, request);

@@ -42,7 +42,10 @@ export function getUVBarColor(value: number): { light: string; dark: string } {
 /**
  * Get gradient stops up to the current UV value for smooth transitions.
  */
-export function getUVBarGradient(value: number): { light: string[]; dark: string[] } {
+export function getUVBarGradient(value: number): {
+  light: [string, string, ...string[]];
+  dark: [string, string, ...string[]];
+} {
   const colorKeys: UVColorKey[] = [];
 
   for (const threshold of UV_THRESHOLDS) {
@@ -56,8 +59,14 @@ export function getUVBarGradient(value: number): { light: string[]; dark: string
     colorKeys.push('uvLow');
   }
 
+  // LinearGradient requires at least two color stops. For low UV (a single bucket) we
+  // duplicate the stop so it renders as a solid color instead of throwing/degrading.
+  if (colorKeys.length === 1) {
+    colorKeys.push(colorKeys[0]);
+  }
+
   return {
-    light: colorKeys.map(key => tokens.colors.light[key]),
-    dark: colorKeys.map(key => tokens.colors.dark[key]),
+    light: colorKeys.map(key => tokens.colors.light[key]) as [string, string, ...string[]],
+    dark: colorKeys.map(key => tokens.colors.dark[key]) as [string, string, ...string[]],
   };
 }

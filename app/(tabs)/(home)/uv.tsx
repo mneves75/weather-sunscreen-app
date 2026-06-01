@@ -180,6 +180,17 @@ const { weatherData: weatherSnapshot } = useWeatherData();
     refresh();
   }, [refresh]);
 
+  const refreshControl = useMemo(
+    () => (
+      <RefreshControl
+        refreshing={isLoading}
+        onRefresh={handleRefresh}
+        tintColor={colors.primary}
+      />
+    ),
+    [isLoading, handleRefresh, colors.primary]
+  );
+
   const handleLocationRequest = useCallback(async () => {
     triggerHaptic('light');
 
@@ -264,13 +275,7 @@ const { weatherData: weatherSnapshot } = useWeatherData();
     <ScrollView
       style={[styles.container, { backgroundColor: colors.background }]}
       contentContainerStyle={styles.contentContainer}
-      refreshControl={
-        <RefreshControl
-          refreshing={isLoading}
-          onRefresh={handleRefresh}
-          tintColor={colors.primary}
-        />
-      }
+      refreshControl={refreshControl}
     >
       {/* Hero UV Index with Animated Circular Progress */}
       <Animated.View
@@ -602,11 +607,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   heroCardSolid: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 5,
+    boxShadow: '0px 4px 8px rgba(0,0,0,0.15)',
   },
   heroContent: {
     alignItems: 'center',
@@ -652,11 +653,7 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     marginVertical: spacing.xs,
     gap: spacing.md,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
   },
   sectionNote: {
     textAlign: 'center',

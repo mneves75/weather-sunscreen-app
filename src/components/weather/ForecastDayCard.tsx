@@ -22,7 +22,7 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { GlassView } from 'expo-glass-effect';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AccessibilityInfo, Animated, Easing, Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { AccessibilityInfo, Animated, Easing, Platform, Pressable, StyleSheet, View } from 'react-native';
 
 interface ForecastDayCardProps {
   day: ForecastDay;
@@ -185,7 +185,7 @@ export const ForecastDayCard = React.memo<ForecastDayCardProps>(({
 
   // Glass effect variant (iOS 26+)
   if (canUseGlass) {
-    const GlassContainer = onPress ? TouchableOpacity : View;
+    const GlassContainer = onPress ? Pressable : View;
     return (
       <Animated.View style={animatedStyle}>
         <GlassContainer
@@ -207,7 +207,7 @@ export const ForecastDayCard = React.memo<ForecastDayCardProps>(({
   }
 
   // Solid Material Design variant (Android, iOS < 26, accessibility)
-  const SolidContainer = onPress ? TouchableOpacity : View;
+  const SolidContainer = onPress ? Pressable : View;
   return (
     <Animated.View style={animatedStyle}>
       <SolidContainer
@@ -246,11 +246,7 @@ const styles = StyleSheet.create({
     marginVertical: 4,
     gap: 12,
     // Soft shadow (Apple-style)
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.06,
-    shadowRadius: 12,
-    elevation: 2,
+    boxShadow: '0px 4px 12px rgba(0,0,0,0.06)',
   },
   // Content sections
   dateContainer: {

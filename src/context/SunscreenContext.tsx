@@ -5,7 +5,7 @@
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
-import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { createContext, useCallback, use, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { logger } from '../services/LoggerService';
 import { SunscreenTrackerService } from '../services/SunscreenTrackerService';
@@ -285,7 +285,7 @@ export const SunscreenProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 };
 
 export const useSunscreen = (): SunscreenContextValue => {
-  const context = useContext(SunscreenContext);
+  const context = use(SunscreenContext);
   if (!context) {
     throw new Error('useSunscreen must be used within SunscreenProvider');
   }

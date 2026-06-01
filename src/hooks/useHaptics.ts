@@ -116,7 +116,7 @@ export function useHaptics() {
  * }
  * ```
  */
-export function useButtonHaptic(onPress?: () => void) {
+function useButtonHaptic(onPress?: () => void) {
   const { trigger } = useHaptics();
 
   return async () => {
@@ -139,7 +139,7 @@ export function useButtonHaptic(onPress?: () => void) {
  * }
  * ```
  */
-export function useToggleHaptic(onChange?: (value: boolean) => void) {
+function useToggleHaptic(onChange?: (value: boolean) => void) {
   const { trigger } = useHaptics();
 
   return async (value: boolean) => {
@@ -153,7 +153,7 @@ export function useToggleHaptic(onChange?: (value: boolean) => void) {
  *
  * @returns Selection handler with haptic feedback
  */
-export function useSelectionHaptic<T>(onSelect?: (value: T) => void) {
+function useSelectionHaptic<T>(onSelect?: (value: T) => void) {
   const { trigger } = useHaptics();
 
   return async (value: T) => {
