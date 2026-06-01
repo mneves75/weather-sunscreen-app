@@ -19,6 +19,7 @@ export default function Root({ children }: { children: React.ReactNode }) {
         <ScrollViewStyleReset />
 
         {/* Using raw CSS styles as an escape-hatch to ensure the background color never flickers in dark-mode. */}
+        {/* react-doctor-disable-next-line react-doctor/no-danger -- Expo Router web static-render escape hatch; compile-time constant CSS string with no user input — not an XSS vector */}
         <style dangerouslySetInnerHTML={{ __html: responsiveBackground }} />
         {/* Add any additional <head> elements that you want globally available on web... */}
       </head>

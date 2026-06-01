@@ -97,6 +97,7 @@ const diagnosticsSink = DiagnosticsSink.getInstance();
  * Attach diagnostics sink to capture logs
  * Call this in app bootstrap to enable production diagnostics
  */
+// react-doctor-disable-next-line deslop/unused-export -- opt-in production-diagnostics bootstrap hook (PROD_DIAGNOSTICS, documented in CLAUDE.md); intentionally public for host-app wiring
 export function attachDiagnosticsSink(): void {
   diagnosticsSink.enable();
 

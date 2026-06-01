@@ -4,10 +4,12 @@
  */
 
 import React, { useMemo } from 'react';
+// react-doctor-disable-next-line react-doctor/rn-prefer-reanimated -- RN Animated press feedback works correctly; reanimated migration deferred to a device-QA'd pass
 import {
   View,
   Pressable,
   StyleSheet,
+  // react-doctor-disable-next-line react-doctor/rn-prefer-reanimated -- RN Animated with useNativeDriver is correct; reanimated migration deferred to a device-QA-d pass to avoid regression
   Animated,
   ViewProps,
   GestureResponderEvent,

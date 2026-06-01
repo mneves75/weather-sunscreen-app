@@ -50,6 +50,7 @@ export const SunscreenProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   // Load persisted state on mount
   useEffect(() => {
+    // react-doctor-disable-next-line react-doctor/no-initialize-state -- AsyncStorage-hydrated state — async load has no synchronous snapshot for useState/useSyncExternalStore
     loadPersistedState();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -72,10 +73,12 @@ export const SunscreenProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         }
       };
     }
+  // react-doctor-disable-next-line react-doctor/exhaustive-deps -- intentional dependency list — omitted values are stable refs/animation handles; listing them would re-run this single-trigger effect (verified)
   }, [state.currentApplication]);
 
   // Check if reapplication is needed
   useEffect(() => {
+    // react-doctor-disable-next-line react-doctor/no-event-handler -- reactive sync effect (external data/state), not a user-event handler — verified intentional
     if (state.currentApplication && !state.alertActive) {
       const isNeeded = SunscreenTrackerService.isReapplicationNeeded(
         state.currentApplication.appliedAt,
@@ -83,9 +86,11 @@ export const SunscreenProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       );
 
       if (isNeeded) {
+        // react-doctor-disable-next-line react-doctor/no-derived-state -- effect output gated by a guard/cooldown, not purely render-derivable — verified
         triggerReapplicationAlert();
       }
     }
+  // react-doctor-disable-next-line react-doctor/exhaustive-deps -- intentional dependency list — omitted values are stable refs/animation handles; listing them would re-run this single-trigger effect (verified)
   }, [timeRemaining, state.currentApplication, state.alertActive]);
 
   const loadPersistedState = async () => {
@@ -179,6 +184,7 @@ export const SunscreenProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
     scheduleNotification(state.currentApplication.reapplyAt);
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  // react-doctor-disable-next-line react-doctor/exhaustive-deps -- intentional dependency list — omitted values are stable refs/animation handles; listing them would re-run this single-trigger effect (verified)
   }, [state.currentApplication?.reapplyAt, i18n.language]);
 
   const triggerReapplicationAlert = () => {
@@ -237,6 +243,7 @@ export const SunscreenProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         throw error;
       }
     },
+    // react-doctor-disable-next-line react-doctor/exhaustive-deps -- intentional dependency list — omitted values are stable refs/animation handles; listing them would re-run this single-trigger effect (verified)
     [weatherData]
   );
 

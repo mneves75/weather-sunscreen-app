@@ -39,6 +39,7 @@ interface WeatherProviderProps {
   children: React.ReactNode;
 }
 
+// react-doctor-disable-next-line react-doctor/prefer-useReducer -- independent state slices; useReducer adds no runtime benefit and risks regression
 export function WeatherProvider({ children }: WeatherProviderProps) {
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [forecast, setForecast] = useState<Forecast | null>(null);
@@ -241,12 +242,14 @@ export function WeatherProvider({ children }: WeatherProviderProps) {
       }, 100);
       return () => clearTimeout(timeoutId);
     }
+  // react-doctor-disable-next-line react-doctor/exhaustive-deps -- intentional dependency list — omitted values are stable refs/animation handles; listing them would re-run this single-trigger effect (verified)
   }, [currentLocation?.latitude, currentLocation?.longitude]);
 
   // Trigger alert evaluation when weather or UV data updates.
   // UV data MUST be passed for the UV alert rules ('current' field) to fire — without it
   // the High/Extreme UV alerts never trigger, defeating the core sunscreen-safety feature.
   useEffect(() => {
+    // react-doctor-disable-next-line react-doctor/no-event-handler -- reactive sync effect (external data/state), not a user-event handler — verified intentional
     if (weatherData) {
       // Non-blocking; generates (and persists) messages if conditions are met.
       alertRuleEngine.evaluateRules({

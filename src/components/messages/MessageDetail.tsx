@@ -74,6 +74,7 @@ export function MessageDetail({
 
   // Auto-mark as read when viewed
   useEffect(() => {
+    // react-doctor-disable-next-line react-doctor/no-event-handler -- marks message read on open as a side effect of viewing (external-state sync), not a user-event handler; there is no "view" event to hoist to the parent
     if (!message.isRead && onMarkAsRead) {
       onMarkAsRead();
     }

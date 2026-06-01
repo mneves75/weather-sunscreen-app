@@ -103,6 +103,7 @@ export function GlassEffectProvider({
    * CRITICAL: Some users have reduced transparency enabled for medical/visual reasons
    * We must respect this setting for WCAG compliance
    */
+  // react-doctor-disable-next-line react-doctor/effect-needs-cleanup -- effect DOES clean up via EmitterSubscription.remove() (RN 0.65+ API); matcher only recognizes removeEventListener/clearInterval. Verified correct.
   useEffect(() => {
     if (Platform.OS !== 'ios' && Platform.OS !== 'android') return;
 
@@ -128,6 +129,7 @@ export function GlassEffectProvider({
    * EFFECT: Monitor app state changes
    * In performance mode, disable glass when app is backgrounded to save resources
    */
+  // react-doctor-disable-next-line react-doctor/effect-needs-cleanup -- AppState listener cleaned up via EmitterSubscription.remove() (RN 0.65+ API); matcher only recognizes removeEventListener/clearInterval. Verified correct.
   useEffect(() => {
     const subscription = AppState.addEventListener('change', (nextAppState) => {
       setAppState(nextAppState);

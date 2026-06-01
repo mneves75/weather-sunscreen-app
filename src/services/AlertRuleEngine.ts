@@ -386,6 +386,7 @@ class AlertRuleEngine {
 
     for (const rule of enabledRules) {
       try {
+        // react-doctor-disable-next-line react-doctor/async-await-in-loop -- sequential rule evaluation preserves cooldown ordering and the single post-loop persist; the rule set is small
         const result = await this.evaluateRule(rule, data);
 
         if (result.triggered && !result.inCooldown) {

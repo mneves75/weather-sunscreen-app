@@ -14,6 +14,7 @@ export {
   ErrorBoundary as ExpoErrorBoundary
 } from 'expo-router';
 
+// react-doctor-disable-next-line react-doctor/only-export-components -- Expo Router requires `unstable_settings` and the ErrorBoundary re-export to live in the route module; they cannot move to a separate file. Fast Refresh on the root layout is moot.
 export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.
   initialRouteName: '(tabs)',

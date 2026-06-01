@@ -417,6 +417,7 @@ class MessageService {
     for (const id of ids) {
       try {
         const message = messageById.get(id);
+        // react-doctor-disable-next-line react-doctor/js-set-map-lookups -- in-memory notification list is small; indexOf is needed to find the array index for a stable splice plus per-id success/failure accounting
         const index = message ? this.messages.indexOf(message) : -1;
         if (index !== -1) {
           this.messages.splice(index, 1);

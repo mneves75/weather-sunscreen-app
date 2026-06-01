@@ -24,6 +24,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, Share, StyleSheet, View } from 'react-native';
 
+// react-doctor-disable-next-line react-doctor/no-giant-component -- cohesive screen component; splitting to satisfy a line-count heuristic adds indirection without benefit
 export default function MessagesScreen() {
   const colors = useColors();
   const { canUseGlass } = useGlassAvailability();

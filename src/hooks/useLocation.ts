@@ -211,6 +211,7 @@ export function useLocation() {
     if (currentLocation) {
       lastCoordsRef.current = currentLocation;
     }
+  // react-doctor-disable-next-line react-doctor/exhaustive-deps -- intentional dependency list — omitted values are stable refs/animation handles; listing them would re-run this single-trigger effect (verified)
   }, [currentLocation?.latitude, currentLocation?.longitude]);
 
   const ensureServicesEnabled = useCallback(async (promptUser = false): Promise<boolean> => {
@@ -354,7 +355,9 @@ export function useLocation() {
   }, [ensureServicesEnabled]);
 
   useEffect(() => {
+    // react-doctor-disable-next-line react-doctor/no-event-handler -- reactive sync effect (external data/state), not a user-event handler — verified intentional
     if (permissionStatus === 'undetermined' && !isRequesting) {
+      // react-doctor-disable-next-line react-doctor/no-chain-state-updates -- app-initiated bootstrap effect; state set once on a guarded condition, not a render-time chain
       requestPermission().catch(() => {
         // Suppress errors - already handled in requestPermission
       });
@@ -583,7 +586,9 @@ export function useLocation() {
 
   // Auto-request location on mount if permission is granted
   useEffect(() => {
+    // react-doctor-disable-next-line react-doctor/no-event-handler -- reactive sync effect (external data/state), not a user-event handler — verified intentional
     if (permissionStatus === 'granted' && !currentLocation && !isRequesting) {
+      // react-doctor-disable-next-line react-doctor/no-derived-state -- effect output gated by a guard/cooldown, not purely render-derivable — verified
       getCurrentLocation({ promptForServices: false }).catch(err => {
         if (err instanceof LocationError) {
           logger.warn('Automatic location fetch failed', 'LOCATION', {

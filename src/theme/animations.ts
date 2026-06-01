@@ -3,6 +3,7 @@
  * Based on Material Motion and iOS Human Interface Guidelines
  */
 
+// react-doctor-disable-next-line react-doctor/rn-prefer-reanimated -- shared RN Animated helpers (useNativeDriver) used app-wide; reanimated migration deferred to a device-QA'd pass
 import { Animated, Easing } from 'react-native';
 
 // Timing constants (based on Material Motion)

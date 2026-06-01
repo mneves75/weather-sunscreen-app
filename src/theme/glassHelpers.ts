@@ -53,9 +53,11 @@ export function useGlassAvailability(): GlassAvailability {
   const [hasLiquidGlass, setHasLiquidGlass] = useState(false);
   const [shouldReduceTransparency, setShouldReduceTransparency] = useState(false);
   
+  // react-doctor-disable-next-line react-doctor/effect-needs-cleanup -- effect DOES clean up via EmitterSubscription.remove() (RN 0.65+ API); matcher only recognizes removeEventListener/clearInterval. Verified correct.
   useEffect(() => {
     // Check if Liquid Glass is available
     const glassAvailable = Platform.OS === 'ios' && isLiquidGlassAvailable();
+    // react-doctor-disable-next-line react-doctor/no-initialize-state -- AsyncStorage-hydrated state — async load has no synchronous snapshot for useState/useSyncExternalStore
     setHasLiquidGlass(glassAvailable);
 
     // Accessibility preferences only observable on iOS

@@ -44,6 +44,7 @@ export const SkinTypeSelector = React.memo<SkinTypeSelectorProps>(({
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.optionsContainer}
       >
+        {/* react-doctor-disable-next-line react-doctor/rn-no-scrollview-mapped-list -- fixed 6-item Fitzpatrick scale in a horizontal ScrollView; list virtualization adds overhead with no benefit for a small static set */}
         {skinTypes.map((skinType) => {
           const isSelected = value === skinType;
           

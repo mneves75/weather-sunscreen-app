@@ -15,6 +15,7 @@ export function formatTime(timestamp: number, options: FormatTimeOptions = {}): 
   const { locale = 'en-US', use24Hour, timeZone } = options;
   const date = new Date(timestamp);
 
+  // react-doctor-disable-next-line react-doctor/js-hoist-intl -- formatter is parameterized by locale/timeZone/hour12 per call — cannot hoist to module scope; it is a plain util, not a component, so useMemo does not apply
   const formatter = new Intl.DateTimeFormat(locale, {
     hour: 'numeric',
     minute: '2-digit',
@@ -145,6 +146,7 @@ function formatRelativeTime(timestamp: number, locale: string = 'en'): string {
   }
 
   try {
+    // react-doctor-disable-next-line react-doctor/js-hoist-intl -- formatter is parameterized by locale/numeric per call — cannot hoist to module scope; it is a plain util, not a component, so useMemo does not apply
     const rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' });
 
     const minutes = Math.floor(seconds / 60);

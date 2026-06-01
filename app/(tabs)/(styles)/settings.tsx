@@ -23,6 +23,7 @@ import Constants from 'expo-constants';
 import { GlassView } from 'expo-glass-effect';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+// react-doctor-disable-next-line react-doctor/rn-prefer-reanimated -- RN Animated with useNativeDriver is correct; reanimated migration deferred to a device-QA'd pass
 import { AccessibilityInfo, Alert, Animated, Easing, Pressable, ScrollView, StyleSheet, Switch, View } from 'react-native';
 
 const { spacing, borderRadius } = tokens;
@@ -153,6 +154,7 @@ export default function SettingsScreen() {
   // Check for reduce motion accessibility preference
   const [reduceMotion, setReduceMotion] = useState(false);
 
+  // react-doctor-disable-next-line react-doctor/effect-needs-cleanup -- effect DOES clean up via EmitterSubscription.remove() (RN 0.65+ API); matcher only recognizes removeEventListener/clearInterval. Verified correct.
   useEffect(() => {
     AccessibilityInfo.isReduceMotionEnabled().then(setReduceMotion);
 

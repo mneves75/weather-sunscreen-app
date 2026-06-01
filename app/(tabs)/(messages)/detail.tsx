@@ -75,6 +75,7 @@ export default function MessageDetailScreen() {
           severity: 'info',
           title: t('messages.detail.notFound', 'Message Not Found'),
           body: t('messages.detail.notFoundDescription', 'The requested message could not be found.'),
+          // react-doctor-disable-next-line react-doctor/rendering-hydration-mismatch-time -- error-fallback placeholder timestamp; React Native client-only render, no SSR hydration
           timestamp: Date.now(),
           isRead: true,
         }}

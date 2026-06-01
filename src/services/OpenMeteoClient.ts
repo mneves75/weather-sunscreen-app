@@ -60,6 +60,7 @@ export class OpenMeteoClient {
 
         logger.debug('Making Open-Meteo API request', 'OPEN_METEO', { url, attempt: attempt + 1 });
 
+        // react-doctor-disable-next-line react-doctor/async-await-in-loop -- retry-with-backoff loop is inherently sequential — one attempt at a time
         const response = await fetch(url, {
           signal: controller.signal,
           headers: {

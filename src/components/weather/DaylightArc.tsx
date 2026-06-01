@@ -4,6 +4,7 @@
  */
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+// react-doctor-disable-next-line react-doctor/rn-prefer-reanimated -- RN Animated arc progress is correct; reanimated migration deferred to a device-QA'd pass
 import { AccessibilityInfo, Animated, Easing, StyleProp, StyleSheet, useWindowDimensions, View, ViewStyle } from 'react-native';
 import Svg, { Defs, LinearGradient as SvgLinearGradient, Path, Stop, Circle } from 'react-native-svg';
 import { Text } from '@/src/components/ui';
@@ -51,6 +52,7 @@ export const DaylightArc: React.FC<DaylightArcProps> = ({
   const animatedValue = useRef(new Animated.Value(0)).current;
   const [displayProgress, setDisplayProgress] = useState(0);
 
+  // react-doctor-disable-next-line react-doctor/effect-needs-cleanup -- effect DOES clean up via EmitterSubscription.remove() (RN 0.65+ API); the matcher only recognizes removeEventListener/clearInterval. Verified correct.
   useEffect(() => {
     AccessibilityInfo.isReduceMotionEnabled().then(setReduceMotion);
     const subscription = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduceMotion);

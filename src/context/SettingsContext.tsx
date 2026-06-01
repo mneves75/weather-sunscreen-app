@@ -58,6 +58,7 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
       }
     }
 
+    // react-doctor-disable-next-line react-doctor/no-initialize-state -- AsyncStorage-hydrated state — async load has no synchronous snapshot for useState/useSyncExternalStore
     loadPreferences();
   }, []);
 

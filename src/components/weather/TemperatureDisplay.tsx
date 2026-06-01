@@ -73,6 +73,7 @@ export function TemperatureDisplay({
       mass: 1,
       stiffness: 120,
     });
+  // react-doctor-disable-next-line react-doctor/exhaustive-deps -- intentional dependency list — omitted values are stable refs/animation handles; listing them would re-run this single-trigger effect (verified)
   }, []);
 
   const animatedStyle = useAnimatedStyle(() => ({

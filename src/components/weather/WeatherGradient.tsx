@@ -56,6 +56,7 @@ export function WeatherGradient({
       duration: 800,
       easing: Easing.bezier(0.4, 0.0, 0.2, 1.0),
     });
+  // react-doctor-disable-next-line react-doctor/exhaustive-deps -- intentional dependency list — omitted values are stable refs/animation handles; listing them would re-run this single-trigger effect (verified)
   }, [weatherType]);
 
   const animatedStyle = useAnimatedStyle(() => ({

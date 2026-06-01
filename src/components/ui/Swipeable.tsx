@@ -4,6 +4,7 @@
  */
 
 import React, { useMemo, useRef } from 'react';
+// react-doctor-disable-next-line react-doctor/rn-prefer-reanimated -- RN Animated + PanResponder gesture is correct; reanimated migration deferred to a device-QA'd pass
 import { View, StyleSheet, Animated, Pressable, Platform } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { Icon } from './Icon';

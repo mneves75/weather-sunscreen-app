@@ -120,7 +120,9 @@ class NotificationService {
     }
 
     try {
+      // react-doctor-disable-next-line react-doctor/async-parallel -- one-time Android notification-channel setup at init; sequential keeps deterministic channel registration and the cost is negligible
       // Default channel
+      // react-doctor-disable-next-line react-doctor/async-parallel -- one-time Android notification-channel setup at init; sequential keeps deterministic registration, negligible cost
       await Notifications.setNotificationChannelAsync('default', {
         name: 'Default',
         description: 'Default notifications',

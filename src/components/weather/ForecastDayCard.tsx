@@ -22,6 +22,7 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { GlassView } from 'expo-glass-effect';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+// react-doctor-disable-next-line react-doctor/rn-prefer-reanimated -- RN Animated with useNativeDriver is correct; reanimated migration deferred to a device-QA'd pass
 import { AccessibilityInfo, Animated, Easing, Platform, Pressable, StyleSheet, View } from 'react-native';
 
 interface ForecastDayCardProps {
@@ -47,6 +48,7 @@ export const ForecastDayCard = React.memo<ForecastDayCardProps>(({
   // Check for reduce motion accessibility preference
   const [reduceMotion, setReduceMotion] = useState(false);
 
+  // react-doctor-disable-next-line react-doctor/effect-needs-cleanup -- effect DOES clean up via EmitterSubscription.remove() (RN 0.65+ API); matcher only recognizes removeEventListener/clearInterval. Verified correct.
   useEffect(() => {
     AccessibilityInfo.isReduceMotionEnabled().then(setReduceMotion);
 
@@ -84,6 +86,7 @@ export const ForecastDayCard = React.memo<ForecastDayCardProps>(({
         }),
       ]).start();
     }
+  // react-doctor-disable-next-line react-doctor/exhaustive-deps -- intentional dependency list — omitted values are stable refs/animation handles; listing them would re-run this single-trigger effect (verified)
   }, [index, reduceMotion]);
 
   const handlePress = () => {

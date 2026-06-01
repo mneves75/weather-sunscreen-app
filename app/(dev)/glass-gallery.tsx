@@ -35,6 +35,7 @@ import {
 import { useTheme, useThemeTokens } from '@/src/theme';
 import { Ionicons } from '@expo/vector-icons';
 
+// react-doctor-disable-next-line react-doctor/no-giant-component -- dev-only gallery screen (not shipped UI); component size is acceptable for a showcase
 export default function GlassGalleryScreen() {
   const { colors, isDark } = useTheme();
   const { spacing, borderRadius } = useThemeTokens();

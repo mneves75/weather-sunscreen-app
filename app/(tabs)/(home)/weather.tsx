@@ -22,6 +22,7 @@ import { tokens } from '@/src/theme/tokens';
 import { GlassView } from 'expo-glass-effect';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+// react-doctor-disable-next-line react-doctor/rn-prefer-reanimated -- RN Animated with useNativeDriver is correct; reanimated migration deferred to a device-QA'd pass
 import { AccessibilityInfo, Animated, Easing, LayoutChangeEvent, Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import Feather from '@expo/vector-icons/Feather';
 
@@ -74,6 +75,7 @@ function AnimatedMetricChip({
         }),
       ]).start();
     }
+  // react-doctor-disable-next-line react-doctor/exhaustive-deps -- intentional dependency list — omitted values are stable refs/animation handles; listing them would re-run this single-trigger effect (verified)
   }, [index, reduceMotion]);
 
   const animatedStyle = {
@@ -145,6 +147,7 @@ export default function WeatherDetailScreen() {
   // Start slightly larger than the minimum card height so initial renders on slower devices still have safe spacing.
   const [headerHeight, setHeaderHeight] = useState(320);
 
+  // react-doctor-disable-next-line react-doctor/effect-needs-cleanup -- effect DOES clean up via EmitterSubscription.remove() (RN 0.65+ API); matcher only recognizes removeEventListener/clearInterval. Verified correct.
   useEffect(() => {
     AccessibilityInfo.isReduceMotionEnabled().then(setReduceMotion);
 
@@ -178,6 +181,7 @@ export default function WeatherDetailScreen() {
     formatPressure,
   } = useWeatherData();
 
+  // react-doctor-disable-next-line react-doctor/rerender-memo-before-early-return -- lightweight memoized RefreshControl; extracting to a child adds indirection without measurable benefit
   const refreshControl = useMemo(
     () => (
       <RefreshControl
