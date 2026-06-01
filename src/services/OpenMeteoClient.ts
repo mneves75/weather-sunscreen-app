@@ -49,6 +49,9 @@ export class OpenMeteoClient {
    */
   private async makeRequest<T>(url: string): Promise<T> {
     let lastError: Error;
+    // Strip the query string (which carries the user's precise latitude/longitude — PII)
+    // before logging on the warn/error paths, which survive into production buffers.
+    const endpoint = url.split('?')[0];
 
     for (let attempt = 0; attempt <= this.config.retryAttempts; attempt++) {
       try {
@@ -79,7 +82,7 @@ export class OpenMeteoClient {
         lastError = error as Error;
 
         if (attempt === this.config.retryAttempts) {
-          logger.error('Open-Meteo API request failed after retries', lastError, 'OPEN_METEO', { url });
+          logger.error('Open-Meteo API request failed after retries', lastError, 'OPEN_METEO', { endpoint });
           throw lastError;
         }
 
@@ -88,7 +91,7 @@ export class OpenMeteoClient {
         await new Promise(resolve => setTimeout(resolve, delay));
 
         logger.warn('Retrying Open-Meteo API request', 'OPEN_METEO', {
-          url,
+          endpoint,
           attempt: attempt + 1,
           error: lastError.message
         });

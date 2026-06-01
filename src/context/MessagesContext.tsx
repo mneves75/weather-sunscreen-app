@@ -184,9 +184,16 @@ export function MessagesProvider({ children }: MessagesProviderProps) {
       // TODO: Navigate to appropriate screen based on notification data
     });
 
+    // Refresh when messages are created outside this context (e.g. AlertRuleEngine
+    // generating UV/weather alerts while the list is already on screen).
+    const unsubscribeChange = messageService.onChange(() => {
+      loadMessages();
+    });
+
     return () => {
       unsubscribeReceived();
       unsubscribeResponse();
+      unsubscribeChange();
     };
   }, [isInitialized]);
 

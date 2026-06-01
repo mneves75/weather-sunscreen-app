@@ -9,6 +9,7 @@ import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSunscreen } from '../../context/SunscreenContext';
+import { useHaptics } from '../../hooks/useHaptics';
 import { useColors, useThemeTokens } from '../../theme/theme';
 import { GlassCard } from '../glass/GlassCard';
 import { logger } from '../../services/LoggerService';
@@ -30,6 +31,7 @@ export const SunscreenTracker: React.FC = () => {
   } = useSunscreen();
 
   const [isApplying, setIsApplying] = useState(false);
+  const { trigger } = useHaptics();
 
   // Create styles with theme tokens
   const styles = useMemo(() => createStyles(typography, borderRadius, spacing), [typography, borderRadius, spacing]);
@@ -38,7 +40,10 @@ export const SunscreenTracker: React.FC = () => {
     try {
       setIsApplying(true);
       await applySunscreen(isSwimming);
+      // Success haptic: protection is now active / reapplied — a meaningful state change.
+      void trigger('success');
     } catch (error) {
+      void trigger('error');
       logger.error('Failed to apply sunscreen', error as Error, 'SUNSCREEN');
     } finally{
       setIsApplying(false);
@@ -47,10 +52,16 @@ export const SunscreenTracker: React.FC = () => {
 
   const handleClear = async () => {
     try {
+      void trigger('light');
       await clearApplication();
     } catch (error) {
       logger.error('Failed to clear application', error as Error, 'SUNSCREEN');
     }
+  };
+
+  const handleToggleSwimming = () => {
+    void trigger('selection');
+    toggleSwimmingMode();
   };
 
   if (isLoading) {
@@ -78,8 +89,8 @@ export const SunscreenTracker: React.FC = () => {
 
         {/* Swimming mode toggle */}
         <Pressable
-          style={styles.toggleContainer}
-          onPress={toggleSwimmingMode}
+          style={({ pressed }) => [styles.toggleContainer, pressed && { opacity: 0.7 }]}
+          onPress={handleToggleSwimming}
           accessibilityRole="checkbox"
           accessibilityState={{ checked: isSwimming }}
           accessibilityLabel={t('sunscreen.swimmingMode')}
@@ -106,15 +117,17 @@ export const SunscreenTracker: React.FC = () => {
 
         {/* Apply button */}
         <Pressable
-          style={[
+          style={({ pressed }) => [
             styles.button,
             {
               backgroundColor: colors.primary,
+              opacity: isApplying ? 0.7 : pressed ? 0.85 : 1,
             },
           ]}
           onPress={handleApply}
           disabled={isApplying}
           accessibilityRole="button"
+          accessibilityState={{ disabled: isApplying }}
           accessibilityLabel={t('sunscreen.apply')}
         >
           {isApplying ? (
@@ -215,10 +228,11 @@ export const SunscreenTracker: React.FC = () => {
       {/* Action buttons */}
       <View style={styles.buttonRow}>
         <Pressable
-          style={[
+          style={({ pressed }) => [
             styles.secondaryButton,
             {
               borderColor: colors.outline,
+              opacity: pressed ? 0.7 : 1,
             },
           ]}
           onPress={handleClear}
@@ -231,18 +245,20 @@ export const SunscreenTracker: React.FC = () => {
         </Pressable>
 
         <Pressable
-          style={[
+          style={({ pressed }) => [
             styles.button,
             styles.reapplyButton,
             {
               backgroundColor: isExpired
                 ? colors.warning
                 : colors.primary,
+              opacity: isApplying ? 0.7 : pressed ? 0.85 : 1,
             },
           ]}
           onPress={handleApply}
           disabled={isApplying}
           accessibilityRole="button"
+          accessibilityState={{ disabled: isApplying }}
           accessibilityLabel={t('sunscreen.reapply')}
         >
           {isApplying ? (

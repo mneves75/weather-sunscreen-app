@@ -243,20 +243,21 @@ export function WeatherProvider({ children }: WeatherProviderProps) {
     }
   }, [currentLocation?.latitude, currentLocation?.longitude]);
 
-  // Trigger alert evaluation when weather data updates
+  // Trigger alert evaluation when weather or UV data updates.
+  // UV data MUST be passed for the UV alert rules ('current' field) to fire — without it
+  // the High/Extreme UV alerts never trigger, defeating the core sunscreen-safety feature.
   useEffect(() => {
     if (weatherData) {
-      // Evaluate alert rules when weather data is available
-      // This is non-blocking and will generate messages if conditions are met
+      // Non-blocking; generates (and persists) messages if conditions are met.
       alertRuleEngine.evaluateRules({
         weather: weatherData,
-        // Note: UV data would be passed here if available
+        uvIndex: uvIndex ?? weatherData.uvIndex ?? undefined,
       }).catch(error => {
         logger.warn('Failed to evaluate alert rules', 'WEATHER', { error });
         // Don't throw - alert evaluation is not critical for weather display
       });
     }
-  }, [weatherData]);
+  }, [weatherData, uvIndex]);
 
   const value: WeatherContextValue = {
     weatherData,

@@ -4,6 +4,7 @@
  */
 
 import { Text } from '@/src/components/ui';
+import { useHaptics } from '@/src/hooks/useHaptics';
 import { useColors } from '@/src/theme/theme';
 import type { Message } from '@/src/types';
 import React from 'react';
@@ -61,8 +62,10 @@ export function MessageCard({
   showActions = false,
 }: MessageCardProps) {
   const colors = useColors();
+  const { trigger } = useHaptics();
 
   const handlePress = () => {
+    void trigger('light');
     onPress(message);
   };
 
@@ -96,10 +99,11 @@ export function MessageCard({
 
   return (
     <Pressable
-      style={[
+      style={({ pressed }) => [
         styles.container,
         { backgroundColor: colors.surface },
         !message.isRead && { backgroundColor: colors.surfaceVariant },
+        pressed && { opacity: 0.7 },
       ]}
       onPress={handlePress}
       accessibilityRole="button"

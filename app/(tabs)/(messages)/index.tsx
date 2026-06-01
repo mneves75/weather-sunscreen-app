@@ -16,6 +16,7 @@ import { Button, Text, TouchableOpacity } from '@/src/components/ui';
 import { useMessages } from '@/src/context/MessagesContext';
 import { useSettings } from '@/src/context/SettingsContext';
 import { useColors, useGlassAvailability } from '@/src/theme';
+import { logger } from '@/src/services';
 import type { Message, MessageFilter } from '@/src/types';
 import { GlassView } from 'expo-glass-effect';
 import { useRouter } from 'expo-router';
@@ -142,7 +143,8 @@ export default function MessagesScreen() {
         message: `${message.title}\n\n${message.body}`,
       });
     } catch (error) {
-      // Share cancelled or failed
+      // User-cancel is expected; log at debug so genuine share failures aren't invisible.
+      logger.debug('Share dismissed or failed', 'MESSAGES', { error });
     }
   }, []);
 

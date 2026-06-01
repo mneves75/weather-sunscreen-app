@@ -60,7 +60,9 @@ export default function ForecastScreen() {
   
   const today = new Date();
   const endDate = new Date(today);
-  endDate.setDate(today.getDate() + 6);
+  // Derive the range end from the actual number of forecast days rendered, so the header
+  // subtitle never understates the list (mock/real data can return more than 7 days).
+  endDate.setDate(today.getDate() + Math.max(days.length - 1, 0));
 
   const dateRangeText = `${today.toLocaleDateString(preferences.locale, { month: 'short', day: 'numeric' })} - ${endDate.toLocaleDateString(preferences.locale, { month: 'short', day: 'numeric' })}`;
 

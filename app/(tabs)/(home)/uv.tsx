@@ -89,12 +89,13 @@ const { weatherData: weatherSnapshot } = useWeatherData();
     return () => subscription?.remove();
   }, []);
 
-  // Entrance animations
-  const uvCardAnim = createSlideUpComponent(50, 50);
-  const skinCardAnim = createSlideUpComponent(50, 100);
-  const hourlyAnim = createSlideUpComponent(50, 150);
-  const recommendationsAnim = createSlideUpComponent(50, 200);
-  const daylightAnim = createSlideUpComponent(50, 250);
+  // Entrance animations — memoized so each Animated.Value is created once.
+  // (Recreating them every render orphaned in-flight animations and leaked native nodes.)
+  const uvCardAnim = useMemo(() => createSlideUpComponent(50, 50), []);
+  const skinCardAnim = useMemo(() => createSlideUpComponent(50, 100), []);
+  const hourlyAnim = useMemo(() => createSlideUpComponent(50, 150), []);
+  const recommendationsAnim = useMemo(() => createSlideUpComponent(50, 200), []);
+  const daylightAnim = useMemo(() => createSlideUpComponent(50, 250), []);
 
   // Limit detailed display to the next 12 readings for readability; hook already sorts ascending.
   const hourlyPreview = useMemo(() => displayHourly.slice(0, 12), [displayHourly]);

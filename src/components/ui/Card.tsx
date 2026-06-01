@@ -3,7 +3,7 @@
  * Following 2025 mobile design trends
  */
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   View,
   Pressable,
@@ -72,7 +72,8 @@ export function Card({
   const colors = useColors();
   const { shadow, spacing, borderRadius } = useThemeTokens();
   const { canUseGlass } = useGlassAvailability();
-  const { scale, pressIn, pressOut } = createPressAnimation(0.98);
+  // Memoize so the Animated.Value is created once, not recreated on every render.
+  const { scale, pressIn, pressOut } = useMemo(() => createPressAnimation(0.98), []);
   const LinearGradient = getLinearGradient();
 
   // Variant styles

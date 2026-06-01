@@ -3,7 +3,7 @@
  * Following 2025 mobile design trends
  */
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   Pressable,
   View,
@@ -83,7 +83,9 @@ export function Button({
 }: ButtonProps) {
   const colors = useColors();
   const { shadow } = useThemeTokens();
-  const { scale, pressIn, pressOut } = createPressAnimation(0.96);
+  // Memoize so the underlying Animated.Value is created once, not on every render.
+  // Without this, parent re-renders orphan in-flight press animations and leak native nodes.
+  const { scale, pressIn, pressOut } = useMemo(() => createPressAnimation(0.96), []);
 
   // Haptic feedback on press
   const handlePress = (event: GestureResponderEvent) => {

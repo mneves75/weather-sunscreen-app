@@ -44,7 +44,13 @@ const SmartNotificationSchema = z.object({
   body: z.string().max(200),
   priority: z.enum(['low', 'medium', 'high', 'urgent']),
   actionLabel: z.string().optional(),
-  actionUrl: z.string().optional(),
+  // Constrain to internal app routes only. The model is prompted to emit a deep link;
+  // accepting an arbitrary string would let a poisoned/prompt-injected response smuggle
+  // a `javascript:`/external URL into any future Linking.openURL/navigation sink.
+  actionUrl: z
+    .string()
+    .regex(/^\/[a-zA-Z0-9/_-]*$/, 'internal route only')
+    .optional(),
   reasoning: z.string(),
 });
 
@@ -431,11 +437,24 @@ Format as JSON array.`;
     request: AIRecommendationRequest
   ): SunscreenRecommendation {
     try {
-      const parsed = JSON.parse(text);
+      const parsed = this.extractJson(text, 'object');
       return SunscreenRecommendationSchema.parse(parsed);
     } catch {
       return this.getFallbackRecommendation(request);
     }
+  }
+
+  /**
+   * Extract and parse a JSON object/array from a model response that may wrap it in
+   * prose or ```json fences. Throws if no matching structure is found.
+   */
+  private extractJson(text: string, shape: 'object' | 'array'): unknown {
+    const pattern = shape === 'array' ? /\[[\s\S]*\]/ : /\{[\s\S]*\}/;
+    const match = text.match(pattern);
+    if (!match) {
+      throw new Error(`No JSON ${shape} found in response`);
+    }
+    return JSON.parse(match[0]);
   }
 
   /**
@@ -446,7 +465,7 @@ Format as JSON array.`;
     request: SmartNotificationRequest
   ): SmartNotification {
     try {
-      const parsed = JSON.parse(text);
+      const parsed = this.extractJson(text, 'object');
       return SmartNotificationSchema.parse(parsed);
     } catch {
       return this.getFallbackNotification(request);
@@ -454,12 +473,14 @@ Format as JSON array.`;
   }
 
   /**
-   * Parse activities from AI response
+   * Parse activities from AI response.
+   * Validates against ActivitySuggestionSchema so malformed/poisoned model output never
+   * reaches the UI unvalidated.
    */
   private parseActivities(text: string): ActivitySuggestion[] {
     try {
-      const parsed = JSON.parse(text);
-      return Array.isArray(parsed) ? parsed : [];
+      const parsed = this.extractJson(text, 'array');
+      return z.array(ActivitySuggestionSchema).parse(parsed);
     } catch {
       return [];
     }

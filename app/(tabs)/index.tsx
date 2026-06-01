@@ -61,10 +61,10 @@ export default function HomeScreen() {
     return () => subscription?.remove();
   }, []);
 
-  // Entrance animations - Snappier timings for better UX
-  const weatherCardAnim = createSlideUpComponent(50, 50);
-  const uvCardAnim = createSlideUpComponent(50, 100);
-  const actionsAnim = createFadeInComponent(150);
+  // Entrance animations - memoized so each Animated.Value is created once, not per render.
+  const weatherCardAnim = useMemo(() => createSlideUpComponent(50, 50), []);
+  const uvCardAnim = useMemo(() => createSlideUpComponent(50, 100), []);
+  const actionsAnim = useMemo(() => createFadeInComponent(150), []);
   
   // Get weather data
   const { 

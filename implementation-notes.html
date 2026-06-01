@@ -117,5 +117,59 @@
   <li>Test coverage is thin (6 suites). Many react-doctor refactors (effects, deps) are verified by tsc + targeted tests + react-doctor delta rather than broad behavioral tests.</li>
   <li>Native build (Xcode/EAS) not run in this pass unless required; relies on Metro bundling + tsc + jest as strongest runnable checks.</li>
 </ul>
+
+<h2>6. Premium-Feel Audit &amp; Fix Pass — 2026-06-01 (follow-up on branch <code>hardening/v1.3.0-review</code>)</h2>
+<p class="meta">Second pass: senior mobile product/design review for premium feel + production quality. Three parallel reviews (code-correctness, security, UX-dimension inventory) over <code>src/</code> + <code>app/</code> (74 source files). Baseline this pass: tsc 0 errors, 6 suites / 59 tests pass.</p>
+
+<h3>6a. UX premium-feel scores (5 dimensions × 20)</h3>
+<table>
+  <tr><th>Dimension</th><th>Score</th><th>Evidence</th></tr>
+  <tr><td>Press feedback</td><td>14→18 /20</td><td>Strong: <code>Button.tsx:226</code> (scale spring + <code>pressed</code> opacity + haptic), <code>Card.tsx:151</code>, <code>FAB.tsx:112</code> (reanimated spring). Broken: <code>ui/TouchableOpacity.tsx</code> rendered a bare <code>Pressable</code> with <em>zero</em> feedback (consumers: messages screen, MessageFilters). <code>SkinTypeSelector</code>/<code>MessageCard</code> had no pressed style. <strong>All fixed.</strong></td></tr>
+  <tr><td>Subtle animations</td><td>18 /20</td><td><code>theme/animations.ts:8-15</code> Material durations 100–500ms; springs damping 24/15/28 (no bouncy/pulse overuse). Staggered entrances (30–80ms) respecting <code>reduceMotion</code> on every animated screen. Keep. Fixed the per-render <code>Animated.Value</code> allocation that orphaned in-flight animations.</td></tr>
+  <tr><td>Haptics</td><td>15→19 /20</td><td>Central <code>useHaptics.ts</code> (7 types, platform-aware). Present on Button/FAB/settings/uv. <strong>Added</strong> meaningful haptics: <code>SkinTypeSelector</code> (selection), <code>MessageCard</code> (light on open), <code>SunscreenTracker</code> (success on apply/reapply, error on failure, selection on swim toggle). No every-tap noise.</td></tr>
+  <tr><td>Keyboard behavior</td><td>20 /20 (N/A)</td><td>No <code>TextInput</code> anywhere in <code>src/</code>/<code>app/</code> — the app has no text-entry surface, so <code>KeyboardAvoidingView</code>/keyboard-controller are correctly absent. Not a gap.</td></tr>
+  <tr><td>Loading / empty / error</td><td>19 /20</td><td>Content-aware skeletons (<code>SkeletonLoader.tsx</code> via moti), <code>LoadingSpinner</code>, <code>ErrorView</code> + retry on every screen, emoji empty state on message list. No blank/spinner-only failures. Keep.</td></tr>
+</table>
+<p><strong>UX subtotal ≈ 94/100</strong> after fixes (≈ 80 before).</p>
+
+<h3>6b. Findings fixed this pass</h3>
+<table>
+  <tr><th>Sev</th><th>Finding</th><th>Location</th><th>Fix</th></tr>
+  <tr><td class="sev-crit">CRIT</td><td>New <code>Animated.Value</code> created every render (orphans in-flight animations, leaks native nodes)</td><td><code>Button.tsx:86</code>, <code>Card.tsx:75</code>, <code>uv.tsx:93-97</code>, <code>app/(tabs)/index.tsx:65-67</code></td><td>Wrapped <code>createPressAnimation</code>/<code>createSlideUpComponent</code>/<code>createFadeInComponent</code> in <code>useMemo([])</code></td></tr>
+  <tr><td class="sev-high">HIGH</td><td>UV alerts <em>never fire</em> — <code>evaluateRules</code> called without <code>uvIndex</code>, so <code>context.current</code> never set; the two core UV-safety rules can't trigger</td><td><code>WeatherContext.tsx:247</code></td><td>Pass <code>uvIndex ?? weatherData.uvIndex</code>; add <code>uvIndex</code> to effect deps</td></tr>
+  <tr><td class="sev-high">HIGH</td><td>Generated alert messages not surfaced to on-screen list until app backgrounds/foregrounds</td><td><code>MessageService.ts</code> / <code>MessagesContext.tsx</code></td><td>Added <code>MessageService.onChange()</code> pub/sub; <code>createMessage</code> notifies; MessagesContext subscribes → <code>loadMessages</code></td></tr>
+  <tr><td class="sev-high">HIGH</td><td><code>saveRules()</code> called inside the rule loop (N writes) + non-serialized re-entrancy clobbers cooldown timestamps → alerts re-fire</td><td><code>AlertRuleEngine.ts:376</code></td><td>Collect triggers, single <code>saveRules</code> after loop; serialize passes via an <code>evaluationChain</code> promise</td></tr>
+  <tr><td class="sev-high">HIGH</td><td>Custom <code>TouchableOpacity</code> gives no press feedback (degrades real controls)</td><td><code>ui/TouchableOpacity.tsx</code></td><td>Rewrote as Pressable with <code>pressed</code> opacity, honors <code>activeOpacity</code>, spreads props</td></tr>
+  <tr><td class="sev-high">HIGH</td><td><code>getTodayKey</code> uses UTC (<code>toISOString</code>) → wrong forecast day west of UTC in the evening</td><td><code>useDaylight.ts:14</code></td><td>Build key from local <code>getFullYear/Month/Date</code>; <strong>3 regression tests</strong> with forced TZ</td></tr>
+  <tr><td class="sev-med">MED</td><td>AI output unvalidated: <code>parseActivities</code> ignored its zod schema; <code>actionUrl</code> accepted any string (latent deep-link/open-redirect trap); brittle <code>JSON.parse</code> on prose-wrapped responses</td><td><code>AIService.ts</code></td><td><code>z.array(ActivitySuggestionSchema).parse</code>; <code>actionUrl</code> regex-constrained to internal routes; shared <code>extractJson</code> regex for recommendation/notification/activities</td></tr>
+  <tr><td class="sev-med">MED</td><td>Side effects (<code>persistState</code>) run inside <code>setState</code> updaters; <code>updatePreference</code> read a value written inside the updater (relies on sync execution)</td><td><code>SunscreenContext.tsx:184,264</code>, <code>SettingsContext.tsx:80</code></td><td>Compute next state outside the updater, then <code>setState</code> + persist (matches existing <code>applySunscreen</code> pattern)</td></tr>
+  <tr><td class="sev-med">MED</td><td>Forecast header date range hardcoded today+6 but list renders up to 10 days</td><td><code>forecast.tsx:62</code></td><td>Derive range end from <code>days.length</code></td></tr>
+  <tr><td class="sev-med">MED</td><td>Precise GPS coords logged on warn/error paths that survive into production diagnostics buffer (PII)</td><td><code>OpenMeteoClient.ts:82,90</code></td><td>Strip query string; log <code>endpoint</code> only on warn/error</td></tr>
+  <tr><td class="sev-low">LOW</td><td>Deprecated <code>String.substr</code> in id generation; silent empty <code>catch</code> on Share</td><td><code>MessageService.ts:201</code>, <code>messages/index.tsx:144</code></td><td><code>slice</code>; <code>logger.debug</code> on share dismiss/fail</td></tr>
+</table>
+
+<h3>6c. Security posture (reviewed, intentionally NOT changed)</h3>
+<table>
+  <tr><th>Item</th><th>Decision</th></tr>
+  <tr><td><code>EXPO_PUBLIC_ANTHROPIC_API_KEY</code> bundled client-side (<code>AIService.ts:65</code>)</td><td><strong>Left as-is.</strong> Already accurately documented in-code (lines 67-78) with a production <code>__DEV__</code> warning; key is optional and the app degrades to a rule-based fallback. The real fix (server proxy) is infra/scope-changing and a product decision — flagged as a remaining risk, not silently altered. Hardened the adjacent attack surface instead (<code>actionUrl</code> allowlist, activity validation).</td></tr>
+  <tr><td><code>npm audit</code>: 2 critical / 8 high</td><td><strong>All build/dev-time</strong> (<code>@expo/cli</code>, <code>@react-native-community/cli</code>, <code>jest-expo</code>); none reach the shipped RN runtime bundle. <code>npm audit fix --force</code> would break the <code>jest@~29.7</code> pin + SDK 54 alignment. Deferred to a dedicated dependency pass with <code>npx expo install --check</code>.</td></tr>
+  <tr><td><code>expo-secure-store</code> unused; push token in AsyncStorage</td><td>Low-sensitivity data (push token, device model). Noted; not migrated this pass.</td></tr>
+</table>
+
+<h3>6d. Validation (this pass)</h3>
+<table>
+  <tr><th>Check</th><th>Command</th><th>Result</th></tr>
+  <tr><td>Typecheck</td><td><code>npx tsc --noEmit</code></td><td class="ok">0 errors</td></tr>
+  <tr><td>Tests</td><td><code>CI=1 npx jest</code></td><td class="ok">7 suites / 62 tests pass (was 6/59; +3 regression tests for the daylight key)</td></tr>
+  <tr><td>Lint</td><td><code>npx expo lint</code></td><td class="pending">Not wired in repo (no ESLint config). Unchanged from prior pass.</td></tr>
+  <tr><td>Native / simulator UI smoke</td><td>iOS build</td><td class="pending">Not run (no behavior-altering native changes; JS-only fixes covered by tsc + jest). Recommend a device pass to confirm UV-alert end-to-end + haptics feel.</td></tr>
+</table>
+
+<h3>6e. Remaining risks (this pass)</h3>
+<ul>
+  <li>UV-alert firing fix verified by code reasoning + the <code>uvIndex</code> wiring; an end-to-end test (engine → message → list) was deferred to avoid a flaky singleton/AsyncStorage integration test. Recommend on-device verification.</li>
+  <li>Haptic <em>feel</em> and animation smoothness need a real device (simulators don't emit haptics; allocation fix is reasoned, not profiled).</li>
+  <li>Client-bundled AI key remains a real risk for any production build that sets a live key — server proxy still recommended.</li>
+</ul>
 </body>
 </html>

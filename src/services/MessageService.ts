@@ -41,6 +41,7 @@ class MessageService {
   private messages: Message[] = [];
   private isInitialized = false;
   private initPromise: Promise<void> | null = null;
+  private changeListeners = new Set<() => void>();
 
   private constructor() {
     // Private constructor for singleton pattern
@@ -195,10 +196,32 @@ class MessageService {
   }
 
   /**
+   * Subscribe to message-collection changes (e.g. alerts created outside the UI flow).
+   * Returns an unsubscribe function. Used by MessagesContext to stay reactive when
+   * the AlertRuleEngine generates messages while the list is on screen.
+   */
+  public onChange(listener: () => void): () => void {
+    this.changeListeners.add(listener);
+    return () => {
+      this.changeListeners.delete(listener);
+    };
+  }
+
+  private notifyChange(): void {
+    this.changeListeners.forEach((listener) => {
+      try {
+        listener();
+      } catch (error) {
+        logger.warn('Message change listener threw', 'MESSAGES', { error });
+      }
+    });
+  }
+
+  /**
    * Generate unique message ID
    */
   private generateId(): string {
-    return `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    return `msg_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
   }
 
   /**
@@ -234,6 +257,7 @@ class MessageService {
 
     await this.saveMessages();
     logger.info(`Created message: ${message.title}`, 'MESSAGES', { id: message.id, category: message.category });
+    this.notifyChange();
 
     return message;
   }

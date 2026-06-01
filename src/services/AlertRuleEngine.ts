@@ -28,6 +28,8 @@ class AlertRuleEngine {
   private static instance: AlertRuleEngine;
   private rules: AlertRule[] = [];
   private isInitialized = false;
+  /** Tail of the serialized evaluation chain; ensures passes never interleave. */
+  private evaluationChain: Promise<void> | null = null;
 
   private constructor() {
     // Private constructor for singleton pattern
@@ -347,9 +349,27 @@ class AlertRuleEngine {
   }
 
   /**
-   * Evaluate all rules against provided data
+   * Evaluate all rules against provided data.
+   *
+   * Evaluations are serialized: this method is invoked from a non-awaited effect in
+   * WeatherContext on every weather/UV change, so two overlapping passes could otherwise
+   * mutate the shared `this.rules` array and interleave `saveRules`, clobbering the
+   * cooldown timestamps and re-firing alerts that should be suppressed.
    */
   public async evaluateRules(data: {
+    weather?: WeatherData;
+    uvIndex?: UVIndex;
+    skinType?: SkinType;
+  }): Promise<Message[]> {
+    const run = (this.evaluationChain ?? Promise.resolve())
+      .catch(() => undefined)
+      .then(() => this.runEvaluation(data));
+    // Keep the tail of the chain so the next call waits for this one (ignore its result/errors).
+    this.evaluationChain = run.then(() => undefined, () => undefined);
+    return run;
+  }
+
+  private async runEvaluation(data: {
     weather?: WeatherData;
     uvIndex?: UVIndex;
     skinType?: SkinType;
@@ -360,21 +380,22 @@ class AlertRuleEngine {
 
     const messages: Message[] = [];
     const enabledRules = this.rules.filter(r => r.enabled);
+    let triggeredCount = 0;
 
     logger.info(`Evaluating ${enabledRules.length} alert rules`, 'ALERTS');
 
     for (const rule of enabledRules) {
       try {
         const result = await this.evaluateRule(rule, data);
-        
+
         if (result.triggered && !result.inCooldown) {
           // Generate message from rule
           const message = await this.generateMessageFromRule(rule, data);
           messages.push(message);
 
-          // Update last triggered timestamp
+          // Update last triggered timestamp (persisted once after the loop)
           rule.lastTriggered = Date.now();
-          await this.saveRules();
+          triggeredCount++;
 
           logger.info(`Alert triggered: ${rule.name}`, 'ALERTS', {
             ruleId: rule.id,
@@ -388,6 +409,11 @@ class AlertRuleEngine {
           ruleId: rule.id,
         });
       }
+    }
+
+    // Single persistence write for all rules triggered this pass.
+    if (triggeredCount > 0) {
+      await this.saveRules();
     }
 
     return messages;

@@ -182,11 +182,11 @@ export const SunscreenProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   }, [state.currentApplication?.reapplyAt, i18n.language]);
 
   const triggerReapplicationAlert = () => {
-    setState((prev) => {
-      const newState = { ...prev, alertActive: true };
-      persistState(newState);
-      return newState;
-    });
+    // Compute outside the updater: state updaters must be pure (they can run twice under
+    // Strict Mode / concurrent rendering), so side effects like persistState belong here.
+    const newState = { ...state, alertActive: true };
+    setState(newState);
+    void persistState(newState);
     logger.info('Reapplication alert activated', 'SUNSCREEN');
   };
 
@@ -262,12 +262,10 @@ export const SunscreenProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   }, []);
 
   const toggleSwimmingMode = useCallback(() => {
-    setState((prev) => {
-      const newState = { ...prev, isSwimming: !prev.isSwimming };
-      persistState(newState);
-      return newState;
-    });
-  }, []);
+    const newState = { ...state, isSwimming: !state.isSwimming };
+    setState(newState);
+    void persistState(newState);
+  }, [state]);
 
   const timeRemainingFormatted = SunscreenTrackerService.formatTimeRemaining(timeRemaining);
 

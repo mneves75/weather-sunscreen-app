@@ -3,6 +3,7 @@
  */
 
 import { Text } from '@/src/components/ui';
+import { useHaptics } from '@/src/hooks/useHaptics';
 import { useColors } from '@/src/theme/theme';
 import { SkinType } from '@/src/types';
 import { getSkinTypeLabel } from '@/src/utils';
@@ -25,7 +26,13 @@ export const SkinTypeSelector = React.memo<SkinTypeSelectorProps>(({
 }) => {
   const colors = useColors();
   const { t } = useTranslation();
-  
+  const { trigger } = useHaptics();
+
+  const handleSelect = (skinType: SkinType) => {
+    void trigger('selection');
+    onChange(skinType);
+  };
+
   return (
     <View style={styles.container}>
       <Text variant="body1" style={[styles.label, { color: colors.onSurface }]}>
@@ -43,14 +50,15 @@ export const SkinTypeSelector = React.memo<SkinTypeSelectorProps>(({
           return (
             <Pressable
               key={skinType}
-              style={[
+              style={({ pressed }) => [
                 styles.option,
                 {
                   backgroundColor: isSelected ? colors.primaryContainer : colors.surfaceVariant,
                   borderColor: isSelected ? colors.primary : 'transparent',
+                  opacity: pressed ? 0.7 : 1,
                 },
               ]}
-              onPress={() => onChange(skinType)}
+              onPress={() => handleSelect(skinType)}
               accessibilityRole="radio"
               accessibilityState={{ checked: isSelected }}
               accessibilityLabel={getSkinTypeLabel(skinType, locale)}

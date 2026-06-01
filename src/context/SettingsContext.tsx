@@ -77,20 +77,14 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
     key: K,
     value: UserPreferences[K]
   ) => {
-    let updated: UserPreferences | null = null;
-
-    // Use functional setState to avoid stale closure
-    setPreferences((prev) => {
-      updated = { ...prev, [key]: value };
-      return updated;
-    });
-
-    // Wait for state update, then save
-    if (updated) {
-      await savePreferences(updated);
-      logger.info(`Updated preference: ${key}`, 'SETTINGS', { [key]: value });
-    }
-  }, [savePreferences]);
+    // Compute from the current preferences (in deps) rather than reading a value written
+    // inside the setState updater — that relied on the updater running synchronously,
+    // which React does not guarantee under concurrent rendering.
+    const updated = { ...preferences, [key]: value };
+    setPreferences(updated);
+    await savePreferences(updated);
+    logger.info(`Updated preference: ${key}`, 'SETTINGS', { [key]: value });
+  }, [preferences, savePreferences]);
 
   // Reset to defaults
   const resetPreferences = useCallback(async () => {
