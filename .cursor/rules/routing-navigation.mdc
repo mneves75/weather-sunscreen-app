@@ -560,7 +560,7 @@ describe('Deep Links', () => {
 ```
 
 ## Related Documentation
-- [Expo Router Documentation](mdc:docs/EXPO_REACT_NATIVE_DOCS/expo-native-tabs.md)
+- [Expo Router Documentation](mdc:docs/REF_DOC/docs_expo_dev/versions/latest/sdk/router-native-tabs.md)
 - [app/_layout.tsx](mdc:app/_layout.tsx) - Root layout implementation
 - [react-native-expo.mdc](mdc:.cursor/rules/react-native-expo.mdc) - React Native patterns
 - [expo-sdk-54-patterns.mdc](mdc:.cursor/rules/expo-sdk-54-patterns.mdc) - SDK-specific features

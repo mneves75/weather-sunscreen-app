@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Changed Android namespace in build.gradle to match iOS bundle ID format
   - Android applicationId now uses consistent hyphenated format across both platforms
   - Note: Intentional typo maintained for App Store Connect compatibility
+- **Agent instructions match the repository** - `CLAUDE.md`, `AGENTS.md` and four `.cursor/rules` files
+  - Removed commands, scripts, routes, flags and doc paths that do not exist (sync-versions, Maestro flows, `android:*`, `fix-pods`, `constants/Colors.ts`, `docs/EXPO_REACT_NATIVE_DOCS/`)
+  - Corrected the version (1.2.1), CNG native folders, React Compiler (not enabled), Java 17 setup and service export style
+  - `CLAUDE.md` now imports `AGENTS.md`
+  - New `.claude/settings.json`: deny reading or editing `.env`, ask before changing the pinned Jest version, Stop gate on `npm test`
 
 ### Added
 - _Nothing yet._

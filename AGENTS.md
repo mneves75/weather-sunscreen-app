@@ -27,7 +27,7 @@
 - `docs/ai-sdk-core/` - Core API: generateText, streamText, generateObject
 - `docs/ai-sdk-ui/` - React hooks: useChat, useCompletion, useObject
 - `cookbook/guides/gpt-5.md` - GPT-5 model specifics, temperature, context windows
-- `cookbook/guides/gemini-2_5.md` - Gemini integration patterns
+- `cookbook/guides/gemini-2-5.md` - Gemini integration patterns
 - `cookbook/guides/multi-modal-chatbot.md` - Image/audio processing examples
 
 **Use When:**
@@ -40,10 +40,10 @@
 #### `docs/REF_DOC/docs_expo_dev/` - Expo SDK 54
 **Primary References:**
 - `core-concepts.md` - Module architecture, autolinking, Metro config
-- `build/eas-build/` - EAS Build profiles, native dependencies, versioning
-- `develop/development-builds/` - Custom dev clients, debugging, hot reload
+- `build/` - EAS Build setup, eas.json, CI builds, internal distribution
+- `develop/` - Development tools, unit testing, authentication
 - `eas-update/` - OTA updates, runtime versions, rollback strategies
-- `deploy/build-reference/` - Platform-specific build configurations
+- `deploy/` - Build, app store submission and OTA update guides
 
 **Use When:**
 - Configuring app.json, eas.json, or native project settings
@@ -54,10 +54,7 @@
 
 #### `docs/REF_DOC/docs_reactnative_getting-started/` - React Native
 **Primary References:**
-- `architecture/` - Fabric renderer, TurboModules, JSI bridge
-- `performance/` - Profiling, optimization, memory management
-- `platform-specific/` - iOS/Android native modules, permissions
-- `troubleshooting/` - Common errors, debugging strategies
+- `docs/` - the React Native docs tree (architecture, performance, platform-specific guides, troubleshooting)
 
 **Use When:**
 - Creating custom native modules or Turbo Native Modules
@@ -92,7 +89,7 @@ grep -r "runtimeVersion" docs/REF_DOC/docs_expo_dev/eas-update/
 - **iOS 26 Liquid Glass**: Only available on iOS 26+; always check `isLiquidGlassAvailable()` and provide fallbacks
 - **AI SDK**: GPT-5 and Gemini have different context windows, pricing, and streaming behaviors—consult model-specific docs
 - **Expo SDK 54**: New `expo-file-system` API is default; legacy API deprecated in SDK 55
-- **React Native 0.81**: React Compiler enabled by default—avoid manual useMemo/useCallback unless profiled
+- **React Native 0.81**: React Compiler is not enabled in this app (`app.json` has no `experiments.reactCompiler`); keep existing useMemo/useCallback until it is
 - **Cross-Platform**: Always implement Material Design 3 equivalents for Android when using iOS Liquid Glass
 
 ## Expo SDK 54 Baselines
@@ -112,14 +109,14 @@ grep -r "runtimeVersion" docs/REF_DOC/docs_expo_dev/eas-update/
 - For native assets, produce `.icon` bundles with Apple’s Icon Composer and reference them via `app.json > ios.icon`; older iOS versions auto-fallback.
 
 ## Native Tabs (Expo Router v6)
-- Tabs live under `app/_layout.tsx` using `NativeTabs` from `expo-router/unstable-native-tabs`; declare each route with `NativeTabs.Trigger` (tabs are not auto-registered).
+- Tabs live under `app/(tabs)/_layout.tsx` using `NativeTabs` from `expo-router/unstable-native-tabs`; declare each route with `NativeTabs.Trigger` (tabs are not auto-registered).
 - Compose tab items with `Label`, `Icon`, and `Badge` components. Use `DynamicColorIOS` for text and icon colors so Liquid Glass tabs stay legible in light/dark blending contexts.
 - Apply `minimizeBehavior="onScrollDown"` for iOS 26-style collapsing bars and `disableTransparentOnScrollEdge` when FlatList edge detection causes unwanted transparency.
 - Platform constraints: Android supports max 5 tabs and drawable-only icons today; no nested native tabs; wrap pushing flows with a nested `Stack` layout inside each tab.
 - When mixing icon sets, prefer SF Symbols on iOS (`Icon sf="house.fill"`) and fall back to `VectorIcon` + `@expo/vector-icons` for Android.
 
 ## Apple UI References
-- Use SwiftUI’s `.glassEffect()` / `GlassEffectContainer` patterns from `docs/apple/liquid-glass/` when adding platform-native Swift code (extensions, widgets, tooling). Containers improve performance and allow tint merges.
+- Use SwiftUI’s `.glassEffect()` / `GlassEffectContainer` patterns from `docs/REF_DOC/docs_apple/liquid-glass.md` when adding platform-native Swift code (extensions, widgets, tooling). Containers improve performance and allow tint merges.
 - Follow the design decision tree: prefer SwiftUI for iOS-only features, switch to AppKit’s `NSGlassEffectView` for macOS-specific work, and keep cross-platform code in SwiftUI guarded by availability checks.
 - Toolkit snippets: glass cards, badges, and hover interactions rely on state-driven tint updates; reuse these when mirroring native designs in React Native or exposing platform modules.
 - Toolbar guidance: `.toolbar(id:)` enables customizable groups, `ToolbarSpacer(.flexible)` manages layout, `.searchToolbarBehavior(.minimize)` matches compact search affordances, and `DefaultToolbarItem(kind: .search, placement: .bottomBar)` repositions system search controls.
@@ -130,5 +127,5 @@ grep -r "runtimeVersion" docs/REF_DOC/docs_expo_dev/eas-update/
 
 ## QA & Diagnostics
 - Gate Liquid Glass UI behind both `isLiquidGlassAvailable()` and accessibility checks; fall back to elevated blur/shadow styles elsewhere.
-- After upgrading native modules, run `npm run lint`, `npm run type-check`, and targeted Jest specs; add coverage for new storage paths when adopting the `expo-sqlite` localStorage API.
+- After upgrading native modules, run `npx tsc --noEmit` and targeted Jest specs (`npm test -- <name>`); add coverage for new storage paths when adopting the `expo-sqlite` localStorage API.
 - Capture before/after build timings when enabling precompiled React Native; if improvements do not materialize, confirm Pods are not forced through `use_frameworks!`.

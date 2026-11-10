@@ -296,6 +296,6 @@ export function GlassList({ data }: { data: Item[] }) {
 ```
 
 ## Related Documentation
-- See [Apple Liquid Glass Guide](mdc:docs/apple/liquid-glass/) for native SwiftUI patterns
+- See [Apple Liquid Glass Guide](mdc:docs/REF_DOC/docs_apple/liquid-glass.md) for native SwiftUI patterns
 - See [component-patterns.mdc](mdc:.cursor/rules/component-patterns.mdc) for general component guidelines
 - See [accessibility-patterns.mdc](mdc:.cursor/rules/accessibility-patterns.mdc) for accessibility requirements
