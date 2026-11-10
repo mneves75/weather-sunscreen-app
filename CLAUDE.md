@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Weather Sunscreen App - A React Native mobile application built with Expo SDK 54 providing real-time weather, UV index monitoring, and personalized sunscreen recommendations. Uses React Native 0.81.4 with New Architecture (Fabric) enabled and Expo Router v6 for file-based navigation.
 
-**Current Version:** 3.1.0 (Expo SDK 54, iOS 26 support, New Architecture enabled, Jest testing infrastructure)
+**Current Version:** 1.2.1 (Expo SDK 54, iOS 26 support, New Architecture enabled, Jest testing infrastructure)
 
 ## Reference Documentation - CRITICAL
 
@@ -115,23 +115,10 @@ bun run ios -- --device "iPhone de Marcus"
 ```bash
 # Local release builds
 bun run ios:release           # iOS release build (requires Xcode 16+, iOS 26 simulator)
-bun run android:release       # Android release build (requires Java 17)
-bun run android:aab           # Android App Bundle for Play Store
 
 # EAS builds
 npx eas build --platform ios --profile development
 npx eas build --platform android --profile production
-```
-
-### Troubleshooting
-```bash
-# iOS fixes
-bun run fix-pods              # Fix CocoaPods dependency issues
-bun run clean-ios             # Clean iOS build artifacts
-
-# Version management
-bun run sync-versions         # Sync all versions to CHANGELOG.md
-bun run sync-versions:dry     # Preview version changes
 ```
 
 ### Testing
@@ -142,10 +129,6 @@ npm test -- --watch           # Watch mode (or bun test:watch)
 npm test -- --coverage        # Coverage report (or bun test:coverage)
 npm test -- LiquidGlassWrapper  # Run specific suite
 npm test -- WeatherService    # Run specific service tests
-
-# E2E with Maestro
-npx maestro test maestro/flows/ios-launch.yaml
-npx maestro test maestro/flows/liquid-glass-and-theme.yaml
 ```
 
 ## Architecture & Key Concepts
@@ -159,7 +142,7 @@ This project uses **Expo Router v6** (file-based routing) with a nested tab stru
   - `(home)/` - Dashboard, Weather, UV Index, Forecast
   - `(messages)/` - Placeholder for future messaging (scope TBD)
   - `(styles)/` - Settings, personalization, Material 3 toggles
-- **Dev Routes**: `(dev)/icon-gallery.tsx`, `(dev)/glass-gallery.tsx`
+- **Dev Routes**: `(dev)/glass-gallery.tsx`
 
 Routes follow Expo Router conventions: `index.tsx` = default route, `_layout.tsx` = nested layout, `(folder)` = route group (not in URL).
 
@@ -170,8 +153,6 @@ Routes follow Expo Router conventions: `index.tsx` = default route, `_layout.tsx
 - Token-based design system in `src/theme/tokens.ts`
 - Support for light/dark/high-contrast modes
 - DynamicColorIOS for glass effects on iOS 26+
-
-Color definitions also available in legacy `constants/Colors.ts` for backward compatibility.
 
 ### Platform Support
 - **iOS 16+**: WeatherKit integration (requires bundle ID capability in Apple Developer portal)
@@ -189,8 +170,7 @@ Color definitions also available in legacy `constants/Colors.ts` for backward co
 ### Expo SDK 54 Specifics
 - **React 19.1.0** + **React Native 0.81.4**
 - **Expo Router v6** with typed routes (`experiments.typedRoutes: true`)
-- **EAS Update**: Configured with `runtimeVersion: { policy: "appVersion" }`
-- Native projects (`ios/`, `android/`) are versioned; keep build settings in native projects, not `app.json`
+- Native projects (`ios/`, `android/`) are generated and gitignored (CNG); keep build settings in `app.json` or config plugins
 
 ## Critical Implementation Details
 
@@ -204,30 +184,25 @@ WeatherKit requires Apple Developer portal capability enablement. If unavailable
 Uses official `expo-glass-effect` with graceful fallbacks:
 - iOS 26+: Native Liquid Glass rendering
 - iOS < 26 / Android / Web: Alternative blur/transparency effects
-- Force enable for testing on iOS < 26: Set `LIQUID_GLASS_PRE_IOS26=1` or `global.__DEV_LIQUID_GLASS_PRE_IOS26__ = true`
 
 ### Build System Notes
 
 #### iOS
 - **Xcode 16+** required with iOS 26 simulators recommended
 - Auto-select simulator script prevents "Unable to find destination" errors
-- CocoaPods patch for expo-updates dependency cycle: `scripts/patch-expo-updates.sh` runs during `pod install`
 - Re-run `bun install && cd ios && pod install` after upgrading expo-updates
 
 #### Android
-- **Java 17** required (automatically configured in scripts via `JAVA_HOME=/opt/homebrew/opt/openjdk@17/...`)
+- **Java 17** required; no repo script sets `JAVA_HOME`, so export it yourself (e.g. `/opt/homebrew/opt/openjdk@17`)
 - Gradle 8.10.2
 - Edge-to-edge enabled, predictive back gesture disabled
 
 #### Version Management
-- All version numbers sync from `CHANGELOG.md` to `package.json`, `app.json`, native configs
-- Run `bun run sync-versions` after updating CHANGELOG.md
-- Use `--dry` flag to preview changes before applying
+- No version-sync script exists: bump `version` in `package.json` and `app.json` by hand to match CHANGELOG.md
 
 ### Path Aliases
 TypeScript path alias `@/*` maps to project root:
 ```typescript
-import { Colors } from '@/constants/Colors';
 import { Text } from '@/components/Themed';
 ```
 
@@ -258,7 +233,6 @@ weather-sunscreen-app/
 │   ├── context/              # React Context providers
 │   │   ├── WeatherContext.tsx
 │   │   ├── MessagesContext.tsx
-│   │   └── ThemeContext.tsx
 │   ├── services/             # Business logic and API services
 │   │   ├── WeatherService.ts
 │   │   ├── MessageService.ts
@@ -273,9 +247,7 @@ weather-sunscreen-app/
 │   └── utils/                # Utility functions
 ├── assets/                   # Images, fonts, icons
 ├── docs/                     # Technical documentation
-│   ├── docs_ai-sdk_dev/      # Vercel AI SDK documentation
-│   ├── docs_apple/           # Apple/iOS/Swift documentation
-│   └── docs_expo_dev/        # Expo SDK documentation
+│   └── REF_DOC/              # docs_ai-sdk_dev, docs_apple, docs_expo_dev, docs_reactnative_getting-started
 ├── .cursor/rules/            # Cursor AI rules (20 total)
 ├── app.json                  # Expo configuration
 ├── package.json              # Dependencies and scripts
@@ -301,7 +273,7 @@ class WeatherService {
 export const weatherService = new WeatherService();
 ```
 
-**Note**: This project previously used Java-style `getInstance()` patterns but simplified to direct exports in v3.1.0.
+**Note**: `WeatherService` and `LoggerService` are direct exports; `AIService`, `AlertRuleEngine`, `MessageService`, `NotificationService`, `TranslationService` and `DiagnosticsSink` still use `getInstance()`.
 
 ### Context Pattern
 State management via React Context:
@@ -328,7 +300,6 @@ const { colors, themeMode, toggleTheme } = useTheme();
 ### Commits & Versioning
 - Follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format
 - Update CHANGELOG.md before committing significant changes
-- Run `bun run sync-versions` to propagate version updates
 - John Carmack reviews all work - maintain high code quality and attention to detail
 
 ### Location Services
@@ -338,8 +309,7 @@ const { colors, themeMode, toggleTheme } = useTheme();
 - Test with permissions granted/denied and offline scenarios
 
 ### Diagnostics & Feature Flags
-- Production diagnostics: Set `PROD_DIAGNOSTICS=1` to buffer warn/error logs
-- Liquid Glass testing on iOS < 26: Set `LIQUID_GLASS_PRE_IOS26=1` (JS) or `LIQUID_GLASS_FORCE_ENABLE=1` (native)
+- Production diagnostics: set `global.__PROD_DIAGNOSTICS__ = true` to buffer warn/error logs (no environment variable is read)
 - Material 3 experiments: Toggle via Settings screen (dev builds only)
 
 ## Common Pitfalls
@@ -354,7 +324,7 @@ const { colors, themeMode, toggleTheme } = useTheme();
 
 5. **Simulator Auto-Select**: The iOS script auto-boots a valid simulator. Override with `--simulator` or `--device` flags if needed.
 
-6. **Native Project Settings**: Keep build configurations (bundleIdentifier, entitlements, deployment targets) in native projects (`ios/`, `android/`), not `app.json`, to avoid EAS Build divergence.
+6. **Native Project Settings**: Keep build configurations (bundleIdentifier, entitlements, deployment targets) in `app.json` or config plugins; `ios/` and `android/` are generated and gitignored.
 
 ## SDK 54 Key Features
 
@@ -380,7 +350,7 @@ const { colors, themeMode, toggleTheme } = useTheme();
 
 ### React Native 0.81 & React 19.1
 - **React 19.1** with improved hooks (`use` hook, enhanced refs)
-- **React Compiler** enabled by default (auto-memoization)
+- **React Compiler**: available in SDK 54 but not enabled here (`app.json` sets no `experiments.reactCompiler`)
 - Owner stacks for better error messages
 - Unhandled promise rejections now logged as errors
 - First-party JSC support removed (use community JSC if needed)
@@ -460,7 +430,7 @@ const { colors, themeMode, toggleTheme } = useTheme();
 - **StyleSheet.create**: Always use for style definitions, never inline objects in render
 - **Console.log Removal**: Strip all `console.log` statements in production builds
 - **FlashList**: Use `@shopify/flash-list` for lists with 10+ items
-- **Memoization**: Let React Compiler handle, remove manual `useMemo`/`useCallback` unless profiled
+- **Memoization**: React Compiler is not enabled (`app.json` has no `experiments.reactCompiler`); keep manual `useMemo`/`useCallback` until it is
 - **Release Build Testing**: Always test performance in release mode with `--no-dev --minify`
 
 ### Component Style Patterns
@@ -533,7 +503,7 @@ Use these only when local docs don't cover a specific topic:
 
 ## Repository Guidelines
 
-See `AGENTS.md` for project layout, workflow commands, and PR review expectations before contributing.
+@AGENTS.md
 
 ## Important Notes
 

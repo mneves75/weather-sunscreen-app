@@ -431,7 +431,5 @@ describe('Expo SDK 54 Features', () => {
 ```
 
 ## Related Documentation
-- [Expo SDK 54 Release Notes](mdc:docs/EXPO_REACT_NATIVE_DOCS/expo-sdk-54.md)
-- [React Native 0.81 Guide](mdc:docs/EXPO_REACT_NATIVE_DOCS/eactnative.dev-docs-next.md)
-- [Expo Router v6](mdc:docs/EXPO_REACT_NATIVE_DOCS/expo-native-tabs.md)
+- [Expo Router v6](mdc:docs/REF_DOC/docs_expo_dev/versions/latest/sdk/router-native-tabs.md)
 - [react-native-expo.mdc](mdc:.cursor/rules/react-native-expo.mdc)

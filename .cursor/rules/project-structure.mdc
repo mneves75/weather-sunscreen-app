@@ -17,7 +17,6 @@ This is a React Native Expo app with TypeScript, following a modular architectur
 - `src/types/` - TypeScript type definitions
 - `src/theme/` - Theme system and styling tokens
 - `src/i18n/` - Internationalization (i18n) support
-- `modules/` - Native modules for platform-specific functionality
 
 ## File Organization Patterns
 - Use barrel exports (`index.ts`) for clean imports
